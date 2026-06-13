@@ -5,8 +5,8 @@
 import { mkdirSync, writeFileSync, readFileSync, rmSync, cpSync, existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { loadTrailers, validateDataset, modelNames, resolveAssets } from '../src/lib/data.mjs';
-import { renderIndex, renderDetail, page } from '../src/lib/render.mjs';
+import { loadTrailers, validateDataset, groupByFamily, resolveAssets } from '../src/lib/data.mjs';
+import { renderIndex, renderFamily, renderDetail, page } from '../src/lib/render.mjs';
 import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -23,7 +23,8 @@ const resolve = (t) => resolveAssets(t, hasAsset);
 // 1. Load + validate (fail the build on any data problem)
 const trailers = loadTrailers();
 validateDataset(trailers);
-log(`data ok: ${trailers.length} floorplans`);
+const families = groupByFamily(trailers);
+log(`data ok: ${trailers.length} floorplans in ${families.length} families`);
 
 // 1b. Load + validate community photos (fail the build if any attribution is missing)
 const community = loadCommunityPhotos();
@@ -33,10 +34,17 @@ log(`community photos ok: ${community.length} (all attributed)`);
 // 2. Clean dist
 rmSync(DIST, { recursive: true, force: true });
 mkdirSync(join(DIST, 'm'), { recursive: true });
+mkdirSync(join(DIST, 'f'), { recursive: true });
 
-// 3. Index
-writeFileSync(join(DIST, 'index.html'), renderIndex(trailers, modelNames(trailers), resolve));
-log('wrote index.html');
+// 3. Index (family grid)
+writeFileSync(join(DIST, 'index.html'), renderIndex(families));
+log('wrote index.html (family grid)');
+
+// 3b. Family pages
+for (const fam of families) {
+  writeFileSync(join(DIST, 'f', `${fam.slug}.html`), renderFamily(fam, resolve));
+}
+log(`wrote ${families.length} family pages`);
 
 // 4. Detail pages
 for (const t of trailers) {
@@ -83,6 +91,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     { file: join(DIST, 'index.html'), base: DIST },
     { file: join(DIST, 'community.html'), base: DIST },
     { file: join(DIST, 'credits.html'), base: DIST },
+    ...families.map((f) => ({ file: join(DIST, 'f', `${f.slug}.html`), base: join(DIST, 'f') })),
     ...trailers.map((t) => ({ file: join(DIST, 'm', `${t.slug}.html`), base: join(DIST, 'm') })),
   ];
   const broken = [];

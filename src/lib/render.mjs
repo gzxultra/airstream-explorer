@@ -3,9 +3,10 @@
 
 import {
   formatMsrp, formatWeight, formatLength, formatGal, formatTanks,
+  formatPriceRange, formatLengthRange,
   trailerTitle, trailerLabel,
 } from './format.mjs';
-import { assetPaths } from './data.mjs';
+import { assetPaths, familySlug } from './data.mjs';
 
 /** Escape text for HTML body/attribute context. */
 export function esc(s) {
@@ -27,13 +28,14 @@ export function page({ title, description, body, relRoot = '' }) {
 <meta name="description" content="${esc(description)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${relRoot}assets/css/site.css">
 </head>
 <body>
+<a class="brandbar" href="${relRoot}index.html"><span class="brandbar-mark">▲</span> Airstream Explorer</a>
 ${body}
 <footer class="site-footer">
-<p>Airstream Explorer · enthusiast catalog · ${59} floorplans (2026 + 2025). · <a href="${relRoot}community.html">Community photos</a> · <a href="${relRoot}credits.html">Credits</a></p>
+<p>Airstream Explorer · enthusiast catalog · ${31} floorplans across 12 families (2026 + 2025). · <a href="${relRoot}community.html">Community photos</a> · <a href="${relRoot}credits.html">Credits</a></p>
 <p class="muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Some imagery is AI-generated and labeled accordingly; community photographs are real and used under their stated Creative Commons / public-domain licenses (see credits).</p>
 </footer>
 <script src="${relRoot}assets/js/app.js" defer></script>
@@ -52,16 +54,72 @@ function tagChips(tags) {
     .join('')}</ul>`;
 }
 
-/** A catalog card (home grid). Links to the detail page. */
-export function renderCard(t, resolve = assetPaths) {
+// ---------------------------------------------------------------------------
+// HOME: family grid
+// ---------------------------------------------------------------------------
+
+/**
+ * A family card for the home grid: cinematic hero + name + range stats.
+ * `linkPrefix` is prepended to hrefs/img (''=root page, '../'=nested page).
+ */
+export function renderFamilyCard(fam, linkPrefix = '') {
+  const range = formatPriceRange(fam.priceMin, fam.priceMax);
+  const len = formatLengthRange(fam.lengthMin, fam.lengthMax);
+  const plans = `${fam.floorplanCount} floorplan${fam.floorplanCount === 1 ? '' : 's'}`;
+  const limited = fam.limited ? '<span class="fam-flag">Limited edition</span>' : '';
+  const yrs = fam.years.join(' + ');
+  return `<a class="fam" href="${linkPrefix}f/${esc(fam.slug)}.html" data-family="${esc(fam.family)}">
+<div class="fam-media">
+<img src="${linkPrefix}${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" loading="lazy" width="800" height="500">
+${limited}
+<span class="fam-plans">${esc(plans)}</span>
+</div>
+<div class="fam-body">
+<h2 class="fam-name">${esc(fam.family)}</h2>
+<p class="fam-range">${esc(range)}</p>
+<dl class="fam-stats">
+${specRow('Length', len)}
+${specRow('Sleeps', 'up to ' + fam.sleepsMax)}
+${specRow('Years', yrs)}
+</dl>
+</div>
+</a>`;
+}
+
+/** The home/catalog page — 12 family cards, budget to flagship. */
+export function renderIndex(families) {
+  const cards = families.map((f) => renderFamilyCard(f, '')).join('\n');
+  const totalPlans = families.reduce((n, f) => n + f.floorplanCount, 0);
+  const body = `<header class="hero-head">
+<p class="eyebrow">AIRSTREAM · 2026 + 2025</p>
+<h1>Every Airstream, by family</h1>
+<p class="lede">A cinematic, spec-accurate field guide to the current Airstream travel-trailer lineup — ${families.length} families, ${totalPlans} floorplans. Start with a family, then dive into each floorplan’s full specs.</p>
+<p class="hero-cta"><a href="community.html">Browse real community photos →</a></p>
+</header>
+<main class="fam-grid" id="families">
+${cards}
+</main>`;
+  return page({
+    title: 'Airstream Explorer — the full travel-trailer lineup by family',
+    description: `A spec-accurate, cinematic catalog of every current Airstream travel-trailer family (2026 + 2025): ${families.length} families, ${totalPlans} floorplans, with dimensions, weights, off-grid and pricing.`,
+    body,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// FAMILY: floorplans within one model
+// ---------------------------------------------------------------------------
+
+/** A floorplan card (used on family pages). `linkPrefix` reaches the m/ dir. */
+export function renderCard(t, resolve = assetPaths, linkPrefix = '', hidden = false) {
   const a = resolve(t);
-  return `<a class="card" href="m/${esc(t.slug)}.html" data-year="${esc(t.year)}" data-model="${esc(t.model)}">
+  return `<a class="card" href="${linkPrefix}m/${esc(t.slug)}.html" data-year="${esc(t.year)}"${hidden ? ' hidden' : ''}>
 <div class="card-media">
-<img src="${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="400" height="260">
+<img src="${linkPrefix}${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="400" height="260">
 <span class="card-year">${esc(t.year)}</span>
 </div>
 <div class="card-body">
-<h2 class="card-title">${esc(t.model)} <span>${esc(t.floorplan)}</span></h2>
+<h3 class="card-title">${esc(t.model)} <span>${esc(t.floorplan)}</span></h3>
 <dl class="card-specs">
 ${specRow('Length', formatLength(t.lengthFt))}
 ${specRow('Dry weight', formatWeight(t.weightLb))}
@@ -71,42 +129,67 @@ ${specRow('MSRP', formatMsrp(t.msrp))}
 </a>`;
 }
 
-/** The home/catalog page. */
-export function renderIndex(trailers, models, resolve = assetPaths) {
-  const cards = trailers.map((t) => renderCard(t, resolve)).join('\n');
-  const modelOpts = ['<option value="all">All models</option>']
-    .concat(models.map((m) => `<option value="${esc(m)}">${esc(m)}</option>`))
-    .join('');
-  const body = `<header class="hero-head">
-<p class="eyebrow">AIRSTREAM · 2026 + 2025</p>
-<h1>Airstream Explorer</h1>
-<p class="lede">A cinematic, spec-accurate field guide to every current Airstream travel-trailer floorplan — built for fans.</p>
-<p class="hero-cta"><a href="community.html">Browse real community photos →</a></p>
+/** A family page: hero banner + the floorplans in that family. relRoot='../'. */
+export function renderFamily(fam, resolve = assetPaths) {
+  const hasBothYears = fam.years.length > 1;
+  // Default the view to the latest model year so each distinct floorplan shows
+  // once at its current price (the hero count and the visible count then agree).
+  // "All" stays one tap away for anyone who wants to compare model years.
+  const latest = fam.years[0];
+  const yearSeg = hasBothYears
+    ? `<div class="seg" role="group" aria-label="Model year">
+${fam.years
+  .map(
+    (y, i) =>
+      `<button type="button" class="seg-btn${i === 0 ? ' is-active' : ''}" data-year="${esc(y)}">${esc(y)}</button>`,
+  )
+  .join('\n')}
+<button type="button" class="seg-btn" data-year="all">All years</button>
+</div>`
+    : '';
+  const cards = fam.trailers
+    .map((t) => renderCard(t, resolve, '../', hasBothYears && t.year !== latest))
+    .join('\n');
+  const range = formatPriceRange(fam.priceMin, fam.priceMax);
+  const len = formatLengthRange(fam.lengthMin, fam.lengthMax);
+  const limited = fam.limited ? '<span class="fam-flag fam-flag-inline">Limited edition</span>' : '';
+  // Initial visible count = floorplans shown on load. With the latest year
+  // selected that's one card per distinct floorplan, matching the hero count.
+  const shownCount = hasBothYears
+    ? fam.trailers.filter((t) => t.year === latest).length
+    : fam.trailers.length;
+  const body = `<nav class="detail-nav"><a href="../index.html" class="back-link">← All families</a></nav>
+<header class="fam-hero">
+<img class="fam-hero-img" src="../${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" width="1280" height="720">
+<div class="fam-hero-overlay">
+<p class="eyebrow eyebrow-light">AIRSTREAM ${esc(fam.years.join(' + '))}</p>
+<h1>${esc(fam.family)} ${limited}</h1>
+<p class="fam-hero-meta">${esc(range)} · ${esc(len)} · ${esc(fam.floorplanCount)} floorplan${fam.floorplanCount === 1 ? '' : 's'} · sleeps up to ${esc(fam.sleepsMax)}</p>
+</div>
 </header>
 <section class="controls" aria-label="Filters">
-<div class="seg" role="group" aria-label="Model year">
-<button type="button" class="seg-btn is-active" data-year="all">All</button>
-<button type="button" class="seg-btn" data-year="2026">2026</button>
-<button type="button" class="seg-btn" data-year="2025">2025</button>
-</div>
-<label class="select-wrap">Model
-<select id="model-filter">${modelOpts}</select>
-</label>
-<span class="count" id="result-count">${trailers.length} floorplans</span>
+${yearSeg}
+<span class="count" id="result-count">${shownCount} floorplan${shownCount === 1 ? '' : 's'}</span>
 </section>
 <main class="cards" id="cards">
 ${cards}
 </main>`;
   return page({
-    title: 'Airstream Explorer — every travel-trailer floorplan',
-    description: 'A spec-accurate, cinematic catalog of all 59 current Airstream travel-trailer floorplans (2026 + 2025): dimensions, weights, tanks, off-grid, and pricing.',
+    title: `Airstream ${fam.family} — floorplans, specs & prices`,
+    description: `Every Airstream ${fam.family} floorplan (${fam.years.join(' + ')}): ${range}, ${len}, sleeps up to ${fam.sleepsMax}. Compare ${fam.floorplanCount} floorplan${fam.floorplanCount === 1 ? '' : 's'} with full specs.`,
     body,
+    relRoot: '../',
   });
 }
+
+// ---------------------------------------------------------------------------
+// DETAIL: one floorplan
+// ---------------------------------------------------------------------------
 
 /** A single trailer detail page. */
 export function renderDetail(t, resolve = assetPaths) {
   const a = resolve(t);
+  const fam = familySlug(t.model);
   const heroImg = a.hero
     ? `<img src="../${esc(a.hero)}" alt="${esc(trailerTitle(t))}" class="detail-hero-img" width="1280" height="720">`
     : '';
@@ -121,7 +204,7 @@ export function renderDetail(t, resolve = assetPaths) {
   const note = t.specNote
     ? `<p class="spec-note">${esc(t.specNote)}</p>`
     : '';
-  const body = `<nav class="detail-nav"><a href="../index.html" class="back-link">← All floorplans</a></nav>
+  const body = `<nav class="detail-nav"><a href="../f/${esc(fam)}.html" class="back-link">← All ${esc(t.model)} floorplans</a></nav>
 <article class="detail">
 <header class="detail-head">
 <p class="eyebrow">${esc(t.year)} MODEL YEAR</p>

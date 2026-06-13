@@ -1,36 +1,111 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { loadTrailers, modelNames } from '../src/lib/data.mjs';
-import { esc, renderCard, renderIndex, renderDetail } from '../src/lib/render.mjs';
+import { loadTrailers, groupByFamily } from '../src/lib/data.mjs';
+import { esc, renderCard, renderFamilyCard, renderIndex, renderFamily, renderDetail } from '../src/lib/render.mjs';
 
 const trailers = loadTrailers();
+const families = groupByFamily(trailers);
 const classic = trailers.find((t) => t.slug === 'classic-33fb-2026');
+const classicFam = families.find((f) => f.family === 'Classic');
+const bambiFam = families.find((f) => f.family === 'Bambi');
 
 test('esc neutralizes HTML', () => {
   assert.equal(esc('<script>"x"&\'y\''), '&lt;script&gt;&quot;x&quot;&amp;&#39;y&#39;');
 });
 
-test('renderCard links to detail page and carries filter data-attrs', () => {
-  const html = renderCard(classic);
-  assert.match(html, /href="m\/classic-33fb-2026\.html"/);
+test('renderCard links to detail page (with linkPrefix) and carries year data-attr', () => {
+  const html = renderCard(classic, undefined, '../');
+  assert.match(html, /href="\.\.\/m\/classic-33fb-2026\.html"/);
   assert.match(html, /data-year="2026"/);
-  assert.match(html, /data-model="Classic"/);
-  assert.match(html, /assets\/img\/thumbs\/classic-33fb-2026\.jpg/);
+  assert.match(html, /\.\.\/assets\/img\/thumbs\/classic-33fb-2026\.jpg/);
   assert.match(html, /loading="lazy"/);
 });
 
-test('renderIndex is a full valid document with all 59 cards', () => {
-  const html = renderIndex(trailers, modelNames(trailers));
+test('renderFamilyCard links to the family page and shows range stats', () => {
+  const html = renderFamilyCard(classicFam, '');
+  assert.match(html, /href="f\/classic\.html"/);
+  assert.match(html, /assets\/img\/heroes\/classic\.jpg/);
+  assert.match(html, /Classic/);
+  assert.match(html, /floorplan/);          // floorplan count badge
+  assert.match(html, /\$/);                 // a price range
+});
+
+test('renderIndex is a full valid document with exactly 12 family cards', () => {
+  const html = renderIndex(families);
   assert.ok(html.startsWith('<!DOCTYPE html>'));
   assert.ok(html.trimEnd().endsWith('</html>'));
-  // 59 cards
-  assert.equal((html.match(/class="card"/g) || []).length, 59);
-  // filter controls present
-  assert.match(html, /data-year="2026"/);
-  assert.match(html, /id="model-filter"/);
-  assert.match(html, /id="result-count"/);
-  // model dropdown has all 12 + "all"
-  assert.equal((html.match(/<option /g) || []).length, 13);
+  assert.equal((html.match(/class="fam"/g) || []).length, 12);
+  assert.match(html, /href="f\/bambi\.html"/);
+  assert.match(html, /href="f\/flying-cloud\.html"/);
+  // no individual floorplan cards on the home page anymore
+  assert.equal((html.match(/class="card"/g) || []).length, 0);
+});
+
+test('home subhead and footer agree on the floorplan count (distinct layouts)', () => {
+  const html = renderIndex(families);
+  const distinct = families.reduce((n, f) => n + f.floorplanCount, 0); // 31
+  // subhead lede
+  assert.match(html, new RegExp(`${families.length} families, ${distinct} floorplans`));
+  // footer must use the SAME number — no stale hardcoded 59
+  assert.match(html, new RegExp(`${distinct} floorplans across 12 families`));
+  assert.doesNotMatch(html, /59 floorplans across/);
+});
+
+test('home families are ordered budget -> flagship by entry price', () => {
+  const prices = families.filter((f) => f.priceMin != null).map((f) => f.priceMin);
+  const sorted = [...prices].sort((a, b) => a - b);
+  assert.deepEqual(prices, sorted);
+});
+
+test('renderFamily shows all of a family\'s floorplans with hero + back link', () => {
+  const html = renderFamily(classicFam);
+  assert.ok(html.startsWith('<!DOCTYPE html>'));
+  assert.match(html, /← All families/);
+  assert.match(html, /class="fam-hero"/);
+  assert.match(html, /\.\.\/assets\/img\/heroes\/classic\.jpg/);
+  assert.equal((html.match(/class="card"/g) || []).length, classicFam.trailers.length);
+});
+
+test('renderFamily year filter appears only when family spans both years', () => {
+  const both = renderFamily(bambiFam);            // 2025 + 2026
+  assert.match(both, /data-year="2026"/);
+  assert.match(both, /data-year="2025"/);
+  const single = families.find((f) => f.years.length === 1);
+  if (single) {
+    const html = renderFamily(single);
+    assert.doesNotMatch(html, /class="seg-btn"/);
+  }
+});
+
+test('renderFamily defaults the toggle to the latest year, and the count matches the hero', () => {
+  const html = renderFamily(bambiFam); // spans 2026 + 2025
+  // the latest-year button is the active one (not "All")
+  assert.match(html, /class="seg-btn is-active" data-year="2026"/);
+  // an "All years" option still exists
+  assert.match(html, /data-year="all">All years</);
+  // on load, only the latest model year's cards are visible; the rest are hidden
+  const latestCount = bambiFam.trailers.filter((t) => t.year === 2026).length;
+  const visible = (html.match(/class="card"[^>]*>/g) || []).filter((c) => !/ hidden/.test(c)).length;
+  assert.equal(visible, latestCount);
+  // visible count equals the distinct floorplan count shown in the hero
+  assert.equal(latestCount, bambiFam.floorplanCount);
+  assert.match(html, new RegExp(`id="result-count">${latestCount} floorplan`));
+});
+
+test('single-year family shows all its cards with none hidden', () => {
+  const single = families.find((f) => f.years.length === 1);
+  if (!single) return;
+  const html = renderFamily(single);
+  const hiddenCards = (html.match(/class="card"[^>]* hidden/g) || []).length;
+  assert.equal(hiddenCards, 0);
+});
+
+test('every family renders without throwing', () => {
+  for (const f of families) {
+    const html = renderFamily(f);
+    assert.ok(html.startsWith('<!DOCTYPE html>'), f.slug);
+    assert.ok(html.includes(f.family), f.slug);
+  }
 });
 
 test('renderDetail has full spec table with audited numbers', () => {
@@ -43,8 +118,9 @@ test('renderDetail has full spec table with audited numbers', () => {
   assert.match(html, /1,575 lb/);          // ccc
   assert.match(html, /Cargo capacity/);
   assert.match(html, /Off-grid score/);
-  assert.match(html, /← All floorplans/);
-  // hero + assets use ../ root from m/ subdir
+  // back link now points at the family page
+  assert.match(html, /href="\.\.\/f\/classic\.html"/);
+  assert.match(html, /← All Classic floorplans/);
   assert.match(html, /\.\.\/assets\/img\/heroes\/classic\.jpg/);
 });
 
@@ -64,10 +140,8 @@ test('every trailer renders a detail page without throwing', () => {
 });
 
 test('no detail page contains an unescaped data-driven angle bracket in body text', () => {
-  // crude CSP/XSS guard: rendered descriptions should not introduce real tags
   for (const t of trailers) {
     const html = renderDetail(t);
-    // the only <script> tag allowed is our own app.js include
     const scripts = html.match(/<script/g) || [];
     assert.equal(scripts.length, 1, `${t.slug} has unexpected <script> count`);
   }

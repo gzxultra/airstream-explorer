@@ -45,3 +45,24 @@ export function trailerTitle(t) {
 export function trailerLabel(t) {
   return `${t.model} ${t.floorplan}`;
 }
+
+/** Compact USD for ranges. 68900 -> "$69k", 222900 -> "$223k". */
+export function formatMsrpShort(n) {
+  if (n == null || Number.isNaN(n) || n <= 0) return 'TBA';
+  if (n < 1000) return '$' + Math.round(n);
+  return '$' + Math.round(n / 1000) + 'k';
+}
+
+/** A min–max price range. Equal ends collapse to one value. */
+export function formatPriceRange(min, max) {
+  if (min == null && max == null) return 'Price TBA';
+  if (min === max || max == null) return 'from ' + formatMsrp(min);
+  return formatMsrp(min) + ' – ' + formatMsrp(max);
+}
+
+/** A min–max length range in feet/inches. Equal ends collapse to one value. */
+export function formatLengthRange(min, max) {
+  if (min == null) return '—';
+  if (min === max || max == null) return formatLength(min);
+  return formatLength(min) + ' – ' + formatLength(max);
+}

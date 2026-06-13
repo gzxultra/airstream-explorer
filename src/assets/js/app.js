@@ -8,7 +8,12 @@
   var modelSel = document.getElementById('model-filter');
   var countEl = document.getElementById('result-count');
 
-  var state = { year: 'all', model: 'all' };
+  // Initial year comes from whichever segment button is marked active in the
+  // server-rendered HTML (family pages default to the latest model year), so
+  // the client state matches what's already on screen. Falls back to 'all'.
+  var activeBtn = document.querySelector('.seg-btn.is-active');
+  var initialYear = activeBtn ? activeBtn.getAttribute('data-year') : 'all';
+  var state = { year: initialYear, model: 'all' };
 
   function apply() {
     var shown = 0;

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   loadCommunityPhotos, validatePhoto, validateCommunity,
-  groupByBucket, renderCommunityBody, renderCreditsBody,
+  groupByBucket, sectionsForGallery, renderCommunityBody, renderCreditsBody,
 } from '../src/lib/community.mjs';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -48,15 +48,14 @@ test('all photo ids are unique', () => {
   assert.equal(new Set(photos.map((p) => p.id)).size, photos.length);
 });
 
-test('every referenced image file exists on disk (full + thumb)', () => {
+test('every referenced image file exists on disk (thumb)', () => {
   for (const p of photos) {
-    assert.ok(existsSync(join(PUBLIC, p.file)), `missing full image: ${p.file}`);
     assert.ok(existsSync(join(PUBLIC, p.thumb)), `missing thumb: ${p.thumb}`);
   }
 });
 
 test('validatePhoto flags a record missing attribution', () => {
-  const bad = { id: 'x', file: 'a.jpg', thumb: 't.jpg', bucket: 'b', source: 'S', sourceUrl: 'https://e.org' };
+  const bad = { id: 'x', thumb: 't.jpg', bucket: 'b', source: 'S', sourceUrl: 'https://e.org' };
   const problems = validatePhoto(bad);
   assert.ok(problems.some((p) => /artist/.test(p)));
   assert.ok(problems.some((p) => /license/.test(p)));
@@ -66,6 +65,38 @@ test('groupByBucket partitions every photo exactly once', () => {
   const groups = groupByBucket(photos);
   const total = groups.reduce((n, g) => n + g.photos.length, 0);
   assert.equal(total, photos.length);
+});
+
+test('sectionsForGallery keeps every photo and never leaves a sparse section', () => {
+  const sections = sectionsForGallery(photos);
+  // no photo lost or duplicated
+  const total = sections.reduce((n, s) => n + s.photos.length, 0);
+  assert.equal(total, photos.length);
+  // the whole point of the merge: the small per-model buckets are gone, folded
+  // into one "By model" section big enough to fill a multi-column masonry.
+  // Every section must carry enough photos to populate the 3-column grid.
+  for (const s of sections) {
+    assert.ok(s.photos.length >= 3, `section "${s.bucket}" too sparse: ${s.photos.length}`);
+  }
+});
+
+test('sectionsForGallery folds named model buckets into a single "By model" section', () => {
+  const sections = sectionsForGallery(photos);
+  const names = sections.map((s) => s.bucket);
+  assert.ok(names.includes('By model'), 'expected a "By model" section');
+  // none of the individual model names survive as their own section
+  for (const model of ['Bambi', 'Caravel', 'Flying Cloud', 'Safari', 'International', 'Trade Wind']) {
+    assert.ok(!names.includes(model), `model bucket "${model}" should be merged away`);
+  }
+  // the thematic buckets are preserved as their own sections
+  assert.ok(names.includes('Vintage & classic'));
+  assert.ok(names.includes('Interiors & details'));
+  assert.ok(names.includes('On the road & campsites'));
+});
+
+test('sectionsForGallery leads with "By model"', () => {
+  const sections = sectionsForGallery(photos);
+  assert.equal(sections[0].bucket, 'By model');
 });
 
 // The rendered credits page must actually contain each artist's name —
@@ -99,7 +130,7 @@ test('gallery page shows a visible per-photo credit for every photo', () => {
 // XSS / escaping safety — no raw data-driven angle brackets leak into markup.
 test('rendered community + credits HTML escapes data-driven content', () => {
   const evil = [{
-    id: 'evil', file: 'assets/img/community/evil.jpg', thumb: 'assets/img/community/evil-thumb.jpg',
+    id: 'evil', thumb: 'assets/img/community/evil-thumb.jpg',
     bucket: 'Bambi', title: '<script>alert(1)</script>', caption: '"><img onerror=x>',
     artist: '<b>hax</b>', license: 'CC BY 4.0', licenseUrl: 'https://x.org',
     source: 'Wikimedia Commons', sourceUrl: 'https://x.org/file',

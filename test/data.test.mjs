@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   loadTrailers, validateTrailer, validateDataset, groupByModel,
-  modelNames, years, filterTrailers, assetPaths,
+  modelNames, years, filterTrailers, assetPaths, groupByFamily,
   slugify, twinSlug, resolveAssets,
 } from '../src/lib/data.mjs';
 import { readdirSync, existsSync } from 'node:fs';
@@ -159,5 +159,48 @@ test('resolveAssets: no trailer is missing BOTH hero and gallery', () => {
   for (const t of trailers) {
     const a = resolveAssets(t, hasAsset);
     assert.ok(a.hero || a.gallery.length > 0, `${t.slug} would render image-less`);
+  }
+});
+
+test('groupByFamily returns 12 families covering every floorplan exactly once', () => {
+  const fams = groupByFamily(trailers);
+  assert.equal(fams.length, 12);
+  const total = fams.reduce((n, f) => n + f.trailers.length, 0);
+  assert.equal(total, 59);
+});
+
+test('groupByFamily is ordered by entry price ascending (priced families)', () => {
+  const fams = groupByFamily(trailers).filter((f) => f.priceMin != null);
+  const prices = fams.map((f) => f.priceMin);
+  assert.deepEqual(prices, [...prices].sort((a, b) => a - b));
+});
+
+test('groupByFamily computes correct ranges for Flying Cloud', () => {
+  const fc = groupByFamily(trailers).find((f) => f.family === 'Flying Cloud');
+  assert.ok(fc, 'Flying Cloud family exists');
+  // 10 entries, 5 floorplans, both years
+  assert.equal(fc.entryCount, 10);
+  assert.equal(fc.floorplanCount, 5);
+  assert.deepEqual(fc.years, [2026, 2025]);
+  // price range matches min/max over its rows
+  const rows = trailers.filter((t) => t.model === 'Flying Cloud');
+  assert.equal(fc.priceMin, Math.min(...rows.map((r) => r.msrp)));
+  assert.equal(fc.priceMax, Math.max(...rows.map((r) => r.msrp)));
+});
+
+test('groupByFamily flags limited/special editions', () => {
+  const fams = groupByFamily(trailers);
+  const flw = fams.find((f) => /Frank Lloyd Wright/.test(f.family));
+  const stetson = fams.find((f) => /Stetson/.test(f.family));
+  assert.ok(flw && flw.limited, 'FLW is limited');
+  assert.ok(stetson && stetson.limited, 'Stetson is limited');
+  const bambi = fams.find((f) => f.family === 'Bambi');
+  assert.ok(bambi && !bambi.limited, 'Bambi is not limited');
+});
+
+test('every family hero slug matches an on-disk hero file', () => {
+  const fams = groupByFamily(trailers);
+  for (const f of fams) {
+    assert.ok(hasAsset(f.hero), `missing hero for ${f.family}: ${f.hero}`);
   }
 });

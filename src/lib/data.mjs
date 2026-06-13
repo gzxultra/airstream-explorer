@@ -97,6 +97,56 @@ export function twinSlug(t) {
   return t.slug.replace(/-20(25|26)$/, `-${other}`);
 }
 
+/** Family (model) slug — the single source of truth, also names the hero file. */
+export function familySlug(model) {
+  return slugify(model);
+}
+
+/**
+ * Group trailers into model families with display-ready summary stats.
+ * Returns an ordered array (entry price ascending: budget -> flagship), each:
+ *   { family, slug, hero, trailers[], floorplanCount, entryCount,
+ *     priceMin, priceMax, lengthMin, lengthMax, sleepsMax, years[], limited }
+ * `trailers` within a family are sorted year desc, then length asc.
+ */
+export function groupByFamily(trailers) {
+  const map = new Map();
+  for (const t of trailers) {
+    if (!map.has(t.model)) map.set(t.model, []);
+    map.get(t.model).push(t);
+  }
+  const families = [...map.entries()].map(([family, rows]) => {
+    const sorted = [...rows].sort(
+      (a, b) => b.year - a.year || a.lengthFt - b.lengthFt || a.msrp - b.msrp,
+    );
+    const prices = rows.map((r) => r.msrp).filter((n) => n > 0);
+    const lengths = rows.map((r) => r.lengthFt).filter((n) => n > 0);
+    const floorplans = new Set(rows.map((r) => r.floorplan));
+    return {
+      family,
+      slug: familySlug(family),
+      hero: `assets/img/heroes/${familySlug(family)}.jpg`,
+      trailers: sorted,
+      floorplanCount: floorplans.size,
+      entryCount: rows.length,
+      priceMin: prices.length ? Math.min(...prices) : null,
+      priceMax: prices.length ? Math.max(...prices) : null,
+      lengthMin: lengths.length ? Math.min(...lengths) : null,
+      lengthMax: lengths.length ? Math.max(...lengths) : null,
+      sleepsMax: Math.max(...rows.map((r) => r.sleeps || 0)),
+      years: [...new Set(rows.map((r) => r.year))].sort((a, b) => b - a),
+      limited: /\b(limited|special)\b.*edition/i.test(family),
+    };
+  });
+  // Budget -> flagship. Families with no price sink to the end, name-stable.
+  families.sort((a, b) => {
+    if (a.priceMin == null) return 1;
+    if (b.priceMin == null) return -1;
+    return a.priceMin - b.priceMin || a.family.localeCompare(b.family);
+  });
+  return families;
+}
+
 /**
  * Canonical (pure) asset paths for a trailer, relative + CF-root friendly.
  * Hero is derived from the model name via slugify() — NOT the legacy
