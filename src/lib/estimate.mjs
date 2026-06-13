@@ -1,4 +1,4 @@
-// Estimators: off-grid (boondocking) endurance and finance (monthly payment).
+// Estimators: off-grid (boondocking) endurance.
 // Pure functions over a trailer's real spec fields — no DOM, no I/O — so the
 // exact same math is unit-tested here and mirrored in the client.
 //
@@ -143,61 +143,4 @@ export function formatNights(days) {
   if (days >= 13.5) return '14+ nights';
   if (days < 2) return `${days.toFixed(1)} nights`;
   return `${Math.round(days)} nights`;
-}
-
-// ===========================================================================
-// FINANCE — monthly payment estimator
-// ===========================================================================
-//
-// Standard fixed-rate amortization on the financed amount (price minus down).
-// Defaults are mid-market real RV-loan terms (see sources): APR 8.49% sits in
-// the cited 7.24%–9.69% band; 180-month (15-yr) term and 10% down are typical
-// for a six-figure travel-trailer loan. Taxes, fees, and insurance excluded.
-
-export const FINANCE_DEFAULTS = { downPct: 10, aprPct: 8.49, months: 180 };
-
-/**
- * @param {number} price          vehicle price (MSRP), USD
- * @param {object} opts
- * @param {number} [opts.downPct]    down payment as a percent of price
- * @param {number} [opts.downAmount] explicit down payment $ (overrides downPct)
- * @param {number} [opts.aprPct]     annual percentage rate, e.g. 8.49
- * @param {number} [opts.months]     loan term in months
- * @returns {{monthly:number, principal:number, down:number, totalInterest:number, totalCost:number, months:number, aprPct:number}}
- */
-export function estimateFinance(price, opts = {}) {
-  const aprPct = opts.aprPct != null ? opts.aprPct : FINANCE_DEFAULTS.aprPct;
-  const months = opts.months != null ? opts.months : FINANCE_DEFAULTS.months;
-  const downPct = opts.downPct != null ? opts.downPct : FINANCE_DEFAULTS.downPct;
-  const p = price > 0 ? price : 0;
-  const down = opts.downAmount != null
-    ? Math.min(Math.max(0, opts.downAmount), p)
-    : p * (Math.min(Math.max(0, downPct), 100) / 100);
-  const principal = Math.max(0, p - down);
-  const r = aprPct / 100 / 12; // monthly rate
-  let monthlyRaw;
-  if (principal === 0) monthlyRaw = 0;
-  else if (r === 0) monthlyRaw = principal / months;
-  else monthlyRaw = (principal * r) / (1 - Math.pow(1 + r, -months));
-  // Round the monthly payment (what the user sees), then derive every total
-  // FROM that rounded figure so the displayed numbers reconcile exactly.
-  const monthly = Math.round(monthlyRaw);
-  const principalR = Math.round(principal);
-  const downR = Math.round(down);
-  const totalPaid = monthly * months;
-  const totalInterest = Math.max(0, totalPaid - principalR);
-  return {
-    monthly,
-    principal: principalR,
-    down: downR,
-    totalInterest,
-    totalCost: downR + totalPaid,
-    months,
-    aprPct,
-  };
-}
-
-/** Estimated monthly payment at the default terms — used for the Explore budget filter. */
-export function defaultMonthly(price) {
-  return estimateFinance(price).monthly;
 }

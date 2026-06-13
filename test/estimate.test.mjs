@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  estimateOffGrid, formatNights, estimateFinance, defaultMonthly,
+  estimateOffGrid, formatNights,
   LOAD_PRESETS, PEAK_SUN_HOURS, BATTERY_USABLE_FRACTION, SOLAR_DERATE,
-  WATER_PRESETS, GRAY_FROM_FRESH, FINANCE_DEFAULTS,
+  WATER_PRESETS, GRAY_FROM_FRESH,
 } from '../src/lib/estimate.mjs';
 
 // A representative real trailer (Classic 33FB 2026 values, verified in DB).
@@ -79,57 +79,4 @@ test('formatNights: friendly rounding', () => {
   assert.equal(formatNights(3.2), '3 nights');
   assert.equal(formatNights(99), '14+ nights');
   assert.equal(formatNights(Infinity), '14+ nights');
-});
-
-// --------------------------------------------------------------------------
-// FINANCE
-// --------------------------------------------------------------------------
-
-test('finance: amortization matches the standard formula', () => {
-  // $100k, 10% down -> 90k principal, 8.49% APR, 180 mo
-  const r = estimateFinance(100000, { downPct: 10, aprPct: 8.49, months: 180 });
-  const P = 90000, i = 8.49 / 100 / 12, n = 180;
-  const expected = Math.round((P * i) / (1 - Math.pow(1 + i, -n)));
-  assert.equal(r.principal, 90000);
-  assert.equal(r.down, 10000);
-  assert.equal(r.monthly, expected);
-  assert.ok(r.totalInterest > 0);
-  // Totals reconcile exactly with the displayed (rounded) monthly payment.
-  assert.equal(r.totalCost, r.down + r.monthly * n);
-  assert.equal(r.totalInterest, r.monthly * n - r.principal);
-});
-
-test('finance: explicit down amount overrides percent', () => {
-  const r = estimateFinance(200000, { downAmount: 50000, aprPct: 8, months: 120 });
-  assert.equal(r.down, 50000);
-  assert.equal(r.principal, 150000);
-});
-
-test('finance: 0% APR is straight division', () => {
-  const r = estimateFinance(120000, { downPct: 0, aprPct: 0, months: 60 });
-  assert.equal(r.monthly, 2000);
-  assert.equal(r.totalInterest, 0);
-});
-
-test('finance: down payment is clamped to price', () => {
-  const r = estimateFinance(50000, { downAmount: 999999 });
-  assert.equal(r.down, 50000);
-  assert.equal(r.principal, 0);
-  assert.equal(r.monthly, 0);
-});
-
-test('finance: defaults are the documented mid-market terms', () => {
-  assert.equal(FINANCE_DEFAULTS.aprPct, 8.49);
-  assert.equal(FINANCE_DEFAULTS.months, 180);
-  assert.equal(FINANCE_DEFAULTS.downPct, 10);
-});
-
-test('defaultMonthly: matches estimateFinance default monthly', () => {
-  assert.equal(defaultMonthly(118900), estimateFinance(118900).monthly);
-});
-
-test('finance: higher APR raises the monthly payment', () => {
-  const lo = estimateFinance(100000, { aprPct: 6 });
-  const hi = estimateFinance(100000, { aprPct: 11 });
-  assert.ok(hi.monthly > lo.monthly);
 });

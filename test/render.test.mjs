@@ -218,7 +218,7 @@ test('every page carries the top nav with explore + compare links', () => {
   }
 });
 
-import { renderOffGridTool, renderFinanceTool } from '../src/lib/render.mjs';
+import { renderOffGridTool } from '../src/lib/render.mjs';
 
 test('detail page includes the off-grid estimator with real spec data attrs', () => {
   const t = trailers.find((x) => x.slug === 'classic-33fb-2026');
@@ -235,25 +235,4 @@ test('detail page includes the off-grid estimator with real spec data attrs', ()
 test('off-grid tool omits itself when inputs are missing (no fabrication)', () => {
   const bare = { model: 'X', floorplan: 'Y', batteryKwh: 0, freshGal: 0 };
   assert.equal(renderOffGridTool(bare), '');
-});
-
-test('detail page includes the finance estimator on a priced trailer', () => {
-  const t = trailers.find((x) => x.slug === 'flying-cloud-25fb-2026');
-  const html = renderDetail(t);
-  assert.match(html, /class="estimator finance-tool"/);
-  assert.match(html, new RegExp(`data-price="${t.msrp}"`));
-  assert.match(html, /\/mo/);
-  assert.match(html, /amortization/i);
-});
-
-test('finance tool omits itself when price is unknown (no fake payment)', () => {
-  assert.equal(renderFinanceTool({ msrp: 0 }), '');
-});
-
-test('explore page exposes the monthly-payment budget filter', () => {
-  const html = renderExplore(trailers);
-  assert.match(html, /id="x-budget"/);
-  assert.match(html, /Payment \u2264|Payment &#8804;|Payment ≤/);
-  // Each card carries a precomputed default monthly payment for filtering.
-  assert.match(html, /data-monthly="\d+"/);
 });

@@ -60,7 +60,6 @@
     var elSort = document.getElementById('x-sort');
     var elYear = document.getElementById('x-year');
     var elSleeps = document.getElementById('x-sleeps');
-    var elBudget = document.getElementById('x-budget');
     var elCount = document.getElementById('x-count');
     var elEmpty = document.getElementById('x-empty');
     var elReset = document.getElementById('x-reset');
@@ -70,7 +69,7 @@
     var towSummary = document.getElementById('tow-summary');
     var towPresets = Array.prototype.slice.call(document.querySelectorAll('.tow-preset'));
 
-    var state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, budget: 0, tags: [], tow: 0 };
+    var state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0 };
 
     function num(card, k) { return parseFloat(card.getAttribute(k)); }
 
@@ -93,7 +92,6 @@
         if (state.q && name.indexOf(state.q) === -1) ok = false;
         if (ok && state.year && year !== state.year) ok = false;
         if (ok && state.sleeps && sleeps < state.sleeps) ok = false;
-        if (ok && state.budget) { var m = num(card, 'data-monthly'); if (!(m > 0) || m > state.budget) ok = false; }
         if (ok && state.tags.length) {
           for (var i = 0; i < state.tags.length; i++) {
             if (tags.indexOf(state.tags[i]) === -1) { ok = false; break; }
@@ -153,12 +151,6 @@
     if (elSort) elSort.addEventListener('change', function () { state.sort = this.value; apply(); });
     if (elYear) elYear.addEventListener('change', function () { state.year = this.value; apply(); });
     if (elSleeps) elSleeps.addEventListener('change', function () { state.sleeps = parseInt(this.value, 10) || 0; apply(); });
-    if (elBudget) elBudget.addEventListener('change', function () {
-      state.budget = parseInt(this.value, 10) || 0;
-      var note = document.getElementById('x-budget-note');
-      if (note) { if (state.budget) note.removeAttribute('hidden'); else note.setAttribute('hidden', ''); }
-      apply();
-    });
     tagBtns.forEach(function (btn) {
       btn.addEventListener('click', function () {
         var tag = btn.getAttribute('data-tag');
@@ -185,14 +177,11 @@
     });
 
     function resetAll() {
-      state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, budget: 0, tags: [], tow: 0 };
+      state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0 };
       if (elSearch) elSearch.value = '';
       if (elSort) elSort.value = 'price-asc';
       if (elYear) elYear.value = '2026';
       if (elSleeps) elSleeps.value = '';
-      if (elBudget) elBudget.value = '';
-      var bn = document.getElementById('x-budget-note');
-      if (bn) bn.setAttribute('hidden', '');
       tagBtns.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
       setTow(0);
     }
@@ -494,46 +483,6 @@
     }
     [elPeople, elIntensity, elSeason].forEach(function (el) { if (el) el.addEventListener('change', compute); });
     if (elSolar) elSolar.addEventListener('change', compute);
-    compute();
-  })();
-
-  // =========================================================================
-  // 6. FINANCE ESTIMATOR (detail page) — mirrors src/lib/estimate.mjs exactly
-  // =========================================================================
-  (function finance() {
-    var root = document.querySelector('.finance-tool');
-    if (!root) return;
-    var price = parseFloat(root.getAttribute('data-price')) || 0;
-    var elDown = document.getElementById('fin-down');
-    var elApr = document.getElementById('fin-apr');
-    var elTerm = document.getElementById('fin-term');
-    var elMonthly = document.getElementById('fin-monthly');
-    var elPrincipal = document.getElementById('fin-principal');
-    var elDownAmt = document.getElementById('fin-down-amt');
-    var elInterest = document.getElementById('fin-interest');
-    var elTotal = document.getElementById('fin-total');
-    function usd(n) { return n > 0 || n === 0 ? '$' + Math.round(n).toLocaleString('en-US') : 'Price TBA'; }
-
-    function compute() {
-      var downPct = Math.min(Math.max(0, parseFloat(elDown.value) || 0), 100);
-      var apr = Math.min(Math.max(0, parseFloat(elApr.value) || 0), 25);
-      var months = parseInt(elTerm.value, 10) || 180;
-      var down = price * (downPct / 100);
-      var principal = Math.max(0, price - down);
-      var r = apr / 100 / 12;
-      var monthlyRaw = principal === 0 ? 0 : (r === 0 ? principal / months : (principal * r) / (1 - Math.pow(1 + r, -months)));
-      var monthly = Math.round(monthlyRaw);
-      var principalR = Math.round(principal), downR = Math.round(down);
-      var totalPaid = monthly * months;
-      var totalInterest = Math.max(0, totalPaid - principalR);
-      elMonthly.textContent = usd(monthly);
-      elPrincipal.textContent = usd(principalR);
-      elDownAmt.textContent = usd(downR);
-      elInterest.textContent = usd(totalInterest);
-      elTotal.textContent = usd(downR + totalPaid);
-    }
-    [elDown, elApr].forEach(function (el) { if (el) el.addEventListener('input', compute); });
-    if (elTerm) elTerm.addEventListener('change', compute);
     compute();
   })();
 })();

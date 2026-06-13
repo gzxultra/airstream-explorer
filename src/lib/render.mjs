@@ -10,8 +10,8 @@ import {
 import { assetPaths, familySlug } from './data.mjs';
 import { SORT_KEYS, exploreTags, tagLabel } from './explore.mjs';
 import {
-  estimateOffGrid, estimateFinance, formatNights,
-  LOAD_PRESETS, FINANCE_DEFAULTS, defaultMonthly,
+  estimateOffGrid, formatNights,
+  LOAD_PRESETS,
 } from './estimate.mjs';
 
 /** Escape text for HTML body/attribute context. */
@@ -287,57 +287,6 @@ function daysLabel(d) {
 }
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
-/**
- * Monthly-payment estimator for a detail page. Real MSRP + real mid-market RV
- * loan terms (APR 8.49%, 180 mo, 10% down — all adjustable). Amortized; taxes,
- * fees and insurance excluded. Skips itself if the trailer has no published price.
- */
-export function renderFinanceTool(t) {
-  if (!(t.msrp > 0)) return '';
-  const d = FINANCE_DEFAULTS;
-  const def = estimateFinance(t.msrp, {});
-  return `<section class="estimator finance-tool" aria-label="Monthly payment estimator" data-price="${esc(t.msrp)}">
-<div class="est-head">
-<h2>Estimate the payment</h2>
-<p class="est-sub">On the ${esc(formatMsrp(t.msrp))} MSRP, at typical RV-loan terms. Adjust to match your own offer.</p>
-</div>
-<div class="est-controls">
-<div class="est-field">
-<label for="fin-down">Down payment</label>
-<div class="est-input-suffix"><input type="number" id="fin-down" min="0" max="100" step="1" value="${d.downPct}"><span>%</span></div>
-</div>
-<div class="est-field">
-<label for="fin-apr">APR</label>
-<div class="est-input-suffix"><input type="number" id="fin-apr" min="0" max="25" step="0.01" value="${d.aprPct}"><span>%</span></div>
-</div>
-<div class="est-field">
-<label for="fin-term">Term</label>
-<select id="fin-term">
-<option value="60">5 years</option>
-<option value="120">10 years</option>
-<option value="180" selected>15 years</option>
-<option value="240">20 years</option>
-</select>
-</div>
-</div>
-<div class="est-result">
-<div class="est-big">
-<span class="est-number"><span id="fin-monthly">${esc(formatMsrp(def.monthly))}</span><span class="est-per">/mo</span></span>
-</div>
-<dl class="fin-breakdown">
-<div><dt>Financed</dt><dd id="fin-principal">${esc(formatMsrp(def.principal))}</dd></div>
-<div><dt>Down</dt><dd id="fin-down-amt">${esc(formatMsrp(def.down))}</dd></div>
-<div><dt>Total interest</dt><dd id="fin-interest">${esc(formatMsrp(def.totalInterest))}</dd></div>
-<div><dt>Total cost</dt><dd id="fin-total">${esc(formatMsrp(def.totalCost))}</dd></div>
-</dl>
-</div>
-<details class="est-method">
-<summary>How this is calculated</summary>
-<p>Standard fixed-rate amortization on the amount financed (price − down payment). The 8.49% default APR sits mid-band for 2026 RV loans (cited credit-union rates run ~7.24%–9.69%); 15-year term and 10% down are typical for a six-figure travel trailer. <strong>Excludes</strong> sales tax, registration, dealer fees and insurance. An estimate for budgeting — your actual rate depends on credit and lender.</p>
-</details>
-</section>`;
-}
-
 // ---------------------------------------------------------------------------
 // DETAIL: one floorplan
 // ---------------------------------------------------------------------------
@@ -402,7 +351,6 @@ ${note}
 </section>
 ${towCallout}
 ${renderOffGridTool(t)}
-${renderFinanceTool(t)}
 ${floorplanSection}
 ${pros || cons ? `<section class="proscons">
 ${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}
@@ -430,7 +378,7 @@ ${gallery ? `<section class="gallery" aria-label="Gallery"><h2>Gallery</h2><div 
 export function renderExploreCard(t, resolve = assetPaths, hidden = false) {
   const a = resolve(t);
   const tags = (t.tags || []).join(' ');
-  return `<article class="xcard" data-slug="${esc(t.slug)}" data-model="${esc(t.model)}" data-floorplan="${esc(t.floorplan)}" data-year="${esc(t.year)}" data-msrp="${esc(t.msrp)}" data-weight="${esc(t.weightLb)}" data-gvwr="${esc(t.gvwrLb)}" data-length="${esc(t.lengthFt)}" data-sleeps="${esc(t.sleeps)}" data-offgrid="${esc(t.offGridScore)}" data-monthly="${esc(defaultMonthly(t.msrp))}" data-tags="${esc(tags)}" data-name="${esc((t.model + ' ' + t.floorplan).toLowerCase())}"${hidden ? ' hidden' : ''}>
+  return `<article class="xcard" data-slug="${esc(t.slug)}" data-model="${esc(t.model)}" data-floorplan="${esc(t.floorplan)}" data-year="${esc(t.year)}" data-msrp="${esc(t.msrp)}" data-weight="${esc(t.weightLb)}" data-gvwr="${esc(t.gvwrLb)}" data-length="${esc(t.lengthFt)}" data-sleeps="${esc(t.sleeps)}" data-offgrid="${esc(t.offGridScore)}" data-tags="${esc(tags)}" data-name="${esc((t.model + ' ' + t.floorplan).toLowerCase())}"${hidden ? ' hidden' : ''}>
 <a class="xcard-link" href="m/${esc(t.slug)}.html">
 <div class="xcard-media">
 <img src="${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="400" height="260">
@@ -473,7 +421,7 @@ export function renderExplore(trailers, resolve = assetPaths) {
   const body = `<header class="explore-head">
 <p class="eyebrow">FIND YOUR FLOORPLAN</p>
 <h1>Explore &amp; match</h1>
-<p class="lede">Search, sort and filter all ${trailers.length} floorplans — match them to your tow vehicle, or filter by estimated monthly payment to shop within budget.</p>
+<p class="lede">Search, sort and filter all ${trailers.length} floorplans — match them to your tow vehicle, by size, sleeping capacity or off-grid capability.</p>
 </header>
 <section class="tow-tool" aria-label="Tow vehicle matcher">
 <div class="tow-tool-inner">
@@ -516,14 +464,10 @@ export function renderExplore(trailers, resolve = assetPaths) {
 <label for="x-sleeps">Sleeps ≥</label>
 <select id="x-sleeps"><option value="">Any</option><option value="2">2</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="8">8</option></select>
 </div>
-<div class="xc-budget">
-<label for="x-budget">Payment ≤</label>
-<select id="x-budget"><option value="">Any</option><option value="600">$600/mo</option><option value="800">$800/mo</option><option value="1000">$1,000/mo</option><option value="1250">$1,250/mo</option><option value="1500">$1,500/mo</option><option value="2000">$2,000/mo</option></select>
-</div>
 <button type="button" class="xc-reset" id="x-reset">Reset</button>
 </div>
 </section>
-<p class="xcount"><span id="x-count">${total}</span> floorplans <span class="xcount-note" id="x-budget-note" hidden>· payment est. at ${FINANCE_DEFAULTS.aprPct}% APR / ${FINANCE_DEFAULTS.months / 12} yr / ${FINANCE_DEFAULTS.downPct}% down</span></p>
+<p class="xcount"><span id="x-count">${total}</span> floorplans</p>
 <main class="xgrid" id="xgrid">
 ${cards}
 </main>

@@ -334,8 +334,8 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
   border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink);
 }
 .xc-search input:focus, .explore-controls select:focus { outline: 2px solid var(--copper); outline-offset: 1px; }
-.xc-sort, .xc-year, .xc-sleeps, .xc-budget { display: flex; flex-direction: column; gap: 4px; }
-.xc-sort label, .xc-year label, .xc-sleeps label, .xc-budget label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.xc-sort, .xc-year, .xc-sleeps { display: flex; flex-direction: column; gap: 4px; }
+.xc-sort label, .xc-year label, .xc-sleeps label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
 .explore-controls select {
   font: inherit; padding: 10px 12px; min-height: 46px; border: 1px solid var(--line);
   border-radius: 6px; background: var(--surface); color: var(--ink);
@@ -461,7 +461,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 @media (max-width: 560px) { .tow-callout { padding: 16px 18px; } .tow-callout-value { font-size: 26px; } }
 
 /* ============================================================
-   ESTIMATORS — off-grid endurance + finance (detail pages)
+   ESTIMATORS — off-grid endurance (detail pages)
    ============================================================ */
 .estimator {
   max-width: var(--maxw); margin: 26px auto 0; padding: 26px 28px;
@@ -512,12 +512,6 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .est-bar-fill { display: block; height: 100%; background: linear-gradient(90deg, var(--copper), var(--copper-deep)); border-radius: 100px; }
 .est-bar-val { font-size: 13px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
 
-.fin-breakdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 18px 0 0; border-top: 1px solid var(--line); }
-.fin-breakdown > div { padding: 14px 14px 14px 0; border-right: 1px solid var(--line); }
-.fin-breakdown > div:last-child { border-right: 0; }
-.fin-breakdown dt { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 4px; }
-.fin-breakdown dd { margin: 0; font-family: 'Fraunces', Georgia, serif; font-size: 19px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
-
 .est-method { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 12px; }
 .est-method summary { font-size: 13px; font-weight: 600; color: var(--copper); cursor: pointer; list-style: none; }
 .est-method summary::-webkit-details-marker { display: none; }
@@ -528,8 +522,5 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 @media (max-width: 640px) {
   .estimator { padding: 20px 18px; }
   .est-number { font-size: 36px; }
-  .fin-breakdown { grid-template-columns: 1fr 1fr; }
-  .fin-breakdown > div:nth-child(2) { border-right: 0; }
-  .fin-breakdown > div:nth-child(1), .fin-breakdown > div:nth-child(2) { border-bottom: 1px solid var(--line); }
   .est-bar { grid-template-columns: 80px 1fr 64px; gap: 8px; }
 }
