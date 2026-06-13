@@ -17,7 +17,7 @@ export function esc(s) {
     .replace(/'/g, '&#39;');
 }
 
-function page({ title, description, body, relRoot = '' }) {
+export function page({ title, description, body, relRoot = '' }) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,8 +33,8 @@ function page({ title, description, body, relRoot = '' }) {
 <body>
 ${body}
 <footer class="site-footer">
-<p>Airstream Explorer · enthusiast catalog · ${59} floorplans (2026 + 2025).</p>
-<p class="muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Some imagery is AI-generated and labeled accordingly.</p>
+<p>Airstream Explorer · enthusiast catalog · ${59} floorplans (2026 + 2025). · <a href="${relRoot}community.html">Community photos</a> · <a href="${relRoot}credits.html">Credits</a></p>
+<p class="muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Some imagery is AI-generated and labeled accordingly; community photographs are real and used under their stated Creative Commons / public-domain licenses (see credits).</p>
 </footer>
 <script src="${relRoot}assets/js/app.js" defer></script>
 </body>
@@ -81,6 +81,7 @@ export function renderIndex(trailers, models, resolve = assetPaths) {
 <p class="eyebrow">AIRSTREAM · 2026 + 2025</p>
 <h1>Airstream Explorer</h1>
 <p class="lede">A cinematic, spec-accurate field guide to every current Airstream travel-trailer floorplan — built for fans.</p>
+<p class="hero-cta"><a href="community.html">Browse real community photos →</a></p>
 </header>
 <section class="controls" aria-label="Filters">
 <div class="seg" role="group" aria-label="Model year">

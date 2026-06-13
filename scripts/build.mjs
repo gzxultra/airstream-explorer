@@ -6,7 +6,8 @@ import { mkdirSync, writeFileSync, readFileSync, rmSync, cpSync, existsSync, rea
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { loadTrailers, validateDataset, modelNames, resolveAssets } from '../src/lib/data.mjs';
-import { renderIndex, renderDetail } from '../src/lib/render.mjs';
+import { renderIndex, renderDetail, page } from '../src/lib/render.mjs';
+import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -24,6 +25,11 @@ const trailers = loadTrailers();
 validateDataset(trailers);
 log(`data ok: ${trailers.length} floorplans`);
 
+// 1b. Load + validate community photos (fail the build if any attribution is missing)
+const community = loadCommunityPhotos();
+validateCommunity(community);
+log(`community photos ok: ${community.length} (all attributed)`);
+
 // 2. Clean dist
 rmSync(DIST, { recursive: true, force: true });
 mkdirSync(join(DIST, 'm'), { recursive: true });
@@ -37,6 +43,25 @@ for (const t of trailers) {
   writeFileSync(join(DIST, 'm', `${t.slug}.html`), renderDetail(t, resolve));
 }
 log(`wrote ${trailers.length} detail pages`);
+
+// 4b. Community gallery + credits pages (root-level, so relRoot = '')
+writeFileSync(
+  join(DIST, 'community.html'),
+  page({
+    title: 'Airstream in the Wild — real community photos',
+    description: 'Real, freely-licensed photographs of Airstream travel trailers from photographers via Wikimedia Commons, grouped by model and setting. Every photo credited.',
+    body: renderCommunityBody(community, ''),
+  }),
+);
+writeFileSync(
+  join(DIST, 'credits.html'),
+  page({
+    title: 'Photo credits & licenses — Airstream Explorer',
+    description: 'Full attribution for every community photograph: photographer, license, and original source.',
+    body: renderCreditsBody(community, ''),
+  }),
+);
+log('wrote community.html + credits.html');
 
 // 5. Static assets: CSS/JS from src, images from public
 cpSync(join(ROOT, 'src', 'assets', 'css'), join(DIST, 'assets', 'css'), { recursive: true });
@@ -56,6 +81,8 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
 {
   const pages = [
     { file: join(DIST, 'index.html'), base: DIST },
+    { file: join(DIST, 'community.html'), base: DIST },
+    { file: join(DIST, 'credits.html'), base: DIST },
     ...trailers.map((t) => ({ file: join(DIST, 'm', `${t.slug}.html`), base: join(DIST, 'm') })),
   ];
   const broken = [];
