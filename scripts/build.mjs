@@ -97,14 +97,22 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
 //    short content hash (basecamp.a1b2c3d4.jpg). New bytes -> new name -> new URL,
 //    so immutable caching is now safe AND always fresh.
 {
-  const imgRoot = join(DIST, 'assets', 'img');
-  const manifest = new Map(); // canonical "assets/img/.." -> hashed "assets/img/.."
-  if (existsSync(imgRoot)) {
+  const manifest = new Map(); // canonical "assets/<kind>/.." -> hashed "assets/<kind>/.."
+  // Fingerprint EVERY cacheable asset (images AND js/css). JS/CSS were the bug:
+  // they shipped with stable names ('app.js') under `immutable, max-age=1yr`, so
+  // a returning visitor's browser/CDN held the OLD copy for a year and never saw
+  // updates (this is exactly how the removed 月供/finance code kept showing up).
+  // Content-hashing the name (app.<hash>.js) means new bytes -> new URL -> fresh.
+  const counts = {};
+  const fingerprintTree = (subdir, extRe) => {
+    const root = join(DIST, 'assets', subdir);
+    if (!existsSync(root)) return;
+    let n = 0;
     const walk = (dir) => {
       for (const name of readdirSync(dir)) {
         const abs = join(dir, name);
         if (statSync(abs).isDirectory()) { walk(abs); continue; }
-        if (!/\.(jpe?g|png|webp|avif|gif|svg)$/i.test(name)) continue;
+        if (!extRe.test(name)) continue;
         const bytes = readFileSync(abs);
         const hash = createHash('sha1').update(bytes).digest('hex').slice(0, 8);
         const dot = name.lastIndexOf('.');
@@ -112,14 +120,19 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
         const hashedAbs = join(dir, hashedName);
         writeFileSync(hashedAbs, bytes);
         rmSync(abs);
-        const canonRel = 'assets/img/' + relative(imgRoot, abs).split('\\').join('/');
-        const hashedRel = 'assets/img/' + relative(imgRoot, hashedAbs).split('\\').join('/');
+        const canonRel = `assets/${subdir}/` + relative(root, abs).split('\\').join('/');
+        const hashedRel = `assets/${subdir}/` + relative(root, hashedAbs).split('\\').join('/');
         manifest.set(canonRel, hashedRel);
+        n++;
       }
     };
-    walk(imgRoot);
-    log(`fingerprinted ${manifest.size} images`);
-  }
+    walk(root);
+    counts[subdir] = n;
+  };
+  fingerprintTree('img', /\.(jpe?g|png|webp|avif|gif|svg)$/i);
+  fingerprintTree('js', /\.js$/i);
+  fingerprintTree('css', /\.css$/i);
+  log(`fingerprinted ${counts.img || 0} images, ${counts.js || 0} js, ${counts.css || 0} css`);
 
   // Rewrite every emitted HTML file's image references to the hashed names.
   // References appear as ".../assets/img/<...>" with varying relRoot prefixes
