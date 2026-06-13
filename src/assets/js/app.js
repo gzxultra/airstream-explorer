@@ -60,6 +60,7 @@
     var elSort = document.getElementById('x-sort');
     var elYear = document.getElementById('x-year');
     var elSleeps = document.getElementById('x-sleeps');
+    var elBudget = document.getElementById('x-budget');
     var elCount = document.getElementById('x-count');
     var elEmpty = document.getElementById('x-empty');
     var elReset = document.getElementById('x-reset');
@@ -69,7 +70,7 @@
     var towSummary = document.getElementById('tow-summary');
     var towPresets = Array.prototype.slice.call(document.querySelectorAll('.tow-preset'));
 
-    var state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0 };
+    var state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, budget: 0, tags: [], tow: 0 };
 
     function num(card, k) { return parseFloat(card.getAttribute(k)); }
 
@@ -92,6 +93,7 @@
         if (state.q && name.indexOf(state.q) === -1) ok = false;
         if (ok && state.year && year !== state.year) ok = false;
         if (ok && state.sleeps && sleeps < state.sleeps) ok = false;
+        if (ok && state.budget) { var m = num(card, 'data-monthly'); if (!(m > 0) || m > state.budget) ok = false; }
         if (ok && state.tags.length) {
           for (var i = 0; i < state.tags.length; i++) {
             if (tags.indexOf(state.tags[i]) === -1) { ok = false; break; }
@@ -151,6 +153,12 @@
     if (elSort) elSort.addEventListener('change', function () { state.sort = this.value; apply(); });
     if (elYear) elYear.addEventListener('change', function () { state.year = this.value; apply(); });
     if (elSleeps) elSleeps.addEventListener('change', function () { state.sleeps = parseInt(this.value, 10) || 0; apply(); });
+    if (elBudget) elBudget.addEventListener('change', function () {
+      state.budget = parseInt(this.value, 10) || 0;
+      var note = document.getElementById('x-budget-note');
+      if (note) { if (state.budget) note.removeAttribute('hidden'); else note.setAttribute('hidden', ''); }
+      apply();
+    });
     tagBtns.forEach(function (btn) {
       btn.addEventListener('click', function () {
         var tag = btn.getAttribute('data-tag');
@@ -177,11 +185,14 @@
     });
 
     function resetAll() {
-      state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0 };
+      state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, budget: 0, tags: [], tow: 0 };
       if (elSearch) elSearch.value = '';
       if (elSort) elSort.value = 'price-asc';
       if (elYear) elYear.value = '2026';
       if (elSleeps) elSleeps.value = '';
+      if (elBudget) elBudget.value = '';
+      var bn = document.getElementById('x-budget-note');
+      if (bn) bn.setAttribute('hidden', '');
       tagBtns.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
       setTow(0);
     }
@@ -383,5 +394,146 @@
     }
 
     render();
+  })();
+
+  // =========================================================================
+  // 5. OFF-GRID ESTIMATOR (detail page) — mirrors src/lib/estimate.mjs exactly
+  // =========================================================================
+  (function offGrid() {
+    var root = document.querySelector('.offgrid-tool');
+    if (!root) return;
+    var LOAD = { light: 1500, moderate: 2800, heavy: 5000 };
+    var PSH = { summer: 5.5, shoulder: 4.0, winter: 2.5 };
+    var USABLE = 0.8, DERATE = 0.7, GRAY_FRAC = 0.8;
+    var WATER = {
+      light: { fresh: 3.0, black: 0.75 },
+      moderate: { fresh: 5.0, black: 1.0 },
+      heavy: { fresh: 8.0, black: 1.5 },
+    };
+    function attr(k) { var v = root.getAttribute(k); return v === '' || v == null ? null : parseFloat(v); }
+    var spec = {
+      batteryKwh: attr('data-battery') || 0,
+      solarW: attr('data-solar') || 0,
+      freshGal: attr('data-fresh') || 0,
+      grayGal: attr('data-gray'),
+      blackGal: attr('data-black'),
+    };
+    var elPeople = document.getElementById('og-people');
+    var elIntensity = document.getElementById('og-intensity');
+    var elSeason = document.getElementById('og-season');
+    var elSolar = document.getElementById('og-solar');
+    var elNights = document.getElementById('og-nights');
+    var elLimiter = document.getElementById('og-limiter');
+    var elDetail = document.getElementById('og-detail');
+    var elBars = document.getElementById('og-bars');
+
+    function nightsLabel(d) {
+      if (!isFinite(d) || d >= 13.5) return '14+ nights';
+      if (d < 2) return d.toFixed(1) + ' nights';
+      return Math.round(d) + ' nights';
+    }
+    function daysLabel(d) {
+      if (!isFinite(d) || d >= 13.5) return '14+ days';
+      if (d < 2) return d.toFixed(1) + ' days';
+      return Math.round(d) + ' days';
+    }
+    function barPct(d) { return Math.max(2, Math.min(100, (Math.min(d, 14) / 14) * 100)); }
+
+    function compute() {
+      var people = parseInt(elPeople.value, 10) || 2;
+      var intensity = LOAD[elIntensity.value] ? elIntensity.value : 'moderate';
+      var season = PSH[elSeason.value] != null ? elSeason.value : 'summer';
+      var useSolar = elSolar.checked;
+
+      var usableWh = spec.batteryKwh * 1000 * USABLE;
+      var loadWh = LOAD[intensity];
+      var solarWh = useSolar ? spec.solarW * PSH[season] * DERATE : 0;
+      var netWh = loadWh - solarWh;
+      var powerDays = netWh > 0 ? usableWh / netWh : null;
+
+      var w = WATER[intensity];
+      var freshPerDay = w.fresh * people;
+      var grayPerDay = w.fresh * GRAY_FRAC * people;
+      var blackPerDay = w.black * people;
+      var freshDays = freshPerDay > 0 ? spec.freshGal / freshPerDay : Infinity;
+      var grayDays = (grayPerDay > 0 && spec.grayGal != null) ? spec.grayGal / grayPerDay : Infinity;
+      var blackDays = (blackPerDay > 0 && spec.blackGal != null) ? spec.blackGal / blackPerDay : Infinity;
+      var waterDays = Math.min(freshDays, grayDays, blackDays);
+      var binds = waterDays === freshDays ? 'fresh water' : (waterDays === grayDays ? 'gray tank' : 'black tank');
+
+      var days, limiter, detail;
+      if (powerDays == null || waterDays <= powerDays) {
+        days = waterDays; limiter = 'water'; detail = binds + ' fills first';
+      } else {
+        days = powerDays; limiter = 'power'; detail = 'house battery runs down first';
+      }
+      if (!isFinite(days)) days = 14;
+
+      elNights.textContent = nightsLabel(days);
+      elLimiter.textContent = limiter === 'power' ? 'Battery-limited' : 'Water-limited';
+      elDetail.textContent = detail.charAt(0).toUpperCase() + detail.slice(1) + ' under these assumptions.';
+
+      var waste = Math.min(grayDays, blackDays);
+      var rows = [
+        ['Battery', powerDays == null ? Infinity : powerDays, powerDays == null ? 'Solar covers it' : daysLabel(powerDays)],
+        ['Fresh water', freshDays, daysLabel(freshDays)],
+        ['Waste tanks', waste, daysLabel(waste)],
+      ];
+      // Rebuild bars without innerHTML of untrusted data (all values are numbers/fixed labels).
+      while (elBars.firstChild) elBars.removeChild(elBars.firstChild);
+      rows.forEach(function (r) {
+        var bar = document.createElement('div'); bar.className = 'est-bar';
+        var lab = document.createElement('span'); lab.className = 'est-bar-label'; lab.textContent = r[0];
+        var track = document.createElement('span'); track.className = 'est-bar-track';
+        var fill = document.createElement('span'); fill.className = 'est-bar-fill'; fill.style.width = barPct(r[1]) + '%';
+        track.appendChild(fill);
+        var val = document.createElement('span'); val.className = 'est-bar-val'; val.textContent = r[2];
+        bar.appendChild(lab); bar.appendChild(track); bar.appendChild(val);
+        elBars.appendChild(bar);
+      });
+    }
+    [elPeople, elIntensity, elSeason].forEach(function (el) { if (el) el.addEventListener('change', compute); });
+    if (elSolar) elSolar.addEventListener('change', compute);
+    compute();
+  })();
+
+  // =========================================================================
+  // 6. FINANCE ESTIMATOR (detail page) — mirrors src/lib/estimate.mjs exactly
+  // =========================================================================
+  (function finance() {
+    var root = document.querySelector('.finance-tool');
+    if (!root) return;
+    var price = parseFloat(root.getAttribute('data-price')) || 0;
+    var elDown = document.getElementById('fin-down');
+    var elApr = document.getElementById('fin-apr');
+    var elTerm = document.getElementById('fin-term');
+    var elMonthly = document.getElementById('fin-monthly');
+    var elPrincipal = document.getElementById('fin-principal');
+    var elDownAmt = document.getElementById('fin-down-amt');
+    var elInterest = document.getElementById('fin-interest');
+    var elTotal = document.getElementById('fin-total');
+    function usd(n) { return n > 0 || n === 0 ? '$' + Math.round(n).toLocaleString('en-US') : 'Price TBA'; }
+
+    function compute() {
+      var downPct = Math.min(Math.max(0, parseFloat(elDown.value) || 0), 100);
+      var apr = Math.min(Math.max(0, parseFloat(elApr.value) || 0), 25);
+      var months = parseInt(elTerm.value, 10) || 180;
+      var down = price * (downPct / 100);
+      var principal = Math.max(0, price - down);
+      var r = apr / 100 / 12;
+      var monthlyRaw = principal === 0 ? 0 : (r === 0 ? principal / months : (principal * r) / (1 - Math.pow(1 + r, -months)));
+      var monthly = Math.round(monthlyRaw);
+      var principalR = Math.round(principal), downR = Math.round(down);
+      var totalPaid = monthly * months;
+      var totalInterest = Math.max(0, totalPaid - principalR);
+      elMonthly.textContent = usd(monthly);
+      elPrincipal.textContent = usd(principalR);
+      elDownAmt.textContent = usd(downR);
+      elInterest.textContent = usd(totalInterest);
+      elTotal.textContent = usd(downR + totalPaid);
+    }
+    [elDown, elApr].forEach(function (el) { if (el) el.addEventListener('input', compute); });
+    if (elTerm) elTerm.addEventListener('change', compute);
+    compute();
   })();
 })();

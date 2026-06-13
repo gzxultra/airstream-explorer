@@ -9,6 +9,10 @@ import {
 } from './format.mjs';
 import { assetPaths, familySlug } from './data.mjs';
 import { SORT_KEYS, exploreTags, tagLabel } from './explore.mjs';
+import {
+  estimateOffGrid, estimateFinance, formatNights,
+  LOAD_PRESETS, FINANCE_DEFAULTS, defaultMonthly,
+} from './estimate.mjs';
 
 /** Escape text for HTML body/attribute context. */
 export function esc(s) {
@@ -196,6 +200,148 @@ ${cards}
 // DETAIL: one floorplan
 // ---------------------------------------------------------------------------
 
+/**
+ * Off-grid endurance estimator block for a detail page. Server-renders the
+ * default scenario (2 people, moderate use, summer, solar on) so it's correct
+ * with no JS; the client recomputes live from the data-* spec values. Every
+ * assumption is disclosed inline — we model how this trailer's REAL battery /
+ * solar / tank numbers play out, we don't invent specs.
+ */
+export function renderOffGridTool(t) {
+  // Skip entirely if we somehow lack the inputs (keeps it honest).
+  if (!(t.batteryKwh > 0) || !(t.freshGal > 0)) return '';
+  const def = estimateOffGrid(t, { people: 2, intensity: 'moderate', season: 'summer', useSolar: true });
+  const intensityOpts = Object.entries(LOAD_PRESETS)
+    .map(([k, v]) => `<option value="${esc(k)}"${k === 'moderate' ? ' selected' : ''}>${esc(v.label)} — ${esc(v.blurb)}</option>`)
+    .join('');
+  return `<section class="estimator offgrid-tool" aria-label="Off-grid endurance estimator"
+ data-battery="${esc(t.batteryKwh)}" data-solar="${esc(t.solarW || 0)}" data-fresh="${esc(t.freshGal)}" data-gray="${esc(t.grayGal == null ? '' : t.grayGal)}" data-black="${esc(t.blackGal == null ? '' : t.blackGal)}">
+<div class="est-head">
+<h2>How long off-grid?</h2>
+<p class="est-sub">Boondocking endurance for this floorplan — modeled from its real ${esc(t.batteryKwh)} kWh battery, ${t.solarW ? `${esc(t.solarW)} W solar` : 'no factory solar'}, and ${esc(t.freshGal)} gal fresh / ${t.grayGal != null ? esc(t.grayGal) : '—'} gal gray / ${t.blackGal != null ? esc(t.blackGal) : '—'} gal black tanks.</p>
+</div>
+<div class="est-controls">
+<div class="est-field">
+<label for="og-people">Campers</label>
+<select id="og-people">
+<option value="1">1 person</option>
+<option value="2" selected>2 people</option>
+<option value="3">3 people</option>
+<option value="4">4 people</option>
+<option value="5">5 people</option>
+</select>
+</div>
+<div class="est-field est-field-wide">
+<label for="og-intensity">Power &amp; water use</label>
+<select id="og-intensity">${intensityOpts}</select>
+</div>
+<div class="est-field">
+<label for="og-season">Season</label>
+<select id="og-season">
+<option value="summer" selected>Summer sun</option>
+<option value="shoulder">Spring / fall</option>
+<option value="winter">Winter</option>
+</select>
+</div>
+<div class="est-field est-field-check">
+<label class="est-check"><input type="checkbox" id="og-solar" checked> Count rooftop solar</label>
+</div>
+</div>
+<div class="est-result" id="og-result"
+ data-nights="${esc(formatNights(def.days))}"
+ data-limiter="${esc(def.limiter === 'power' ? 'Battery-limited' : 'Water-limited')}"
+ data-detail="${esc(cap(def.limiterDetail))}">
+<div class="est-big">
+<span class="est-number" id="og-nights">${esc(formatNights(def.days))}</span>
+<span class="est-number-cap" id="og-limiter">${esc(def.limiter === 'power' ? 'Battery-limited' : 'Water-limited')}</span>
+</div>
+<p class="est-detail" id="og-detail">${esc(cap(def.limiterDetail))} under these assumptions.</p>
+<div class="est-bars" id="og-bars">${offGridBars(def)}</div>
+</div>
+<details class="est-method">
+<summary>How this is calculated</summary>
+<p>Power: usable battery = nameplate kWh × 0.8 (blended depth-of-discharge). Daily load presets — light ≈ 1,500, moderate ≈ 2,800, heavy ≈ 5,000 Wh/day — from published boondocking power budgets, <strong>excluding air conditioning</strong> (no trailer battery runs rooftop AC for long). Solar harvest = panel watts × peak-sun-hours (summer 5.5, spring/fall 4.0, winter 2.5) × 0.7 system derate. Water: per-person daily use (light 3 / moderate 5 / heavy 8 gal fresh; gray ≈ 80% of fresh; black from toilet use) against the real tank sizes. Endurance is whichever runs out first. Estimates for planning — your real usage varies.</p>
+</details>
+</section>`;
+}
+
+/** Three little capacity bars (battery, fresh, waste) showing days each lasts. */
+function offGridBars(est) {
+  const cap14 = (d) => Math.max(2, Math.min(100, (Math.min(d, 14) / 14) * 100));
+  const pwr = est.power.days;
+  const waste = Math.min(est.water.grayDays, est.water.blackDays);
+  const rows = [
+    ['Battery', pwr == null ? Infinity : pwr, pwr == null ? 'Solar covers it' : daysLabel(pwr)],
+    ['Fresh water', est.water.freshDays, daysLabel(est.water.freshDays)],
+    ['Waste tanks', waste, daysLabel(waste)],
+  ];
+  return rows.map(([label, d, txt]) =>
+    `<div class="est-bar"><span class="est-bar-label">${esc(label)}</span><span class="est-bar-track"><span class="est-bar-fill" style="width:${cap14(d)}%"></span></span><span class="est-bar-val">${esc(txt)}</span></div>`,
+  ).join('');
+}
+function daysLabel(d) {
+  if (!Number.isFinite(d)) return '14+ days';
+  if (d >= 13.5) return '14+ days';
+  if (d < 2) return `${d.toFixed(1)} days`;
+  return `${Math.round(d)} days`;
+}
+function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+
+/**
+ * Monthly-payment estimator for a detail page. Real MSRP + real mid-market RV
+ * loan terms (APR 8.49%, 180 mo, 10% down — all adjustable). Amortized; taxes,
+ * fees and insurance excluded. Skips itself if the trailer has no published price.
+ */
+export function renderFinanceTool(t) {
+  if (!(t.msrp > 0)) return '';
+  const d = FINANCE_DEFAULTS;
+  const def = estimateFinance(t.msrp, {});
+  return `<section class="estimator finance-tool" aria-label="Monthly payment estimator" data-price="${esc(t.msrp)}">
+<div class="est-head">
+<h2>Estimate the payment</h2>
+<p class="est-sub">On the ${esc(formatMsrp(t.msrp))} MSRP, at typical RV-loan terms. Adjust to match your own offer.</p>
+</div>
+<div class="est-controls">
+<div class="est-field">
+<label for="fin-down">Down payment</label>
+<div class="est-input-suffix"><input type="number" id="fin-down" min="0" max="100" step="1" value="${d.downPct}"><span>%</span></div>
+</div>
+<div class="est-field">
+<label for="fin-apr">APR</label>
+<div class="est-input-suffix"><input type="number" id="fin-apr" min="0" max="25" step="0.01" value="${d.aprPct}"><span>%</span></div>
+</div>
+<div class="est-field">
+<label for="fin-term">Term</label>
+<select id="fin-term">
+<option value="60">5 years</option>
+<option value="120">10 years</option>
+<option value="180" selected>15 years</option>
+<option value="240">20 years</option>
+</select>
+</div>
+</div>
+<div class="est-result">
+<div class="est-big">
+<span class="est-number"><span id="fin-monthly">${esc(formatMsrp(def.monthly))}</span><span class="est-per">/mo</span></span>
+</div>
+<dl class="fin-breakdown">
+<div><dt>Financed</dt><dd id="fin-principal">${esc(formatMsrp(def.principal))}</dd></div>
+<div><dt>Down</dt><dd id="fin-down-amt">${esc(formatMsrp(def.down))}</dd></div>
+<div><dt>Total interest</dt><dd id="fin-interest">${esc(formatMsrp(def.totalInterest))}</dd></div>
+<div><dt>Total cost</dt><dd id="fin-total">${esc(formatMsrp(def.totalCost))}</dd></div>
+</dl>
+</div>
+<details class="est-method">
+<summary>How this is calculated</summary>
+<p>Standard fixed-rate amortization on the amount financed (price − down payment). The 8.49% default APR sits mid-band for 2026 RV loans (cited credit-union rates run ~7.24%–9.69%); 15-year term and 10% down are typical for a six-figure travel trailer. <strong>Excludes</strong> sales tax, registration, dealer fees and insurance. An estimate for budgeting — your actual rate depends on credit and lender.</p>
+</details>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
+// DETAIL: one floorplan
+// ---------------------------------------------------------------------------
+
 /** A single trailer detail page. */
 export function renderDetail(t, resolve = assetPaths) {
   const a = resolve(t);
@@ -255,6 +401,8 @@ ${specRow('MSRP', formatMsrp(t.msrp))}
 ${note}
 </section>
 ${towCallout}
+${renderOffGridTool(t)}
+${renderFinanceTool(t)}
 ${floorplanSection}
 ${pros || cons ? `<section class="proscons">
 ${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}
@@ -282,7 +430,7 @@ ${gallery ? `<section class="gallery" aria-label="Gallery"><h2>Gallery</h2><div 
 export function renderExploreCard(t, resolve = assetPaths, hidden = false) {
   const a = resolve(t);
   const tags = (t.tags || []).join(' ');
-  return `<article class="xcard" data-slug="${esc(t.slug)}" data-model="${esc(t.model)}" data-floorplan="${esc(t.floorplan)}" data-year="${esc(t.year)}" data-msrp="${esc(t.msrp)}" data-weight="${esc(t.weightLb)}" data-gvwr="${esc(t.gvwrLb)}" data-length="${esc(t.lengthFt)}" data-sleeps="${esc(t.sleeps)}" data-offgrid="${esc(t.offGridScore)}" data-tags="${esc(tags)}" data-name="${esc((t.model + ' ' + t.floorplan).toLowerCase())}"${hidden ? ' hidden' : ''}>
+  return `<article class="xcard" data-slug="${esc(t.slug)}" data-model="${esc(t.model)}" data-floorplan="${esc(t.floorplan)}" data-year="${esc(t.year)}" data-msrp="${esc(t.msrp)}" data-weight="${esc(t.weightLb)}" data-gvwr="${esc(t.gvwrLb)}" data-length="${esc(t.lengthFt)}" data-sleeps="${esc(t.sleeps)}" data-offgrid="${esc(t.offGridScore)}" data-monthly="${esc(defaultMonthly(t.msrp))}" data-tags="${esc(tags)}" data-name="${esc((t.model + ' ' + t.floorplan).toLowerCase())}"${hidden ? ' hidden' : ''}>
 <a class="xcard-link" href="m/${esc(t.slug)}.html">
 <div class="xcard-media">
 <img src="${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="400" height="260">
@@ -325,7 +473,7 @@ export function renderExplore(trailers, resolve = assetPaths) {
   const body = `<header class="explore-head">
 <p class="eyebrow">FIND YOUR FLOORPLAN</p>
 <h1>Explore &amp; match</h1>
-<p class="lede">Search, sort and filter all ${trailers.length} floorplans — then enter your tow vehicle's rating to see exactly what you can pull, safely.</p>
+<p class="lede">Search, sort and filter all ${trailers.length} floorplans — match them to your tow vehicle, or filter by estimated monthly payment to shop within budget.</p>
 </header>
 <section class="tow-tool" aria-label="Tow vehicle matcher">
 <div class="tow-tool-inner">
@@ -368,10 +516,14 @@ export function renderExplore(trailers, resolve = assetPaths) {
 <label for="x-sleeps">Sleeps ≥</label>
 <select id="x-sleeps"><option value="">Any</option><option value="2">2</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="8">8</option></select>
 </div>
+<div class="xc-budget">
+<label for="x-budget">Payment ≤</label>
+<select id="x-budget"><option value="">Any</option><option value="600">$600/mo</option><option value="800">$800/mo</option><option value="1000">$1,000/mo</option><option value="1250">$1,250/mo</option><option value="1500">$1,500/mo</option><option value="2000">$2,000/mo</option></select>
+</div>
 <button type="button" class="xc-reset" id="x-reset">Reset</button>
 </div>
 </section>
-<p class="xcount"><span id="x-count">${total}</span> floorplans</p>
+<p class="xcount"><span id="x-count">${total}</span> floorplans <span class="xcount-note" id="x-budget-note" hidden>· payment est. at ${FINANCE_DEFAULTS.aprPct}% APR / ${FINANCE_DEFAULTS.months / 12} yr / ${FINANCE_DEFAULTS.downPct}% down</span></p>
 <main class="xgrid" id="xgrid">
 ${cards}
 </main>

@@ -334,8 +334,8 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
   border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink);
 }
 .xc-search input:focus, .explore-controls select:focus { outline: 2px solid var(--copper); outline-offset: 1px; }
-.xc-sort, .xc-year, .xc-sleeps { display: flex; flex-direction: column; gap: 4px; }
-.xc-sort label, .xc-year label, .xc-sleeps label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.xc-sort, .xc-year, .xc-sleeps, .xc-budget { display: flex; flex-direction: column; gap: 4px; }
+.xc-sort label, .xc-year label, .xc-sleeps label, .xc-budget label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
 .explore-controls select {
   font: inherit; padding: 10px 12px; min-height: 46px; border: 1px solid var(--line);
   border-radius: 6px; background: var(--surface); color: var(--ink);
@@ -352,6 +352,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .xc-reset:hover { color: var(--ink); border-color: var(--muted); }
 .xcount { max-width: var(--maxw); margin: 22px auto 0; padding: 0 20px; font-size: 14px; color: var(--muted); }
 .xcount span { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.xcount-note { font-weight: 400; color: var(--muted); font-size: 13px; }
 
 /* --- Explore grid --- */
 .xgrid {
@@ -458,3 +459,77 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .tow-callout-note a { color: #E8B89A; font-weight: 600; white-space: nowrap; }
 .tow-callout-note a:hover { color: #fff; }
 @media (max-width: 560px) { .tow-callout { padding: 16px 18px; } .tow-callout-value { font-size: 26px; } }
+
+/* ============================================================
+   ESTIMATORS — off-grid endurance + finance (detail pages)
+   ============================================================ */
+.estimator {
+  max-width: var(--maxw); margin: 26px auto 0; padding: 26px 28px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+}
+.est-head h2 {
+  font-family: 'Fraunces', Georgia, serif; font-size: 24px; font-weight: 600;
+  margin: 0 0 6px; letter-spacing: -.01em;
+}
+.est-sub { font-size: 14px; line-height: 1.55; color: var(--muted); margin: 0 0 18px; max-width: 70ch; }
+.est-controls {
+  display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: flex-end;
+  padding-bottom: 20px; border-bottom: 1px solid var(--line);
+}
+.est-field { display: flex; flex-direction: column; gap: 6px; }
+.est-field-wide { flex: 1 1 280px; min-width: 240px; }
+.est-field label { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.est-field select, .est-field input[type="number"] {
+  font: inherit; padding: 10px 12px; min-height: 46px; border: 1px solid var(--line);
+  border-radius: 6px; background: #fff; color: var(--ink);
+}
+.est-field select:focus, .est-field input:focus { outline: 2px solid var(--copper); outline-offset: 1px; border-color: var(--copper); }
+.est-field-check { padding-bottom: 4px; }
+.est-check { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink); cursor: pointer; min-height: 46px; }
+.est-check input { width: 18px; height: 18px; accent-color: var(--copper); }
+.est-input-suffix { display: inline-flex; align-items: center; gap: 6px; }
+.est-input-suffix input { width: 92px; }
+.est-input-suffix span { font-size: 14px; color: var(--muted); font-weight: 600; }
+
+.est-result { padding: 20px 0 4px; }
+.est-big { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.est-number {
+  font-family: 'Fraunces', Georgia, serif; font-size: 44px; font-weight: 600;
+  line-height: 1; color: var(--copper-deep); font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+}
+.est-per { font-family: 'DM Sans', sans-serif; font-size: 18px; color: var(--muted); font-weight: 500; margin-left: 2px; }
+.est-number-cap {
+  font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700;
+  color: var(--copper); background: rgba(176,92,50,.1); padding: 5px 11px; border-radius: 100px;
+}
+.est-detail { font-size: 14px; color: var(--muted); margin: 12px 0 0; }
+
+.est-bars { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+.est-bar { display: grid; grid-template-columns: 96px 1fr 76px; align-items: center; gap: 12px; }
+.est-bar-label { font-size: 13px; color: var(--ink); font-weight: 500; }
+.est-bar-track { height: 8px; background: #EDE5D6; border-radius: 100px; overflow: hidden; }
+.est-bar-fill { display: block; height: 100%; background: linear-gradient(90deg, var(--copper), var(--copper-deep)); border-radius: 100px; }
+.est-bar-val { font-size: 13px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+
+.fin-breakdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 18px 0 0; border-top: 1px solid var(--line); }
+.fin-breakdown > div { padding: 14px 14px 14px 0; border-right: 1px solid var(--line); }
+.fin-breakdown > div:last-child { border-right: 0; }
+.fin-breakdown dt { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 4px; }
+.fin-breakdown dd { margin: 0; font-family: 'Fraunces', Georgia, serif; font-size: 19px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+.est-method { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 12px; }
+.est-method summary { font-size: 13px; font-weight: 600; color: var(--copper); cursor: pointer; list-style: none; }
+.est-method summary::-webkit-details-marker { display: none; }
+.est-method summary::before { content: '+ '; font-weight: 700; }
+.est-method[open] summary::before { content: '– '; }
+.est-method p { font-size: 13px; line-height: 1.6; color: var(--muted); margin: 10px 0 2px; max-width: 80ch; }
+
+@media (max-width: 640px) {
+  .estimator { padding: 20px 18px; }
+  .est-number { font-size: 36px; }
+  .fin-breakdown { grid-template-columns: 1fr 1fr; }
+  .fin-breakdown > div:nth-child(2) { border-right: 0; }
+  .fin-breakdown > div:nth-child(1), .fin-breakdown > div:nth-child(2) { border-bottom: 1px solid var(--line); }
+  .est-bar { grid-template-columns: 80px 1fr 64px; gap: 8px; }
+}

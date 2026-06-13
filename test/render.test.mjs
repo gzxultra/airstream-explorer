@@ -217,3 +217,43 @@ test('every page carries the top nav with explore + compare links', () => {
     assert.match(html, /compare\.html/);
   }
 });
+
+import { renderOffGridTool, renderFinanceTool } from '../src/lib/render.mjs';
+
+test('detail page includes the off-grid estimator with real spec data attrs', () => {
+  const t = trailers.find((x) => x.slug === 'classic-33fb-2026');
+  const html = renderDetail(t);
+  assert.match(html, /class="estimator offgrid-tool"/);
+  assert.match(html, /How long off-grid\?/);
+  // Carries this trailer's REAL specs for the client to recompute from.
+  assert.match(html, new RegExp(`data-battery="${t.batteryKwh}"`));
+  assert.match(html, new RegExp(`data-fresh="${t.freshGal}"`));
+  assert.match(html, /How this is calculated/); // method disclosure present
+  assert.match(html, /excluding air conditioning|excludes air conditioning|<strong>excluding air conditioning/i);
+});
+
+test('off-grid tool omits itself when inputs are missing (no fabrication)', () => {
+  const bare = { model: 'X', floorplan: 'Y', batteryKwh: 0, freshGal: 0 };
+  assert.equal(renderOffGridTool(bare), '');
+});
+
+test('detail page includes the finance estimator on a priced trailer', () => {
+  const t = trailers.find((x) => x.slug === 'flying-cloud-25fb-2026');
+  const html = renderDetail(t);
+  assert.match(html, /class="estimator finance-tool"/);
+  assert.match(html, new RegExp(`data-price="${t.msrp}"`));
+  assert.match(html, /\/mo/);
+  assert.match(html, /amortization/i);
+});
+
+test('finance tool omits itself when price is unknown (no fake payment)', () => {
+  assert.equal(renderFinanceTool({ msrp: 0 }), '');
+});
+
+test('explore page exposes the monthly-payment budget filter', () => {
+  const html = renderExplore(trailers);
+  assert.match(html, /id="x-budget"/);
+  assert.match(html, /Payment \u2264|Payment &#8804;|Payment ≤/);
+  // Each card carries a precomputed default monthly payment for filtering.
+  assert.match(html, /data-monthly="\d+"/);
+});
