@@ -1,0 +1,2150 @@
+[
+  {
+    "slug": "bambi-16rb-2025",
+    "model": "Bambi",
+    "floorplan": "16RB",
+    "year": 2025,
+    "lengthFt": 16.25,
+    "weightLb": 3150,
+    "gvwrLb": 3500,
+    "hitchWeightLb": 475,
+    "cccLb": 350,
+    "freshGal": 23,
+    "grayGal": null,
+    "blackGal": 30,
+    "sleeps": 4,
+    "msrp": 68900,
+    "solarW": 100,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 39,
+    "specNote": null,
+    "description": "Sleeps up to 4, Rear Primary Bed, Space-Saving Wet Bath, Convertible Booth Style Dinette, Efficient Mid-Ship Galley",
+    "tags": [
+      "family",
+      "national_parks",
+      "off-grid",
+      "solo"
+    ],
+    "pros": [
+      "Easy to tow, fits small sites",
+      "Classic Airstream fit & finish",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Compact storage"
+    ],
+    "heroFamily": "bambi"
+  },
+  {
+    "slug": "bambi-16rb-2026",
+    "model": "Bambi",
+    "floorplan": "16RB",
+    "year": 2026,
+    "lengthFt": 16.25,
+    "weightLb": 3150,
+    "gvwrLb": 3500,
+    "hitchWeightLb": 475,
+    "cccLb": 350,
+    "freshGal": 23,
+    "grayGal": null,
+    "blackGal": 30,
+    "sleeps": 4,
+    "msrp": 70000,
+    "solarW": 100,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 39,
+    "specNote": null,
+    "description": "Sleeps up to 4, Rear Primary Bed, Space-Saving Wet Bath, Convertible Booth Style Dinette, Efficient Mid-Ship Galley",
+    "tags": [
+      "family",
+      "national_parks",
+      "off-grid",
+      "solo"
+    ],
+    "pros": [
+      "Easy to tow, fits small sites",
+      "Classic Airstream fit & finish",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Compact storage"
+    ],
+    "heroFamily": "bambi"
+  },
+  {
+    "slug": "bambi-20fb-2025",
+    "model": "Bambi",
+    "floorplan": "20FB",
+    "year": 2025,
+    "lengthFt": 20.58,
+    "weightLb": 3900,
+    "gvwrLb": 5000,
+    "hitchWeightLb": 625,
+    "cccLb": 1100,
+    "freshGal": 23,
+    "grayGal": 30,
+    "blackGal": 18,
+    "sleeps": 4,
+    "msrp": 75400,
+    "solarW": 200,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 44,
+    "specNote": null,
+    "description": "Sleeps up to 4, Front Primary Bed, Combined Corner Shower and Lavvy, Convertible Booth Style Dinette, Expansive L-Shaped Galley",
+    "tags": [
+      "family",
+      "national_parks",
+      "off-grid",
+      "solo"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Compact storage"
+    ],
+    "heroFamily": "bambi"
+  },
+  {
+    "slug": "bambi-20fb-2026",
+    "model": "Bambi",
+    "floorplan": "20FB",
+    "year": 2026,
+    "lengthFt": 20.58,
+    "weightLb": 3900,
+    "gvwrLb": 5000,
+    "hitchWeightLb": 625,
+    "cccLb": 1100,
+    "freshGal": 23,
+    "grayGal": 30,
+    "blackGal": 18,
+    "sleeps": 4,
+    "msrp": 75400,
+    "solarW": 200,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 44,
+    "specNote": null,
+    "description": "Sleeps up to 4, Front Primary Bed, Combined Corner Shower and Lavvy, Convertible Booth Style Dinette, Expansive L-Shaped Galley",
+    "tags": [
+      "family",
+      "national_parks",
+      "off-grid",
+      "solo"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Compact storage"
+    ],
+    "heroFamily": "bambi"
+  },
+  {
+    "slug": "bambi-22fb-2025",
+    "model": "Bambi",
+    "floorplan": "22FB",
+    "year": 2025,
+    "lengthFt": 21.92,
+    "weightLb": 3850,
+    "gvwrLb": 5000,
+    "hitchWeightLb": 525,
+    "cccLb": 1150,
+    "freshGal": 23,
+    "grayGal": 30,
+    "blackGal": 17,
+    "sleeps": 4,
+    "msrp": 78900,
+    "solarW": 200,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 44,
+    "specNote": null,
+    "description": "Sleeps up to 4, Front Primary Bed, Rear-Spanning Shower and Lavvy, Convertible U-Seated Dinette, Extended Mid-Ship Galley",
+    "tags": [
+      "family",
+      "national_parks",
+      "off-grid",
+      "solo"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Compact storage"
+    ],
+    "heroFamily": "bambi"
+  },
+  {
+    "slug": "bambi-22fb-2026",
+    "model": "Bambi",
+    "floorplan": "22FB",
+    "year": 2026,
+    "lengthFt": 21.92,
+    "weightLb": 3850,
+    "gvwrLb": 5000,
+    "hitchWeightLb": 525,
+    "cccLb": 1150,
+    "freshGal": 23,
+    "grayGal": 30,
+    "blackGal": 17,
+    "sleeps": 4,
+    "msrp": 78900,
+    "solarW": 200,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 44,
+    "specNote": null,
+    "description": "Sleeps up to 4, Front Primary Bed, Rear-Spanning Shower and Lavvy, Convertible U-Seated Dinette, Extended Mid-Ship Galley",
+    "tags": [
+      "family",
+      "national_parks",
+      "off-grid",
+      "solo"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Compact storage"
+    ],
+    "heroFamily": "bambi"
+  },
+  {
+    "slug": "basecamp-16x-2025",
+    "model": "Basecamp",
+    "floorplan": "16X",
+    "year": 2025,
+    "lengthFt": 16.17,
+    "weightLb": 2700,
+    "gvwrLb": 3500,
+    "hitchWeightLb": 450,
+    "cccLb": 800,
+    "freshGal": 21,
+    "grayGal": null,
+    "blackGal": 24,
+    "sleeps": 2,
+    "msrp": 55900,
+    "solarW": 200,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 43,
+    "specNote": null,
+    "description": "Sleeps up to 2, Rear Convertible Bed, Space-Saving Wet Bath, Convertible Bench Seating with Two Removable Tables, Front Galley with Panoramic Windows",
+    "tags": [
+      "couples",
+      "national_parks",
+      "off-grid",
+      "solo"
+    ],
+    "pros": [
+      "Easy to tow, fits small sites",
+      "Strong solar / off-grid ready"
+    ],
+    "cons": [
+      "Compact storage"
+    ],
+    "heroFamily": "basecamp"
+  },
+  {
+    "slug": "basecamp-16x-2026",
+    "model": "Basecamp",
+    "floorplan": "16X",
+    "year": 2026,
+    "lengthFt": 16.17,
+    "weightLb": 2650,
+    "gvwrLb": 3500,
+    "hitchWeightLb": 410,
+    "cccLb": 850,
+    "freshGal": 21,
+    "grayGal": null,
+    "blackGal": 24,
+    "sleeps": 2,
+    "msrp": 54900,
+    "solarW": 200,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 43,
+    "specNote": null,
+    "description": "Sleeps up to 2, Rear Convertible Bed, Space-Saving Wet Bath, Convertible Bench Seating with Two Removable Tables, Front Galley with Panoramic Windows",
+    "tags": [
+      "couples",
+      "national_parks",
+      "off-grid",
+      "solo"
+    ],
+    "pros": [
+      "Easy to tow, fits small sites",
+      "Strong solar / off-grid ready"
+    ],
+    "cons": [
+      "Compact storage"
+    ],
+    "heroFamily": "basecamp"
+  },
+  {
+    "slug": "basecamp-20x-2025",
+    "model": "Basecamp",
+    "floorplan": "20X",
+    "year": 2025,
+    "lengthFt": 20.17,
+    "weightLb": 3500,
+    "gvwrLb": 4300,
+    "hitchWeightLb": 535,
+    "cccLb": 800,
+    "freshGal": 23,
+    "grayGal": 28,
+    "blackGal": 21,
+    "sleeps": 4,
+    "msrp": 65900,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 49,
+    "specNote": null,
+    "description": "Sleeps up to 4, Rear Convertible Bed, Space-Saving Wet Bath, Convertible U-Seated Dinette with Large Swivel Table, Efficient Mid-Ship Galley",
+    "tags": [
+      "family",
+      "national_parks",
+      "off-grid",
+      "solo"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Compact storage"
+    ],
+    "heroFamily": "basecamp"
+  },
+  {
+    "slug": "basecamp-20x-2026",
+    "model": "Basecamp",
+    "floorplan": "20X",
+    "year": 2026,
+    "lengthFt": 20.17,
+    "weightLb": 3400,
+    "gvwrLb": 4300,
+    "hitchWeightLb": 500,
+    "cccLb": 900,
+    "freshGal": 23,
+    "grayGal": 28,
+    "blackGal": 21,
+    "sleeps": 4,
+    "msrp": 69000,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 49,
+    "specNote": null,
+    "description": "Sleeps up to 4, Rear Convertible Bed, Space-Saving Wet Bath, Convertible U-Seated Dinette with Large Swivel Table, Efficient Mid-Ship Galley",
+    "tags": [
+      "family",
+      "national_parks",
+      "off-grid",
+      "solo"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Compact storage"
+    ],
+    "heroFamily": "basecamp"
+  },
+  {
+    "slug": "basecamp-xe-20xe-2025",
+    "model": "Basecamp XE",
+    "floorplan": "20Xe",
+    "year": 2025,
+    "lengthFt": 20.17,
+    "weightLb": 3750,
+    "gvwrLb": 4500,
+    "hitchWeightLb": 506,
+    "cccLb": 750,
+    "freshGal": 23,
+    "grayGal": 28,
+    "blackGal": 21,
+    "sleeps": 4,
+    "msrp": 84900,
+    "solarW": 600,
+    "batteryKwh": 10.3,
+    "solarStandard": true,
+    "offGridScore": 84,
+    "specNote": null,
+    "description": "Sleeps up to 4, Rear Convertible Bed, Space-Saving Wet Bath, Convertible U-Seated Dinette with Large Swivel Table, Fully Inverted Electric System",
+    "tags": [
+      "family",
+      "national_parks",
+      "off-grid",
+      "solo"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Compact storage"
+    ],
+    "heroFamily": "basecampxe"
+  },
+  {
+    "slug": "basecamp-xe-20xe-2026",
+    "model": "Basecamp XE",
+    "floorplan": "20Xe",
+    "year": 2026,
+    "lengthFt": 20.17,
+    "weightLb": 3750,
+    "gvwrLb": 4500,
+    "hitchWeightLb": 506,
+    "cccLb": 750,
+    "freshGal": 23,
+    "grayGal": 28,
+    "blackGal": 21,
+    "sleeps": 4,
+    "msrp": 82651,
+    "solarW": 600,
+    "batteryKwh": 10.3,
+    "solarStandard": true,
+    "offGridScore": 84,
+    "specNote": null,
+    "description": "Sleeps up to 4, Rear Convertible Bed, Space-Saving Wet Bath, Convertible U-Seated Dinette with Large Swivel Table, Fully Inverted Electric System",
+    "tags": [
+      "family",
+      "national_parks",
+      "off-grid",
+      "solo"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Compact storage"
+    ],
+    "heroFamily": "basecampxe"
+  },
+  {
+    "slug": "caravel-16rb-2025",
+    "model": "Caravel",
+    "floorplan": "16RB",
+    "year": 2025,
+    "lengthFt": 16.58,
+    "weightLb": 3450,
+    "gvwrLb": 4300,
+    "hitchWeightLb": 520,
+    "cccLb": 850,
+    "freshGal": 23,
+    "grayGal": null,
+    "blackGal": 30,
+    "sleeps": 4,
+    "msrp": 83900,
+    "solarW": 100,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 39,
+    "specNote": null,
+    "description": "Sleeps up to 4, Rear Primary Bed, Space-Saving Wet Bath, Convertible Booth Style Dinette, Efficient Mid-Ship Galley",
+    "tags": [
+      "family",
+      "national_parks",
+      "off-grid",
+      "solo"
+    ],
+    "pros": [
+      "Easy to tow, fits small sites",
+      "Classic Airstream fit & finish",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Compact storage"
+    ],
+    "heroFamily": "caravel"
+  },
+  {
+    "slug": "caravel-16rb-2026",
+    "model": "Caravel",
+    "floorplan": "16RB",
+    "year": 2026,
+    "lengthFt": 16.58,
+    "weightLb": 3450,
+    "gvwrLb": 4300,
+    "hitchWeightLb": 520,
+    "cccLb": 850,
+    "freshGal": 23,
+    "grayGal": null,
+    "blackGal": 30,
+    "sleeps": 4,
+    "msrp": 83900,
+    "solarW": 100,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 39,
+    "specNote": "2026 MSRP not yet published; shown is latest verified base (2025).",
+    "description": "Sleeps up to 4, Rear Primary Bed, Space-Saving Wet Bath, Convertible Booth Style Dinette, Efficient Mid-Ship Galley",
+    "tags": [
+      "family",
+      "national_parks",
+      "off-grid",
+      "solo"
+    ],
+    "pros": [
+      "Easy to tow, fits small sites",
+      "Classic Airstream fit & finish",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Compact storage"
+    ],
+    "heroFamily": "caravel"
+  },
+  {
+    "slug": "caravel-20fb-2025",
+    "model": "Caravel",
+    "floorplan": "20FB",
+    "year": 2025,
+    "lengthFt": 21,
+    "weightLb": 4100,
+    "gvwrLb": 5000,
+    "hitchWeightLb": 650,
+    "cccLb": 900,
+    "freshGal": 23,
+    "grayGal": 30,
+    "blackGal": 18,
+    "sleeps": 4,
+    "msrp": 90400,
+    "solarW": 200,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 44,
+    "specNote": null,
+    "description": "Sleeps up to 4, Front Primary Bed, Combined Corner Shower and Lavvy, Convertible Booth Style Dinette, Expansive L-Shaped Galley",
+    "tags": [
+      "family",
+      "national_parks",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "caravel"
+  },
+  {
+    "slug": "caravel-20fb-2026",
+    "model": "Caravel",
+    "floorplan": "20FB",
+    "year": 2026,
+    "lengthFt": 21,
+    "weightLb": 4100,
+    "gvwrLb": 5000,
+    "hitchWeightLb": 650,
+    "cccLb": 900,
+    "freshGal": 23,
+    "grayGal": 30,
+    "blackGal": 18,
+    "sleeps": 4,
+    "msrp": 85000,
+    "solarW": 200,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 44,
+    "specNote": null,
+    "description": "Sleeps up to 4, Front Primary Bed, Combined Corner Shower and Lavvy, Convertible Booth Style Dinette, Expansive L-Shaped Galley",
+    "tags": [
+      "family",
+      "national_parks",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "caravel"
+  },
+  {
+    "slug": "caravel-22fb-2025",
+    "model": "Caravel",
+    "floorplan": "22FB",
+    "year": 2025,
+    "lengthFt": 22.17,
+    "weightLb": 4050,
+    "gvwrLb": 5000,
+    "hitchWeightLb": 525,
+    "cccLb": 950,
+    "freshGal": 23,
+    "grayGal": 30,
+    "blackGal": 17,
+    "sleeps": 4,
+    "msrp": 93900,
+    "solarW": 200,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 44,
+    "specNote": null,
+    "description": "Sleeps up to 4, Front Primary Bed, Rear-Spanning Shower and Lavvy, Convertible U-Seated Dinette, Extended Mid-Ship Galley",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "caravel"
+  },
+  {
+    "slug": "caravel-22fb-2026",
+    "model": "Caravel",
+    "floorplan": "22FB",
+    "year": 2026,
+    "lengthFt": 22.17,
+    "weightLb": 4050,
+    "gvwrLb": 5000,
+    "hitchWeightLb": 525,
+    "cccLb": 950,
+    "freshGal": 23,
+    "grayGal": 30,
+    "blackGal": 17,
+    "sleeps": 4,
+    "msrp": 93900,
+    "solarW": 200,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 44,
+    "specNote": "2026 MSRP not yet published; shown is latest verified base (2025).",
+    "description": "Sleeps up to 4, Front Primary Bed, Rear-Spanning Shower and Lavvy, Convertible U-Seated Dinette, Extended Mid-Ship Galley",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "trailers/40/1781314724943-0.jpg"
+  },
+  {
+    "slug": "classic-28rb-2025",
+    "model": "Classic",
+    "floorplan": "28RB",
+    "year": 2025,
+    "lengthFt": 28.83,
+    "weightLb": 7650,
+    "gvwrLb": 8800,
+    "hitchWeightLb": 875,
+    "cccLb": 1150,
+    "freshGal": 39,
+    "grayGal": 37,
+    "blackGal": 35,
+    "sleeps": 5,
+    "msrp": 190400,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 5, Rear Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Separate Lounge, Smart Control Technology",
+    "tags": [
+      "family",
+      "off-grid",
+      "luxury",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 5"
+    ],
+    "cons": [
+      "Requires heavy-duty tow vehicle",
+      "Premium price point"
+    ],
+    "heroFamily": "classic"
+  },
+  {
+    "slug": "classic-28rb-2026",
+    "model": "Classic",
+    "floorplan": "28RB",
+    "year": 2026,
+    "lengthFt": 28.83,
+    "weightLb": 7650,
+    "gvwrLb": 8800,
+    "hitchWeightLb": 875,
+    "cccLb": 1150,
+    "freshGal": 39,
+    "grayGal": 37,
+    "blackGal": 35,
+    "sleeps": 5,
+    "msrp": 186800,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 5, Rear Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Separate Lounge, Smart Control Technology",
+    "tags": [
+      "family",
+      "off-grid",
+      "luxury",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 5"
+    ],
+    "cons": [
+      "Requires heavy-duty tow vehicle",
+      "Premium price point"
+    ],
+    "heroFamily": "classic"
+  },
+  {
+    "slug": "classic-30rb-2025",
+    "model": "Classic",
+    "floorplan": "30RB",
+    "year": 2025,
+    "lengthFt": 31.42,
+    "weightLb": 7725,
+    "gvwrLb": 10000,
+    "hitchWeightLb": 830,
+    "cccLb": 2275,
+    "freshGal": 53,
+    "grayGal": 34,
+    "blackGal": 39,
+    "sleeps": 5,
+    "msrp": 204900,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 65,
+    "specNote": null,
+    "description": "Sleeps up to 5, Rear Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Separate Lounge, Smart Control Technology",
+    "tags": [
+      "family",
+      "off-grid",
+      "luxury",
+      "full-time"
+    ],
+    "pros": [
+      "Spacious full-time layout",
+      "Strong solar / off-grid ready",
+      "Sleeps 5"
+    ],
+    "cons": [
+      "Requires heavy-duty tow vehicle",
+      "Premium price point"
+    ],
+    "heroFamily": "classic"
+  },
+  {
+    "slug": "classic-30rb-2026",
+    "model": "Classic",
+    "floorplan": "30RB",
+    "year": 2026,
+    "lengthFt": 31.42,
+    "weightLb": 7725,
+    "gvwrLb": 10000,
+    "hitchWeightLb": 830,
+    "cccLb": 2275,
+    "freshGal": 53,
+    "grayGal": 34,
+    "blackGal": 39,
+    "sleeps": 5,
+    "msrp": 204900,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 65,
+    "specNote": "2026 MSRP not yet published; shown is latest verified base (2025).",
+    "description": "Sleeps up to 5, Rear Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Separate Lounge, Smart Control Technology",
+    "tags": [
+      "family",
+      "off-grid",
+      "luxury",
+      "full-time"
+    ],
+    "pros": [
+      "Spacious full-time layout",
+      "Strong solar / off-grid ready",
+      "Sleeps 5"
+    ],
+    "cons": [
+      "Requires heavy-duty tow vehicle",
+      "Premium price point"
+    ],
+    "heroFamily": "classic"
+  },
+  {
+    "slug": "classic-33fb-2025",
+    "model": "Classic",
+    "floorplan": "33FB",
+    "year": 2025,
+    "lengthFt": 33.25,
+    "weightLb": 8425,
+    "gvwrLb": 10000,
+    "hitchWeightLb": 1150,
+    "cccLb": 1575,
+    "freshGal": 53,
+    "grayGal": 34,
+    "blackGal": 39,
+    "sleeps": 5,
+    "msrp": 222900,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 65,
+    "specNote": null,
+    "description": "Sleeps up to 5, Front Primary Bed, Rear-Spanning Shower and Lavvy, Convertible Booth Style Dinette with Separate Lounge, Smart Control Technology",
+    "tags": [
+      "family",
+      "off-grid",
+      "luxury",
+      "full-time"
+    ],
+    "pros": [
+      "Spacious full-time layout",
+      "Strong solar / off-grid ready",
+      "Sleeps 5"
+    ],
+    "cons": [
+      "Requires heavy-duty tow vehicle",
+      "Premium price point"
+    ],
+    "heroFamily": "classic"
+  },
+  {
+    "slug": "classic-33fb-2026",
+    "model": "Classic",
+    "floorplan": "33FB",
+    "year": 2026,
+    "lengthFt": 33.25,
+    "weightLb": 8425,
+    "gvwrLb": 10000,
+    "hitchWeightLb": 1150,
+    "cccLb": 1575,
+    "freshGal": 53,
+    "grayGal": 34,
+    "blackGal": 39,
+    "sleeps": 5,
+    "msrp": 222900,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 65,
+    "specNote": "2026 MSRP not yet published; shown is latest verified base (2025).",
+    "description": "Sleeps up to 5, Front Primary Bed, Rear-Spanning Shower and Lavvy, Convertible Booth Style Dinette with Separate Lounge, Smart Control Technology",
+    "tags": [
+      "family",
+      "off-grid",
+      "luxury",
+      "full-time"
+    ],
+    "pros": [
+      "Spacious full-time layout",
+      "Strong solar / off-grid ready",
+      "Sleeps 5"
+    ],
+    "cons": [
+      "Requires heavy-duty tow vehicle",
+      "Premium price point"
+    ],
+    "heroFamily": "classic"
+  },
+  {
+    "slug": "flying-cloud-23fb-2025",
+    "model": "Flying Cloud",
+    "floorplan": "23FB",
+    "year": 2025,
+    "lengthFt": 23.92,
+    "weightLb": 5000,
+    "gvwrLb": 6000,
+    "hitchWeightLb": 500,
+    "cccLb": 1000,
+    "freshGal": 37,
+    "grayGal": 37,
+    "blackGal": 17,
+    "sleeps": 4,
+    "msrp": 106400,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 57,
+    "specNote": null,
+    "description": "Sleeps up to 4, Front Primary Bed, Rear-Spanning Shower and Lavvy, Convertible U-Seated Dinette, Convertible Sofa Configuration Available",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "flyingcloud"
+  },
+  {
+    "slug": "flying-cloud-23fb-2026",
+    "model": "Flying Cloud",
+    "floorplan": "23FB",
+    "year": 2026,
+    "lengthFt": 23.92,
+    "weightLb": 5000,
+    "gvwrLb": 6000,
+    "hitchWeightLb": 500,
+    "cccLb": 1000,
+    "freshGal": 37,
+    "grayGal": 37,
+    "blackGal": 17,
+    "sleeps": 4,
+    "msrp": 106400,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 57,
+    "specNote": null,
+    "description": "Sleeps up to 4, Front Primary Bed, Rear-Spanning Shower and Lavvy, Convertible U-Seated Dinette, Convertible Sofa Configuration Available",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "flyingcloud"
+  },
+  {
+    "slug": "flying-cloud-25fb-2025",
+    "model": "Flying Cloud",
+    "floorplan": "25FB",
+    "year": 2025,
+    "lengthFt": 26.17,
+    "weightLb": 5650,
+    "gvwrLb": 7300,
+    "hitchWeightLb": 860,
+    "cccLb": 1650,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 6,
+    "msrp": 118900,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Connected Lounge, Rear Hatch Available",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "flyingcloud"
+  },
+  {
+    "slug": "flying-cloud-25fb-2026",
+    "model": "Flying Cloud",
+    "floorplan": "25FB",
+    "year": 2026,
+    "lengthFt": 26.17,
+    "weightLb": 5650,
+    "gvwrLb": 7300,
+    "hitchWeightLb": 860,
+    "cccLb": 1650,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 6,
+    "msrp": 118900,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Connected Lounge, Rear Hatch Available",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "flyingcloud"
+  },
+  {
+    "slug": "flying-cloud-27fb-2025",
+    "model": "Flying Cloud",
+    "floorplan": "27FB",
+    "year": 2025,
+    "lengthFt": 28.17,
+    "weightLb": 5950,
+    "gvwrLb": 7600,
+    "hitchWeightLb": 850,
+    "cccLb": 1650,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 6,
+    "msrp": 127400,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Connected Lounge, Rear Hatch Available",
+    "tags": [
+      "family",
+      "off-grid",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "flyingcloud"
+  },
+  {
+    "slug": "flying-cloud-27fb-2026",
+    "model": "Flying Cloud",
+    "floorplan": "27FB",
+    "year": 2026,
+    "lengthFt": 28.17,
+    "weightLb": 5950,
+    "gvwrLb": 7600,
+    "hitchWeightLb": 850,
+    "cccLb": 1650,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 6,
+    "msrp": 133100,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Connected Lounge, Rear Hatch Available",
+    "tags": [
+      "family",
+      "off-grid",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "flyingcloud"
+  },
+  {
+    "slug": "flying-cloud-28rb-2025",
+    "model": "Flying Cloud",
+    "floorplan": "28RB",
+    "year": 2025,
+    "lengthFt": 28.17,
+    "weightLb": 5900,
+    "gvwrLb": 7600,
+    "hitchWeightLb": 860,
+    "cccLb": 1700,
+    "freshGal": 39,
+    "grayGal": 37,
+    "blackGal": 35,
+    "sleeps": 6,
+    "msrp": 127400,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Rear Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Separate Lounge, Mid-Ship Galley with Laminate Countertops",
+    "tags": [
+      "family",
+      "off-grid",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "flyingcloud"
+  },
+  {
+    "slug": "flying-cloud-28rb-2026",
+    "model": "Flying Cloud",
+    "floorplan": "28RB",
+    "year": 2026,
+    "lengthFt": 28.17,
+    "weightLb": 5900,
+    "gvwrLb": 7600,
+    "hitchWeightLb": 860,
+    "cccLb": 1700,
+    "freshGal": 39,
+    "grayGal": 37,
+    "blackGal": 35,
+    "sleeps": 6,
+    "msrp": 127400,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Rear Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Separate Lounge, Mid-Ship Galley with Laminate Countertops",
+    "tags": [
+      "family",
+      "off-grid",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "flyingcloud"
+  },
+  {
+    "slug": "flying-cloud-30fb-bunk-2025",
+    "model": "Flying Cloud",
+    "floorplan": "30FB Bunk",
+    "year": 2025,
+    "lengthFt": 31.17,
+    "weightLb": 6700,
+    "gvwrLb": 8800,
+    "hitchWeightLb": 900,
+    "cccLb": 2100,
+    "freshGal": 53,
+    "grayGal": 40,
+    "blackGal": 35,
+    "sleeps": 8,
+    "msrp": 137400,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 65,
+    "specNote": null,
+    "description": "Sleeps up to 8, Front Primary Bed, Combined Corner Shower and Lavvy, Convertible U-Seated Dinette with Separate Lounge, Extended Mid-Ship Galley with Laminate Countertops",
+    "tags": [
+      "family",
+      "off-grid",
+      "full-time"
+    ],
+    "pros": [
+      "Spacious full-time layout",
+      "Strong solar / off-grid ready",
+      "Sleeps 8"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "flyingcloud"
+  },
+  {
+    "slug": "flying-cloud-30fb-bunk-2026",
+    "model": "Flying Cloud",
+    "floorplan": "30FB Bunk",
+    "year": 2026,
+    "lengthFt": 31.17,
+    "weightLb": 6700,
+    "gvwrLb": 8800,
+    "hitchWeightLb": 900,
+    "cccLb": 2100,
+    "freshGal": 53,
+    "grayGal": 40,
+    "blackGal": 35,
+    "sleeps": 8,
+    "msrp": 137850,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 65,
+    "specNote": null,
+    "description": "Sleeps up to 8, Front Primary Bed, Combined Corner Shower and Lavvy, Convertible U-Seated Dinette with Separate Lounge, Extended Mid-Ship Galley with Laminate Countertops",
+    "tags": [
+      "family",
+      "off-grid",
+      "full-time"
+    ],
+    "pros": [
+      "Spacious full-time layout",
+      "Strong solar / off-grid ready",
+      "Sleeps 8"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "flyingcloud"
+  },
+  {
+    "slug": "frank-lloyd-wright-limited-edition-28rb-2026",
+    "model": "Frank Lloyd Wright Limited Edition",
+    "floorplan": "28RB",
+    "year": 2026,
+    "lengthFt": 28.17,
+    "weightLb": 6800,
+    "gvwrLb": 7600,
+    "hitchWeightLb": 800,
+    "cccLb": 800,
+    "freshGal": 37,
+    "grayGal": null,
+    "blackGal": null,
+    "sleeps": 4,
+    "msrp": 184900,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 57,
+    "specNote": "Gray/black tank capacities unconfirmed (no official breakdown published).",
+    "description": "Sleeps up to 4, Rear Primary Bed, Combined Mid-Ship Shower and Lavvy, Stowable Dinette with Chairs and Sofa Seating, Rear Hatch for Indoor-Outdoor Living",
+    "tags": [
+      "family",
+      "off-grid",
+      "luxury",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Plan payload carefully",
+      "Premium price point"
+    ],
+    "heroFamily": "flw"
+  },
+  {
+    "slug": "globetrotter-25fb-2025",
+    "model": "Globetrotter",
+    "floorplan": "25FB",
+    "year": 2025,
+    "lengthFt": 26.17,
+    "weightLb": 5975,
+    "gvwrLb": 7300,
+    "hitchWeightLb": 880,
+    "cccLb": 1325,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 6,
+    "msrp": 139900,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible U-Seated Dinette with Lounge, Mid-Ship Galley with Solid Surface Countertops",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "globetrotter"
+  },
+  {
+    "slug": "globetrotter-25fb-2026",
+    "model": "Globetrotter",
+    "floorplan": "25FB",
+    "year": 2026,
+    "lengthFt": 26.17,
+    "weightLb": 5975,
+    "gvwrLb": 7300,
+    "hitchWeightLb": 880,
+    "cccLb": 1325,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 6,
+    "msrp": 139900,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible U-Seated Dinette with Lounge, Mid-Ship Galley with Solid Surface Countertops",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "globetrotter"
+  },
+  {
+    "slug": "globetrotter-27fb-2025",
+    "model": "Globetrotter",
+    "floorplan": "27FB",
+    "year": 2025,
+    "lengthFt": 28.17,
+    "weightLb": 6300,
+    "gvwrLb": 7600,
+    "hitchWeightLb": 875,
+    "cccLb": 1300,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 6,
+    "msrp": 148400,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible U-Seated Dinette with Lounge, Extended Mid-Ship Galley with Solid Surface Countertops",
+    "tags": [
+      "family",
+      "off-grid",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "globetrotter"
+  },
+  {
+    "slug": "globetrotter-27fb-2026",
+    "model": "Globetrotter",
+    "floorplan": "27FB",
+    "year": 2026,
+    "lengthFt": 28.17,
+    "weightLb": 6300,
+    "gvwrLb": 7600,
+    "hitchWeightLb": 875,
+    "cccLb": 1300,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 6,
+    "msrp": 148400,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible U-Seated Dinette with Lounge, Extended Mid-Ship Galley with Solid Surface Countertops",
+    "tags": [
+      "family",
+      "off-grid",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "globetrotter"
+  },
+  {
+    "slug": "globetrotter-30rb-2025",
+    "model": "Globetrotter",
+    "floorplan": "30RB",
+    "year": 2025,
+    "lengthFt": 31.17,
+    "weightLb": 6925,
+    "gvwrLb": 8800,
+    "hitchWeightLb": 950,
+    "cccLb": 1875,
+    "freshGal": 53,
+    "grayGal": 36,
+    "blackGal": 36,
+    "sleeps": 6,
+    "msrp": 161400,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 65,
+    "specNote": null,
+    "description": "Sleeps up to 6, Rear Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Extended Convertible Dinette and Lounge, Extended Mid-Ship Galley with Solid Surface Countertops",
+    "tags": [
+      "family",
+      "off-grid",
+      "luxury",
+      "full-time"
+    ],
+    "pros": [
+      "Spacious full-time layout",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully",
+      "Premium price point"
+    ],
+    "heroFamily": "globetrotter"
+  },
+  {
+    "slug": "globetrotter-30rb-2026",
+    "model": "Globetrotter",
+    "floorplan": "30RB",
+    "year": 2026,
+    "lengthFt": 31.17,
+    "weightLb": 6925,
+    "gvwrLb": 8800,
+    "hitchWeightLb": 950,
+    "cccLb": 1875,
+    "freshGal": 53,
+    "grayGal": 36,
+    "blackGal": 36,
+    "sleeps": 6,
+    "msrp": 161400,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 65,
+    "specNote": null,
+    "description": "Sleeps up to 6, Rear Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Extended Convertible Dinette and Lounge, Extended Mid-Ship Galley with Solid Surface Countertops",
+    "tags": [
+      "family",
+      "off-grid",
+      "luxury",
+      "full-time"
+    ],
+    "pros": [
+      "Spacious full-time layout",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully",
+      "Premium price point"
+    ],
+    "heroFamily": "globetrotter"
+  },
+  {
+    "slug": "international-23fb-2025",
+    "model": "International",
+    "floorplan": "23FB",
+    "year": 2025,
+    "lengthFt": 23.92,
+    "weightLb": 5100,
+    "gvwrLb": 6000,
+    "hitchWeightLb": 500,
+    "cccLb": 900,
+    "freshGal": 37,
+    "grayGal": 37,
+    "blackGal": 17,
+    "sleeps": 4,
+    "msrp": 121400,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 57,
+    "specNote": null,
+    "description": "Sleeps up to 4, Front Primary Bed, Rear-Spanning Shower and Lavvy, Convertible U-Seated Dinette, Convertible Sofa Configuration Available",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "international"
+  },
+  {
+    "slug": "international-23fb-2026",
+    "model": "International",
+    "floorplan": "23FB",
+    "year": 2026,
+    "lengthFt": 23.92,
+    "weightLb": 5100,
+    "gvwrLb": 6000,
+    "hitchWeightLb": 500,
+    "cccLb": 900,
+    "freshGal": 37,
+    "grayGal": 37,
+    "blackGal": 17,
+    "sleeps": 4,
+    "msrp": 118000,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 57,
+    "specNote": null,
+    "description": "Sleeps up to 4, Front Primary Bed, Rear-Spanning Shower and Lavvy, Convertible U-Seated Dinette, Convertible Sofa Configuration Available",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "international"
+  },
+  {
+    "slug": "international-25fb-2025",
+    "model": "International",
+    "floorplan": "25FB",
+    "year": 2025,
+    "lengthFt": 26.17,
+    "weightLb": 5700,
+    "gvwrLb": 7300,
+    "hitchWeightLb": 860,
+    "cccLb": 1600,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 6,
+    "msrp": 133900,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Connected Lounge, Rear Hatch Available",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "international"
+  },
+  {
+    "slug": "international-25fb-2026",
+    "model": "International",
+    "floorplan": "25FB",
+    "year": 2026,
+    "lengthFt": 26.17,
+    "weightLb": 5700,
+    "gvwrLb": 7300,
+    "hitchWeightLb": 860,
+    "cccLb": 1600,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 6,
+    "msrp": 135000,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Connected Lounge, Rear Hatch Available",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "international"
+  },
+  {
+    "slug": "international-27fb-2025",
+    "model": "International",
+    "floorplan": "27FB",
+    "year": 2025,
+    "lengthFt": 28.17,
+    "weightLb": 6000,
+    "gvwrLb": 7600,
+    "hitchWeightLb": 850,
+    "cccLb": 1600,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 6,
+    "msrp": 142400,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Connected Lounge, Rear Hatch Available",
+    "tags": [
+      "family",
+      "off-grid",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "international"
+  },
+  {
+    "slug": "international-27fb-2026",
+    "model": "International",
+    "floorplan": "27FB",
+    "year": 2026,
+    "lengthFt": 28.17,
+    "weightLb": 6000,
+    "gvwrLb": 7600,
+    "hitchWeightLb": 850,
+    "cccLb": 1600,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 6,
+    "msrp": 153645,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Connected Lounge, Rear Hatch Available",
+    "tags": [
+      "family",
+      "off-grid",
+      "luxury",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully",
+      "Premium price point"
+    ],
+    "heroFamily": "international"
+  },
+  {
+    "slug": "international-28rb-2025",
+    "model": "International",
+    "floorplan": "28RB",
+    "year": 2025,
+    "lengthFt": 28.17,
+    "weightLb": 5900,
+    "gvwrLb": 7600,
+    "hitchWeightLb": 860,
+    "cccLb": 1700,
+    "freshGal": 39,
+    "grayGal": 37,
+    "blackGal": 35,
+    "sleeps": 6,
+    "msrp": 142400,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Rear Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Separate Lounge, Mid-Ship Galley with Solid Surface Countertops",
+    "tags": [
+      "family",
+      "off-grid",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "international"
+  },
+  {
+    "slug": "international-28rb-2026",
+    "model": "International",
+    "floorplan": "28RB",
+    "year": 2026,
+    "lengthFt": 28.17,
+    "weightLb": 5900,
+    "gvwrLb": 7600,
+    "hitchWeightLb": 860,
+    "cccLb": 1700,
+    "freshGal": 39,
+    "grayGal": 37,
+    "blackGal": 35,
+    "sleeps": 6,
+    "msrp": 145000,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 6, Rear Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Separate Lounge, Mid-Ship Galley with Solid Surface Countertops",
+    "tags": [
+      "family",
+      "off-grid",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "international"
+  },
+  {
+    "slug": "international-30rb-2025",
+    "model": "International",
+    "floorplan": "30RB",
+    "year": 2025,
+    "lengthFt": 31.17,
+    "weightLb": 6600,
+    "gvwrLb": 8800,
+    "hitchWeightLb": 900,
+    "cccLb": 2200,
+    "freshGal": 53,
+    "grayGal": 36,
+    "blackGal": 36,
+    "sleeps": 6,
+    "msrp": 149900,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 65,
+    "specNote": null,
+    "description": "Sleeps up to 6, Rear Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Separate Lounge, Extended Mid-Ship Galley with Solid Surface Countertops",
+    "tags": [
+      "family",
+      "off-grid",
+      "full-time"
+    ],
+    "pros": [
+      "Spacious full-time layout",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "international"
+  },
+  {
+    "slug": "international-30rb-2026",
+    "model": "International",
+    "floorplan": "30RB",
+    "year": 2026,
+    "lengthFt": 31.17,
+    "weightLb": 6600,
+    "gvwrLb": 8800,
+    "hitchWeightLb": 900,
+    "cccLb": 2200,
+    "freshGal": 53,
+    "grayGal": 36,
+    "blackGal": 36,
+    "sleeps": 6,
+    "msrp": 160000,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": false,
+    "offGridScore": 65,
+    "specNote": null,
+    "description": "Sleeps up to 6, Rear Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Separate Lounge, Extended Mid-Ship Galley with Solid Surface Countertops",
+    "tags": [
+      "family",
+      "off-grid",
+      "luxury",
+      "full-time"
+    ],
+    "pros": [
+      "Spacious full-time layout",
+      "Strong solar / off-grid ready",
+      "Sleeps 6"
+    ],
+    "cons": [
+      "Plan payload carefully",
+      "Premium price point"
+    ],
+    "heroFamily": "international"
+  },
+  {
+    "slug": "stetson-6666-special-edition-27fb-2026",
+    "model": "Stetson 6666 Special Edition",
+    "floorplan": "27FB",
+    "year": 2026,
+    "lengthFt": 28.17,
+    "weightLb": 6700,
+    "gvwrLb": 7600,
+    "hitchWeightLb": 900,
+    "cccLb": 900,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 4,
+    "msrp": 171900,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 58,
+    "specNote": null,
+    "description": "Sleeps up to 4, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Connected Lounge, Rear Hatch for Indoor-Outdoor Living",
+    "tags": [
+      "family",
+      "off-grid",
+      "luxury",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Plan payload carefully",
+      "Premium price point"
+    ],
+    "heroFamily": "stetson"
+  },
+  {
+    "slug": "trade-wind-23fb-2025",
+    "model": "Trade Wind",
+    "floorplan": "23FB",
+    "year": 2025,
+    "lengthFt": 23.92,
+    "weightLb": 5650,
+    "gvwrLb": 6500,
+    "hitchWeightLb": 600,
+    "cccLb": 850,
+    "freshGal": 37,
+    "grayGal": 37,
+    "blackGal": 17,
+    "sleeps": 4,
+    "msrp": 129900,
+    "solarW": 500,
+    "batteryKwh": 10.3,
+    "solarStandard": true,
+    "offGridScore": 87,
+    "specNote": null,
+    "description": "Sleeps up to 4, Front Primary Bed, Rear-Spanning Shower and Lavvy, Convertible U-Seated Dinette, Fully Inverted Electric System",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "tradewind"
+  },
+  {
+    "slug": "trade-wind-23fb-2026",
+    "model": "Trade Wind",
+    "floorplan": "23FB",
+    "year": 2026,
+    "lengthFt": 23.92,
+    "weightLb": 5650,
+    "gvwrLb": 6500,
+    "hitchWeightLb": 600,
+    "cccLb": 850,
+    "freshGal": 37,
+    "grayGal": 37,
+    "blackGal": 17,
+    "sleeps": 4,
+    "msrp": 129900,
+    "solarW": 500,
+    "batteryKwh": 10.3,
+    "solarStandard": true,
+    "offGridScore": 87,
+    "specNote": null,
+    "description": "Sleeps up to 4, Front Primary Bed, Rear-Spanning Shower and Lavvy, Convertible U-Seated Dinette, Fully Inverted Electric System",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "tradewind"
+  },
+  {
+    "slug": "trade-wind-25fb-2025",
+    "model": "Trade Wind",
+    "floorplan": "25FB",
+    "year": 2025,
+    "lengthFt": 26.17,
+    "weightLb": 6300,
+    "gvwrLb": 7600,
+    "hitchWeightLb": 725,
+    "cccLb": 1300,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 5,
+    "msrp": 139900,
+    "solarW": 600,
+    "batteryKwh": 10.3,
+    "solarStandard": true,
+    "offGridScore": 93,
+    "specNote": null,
+    "description": "Sleeps up to 5, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Connected Lounge, Rear Hatch Available",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 5"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "tradewind"
+  },
+  {
+    "slug": "trade-wind-25fb-2026",
+    "model": "Trade Wind",
+    "floorplan": "25FB",
+    "year": 2026,
+    "lengthFt": 26.17,
+    "weightLb": 6300,
+    "gvwrLb": 7600,
+    "hitchWeightLb": 725,
+    "cccLb": 1300,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 5,
+    "msrp": 139900,
+    "solarW": 600,
+    "batteryKwh": 10.3,
+    "solarStandard": true,
+    "offGridScore": 93,
+    "specNote": null,
+    "description": "Sleeps up to 5, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Connected Lounge, Rear Hatch Available",
+    "tags": [
+      "family",
+      "off-grid"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 5"
+    ],
+    "cons": [
+      "Plan payload carefully"
+    ],
+    "heroFamily": "tradewind"
+  },
+  {
+    "slug": "trade-wind-27fb-2025",
+    "model": "Trade Wind",
+    "floorplan": "27FB",
+    "year": 2025,
+    "lengthFt": 28.17,
+    "weightLb": 7025,
+    "gvwrLb": 8300,
+    "hitchWeightLb": 925,
+    "cccLb": 1275,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 5,
+    "msrp": 155400,
+    "solarW": 600,
+    "batteryKwh": 18.5,
+    "solarStandard": true,
+    "offGridScore": 93,
+    "specNote": null,
+    "description": "Sleeps up to 5, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Connected Lounge, Rear Hatch Available",
+    "tags": [
+      "family",
+      "off-grid",
+      "luxury",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 5"
+    ],
+    "cons": [
+      "Requires heavy-duty tow vehicle",
+      "Premium price point"
+    ],
+    "heroFamily": "tradewind"
+  },
+  {
+    "slug": "trade-wind-27fb-2026",
+    "model": "Trade Wind",
+    "floorplan": "27FB",
+    "year": 2026,
+    "lengthFt": 28.17,
+    "weightLb": 7025,
+    "gvwrLb": 8300,
+    "hitchWeightLb": 925,
+    "cccLb": 1275,
+    "freshGal": 39,
+    "grayGal": 39,
+    "blackGal": 39,
+    "sleeps": 5,
+    "msrp": 155400,
+    "solarW": 600,
+    "batteryKwh": 18.5,
+    "solarStandard": true,
+    "offGridScore": 93,
+    "specNote": null,
+    "description": "Sleeps up to 5, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Connected Lounge, Rear Hatch Available",
+    "tags": [
+      "family",
+      "off-grid",
+      "luxury",
+      "full-time"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 5"
+    ],
+    "cons": [
+      "Requires heavy-duty tow vehicle",
+      "Premium price point"
+    ],
+    "heroFamily": "tradewind"
+  },
+  {
+    "slug": "world-traveler-22rb-2026",
+    "model": "World Traveler",
+    "floorplan": "22RB",
+    "year": 2026,
+    "lengthFt": 22.17,
+    "weightLb": 3700,
+    "gvwrLb": 4500,
+    "hitchWeightLb": 450,
+    "cccLb": 800,
+    "freshGal": 19,
+    "grayGal": 24,
+    "blackGal": 12,
+    "sleeps": 4,
+    "msrp": 68300,
+    "solarW": 300,
+    "batteryKwh": 2.5,
+    "solarStandard": true,
+    "offGridScore": 46,
+    "specNote": null,
+    "description": "Sleeps up to 4, Rear V-Shape Twin Beds, Combined Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette, Extended Mid-Ship Galley with Storage",
+    "tags": [
+      "family",
+      "off-grid",
+      "solo"
+    ],
+    "pros": [
+      "Balanced size for most parks",
+      "Strong solar / off-grid ready",
+      "Sleeps 4"
+    ],
+    "cons": [
+      "Compact storage"
+    ],
+    "heroFamily": "worldtraveler"
+  }
+]

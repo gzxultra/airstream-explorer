@@ -1,0 +1,14 @@
+{
+  "name": "airstream-explorer",
+  "version": "1.0.0",
+  "description": "Cinematic, spec-accurate catalog of every current Airstream travel-trailer floorplan.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test test/",
+    "build": "node scripts/build.mjs",
+    "prebuild": "node --test test/",
+    "dev": "node scripts/build.mjs && node -e \"import('node:http').then(h=>h.createServer((q,s)=>{import('node:fs').then(f=>{let p='dist'+(q.url==='/'?'/index.html':q.url.split('?')[0]);try{let b=f.readFileSync(p);let t=p.endsWith('.css')?'text/css':p.endsWith('.js')?'text/javascript':p.endsWith('.jpg')?'image/jpeg':'text/html';s.writeHead(200,{'content-type':t});s.end(b)}catch(e){s.writeHead(404);s.end('404')}})}).listen(8788,()=>console.log('http://localhost:8788')))\""
+  },
+  "engines": { "node": ">=18" }
+}
