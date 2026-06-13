@@ -171,3 +171,49 @@ test('no detail page contains an unescaped data-driven angle bracket in body tex
     assert.equal(scripts.length, 1, `${t.slug} has unexpected <script> count`);
   }
 });
+
+import { renderExplore, renderCompare, renderExploreCard } from '../src/lib/render.mjs';
+
+test('renderExplore embeds every floorplan as an xcard with tow data', () => {
+  const html = renderExplore(trailers);
+  const cards = (html.match(/class="xcard"/g) || []).length;
+  assert.equal(cards, trailers.length);
+  assert.match(html, /id="tow-input"/);
+  assert.match(html, /data-gvwr=/);
+  assert.match(html, /Explore &amp; match/);
+});
+
+test('renderExploreCard carries the numeric attributes the client sorts on', () => {
+  const t = trailers.find((x) => x.slug === 'classic-33fb-2026');
+  const html = renderExploreCard(t);
+  assert.match(html, /data-msrp="222900"/);
+  assert.match(html, /data-gvwr="10000"/);
+  assert.match(html, /data-sleeps="5"/);
+  assert.match(html, /data-tags="[^"]*off-grid/);
+});
+
+test('renderCompare embeds a valid, XSS-safe JSON island of all trailers', () => {
+  const html = renderCompare(trailers);
+  const m = html.match(/<script type="application\/json" id="cmp-data">([\s\S]*?)<\/script>/);
+  assert.ok(m, 'has json island');
+  // raw island must not contain an unescaped </ that could break out of the tag
+  assert.ok(!/<\//.test(m[1]), 'no unescaped </ in island');
+  const data = JSON.parse(m[1].replace(/\\u003c/g, '<'));
+  assert.equal(data.length, trailers.length);
+  assert.ok(data[0].slug && data[0].msrp && data[0].thumb);
+});
+
+test('detail page renders the towing callout with a recommended rating', () => {
+  const t = trailers.find((x) => x.slug === 'flying-cloud-25fb-2026');
+  const html = renderDetail(t);
+  assert.match(html, /Recommended minimum tow rating/);
+  assert.match(html, /class="tow-callout"/);
+});
+
+test('every page carries the top nav with explore + compare links', () => {
+  for (const html of [renderIndex(groupByFamily(trailers)), renderExplore(trailers), renderCompare(trailers)]) {
+    assert.match(html, /class="topnav-links"/);
+    assert.match(html, /explore\.html/);
+    assert.match(html, /compare\.html/);
+  }
+});

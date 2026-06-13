@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
 import { loadTrailers, validateDataset, groupByFamily, resolveAssets } from '../src/lib/data.mjs';
-import { renderIndex, renderFamily, renderDetail, page } from '../src/lib/render.mjs';
+import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, page } from '../src/lib/render.mjs';
 import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -52,6 +52,11 @@ for (const t of trailers) {
   writeFileSync(join(DIST, 'm', `${t.slug}.html`), renderDetail(t, resolve));
 }
 log(`wrote ${trailers.length} detail pages`);
+
+// 4a. Explore & match + Compare (root-level, relRoot = '')
+writeFileSync(join(DIST, 'explore.html'), renderExplore(trailers, resolve));
+writeFileSync(join(DIST, 'compare.html'), renderCompare(trailers, resolve));
+log('wrote explore.html + compare.html');
 
 // 4b. Community gallery + credits pages (root-level, so relRoot = '')
 writeFileSync(
@@ -121,6 +126,8 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
   // ('', '../'); match the canonical tail and swap to the hashed tail.
   const htmlFiles = [
     join(DIST, 'index.html'),
+    join(DIST, 'explore.html'),
+    join(DIST, 'compare.html'),
     join(DIST, 'community.html'),
     join(DIST, 'credits.html'),
     ...families.map((f) => join(DIST, 'f', `${f.slug}.html`)),
@@ -149,6 +156,8 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
 {
   const pages = [
     { file: join(DIST, 'index.html'), base: DIST },
+    { file: join(DIST, 'explore.html'), base: DIST },
+    { file: join(DIST, 'compare.html'), base: DIST },
     { file: join(DIST, 'community.html'), base: DIST },
     { file: join(DIST, 'credits.html'), base: DIST },
     ...families.map((f) => ({ file: join(DIST, 'f', `${f.slug}.html`), base: join(DIST, 'f') })),

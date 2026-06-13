@@ -18,7 +18,7 @@
     "batteryKwh": 2.5,
     "solarStandard": true,
     "offGridScore": 39,
-    "specNote": null,
+    "specNote": "Gray and black are a single combined waste tank on this model; the black figure is the combined capacity.",
     "description": "Sleeps up to 4, Rear Primary Bed, Space-Saving Wet Bath, Convertible Booth Style Dinette, Efficient Mid-Ship Galley",
     "tags": [
       "family",
@@ -55,7 +55,7 @@
     "batteryKwh": 2.5,
     "solarStandard": true,
     "offGridScore": 39,
-    "specNote": null,
+    "specNote": "Gray and black are a single combined waste tank on this model; the black figure is the combined capacity.",
     "description": "Sleeps up to 4, Rear Primary Bed, Space-Saving Wet Bath, Convertible Booth Style Dinette, Efficient Mid-Ship Galley",
     "tags": [
       "family",
@@ -240,7 +240,7 @@
     "batteryKwh": 2.5,
     "solarStandard": true,
     "offGridScore": 43,
-    "specNote": null,
+    "specNote": "Gray and black are a single combined waste tank on this model; the black figure is the combined capacity.",
     "description": "Sleeps up to 2, Rear Convertible Bed, Space-Saving Wet Bath, Convertible Bench Seating with Two Removable Tables, Front Galley with Panoramic Windows",
     "tags": [
       "couples",
@@ -276,7 +276,7 @@
     "batteryKwh": 2.5,
     "solarStandard": true,
     "offGridScore": 43,
-    "specNote": null,
+    "specNote": "Gray and black are a single combined waste tank on this model; the black figure is the combined capacity.",
     "description": "Sleeps up to 2, Rear Convertible Bed, Space-Saving Wet Bath, Convertible Bench Seating with Two Removable Tables, Front Galley with Panoramic Windows",
     "tags": [
       "couples",
@@ -370,7 +370,7 @@
   {
     "slug": "basecamp-xe-20xe-2025",
     "model": "Basecamp XE",
-    "floorplan": "20Xe",
+    "floorplan": "20",
     "year": 2025,
     "lengthFt": 20.17,
     "weightLb": 3750,
@@ -407,7 +407,7 @@
   {
     "slug": "basecamp-xe-20xe-2026",
     "model": "Basecamp XE",
-    "floorplan": "20Xe",
+    "floorplan": "20",
     "year": 2026,
     "lengthFt": 20.17,
     "weightLb": 3750,
@@ -460,7 +460,7 @@
     "batteryKwh": 2.5,
     "solarStandard": true,
     "offGridScore": 39,
-    "specNote": null,
+    "specNote": "Gray and black are a single combined waste tank on this model; the black figure is the combined capacity.",
     "description": "Sleeps up to 4, Rear Primary Bed, Space-Saving Wet Bath, Convertible Booth Style Dinette, Efficient Mid-Ship Galley",
     "tags": [
       "family",
@@ -497,7 +497,7 @@
     "batteryKwh": 2.5,
     "solarStandard": true,
     "offGridScore": 39,
-    "specNote": "2026 MSRP not yet published; shown is latest verified base (2025).",
+    "specNote": "2026 MSRP not yet published; shown is latest verified base (2025). Gray and black are a single combined waste tank on this model; the black figure is the combined capacity.",
     "description": "Sleeps up to 4, Rear Primary Bed, Space-Saving Wet Bath, Convertible Booth Style Dinette, Efficient Mid-Ship Galley",
     "tags": [
       "family",
@@ -655,7 +655,7 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "trailers/40/1781314724943-0.jpg"
+    "heroFamily": "caravel"
   },
   {
     "slug": "classic-28rb-2025",

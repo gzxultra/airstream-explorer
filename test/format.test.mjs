@@ -40,3 +40,29 @@ test('titles', () => {
   assert.equal(trailerTitle(t), '2026 Airstream Classic 33FB');
   assert.equal(trailerLabel(t), 'Classic 33FB');
 });
+
+import { recommendedTowRating, hitchPctOfGvwr } from '../src/lib/format.mjs';
+
+test('recommendedTowRating sizes GVWR to ~80% and rounds up to 500', () => {
+  // 3500 / 0.8 = 4375 -> next 500 -> 4500
+  assert.equal(recommendedTowRating(3500), 4500);
+  // 10000 / 0.8 = 12500 -> already on 500 -> 12500
+  assert.equal(recommendedTowRating(10000), 12500);
+  // 5600 / 0.8 = 7000 -> 7000
+  assert.equal(recommendedTowRating(5600), 7000);
+  assert.equal(recommendedTowRating(0), null);
+  assert.equal(recommendedTowRating(null), null);
+});
+
+test('recommendedTowRating always leaves the GVWR at <= 80% of the result', () => {
+  for (const g of [3500, 4500, 6000, 7600, 8800, 10000]) {
+    const r = recommendedTowRating(g);
+    assert.ok(g <= r * 0.8 + 1e-9, `${g} should be <=80% of ${r}`);
+  }
+});
+
+test('hitchPctOfGvwr returns whole-percent tongue load', () => {
+  assert.equal(hitchPctOfGvwr(1150, 10000), 12); // 11.5 -> 12
+  assert.equal(hitchPctOfGvwr(410, 3500), 12);
+  assert.equal(hitchPctOfGvwr(0, 10000), null);
+});
