@@ -115,6 +115,13 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 .gallery-img { width: 100%; border-radius: var(--radius); background: #ddd6c8; box-shadow: var(--shadow); }
 
+/* ---------- Floor plan ---------- */
+.floorplan { margin: 40px 0 0; }
+.floorplan h2 { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+.floorplan-fig { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); text-align: center; }
+.floorplan-img { width: 100%; max-width: 460px; height: auto; display: block; margin: 0 auto; }
+.floorplan-fig figcaption { margin-top: 12px; font-size: 12px; letter-spacing: .04em; }
+
 /* ---------- Footer ---------- */
 .site-footer { border-top: 1px solid var(--line); max-width: var(--maxw); margin: 0 auto; padding: 28px 20px 56px; font-size: 13px; color: var(--muted); }
 .site-footer p { margin: 0 0 6px; }

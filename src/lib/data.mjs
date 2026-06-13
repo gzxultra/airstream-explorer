@@ -157,6 +157,7 @@ export function assetPaths(t) {
     thumb: `assets/img/thumbs/${t.slug}.jpg`,
     hero: `assets/img/heroes/${slugify(t.model)}.jpg`,
     gallery: [1, 2, 3].map((i) => `assets/img/gallery/${t.slug}-${i}.jpg`),
+    floorplan: `assets/img/floorplans/${t.slug}.jpg`,
   };
 }
 
@@ -181,9 +182,16 @@ export function resolveAssets(t, hasAsset) {
       return null;
     })
     .filter(Boolean);
+  // Floor-plan diagram: this slug's own, falling back to its cross-year twin's
+  // (the 2025/2026 of one floorplan share an identical official diagram).
+  let floorplan = null;
+  if (hasAsset(canon.floorplan)) floorplan = canon.floorplan;
+  else if (hasAsset(`assets/img/floorplans/${twin}.jpg`))
+    floorplan = `assets/img/floorplans/${twin}.jpg`;
   return {
     thumb: canon.thumb,
     hero: hasAsset(canon.hero) ? canon.hero : null,
     gallery,
+    floorplan,
   };
 }

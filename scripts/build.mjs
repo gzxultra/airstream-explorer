@@ -77,7 +77,7 @@ cpSync(join(ROOT, 'src', 'assets', 'css'), join(DIST, 'assets', 'css'), { recurs
 cpSync(join(ROOT, 'src', 'assets', 'js'), join(DIST, 'assets', 'js'), { recursive: true });
 if (existsSync(join(PUBLIC, 'assets', 'img'))) {
   cpSync(join(PUBLIC, 'assets', 'img'), join(DIST, 'assets', 'img'), { recursive: true });
-  const counts = ['thumbs', 'heroes', 'gallery'].map((d) => {
+  const counts = ['thumbs', 'heroes', 'gallery', 'floorplans'].map((d) => {
     const p = join(DIST, 'assets', 'img', d);
     return `${d}:${existsSync(p) ? readdirSync(p).length : 0}`;
   });

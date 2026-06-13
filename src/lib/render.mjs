@@ -199,6 +199,9 @@ export function renderDetail(t, resolve = assetPaths) {
         `<img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="lazy" class="gallery-img" width="920" height="600">`,
     )
     .join('\n');
+  const floorplanSection = a.floorplan
+    ? `<section class="floorplan" aria-label="Floor plan"><h2>Floor plan</h2><figure class="floorplan-fig"><img src="../${esc(a.floorplan)}" alt="${esc(trailerLabel(t))} floor plan diagram" loading="lazy" class="floorplan-img" width="820" height="1332"><figcaption class="muted">Official Airstream ${esc(t.floorplan)} floor plan</figcaption></figure></section>`
+    : '';
   const pros = (t.pros || []).map((p) => `<li>${esc(p)}</li>`).join('');
   const cons = (t.cons || []).map((c) => `<li>${esc(c)}</li>`).join('');
   const note = t.specNote
@@ -230,6 +233,7 @@ ${specRow('MSRP', formatMsrp(t.msrp))}
 </dl>
 ${note}
 </section>
+${floorplanSection}
 ${pros || cons ? `<section class="proscons">
 ${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}
 ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}

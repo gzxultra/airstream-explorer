@@ -139,20 +139,32 @@ test('resolveAssets: every emitted gallery + hero path exists on disk', () => {
   }
 });
 
-test('resolveAssets: 2026 models with no own gallery fall back to their 2025 twin', () => {
-  const t = trailers.find((x) => x.slug === 'bambi-16rb-2026');
-  assert.ok(t);
-  const a = resolveAssets(t, hasAsset);
+test('resolveAssets: a slug with no own gallery falls back to its 2025 twin', () => {
+  // synthetic: only the 2025 twin's gallery files exist on disk
+  const t = { slug: 'bambi-16rb-2026', year: 2026 };
+  const twinOnly = (p) => p.startsWith('assets/img/gallery/bambi-16rb-2025-');
+  const a = resolveAssets(t, twinOnly);
   assert.equal(a.gallery.length, 3);
   assert.ok(a.gallery.every((g) => g.includes('bambi-16rb-2025-')), 'should use 2025 twin files');
 });
 
+test('resolveAssets: every one of the 59 floorplans now has its OWN gallery on disk', () => {
+  // The official-asset pass gave each floorplan its own photos; none rely on a twin.
+  for (const t of trailers) {
+    const ownCount = [1, 2, 3].filter((i) =>
+      hasAsset(`assets/img/gallery/${t.slug}-${i}.jpg`),
+    ).length;
+    assert.ok(ownCount > 0, `${t.slug} has no own gallery images`);
+  }
+});
+
 test('resolveAssets: orphan with no gallery + no twin renders hero-only, never broken', () => {
-  const t = trailers.find((x) => x.slug === 'world-traveler-22rb-2026');
-  assert.ok(t);
-  const a = resolveAssets(t, hasAsset);
+  // synthetic orphan: nothing on disk for it or a twin
+  const t = { slug: 'zzz-9zz-2026', model: 'Zzz', floorplan: '9ZZ', year: 2026 };
+  const heroOnly = (p) => p === 'assets/img/heroes/zzz.jpg';
+  const a = resolveAssets(t, heroOnly);
   assert.equal(a.gallery.length, 0);           // no broken <img> emitted
-  assert.ok(a.hero && hasAsset(a.hero));        // but still has its family hero
+  assert.equal(a.floorplan, null);             // no diagram either
 });
 
 test('resolveAssets: no trailer is missing BOTH hero and gallery', () => {
@@ -160,6 +172,22 @@ test('resolveAssets: no trailer is missing BOTH hero and gallery', () => {
     const a = resolveAssets(t, hasAsset);
     assert.ok(a.hero || a.gallery.length > 0, `${t.slug} would render image-less`);
   }
+});
+
+test('resolveAssets: every one of the 59 floorplans resolves an official diagram on disk', () => {
+  for (const t of trailers) {
+    const a = resolveAssets(t, hasAsset);
+    assert.ok(a.floorplan, `${t.slug} has no floor-plan diagram`);
+    assert.ok(hasAsset(a.floorplan), `${t.slug} floorplan ${a.floorplan} missing on disk`);
+  }
+});
+
+test('resolveAssets: a 2026 floorplan with no own diagram falls back to its 2025 twin', () => {
+  // synthetic: pretend only the 2025 twin diagram exists on disk
+  const t = { slug: 'zzz-9zz-2026', model: 'Zzz', floorplan: '9ZZ', year: 2026 };
+  const only2025 = (p) => p === 'assets/img/floorplans/zzz-9zz-2025.jpg';
+  const a = resolveAssets(t, only2025);
+  assert.equal(a.floorplan, 'assets/img/floorplans/zzz-9zz-2025.jpg');
 });
 
 test('groupByFamily returns 12 families covering every floorplan exactly once', () => {

@@ -124,6 +124,31 @@ test('renderDetail has full spec table with audited numbers', () => {
   assert.match(html, /\.\.\/assets\/img\/heroes\/classic\.jpg/);
 });
 
+test('renderDetail renders an official floor-plan section when a diagram resolves', () => {
+  const resolve = (t) => ({
+    thumb: `assets/img/thumbs/${t.slug}.jpg`,
+    hero: `assets/img/heroes/classic.jpg`,
+    gallery: [],
+    floorplan: `assets/img/floorplans/${t.slug}.jpg`,
+  });
+  const html = renderDetail(classic, resolve);
+  assert.match(html, /<section class="floorplan"/);
+  assert.match(html, /Floor plan/);
+  assert.match(html, new RegExp(`assets/img/floorplans/${classic.slug}\\.jpg`));
+  assert.match(html, /Official Airstream 33FB floor plan/);
+});
+
+test('renderDetail omits the floor-plan section when no diagram resolves', () => {
+  const resolve = (t) => ({
+    thumb: `assets/img/thumbs/${t.slug}.jpg`,
+    hero: `assets/img/heroes/classic.jpg`,
+    gallery: [],
+    floorplan: null,
+  });
+  const html = renderDetail(classic, resolve);
+  assert.doesNotMatch(html, /<section class="floorplan"/);
+});
+
 test('renderDetail escapes and never emits raw script payloads from data', () => {
   const evil = { ...classic, description: '<img src=x onerror=alert(1)>', model: 'X', floorplan: '1Y', slug: 'x-1y-2026', tags: [], pros: [], cons: [] };
   const html = renderDetail(evil);
