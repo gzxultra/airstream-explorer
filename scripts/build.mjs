@@ -2,9 +2,10 @@
 // Build the static site into dist/. Zero dependencies — Node built-ins only.
 // Pipeline: validate data -> render index + 59 detail pages -> copy assets.
 
-import { mkdirSync, writeFileSync, readFileSync, rmSync, cpSync, existsSync, readdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, rmSync, cpSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { loadTrailers, validateDataset, groupByFamily, resolveAssets } from '../src/lib/data.mjs';
 import { renderIndex, renderFamily, renderDetail, page } from '../src/lib/render.mjs';
 import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
@@ -83,7 +84,66 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
   log('copied images', counts.join(' '));
 }
 
-// 6. GUARDRAIL: every <img src> emitted into dist must resolve to a real file
+// 6. CONTENT FINGERPRINTING (cache-busting).
+//    Images are served with `immutable, max-age=1yr`. If a hero/gallery file
+//    keeps the same name (basecamp.jpg) but its bytes change, browsers + the CDN
+//    keep serving the OLD cached copy forever — the exact bug where an updated
+//    hero never reached returning visitors. Fix: rename every image to include a
+//    short content hash (basecamp.a1b2c3d4.jpg). New bytes -> new name -> new URL,
+//    so immutable caching is now safe AND always fresh.
+{
+  const imgRoot = join(DIST, 'assets', 'img');
+  const manifest = new Map(); // canonical "assets/img/.." -> hashed "assets/img/.."
+  if (existsSync(imgRoot)) {
+    const walk = (dir) => {
+      for (const name of readdirSync(dir)) {
+        const abs = join(dir, name);
+        if (statSync(abs).isDirectory()) { walk(abs); continue; }
+        if (!/\.(jpe?g|png|webp|avif|gif|svg)$/i.test(name)) continue;
+        const bytes = readFileSync(abs);
+        const hash = createHash('sha1').update(bytes).digest('hex').slice(0, 8);
+        const dot = name.lastIndexOf('.');
+        const hashedName = `${name.slice(0, dot)}.${hash}${name.slice(dot)}`;
+        const hashedAbs = join(dir, hashedName);
+        writeFileSync(hashedAbs, bytes);
+        rmSync(abs);
+        const canonRel = 'assets/img/' + relative(imgRoot, abs).split('\\').join('/');
+        const hashedRel = 'assets/img/' + relative(imgRoot, hashedAbs).split('\\').join('/');
+        manifest.set(canonRel, hashedRel);
+      }
+    };
+    walk(imgRoot);
+    log(`fingerprinted ${manifest.size} images`);
+  }
+
+  // Rewrite every emitted HTML file's image references to the hashed names.
+  // References appear as ".../assets/img/<...>" with varying relRoot prefixes
+  // ('', '../'); match the canonical tail and swap to the hashed tail.
+  const htmlFiles = [
+    join(DIST, 'index.html'),
+    join(DIST, 'community.html'),
+    join(DIST, 'credits.html'),
+    ...families.map((f) => join(DIST, 'f', `${f.slug}.html`)),
+    ...trailers.map((t) => join(DIST, 'm', `${t.slug}.html`)),
+  ];
+  let rewrites = 0;
+  for (const file of htmlFiles) {
+    if (!existsSync(file)) continue;
+    let html = readFileSync(file, 'utf8');
+    for (const [canon, hashed] of manifest) {
+      // replace the canonical path wherever it appears (prefix-agnostic: the
+      // 'assets/img/..' tail is identical regardless of '../' relRoot)
+      if (html.includes(canon)) {
+        html = html.split(canon).join(hashed);
+        rewrites++;
+      }
+    }
+    writeFileSync(file, html);
+  }
+  log(`rewrote image refs in HTML (${rewrites} path-substitutions)`);
+}
+
+// 7. GUARDRAIL: every <img src> emitted into dist must resolve to a real file
 //    in dist. A missing file is what Cloudflare serves as fallback HTML and the
 //    browser renders as a broken image — so we fail the build instead of shipping it.
 {
@@ -116,11 +176,19 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
   log(`image guardrail ok: ${checked} <img> references all resolve on disk`);
 }
 
-// 7. CF Pages niceties: SPA-style 404 + headers
+// 8. CF Pages caching headers.
+//    - Images/CSS/JS are content-fingerprinted (step 6), so they're safe to
+//      cache forever as immutable.
+//    - HTML is NOT fingerprinted (stable URLs users bookmark), so it must be
+//      revalidated every time — otherwise a cached HTML page keeps pointing at
+//      old hashed asset URLs and updates never appear. `no-cache` = always
+//      revalidate with the CDN (cheap 304 when unchanged), never serve stale.
 writeFileSync(join(DIST, '_headers'), `/assets/*
   Cache-Control: public, max-age=31536000, immutable
+/*.html
+  Cache-Control: public, no-cache, must-revalidate
 /
-  Cache-Control: public, max-age=3600
+  Cache-Control: public, no-cache, must-revalidate
 `);
 
 log('build complete →', DIST);
