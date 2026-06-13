@@ -53,8 +53,8 @@ function tagChips(tags) {
 }
 
 /** A catalog card (home grid). Links to the detail page. */
-export function renderCard(t) {
-  const a = assetPaths(t);
+export function renderCard(t, resolve = assetPaths) {
+  const a = resolve(t);
   return `<a class="card" href="m/${esc(t.slug)}.html" data-year="${esc(t.year)}" data-model="${esc(t.model)}">
 <div class="card-media">
 <img src="${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="400" height="260">
@@ -72,8 +72,8 @@ ${specRow('MSRP', formatMsrp(t.msrp))}
 }
 
 /** The home/catalog page. */
-export function renderIndex(trailers, models) {
-  const cards = trailers.map(renderCard).join('\n');
+export function renderIndex(trailers, models, resolve = assetPaths) {
+  const cards = trailers.map((t) => renderCard(t, resolve)).join('\n');
   const modelOpts = ['<option value="all">All models</option>']
     .concat(models.map((m) => `<option value="${esc(m)}">${esc(m)}</option>`))
     .join('');
@@ -104,8 +104,8 @@ ${cards}
 }
 
 /** A single trailer detail page. */
-export function renderDetail(t) {
-  const a = assetPaths(t);
+export function renderDetail(t, resolve = assetPaths) {
+  const a = resolve(t);
   const heroImg = a.hero
     ? `<img src="../${esc(a.hero)}" alt="${esc(trailerTitle(t))}" class="detail-hero-img" width="1280" height="720">`
     : '';

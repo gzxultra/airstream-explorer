@@ -77,11 +77,63 @@ export function filterTrailers(trailers, { year = 'all', model = 'all' } = {}) {
   );
 }
 
-/** Asset paths for a trailer (relative, CF-root friendly). */
+/**
+ * URL/file slug from arbitrary text. "Flying Cloud" -> "flying-cloud".
+ * This is the single source of truth that maps a model name to its hero file.
+ */
+export function slugify(s) {
+  return String(s == null ? '' : s)
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .replace(/[\s_]+/g, '-')
+    .replace(/-+/g, '-');
+}
+
+/** The same floorplan in the other model year. bambi-16rb-2026 <-> bambi-16rb-2025. */
+export function twinSlug(t) {
+  const other = t.year === 2026 ? 2025 : 2026;
+  return t.slug.replace(/-20(25|26)$/, `-${other}`);
+}
+
+/**
+ * Canonical (pure) asset paths for a trailer, relative + CF-root friendly.
+ * Hero is derived from the model name via slugify() — NOT the legacy
+ * `heroFamily` field, which was unreliable and is no longer used.
+ */
 export function assetPaths(t) {
   return {
     thumb: `assets/img/thumbs/${t.slug}.jpg`,
-    hero: t.heroFamily ? `assets/img/heroes/${t.heroFamily}.jpg` : null,
+    hero: `assets/img/heroes/${slugify(t.model)}.jpg`,
     gallery: [1, 2, 3].map((i) => `assets/img/gallery/${t.slug}-${i}.jpg`),
+  };
+}
+
+/**
+ * Existence-aware asset resolution for the build. `hasAsset(relPath)` returns
+ * whether a file exists under public/. Resolves real, on-disk paths only:
+ *   - hero: the model's hero file (null if somehow absent).
+ *   - gallery: this slug's own photos, falling back to its cross-year twin's
+ *     photos when the slug has none of its own; any image with neither is
+ *     dropped rather than emitted as a broken <img>.
+ * A trailer with no gallery at all (no twin either) simply renders hero-only.
+ */
+export function resolveAssets(t, hasAsset) {
+  const canon = assetPaths(t);
+  const twin = twinSlug(t);
+  const gallery = [1, 2, 3]
+    .map((i) => {
+      const own = `assets/img/gallery/${t.slug}-${i}.jpg`;
+      if (hasAsset(own)) return own;
+      const tw = `assets/img/gallery/${twin}-${i}.jpg`;
+      if (hasAsset(tw)) return tw;
+      return null;
+    })
+    .filter(Boolean);
+  return {
+    thumb: canon.thumb,
+    hero: hasAsset(canon.hero) ? canon.hero : null,
+    gallery,
   };
 }
