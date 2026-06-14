@@ -196,3 +196,41 @@ export function resolveAssets(t, hasAsset) {
     floorplan,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Décor options: official Airstream interior material palettes, keyed by family
+// slug. Each scheme = { name, slug, description, swatches:[{kind,file}] }.
+// Swatch image files live under public/assets/img/decor/. Same family applies
+// to every floorplan in that family (Airstream offers décor by family).
+// ---------------------------------------------------------------------------
+
+/** Load the décor-options map (family slug -> scheme[]). Returns {} if absent. */
+export function loadDecor(path) {
+  const p = path || join(__dirname, '..', 'data', 'decor-options.json');
+  try {
+    const data = JSON.parse(readFileSync(p, 'utf8'));
+    return data && typeof data === 'object' ? data : {};
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Décor schemes for a trailer's family, with on-disk image paths resolved and
+ * existence-checked. Drops any swatch whose file is missing, and any scheme
+ * left with no swatches. Returns [] when the family has no décor data.
+ */
+export function resolveDecor(t, decorMap, hasAsset) {
+  const schemes = decorMap[familySlug(t.model)];
+  if (!Array.isArray(schemes)) return [];
+  return schemes
+    .map((s) => ({
+      name: s.name,
+      slug: s.slug,
+      description: s.description || '',
+      swatches: (s.swatches || [])
+        .map((sw) => ({ kind: sw.kind, src: `assets/img/decor/${sw.file}` }))
+        .filter((sw) => hasAsset(sw.src)),
+    }))
+    .filter((s) => s.swatches.length > 0);
+}

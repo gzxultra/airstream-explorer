@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   loadTrailers, validateTrailer, validateDataset, groupByModel,
   modelNames, years, filterTrailers, assetPaths, groupByFamily,
-  slugify, twinSlug, resolveAssets,
+  slugify, twinSlug, resolveAssets, loadDecor, resolveDecor,
 } from '../src/lib/data.mjs';
 import { readdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -245,4 +245,55 @@ test('every family hero slug matches an on-disk hero file', () => {
   for (const f of fams) {
     assert.ok(hasAsset(f.hero), `missing hero for ${f.family}: ${f.hero}`);
   }
+});
+
+// ---------------------------------------------------------------------------
+// Décor options
+// ---------------------------------------------------------------------------
+
+test('loadDecor returns a family-keyed map with schemes', () => {
+  const decor = loadDecor();
+  assert.ok(decor && typeof decor === 'object');
+  assert.ok(Array.isArray(decor.classic), 'classic has décor schemes');
+  assert.ok(decor.classic.length >= 1);
+  const s = decor.classic[0];
+  assert.ok(s.name && typeof s.name === 'string');
+  assert.ok(Array.isArray(s.swatches) && s.swatches.length > 0);
+  assert.ok(s.swatches[0].kind && s.swatches[0].file);
+});
+
+test('every décor swatch file referenced in the map exists on disk', () => {
+  const decor = loadDecor();
+  for (const [family, schemes] of Object.entries(decor)) {
+    for (const s of schemes) {
+      for (const sw of s.swatches) {
+        assert.ok(
+          hasAsset(`assets/img/decor/${sw.file}`),
+          `missing décor swatch ${family}/${s.slug}: ${sw.file}`,
+        );
+      }
+    }
+  }
+});
+
+test('resolveDecor returns schemes for a known family with on-disk paths', () => {
+  const decor = loadDecor();
+  const classic = trailers.find((t) => t.model === 'Classic');
+  const schemes = resolveDecor(classic, decor, hasAsset);
+  assert.ok(schemes.length >= 1);
+  assert.match(schemes[0].swatches[0].src, /^assets\/img\/decor\/.*\.webp$/);
+});
+
+test('resolveDecor drops swatches whose files are missing', () => {
+  const fakeMap = {
+    bambi: [{ name: 'X', slug: 'x', description: '', swatches: [{ kind: 'Cabinetry', file: 'does-not-exist.webp' }] }],
+  };
+  const bambi = trailers.find((t) => t.model === 'Bambi');
+  // scheme has only a missing swatch -> dropped entirely
+  assert.deepEqual(resolveDecor(bambi, fakeMap, hasAsset), []);
+});
+
+test('resolveDecor returns [] for a family with no décor data', () => {
+  const classic = trailers.find((t) => t.model === 'Classic');
+  assert.deepEqual(resolveDecor(classic, {}, hasAsset), []);
 });

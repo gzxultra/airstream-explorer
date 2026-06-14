@@ -6,7 +6,7 @@ import { mkdirSync, writeFileSync, readFileSync, rmSync, cpSync, existsSync, rea
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
-import { loadTrailers, validateDataset, groupByFamily, resolveAssets } from '../src/lib/data.mjs';
+import { loadTrailers, validateDataset, groupByFamily, resolveAssets, loadDecor, resolveDecor } from '../src/lib/data.mjs';
 import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, page } from '../src/lib/render.mjs';
 import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
 import { loadCampgrounds, validateCampgrounds } from '../src/lib/campgrounds.mjs';
@@ -40,6 +40,12 @@ validateCampgrounds(campData);
 const campgrounds = campData.campgrounds;
 log(`campgrounds ok: ${campgrounds.length} RV-capable sites in ${campData.stats.states} states`);
 
+// 1d. Load official interior décor options (family slug -> material schemes)
+const decorMap = loadDecor();
+const decorFamilies = Object.keys(decorMap).length;
+const decorSchemes = Object.values(decorMap).reduce((n, s) => n + (Array.isArray(s) ? s.length : 0), 0);
+log(`décor ok: ${decorSchemes} schemes across ${decorFamilies} families`);
+
 // 2. Clean dist
 rmSync(DIST, { recursive: true, force: true });
 mkdirSync(join(DIST, 'm'), { recursive: true });
@@ -57,7 +63,7 @@ log(`wrote ${families.length} family pages`);
 
 // 4. Detail pages
 for (const t of trailers) {
-  writeFileSync(join(DIST, 'm', `${t.slug}.html`), renderDetail(t, resolve, campgrounds));
+  writeFileSync(join(DIST, 'm', `${t.slug}.html`), renderDetail(t, resolve, campgrounds, resolveDecor(t, decorMap, hasAsset)));
 }
 log(`wrote ${trailers.length} detail pages`);
 
@@ -141,7 +147,7 @@ if (existsSync(join(ROOT, 'src', 'assets', 'map'))) {
 }
 if (existsSync(join(PUBLIC, 'assets', 'img'))) {
   cpSync(join(PUBLIC, 'assets', 'img'), join(DIST, 'assets', 'img'), { recursive: true });
-  const counts = ['thumbs', 'heroes', 'gallery', 'floorplans'].map((d) => {
+  const counts = ['thumbs', 'heroes', 'gallery', 'floorplans', 'decor'].map((d) => {
     const p = join(DIST, 'assets', 'img', d);
     return `${d}:${existsSync(p) ? readdirSync(p).length : 0}`;
   });

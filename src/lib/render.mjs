@@ -325,8 +325,44 @@ function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 // DETAIL: one floorplan
 // ---------------------------------------------------------------------------
 
+/**
+ * Official interior décor section. `schemes` is the resolved décor for this
+ * trailer's family (see resolveDecor): each scheme has a name, official
+ * description, and a row of labeled material swatches. Returns '' when empty.
+ */
+export function renderDecor(schemes, model) {
+  if (!schemes || !schemes.length) return '';
+  const cards = schemes
+    .map((s) => {
+      const swatches = s.swatches
+        .map(
+          (sw) =>
+            `<figure class="decor-swatch"><img src="../${esc(sw.src)}" alt="${esc(s.name)} — ${esc(sw.kind)}" loading="lazy" width="120" height="120"><figcaption>${esc(sw.kind)}</figcaption></figure>`,
+        )
+        .join('');
+      const desc = s.description
+        ? `<p class="decor-desc">${esc(s.description)}</p>`
+        : '';
+      return `<article class="decor-card">
+<h3 class="decor-name">${esc(s.name)}</h3>
+${desc}
+<div class="decor-swatches">${swatches}</div>
+</article>`;
+    })
+    .join('\n');
+  return `<section class="decor" aria-label="Interior décor options">
+<h2>Interior décor options</h2>
+<p class="decor-intro muted">Official Airstream interior packages for the ${esc(model)} — cabinetry, upholstery, and coordinating materials. Décor is offered by family, so these apply across its floorplans.</p>
+<div class="decor-grid">${cards}</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
+// DETAIL: one floorplan
+// ---------------------------------------------------------------------------
+
 /** A single trailer detail page. */
-export function renderDetail(t, resolve = assetPaths, campgrounds = null) {
+export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor = null) {
   const a = resolve(t);
   const fam = familySlug(t.model);
   const heroImg = a.hero
@@ -341,6 +377,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null) {
   const floorplanSection = a.floorplan
     ? `<section class="floorplan" aria-label="Floor plan"><h2>Floor plan</h2><figure class="floorplan-fig"><img src="../${esc(a.floorplan)}" alt="${esc(trailerLabel(t))} floor plan diagram" loading="lazy" class="floorplan-img" width="820" height="1332"><figcaption class="muted">Official Airstream ${esc(t.floorplan)} floor plan</figcaption></figure></section>`
     : '';
+  const decorSection = renderDecor(decor, t.model);
   const pros = (t.pros || []).map((p) => `<li>${esc(p)}</li>`).join('');
   const cons = (t.cons || []).map((c) => `<li>${esc(c)}</li>`).join('');
   const note = t.specNote
@@ -388,6 +425,7 @@ ${note}
 ${towCallout}
 ${renderOffGridTool(t)}
 ${floorplanSection}
+${decorSection}
 ${campgrounds ? renderCampgroundFit(t, campgrounds) : ''}
 ${pros || cons ? `<section class="proscons">
 ${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}

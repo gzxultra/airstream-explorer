@@ -157,6 +157,49 @@ test('renderDetail omits the floor-plan section when no diagram resolves', () =>
   assert.doesNotMatch(html, /<section class="floorplan"/);
 });
 
+test('renderDetail renders an official décor section with scheme names + swatches', () => {
+  const resolve = (t) => ({ thumb: '', hero: null, gallery: [], floorplan: null });
+  const decor = [
+    {
+      name: 'Comfort White with Earl Grey Ultraleather®',
+      slug: 'comfort-white-with-earl-grey-ultraleather',
+      description: 'Shaker-style cabinets in a white finish.',
+      swatches: [
+        { kind: 'Interior', src: 'assets/img/decor/classic-cw-eg-sw1.webp' },
+        { kind: 'Upholstery', src: 'assets/img/decor/classic-cw-eg-sw2.webp' },
+      ],
+    },
+  ];
+  const html = renderDetail(classic, resolve, null, decor);
+  assert.match(html, /<section class="decor"/);
+  assert.match(html, /Interior décor options/);
+  assert.match(html, /Comfort White with Earl Grey Ultraleather/);
+  assert.match(html, /Shaker-style cabinets in a white finish\./);
+  assert.match(html, /assets\/img\/decor\/classic-cw-eg-sw1\.webp/);
+  assert.match(html, /<figcaption>Interior<\/figcaption>/);
+  assert.match(html, /<figcaption>Upholstery<\/figcaption>/);
+});
+
+test('renderDetail omits the décor section when no schemes resolve', () => {
+  const resolve = (t) => ({ thumb: '', hero: null, gallery: [], floorplan: null });
+  assert.doesNotMatch(renderDetail(classic, resolve, null, []), /<section class="decor"/);
+  assert.doesNotMatch(renderDetail(classic, resolve, null, null), /<section class="decor"/);
+});
+
+test('renderDetail escapes décor names + descriptions (no raw HTML injection)', () => {
+  const resolve = (t) => ({ thumb: '', hero: null, gallery: [], floorplan: null });
+  const decor = [
+    {
+      name: '<b>Evil</b>', slug: 'x', description: '<script>alert(1)</script>',
+      swatches: [{ kind: '<i>k</i>', src: 'assets/img/decor/x.webp' }],
+    },
+  ];
+  const html = renderDetail(classic, resolve, null, decor);
+  assert.ok(!html.includes('<b>Evil</b>'));
+  assert.ok(!html.includes('<script>alert(1)</script>'));
+  assert.match(html, /&lt;b&gt;Evil/);
+});
+
 test('renderDetail escapes and never emits raw script payloads from data', () => {
   const evil = { ...classic, description: '<img src=x onerror=alert(1)>', model: 'X', floorplan: '1Y', slug: 'x-1y-2026', tags: [], pros: [], cons: [] };
   const html = renderDetail(evil);

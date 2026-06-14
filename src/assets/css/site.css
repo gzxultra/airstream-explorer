@@ -187,6 +187,19 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .floorplan-img { width: 100%; max-width: 460px; height: auto; display: block; margin: 0 auto; }
 .floorplan-fig figcaption { margin-top: 12px; font-size: 12px; letter-spacing: .04em; }
 
+/* ---------- Interior décor options ---------- */
+.decor { margin: 40px 0 0; }
+.decor h2 { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.decor-intro { margin: 0 0 20px; max-width: 64ch; font-size: 14px; line-height: 1.5; }
+.decor-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+.decor-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
+.decor-name { font-family: 'Fraunces', Georgia, serif; font-size: 20px; font-weight: 600; color: var(--ink); margin: 0 0 8px; line-height: 1.15; }
+.decor-desc { font-size: 13.5px; line-height: 1.55; color: var(--muted); margin: 0 0 18px; }
+.decor-swatches { display: flex; flex-wrap: wrap; gap: 14px; }
+.decor-swatch { margin: 0; width: 84px; text-align: center; }
+.decor-swatch img { width: 84px; height: 84px; object-fit: cover; border-radius: var(--radius); border: 1px solid var(--line); display: block; }
+.decor-swatch figcaption { margin-top: 7px; font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); line-height: 1.2; }
+
 /* ---------- Footer ---------- */
 .site-footer { border-top: 1px solid var(--line); max-width: var(--maxw); margin: 0 auto; padding: 28px 20px 56px; font-size: 13px; color: var(--muted); }
 .site-footer p { margin: 0 0 6px; }
@@ -198,6 +211,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 @media (max-width: 860px) {
   .cards { grid-template-columns: repeat(2, 1fr); }
   .proscons { grid-template-columns: 1fr; gap: 18px; }
+  .decor-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
   .cards { grid-template-columns: 1fr; }

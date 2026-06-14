@@ -1,0 +1,776 @@
+{
+  "bambi": [
+    {
+      "name": "Dune with Performatex® Fabric seating",
+      "slug": "dune-with-performatex-fabric-seating",
+      "description": "Light greys and warm whites give you a neutral palette to build on. Featuring dark blue Performatex® Stain Resistant Dinette Cushions.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "bambi-dune-with-performatex-fabric-seating-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "bambi-dune-with-performatex-fabric-seating-sw2.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "bambi-dune-with-performatex-fabric-seating-sw3.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "bambi-dune-with-performatex-fabric-seating-sw4.webp"
+        },
+        {
+          "kind": "Window covering",
+          "file": "bambi-dune-with-performatex-fabric-seating-sw5.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "bambi-dune-with-performatex-fabric-seating-sw6.webp"
+        }
+      ]
+    },
+    {
+      "name": "Ocean with Navy Performatex® Fabric seating",
+      "slug": "ocean-with-navy-performatex-fabric-seating",
+      "description": "Light greys and warm whites give you a neutral palette to build on. Featuring dark blue Performatex® Stain Resistant Dinette Cushions.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "bambi-ocean-with-navy-performatex-fabric-seating-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "bambi-ocean-with-navy-performatex-fabric-seating-sw2.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "bambi-ocean-with-navy-performatex-fabric-seating-sw3.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "bambi-ocean-with-navy-performatex-fabric-seating-sw4.webp"
+        },
+        {
+          "kind": "Window covering",
+          "file": "bambi-ocean-with-navy-performatex-fabric-seating-sw5.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "bambi-ocean-with-navy-performatex-fabric-seating-sw6.webp"
+        }
+      ]
+    }
+  ],
+  "basecamp": [
+    {
+      "name": "Alpine Lake",
+      "slug": "alpine-lake",
+      "description": "Blue seating and light countertops are crisp and soothing, mirroring the colors of the outside world.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "basecamp-alpine-lake-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "basecamp-alpine-lake-sw2.webp"
+        },
+        {
+          "kind": "Countertop",
+          "file": "basecamp-alpine-lake-sw3.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "basecamp-alpine-lake-sw4.webp"
+        },
+        {
+          "kind": "Cargo",
+          "file": "basecamp-alpine-lake-sw5.webp"
+        }
+      ]
+    },
+    {
+      "name": "Scarlet Peak",
+      "slug": "scarlet-peak",
+      "description": "Dark grey seating is accented by touches of bright red thread and pops of crimson throughout the trailer.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "basecamp-scarlet-peak-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "basecamp-scarlet-peak-sw2.webp"
+        },
+        {
+          "kind": "Countertop",
+          "file": "basecamp-scarlet-peak-sw3.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "basecamp-scarlet-peak-sw4.webp"
+        },
+        {
+          "kind": "Cargo",
+          "file": "basecamp-scarlet-peak-sw5.webp"
+        }
+      ]
+    }
+  ],
+  "basecamp-xe": [
+    {
+      "name": "Sandstone Canyon",
+      "slug": "sandstone-canyon",
+      "description": "Light tan seating fabric is accented with dark charcoal insets, with a modern laminate and distressed concrete pattern in the vinyl flooring.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "basecamp-xe-sandstone-canyon-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "basecamp-xe-sandstone-canyon-sw2.webp"
+        },
+        {
+          "kind": "Countertop",
+          "file": "basecamp-xe-sandstone-canyon-sw3.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "basecamp-xe-sandstone-canyon-sw4.webp"
+        }
+      ]
+    },
+    {
+      "name": "Granite Ridge",
+      "slug": "granite-ridge",
+      "description": "Dark charcoal seating fabric with light tan accents anchors the interior, with a modern dot pattern on the laminate and a distressed concrete pattern in the vinyl flooring.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "basecamp-xe-granite-ridge-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "basecamp-xe-granite-ridge-sw2.webp"
+        },
+        {
+          "kind": "Countertop",
+          "file": "basecamp-xe-granite-ridge-sw3.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "basecamp-xe-granite-ridge-sw4.webp"
+        }
+      ]
+    }
+  ],
+  "caravel": [
+    {
+      "name": "Pebble",
+      "slug": "pebble",
+      "description": "Cream bedding and light gray cushions draw inspiration from nautical namesakes, with sandy tones and soft textures.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "caravel-pebble-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "caravel-pebble-sw2.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "caravel-pebble-sw3.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "caravel-pebble-sw4.webp"
+        },
+        {
+          "kind": "Window covering",
+          "file": "caravel-pebble-sw5.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "caravel-pebble-sw6.webp"
+        }
+      ]
+    },
+    {
+      "name": "Driftwood",
+      "slug": "driftwood",
+      "description": "Soft neutral tones call to mind the seaside while creating a serene and inviting atmosphere that shines inside and out.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "caravel-driftwood-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "caravel-driftwood-sw2.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "caravel-driftwood-sw3.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "caravel-driftwood-sw4.webp"
+        },
+        {
+          "kind": "Window covering",
+          "file": "caravel-driftwood-sw5.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "caravel-driftwood-sw6.webp"
+        }
+      ]
+    }
+  ],
+  "classic": [
+    {
+      "name": "Comfort White with Earl Grey Ultraleather®",
+      "slug": "comfort-white-with-earl-grey-ultraleather",
+      "description": "Shaker-style cabinets made from imported European Beech wood in a white finish. Accented with contemporary, German imported brass hardware, the knobs and pulls add an element of refinement. Contrasting the white cabinets, dark counters bring a sophistication and warmth to the space.",
+      "swatches": [
+        {
+          "kind": "Interior",
+          "file": "classic-comfort-white-with-earl-grey-ultraleather-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "classic-comfort-white-with-earl-grey-ultraleather-sw2.webp"
+        },
+        {
+          "kind": "Countertop",
+          "file": "classic-comfort-white-with-earl-grey-ultraleather-sw3.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "classic-comfort-white-with-earl-grey-ultraleather-sw4.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "classic-comfort-white-with-earl-grey-ultraleather-sw5.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "classic-comfort-white-with-earl-grey-ultraleather-sw6.webp"
+        }
+      ]
+    },
+    {
+      "name": "Comfort White with Café Latte Ultraleather®",
+      "slug": "comfort-white-with-cafe-latte-ultraleather",
+      "description": "Shaker-style cabinets made from imported European Beech wood in a white finish. Accented with contemporary, German imported brass hardware, the knobs and pulls add an element of refinement. Contrasting the white cabinets, dark counters bring a sophistication and warmth to the space.",
+      "swatches": [
+        {
+          "kind": "Interior",
+          "file": "classic-comfort-white-with-cafe-latte-ultraleather-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "classic-comfort-white-with-cafe-latte-ultraleather-sw2.webp"
+        },
+        {
+          "kind": "Countertop",
+          "file": "classic-comfort-white-with-cafe-latte-ultraleather-sw3.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "classic-comfort-white-with-cafe-latte-ultraleather-sw4.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "classic-comfort-white-with-cafe-latte-ultraleather-sw5.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "classic-comfort-white-with-cafe-latte-ultraleather-sw6.webp"
+        }
+      ]
+    },
+    {
+      "name": "Estate Brown with Earl Grey Ultraleather®",
+      "slug": "estate-brown-with-earl-grey-ultraleather",
+      "description": "Light brown Shaker-style wood cabinetry and stain nickel pulls complement the beautiful and bright Corian surfaces and surrounding materials.",
+      "swatches": [
+        {
+          "kind": "Interior",
+          "file": "classic-estate-brown-with-earl-grey-ultraleather-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "classic-estate-brown-with-earl-grey-ultraleather-sw2.webp"
+        },
+        {
+          "kind": "Countertop",
+          "file": "classic-estate-brown-with-earl-grey-ultraleather-sw3.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "classic-estate-brown-with-earl-grey-ultraleather-sw4.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "classic-estate-brown-with-earl-grey-ultraleather-sw5.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "classic-estate-brown-with-earl-grey-ultraleather-sw6.webp"
+        }
+      ]
+    },
+    {
+      "name": "Estate Brown with Chamomile Ultraleather®",
+      "slug": "estate-brown-with-chamomile-ultraleather",
+      "description": "Light brown Shaker-style wood cabinetry and stain nickel pulls complement the beautiful and bright Corian surfaces and surrounding materials.",
+      "swatches": [
+        {
+          "kind": "Interior",
+          "file": "classic-estate-brown-with-chamomile-ultraleather-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "classic-estate-brown-with-chamomile-ultraleather-sw2.webp"
+        },
+        {
+          "kind": "Countertop",
+          "file": "classic-estate-brown-with-chamomile-ultraleather-sw3.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "classic-estate-brown-with-chamomile-ultraleather-sw4.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "classic-estate-brown-with-chamomile-ultraleather-sw5.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "classic-estate-brown-with-chamomile-ultraleather-sw6.webp"
+        }
+      ]
+    }
+  ],
+  "frank-lloyd-wright-limited-edition": [
+    {
+      "name": "Frank Lloyd Wright Usonian Limited Edition",
+      "slug": "frank-lloyd-wright-usonian-limited-edition",
+      "description": "Airstream meets Usonian design - modern form, classic function.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "frank-lloyd-wright-limited-edition-frank-lloyd-wright-usonian-limited-edition-sw1.webp"
+        },
+        {
+          "kind": "Interior",
+          "file": "frank-lloyd-wright-limited-edition-frank-lloyd-wright-usonian-limited-edition-sw2.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "frank-lloyd-wright-limited-edition-frank-lloyd-wright-usonian-limited-edition-sw3.webp"
+        },
+        {
+          "kind": "Countertop",
+          "file": "frank-lloyd-wright-limited-edition-frank-lloyd-wright-usonian-limited-edition-sw4.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "frank-lloyd-wright-limited-edition-frank-lloyd-wright-usonian-limited-edition-sw5.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "frank-lloyd-wright-limited-edition-frank-lloyd-wright-usonian-limited-edition-sw6.webp"
+        },
+        {
+          "kind": "Galley",
+          "file": "frank-lloyd-wright-limited-edition-frank-lloyd-wright-usonian-limited-edition-sw7.webp"
+        },
+        {
+          "kind": "Awning",
+          "file": "frank-lloyd-wright-limited-edition-frank-lloyd-wright-usonian-limited-edition-sw8.webp"
+        }
+      ]
+    }
+  ],
+  "flying-cloud": [
+    {
+      "name": "Sunlit Maple with Seattle Mist Ultraleather",
+      "slug": "sunlit-maple-with-seattle-mist-ultraleather",
+      "description": "Bright maple laminates contrasted with smokey countertops and surrounding neutral colors, Seattle Mist features dark grey UltraLeather cushions.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "flying-cloud-sunlit-maple-with-seattle-mist-ultraleather-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "flying-cloud-sunlit-maple-with-seattle-mist-ultraleather-sw2.webp"
+        },
+        {
+          "kind": "Countertop",
+          "file": "flying-cloud-sunlit-maple-with-seattle-mist-ultraleather-sw3.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "flying-cloud-sunlit-maple-with-seattle-mist-ultraleather-sw4.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "flying-cloud-sunlit-maple-with-seattle-mist-ultraleather-sw5.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "flying-cloud-sunlit-maple-with-seattle-mist-ultraleather-sw6.webp"
+        }
+      ]
+    },
+    {
+      "name": "Sunlit Maple with Carolina Clay Ultraleather",
+      "slug": "sunlit-maple-with-carolina-clay-ultraleather",
+      "description": "Bright maple laminates contrasted with smokey countertops and surrounding neutral colors, Carolina Clay features light brown UltraLeather cushions.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "flying-cloud-sunlit-maple-with-carolina-clay-ultraleather-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "flying-cloud-sunlit-maple-with-carolina-clay-ultraleather-sw2.webp"
+        },
+        {
+          "kind": "Countertop",
+          "file": "flying-cloud-sunlit-maple-with-carolina-clay-ultraleather-sw3.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "flying-cloud-sunlit-maple-with-carolina-clay-ultraleather-sw4.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "flying-cloud-sunlit-maple-with-carolina-clay-ultraleather-sw5.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "flying-cloud-sunlit-maple-with-carolina-clay-ultraleather-sw6.webp"
+        }
+      ]
+    }
+  ],
+  "globetrotter": [
+    {
+      "name": "Dark Walnut with Copenhagen Cream seating",
+      "slug": "dark-walnut-with-copenhagen-cream-seating",
+      "description": "Copenhagen Cream seating and white countertops are the perfect contrast to the Dark Walnut cabinetry.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "globetrotter-dark-walnut-with-copenhagen-cream-seating-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "globetrotter-dark-walnut-with-copenhagen-cream-seating-sw2.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "globetrotter-dark-walnut-with-copenhagen-cream-seating-sw3.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "globetrotter-dark-walnut-with-copenhagen-cream-seating-sw4.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "globetrotter-dark-walnut-with-copenhagen-cream-seating-sw5.webp"
+        }
+      ]
+    },
+    {
+      "name": "Dark Walnut with Dublin Slate seating",
+      "slug": "dark-walnut-with-dublin-slate-seating",
+      "description": "Dublin Slate seating carries the warmth of the dark cabinetry throughout the travel trailer and makes the white accents pop.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "globetrotter-dark-walnut-with-dublin-slate-seating-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "globetrotter-dark-walnut-with-dublin-slate-seating-sw2.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "globetrotter-dark-walnut-with-dublin-slate-seating-sw3.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "globetrotter-dark-walnut-with-dublin-slate-seating-sw4.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "globetrotter-dark-walnut-with-dublin-slate-seating-sw5.webp"
+        }
+      ]
+    },
+    {
+      "name": "Natural Elm with London Grey seating",
+      "slug": "natural-elm-with-london-grey-seating",
+      "description": "London Grey seating and light cabinetry create a bright, open interior.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "globetrotter-natural-elm-with-london-grey-seating-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "globetrotter-natural-elm-with-london-grey-seating-sw2.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "globetrotter-natural-elm-with-london-grey-seating-sw3.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "globetrotter-natural-elm-with-london-grey-seating-sw4.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "globetrotter-natural-elm-with-london-grey-seating-sw5.webp"
+        }
+      ]
+    },
+    {
+      "name": "Natural Elm with Barcelona Blue seating",
+      "slug": "natural-elm-with-barcelona-blue-seating",
+      "description": "Barcelona Blue seating highlights the Natural Elm cabinets and serves as the perfect neutral base for the accent pillows.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "globetrotter-natural-elm-with-barcelona-blue-seating-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "globetrotter-natural-elm-with-barcelona-blue-seating-sw2.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "globetrotter-natural-elm-with-barcelona-blue-seating-sw3.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "globetrotter-natural-elm-with-barcelona-blue-seating-sw4.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "globetrotter-natural-elm-with-barcelona-blue-seating-sw5.webp"
+        }
+      ]
+    }
+  ],
+  "international": [
+    {
+      "name": "Coastal Cove with Aqua Ultraleather",
+      "slug": "coastal-cove-with-aqua-ultraleather",
+      "description": "Light blue Aqua UltraLeather seating plays off of the sea white walls, seaside accents, ash countertops, and Herringbone chevron pattern flooring.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "international-coastal-cove-with-aqua-ultraleather-sw1.webp"
+        },
+        {
+          "kind": "Interior",
+          "file": "international-coastal-cove-with-aqua-ultraleather-sw2.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "international-coastal-cove-with-aqua-ultraleather-sw3.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "international-coastal-cove-with-aqua-ultraleather-sw4.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "international-coastal-cove-with-aqua-ultraleather-sw5.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "international-coastal-cove-with-aqua-ultraleather-sw6.webp"
+        }
+      ]
+    },
+    {
+      "name": "Coastal Cove with Seashell Ultraleather",
+      "slug": "coastal-cove-with-seashell-ultraleather",
+      "description": "Light grey Seashell UltraLeather seating meshes with the sea white walls, seaside accents, ash countertops, and Herringbone chevron pattern flooring.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "international-coastal-cove-with-seashell-ultraleather-sw1.webp"
+        },
+        {
+          "kind": "Interior",
+          "file": "international-coastal-cove-with-seashell-ultraleather-sw2.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "international-coastal-cove-with-seashell-ultraleather-sw3.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "international-coastal-cove-with-seashell-ultraleather-sw4.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "international-coastal-cove-with-seashell-ultraleather-sw5.webp"
+        },
+        {
+          "kind": "Accent pillow",
+          "file": "international-coastal-cove-with-seashell-ultraleather-sw6.webp"
+        }
+      ]
+    }
+  ],
+  "stetson-6666-special-edition": [
+    {
+      "name": "Stetson + 6666 Special Edition",
+      "slug": "stetson-6666-special-edition",
+      "description": "Western heritage, American craftsmanship, and contemporary luxury. From rustic copper and rugged leather to archival artwork and handcrafted cabnitry.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "stetson-6666-special-edition-stetson-6666-special-edition-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "stetson-6666-special-edition-stetson-6666-special-edition-sw2.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "stetson-6666-special-edition-stetson-6666-special-edition-sw3.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "stetson-6666-special-edition-stetson-6666-special-edition-sw4.webp"
+        },
+        {
+          "kind": "Window covering",
+          "file": "stetson-6666-special-edition-stetson-6666-special-edition-sw5.webp"
+        },
+        {
+          "kind": "Galley",
+          "file": "stetson-6666-special-edition-stetson-6666-special-edition-sw6.webp"
+        }
+      ]
+    }
+  ],
+  "trade-wind": [
+    {
+      "name": "Terracotta",
+      "slug": "terracotta",
+      "description": "Bold Earth tones in the seating fabrics are contrasted against a distressed concrete pattern in the flooring, soft textures in the accent pillows, and indigo blue bedding fabric.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "trade-wind-terracotta-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "trade-wind-terracotta-sw2.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "trade-wind-terracotta-sw3.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "trade-wind-terracotta-sw4.webp"
+        }
+      ]
+    },
+    {
+      "name": "Fieldstone",
+      "slug": "fieldstone",
+      "description": "Oak laminate on the walls balanced with the cool Fieldstone gray cushions creates an inviting interior accented by soft orange and indigo blue in the soft goods.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "trade-wind-fieldstone-sw1.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "trade-wind-fieldstone-sw2.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "trade-wind-fieldstone-sw3.webp"
+        },
+        {
+          "kind": "Bedding",
+          "file": "trade-wind-fieldstone-sw4.webp"
+        }
+      ]
+    }
+  ],
+  "world-traveler": [
+    {
+      "name": "Sagebrush",
+      "slug": "sagebrush",
+      "description": "Light neutral tones give a natural palette with accents of sage green seating and blue countertops for just enough color to make the interior welcoming and comfortable.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "world-traveler-sagebrush-sw1.webp"
+        },
+        {
+          "kind": "Interior",
+          "file": "world-traveler-sagebrush-sw2.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "world-traveler-sagebrush-sw3.webp"
+        },
+        {
+          "kind": "Countertop",
+          "file": "world-traveler-sagebrush-sw4.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "world-traveler-sagebrush-sw5.webp"
+        }
+      ]
+    },
+    {
+      "name": "Shoreline",
+      "slug": "shoreline",
+      "description": "Light neutral seating, cabinetry, and flooring give a light but warm palette, with darker hues in the countertops and accents.",
+      "swatches": [
+        {
+          "kind": "Cabinetry",
+          "file": "world-traveler-shoreline-sw1.webp"
+        },
+        {
+          "kind": "Interior",
+          "file": "world-traveler-shoreline-sw2.webp"
+        },
+        {
+          "kind": "Upholstery",
+          "file": "world-traveler-shoreline-sw3.webp"
+        },
+        {
+          "kind": "Countertop",
+          "file": "world-traveler-shoreline-sw4.webp"
+        },
+        {
+          "kind": "Flooring",
+          "file": "world-traveler-shoreline-sw5.webp"
+        }
+      ]
+    }
+  ]
+}
