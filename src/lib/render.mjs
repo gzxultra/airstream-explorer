@@ -25,7 +25,21 @@ export function esc(s) {
     .replace(/'/g, '&#39;');
 }
 
-export function page({ title, description, body, relRoot = '', head = '', scripts = '' }) {
+// Primary nav, single source of truth: [href, label, key]. `active` (a key)
+// marks the current section so every page shows a "you are here" state.
+const NAV_ITEMS = [
+  ['index.html', 'Families', 'index'],
+  ['explore.html', 'Explore &amp; match', 'explore'],
+  ['compare.html', 'Compare', 'compare'],
+  ['campgrounds.html', 'Campgrounds', 'campgrounds'],
+  ['community.html', 'Community', 'community'],
+];
+
+export function page({ title, description, body, relRoot = '', head = '', scripts = '', active = '' }) {
+  const navLinks = NAV_ITEMS.map(([href, label, key]) => {
+    const on = key === active;
+    return `<a href="${relRoot}${href}"${on ? ' class="is-active" aria-current="page"' : ''}>${label}</a>`;
+  }).join('\n');
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,11 +57,7 @@ ${head}</head>
 <header class="topnav">
 <a class="brandbar" href="${relRoot}index.html"><span class="brandbar-mark">▲</span> Airstream Explorer</a>
 <nav class="topnav-links" aria-label="Primary">
-<a href="${relRoot}index.html">Families</a>
-<a href="${relRoot}explore.html">Explore &amp; match</a>
-<a href="${relRoot}compare.html">Compare</a>
-<a href="${relRoot}campgrounds.html">Campgrounds</a>
-<a href="${relRoot}community.html">Community</a>
+${navLinks}
 </nav>
 </header>
 ${body}
@@ -107,12 +117,33 @@ ${specRow('Years', yrs)}
 export function renderIndex(families) {
   const cards = families.map((f) => renderFamilyCard(f, '')).join('\n');
   const totalPlans = families.reduce((n, f) => n + f.floorplanCount, 0);
-  const body = `<header class="hero-head">
+  // Cinematic full-bleed hero. Pick a deliberately *different* establishing
+  // shot than the first card below it (which is the flagship Classic), so the
+  // opening viewport has visual variety instead of the same image twice — the
+  // "duplicate hero" smell. International's red-rock adventure shot reads as the
+  // brand hero; fall back to the flagship, then to the text-only header, so
+  // this never renders a broken/empty hero if the catalog changes.
+  const heroFam = families.find((f) => f.family === 'International')
+    || families.find((f) => f.hero) || null;
+  const heroImg = heroFam && heroFam.hero;
+  const heroBand = heroImg
+    ? `<header class="home-hero">
+<img class="home-hero-img" src="${esc(heroImg)}" alt="An Airstream travel trailer at golden hour" width="1280" height="720" fetchpriority="high">
+<div class="home-hero-shade"></div>
+<div class="home-hero-inner">
+<p class="eyebrow eyebrow-light">AIRSTREAM · 2026 + 2025</p>
+<h1>Every Airstream, by family</h1>
+<p class="lede">A cinematic, spec-accurate field guide to the current Airstream travel-trailer lineup — ${families.length} families, ${totalPlans} floorplans.</p>
+<p class="home-hero-cta"><a class="home-hero-btn" href="explore.html">Explore &amp; match</a><a class="home-hero-ghost" href="community.html">Real community photos →</a></p>
+</div>
+</header>`
+    : `<header class="hero-head">
 <p class="eyebrow">AIRSTREAM · 2026 + 2025</p>
 <h1>Every Airstream, by family</h1>
 <p class="lede">A cinematic, spec-accurate field guide to the current Airstream travel-trailer lineup — ${families.length} families, ${totalPlans} floorplans. Start with a family, then dive into each floorplan’s full specs.</p>
 <p class="hero-cta"><a href="community.html">Browse real community photos →</a></p>
-</header>
+</header>`;
+  const body = `${heroBand}
 <main class="fam-grid" id="families">
 ${cards}
 </main>`;
@@ -120,6 +151,7 @@ ${cards}
     title: 'Airstream Explorer — the full travel-trailer lineup by family',
     description: `A spec-accurate, cinematic catalog of every current Airstream travel-trailer family (2026 + 2025): ${families.length} families, ${totalPlans} floorplans, with dimensions, weights, off-grid and pricing.`,
     body,
+    active: 'index',
   });
 }
 
@@ -196,6 +228,7 @@ ${cards}
     description: `Every Airstream ${fam.family} floorplan (${fam.years.join(' + ')}): ${range}, ${len}, sleeps up to ${fam.sleepsMax}. Compare ${fam.floorplanCount} floorplan${fam.floorplanCount === 1 ? '' : 's'} with full specs.`,
     body,
     relRoot: '../',
+    active: 'index',
   });
 }
 
@@ -367,6 +400,7 @@ ${gallery ? `<section class="gallery" aria-label="Gallery"><h2>Gallery</h2><div 
     description: `${trailerTitle(t)}: ${formatLength(t.lengthFt)}, ${formatWeight(t.weightLb)} dry, sleeps ${t.sleeps}, ${formatMsrp(t.msrp)}. Full specs, tanks, off-grid and gallery.`,
     body,
     relRoot: '../',
+    active: 'index',
   });
 }
 
@@ -487,6 +521,7 @@ ${cards}
     title: 'Explore & match — every Airstream floorplan, by the numbers',
     description: `Search, sort and filter all ${trailers.length} Airstream floorplans by price, weight, sleeps and use. Enter your tow vehicle rating to see what you can safely tow.`,
     body,
+    active: 'explore',
   });
 }
 
@@ -531,5 +566,6 @@ export function renderCompare(trailers, resolve = assetPaths) {
     title: 'Compare Airstream floorplans side by side',
     description: 'Line up to three Airstream floorplans side by side: length, weight, GVWR, cargo, tanks, off-grid and price.',
     body,
+    active: 'compare',
   });
 }

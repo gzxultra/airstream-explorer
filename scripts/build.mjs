@@ -78,6 +78,7 @@ log('wrote explore.html + compare.html');
       description: `Find RV-friendly campgrounds nationwide matched to your Airstream's real length. ${campgrounds.length} campgrounds across ${campData.stats.states} states from Recreation.gov, with posted max-length limits, ratings, and prices.`,
       body,
       head,
+      active: 'campgrounds',
     }),
   );
   log('wrote campgrounds.html (national finder)');
@@ -90,6 +91,7 @@ writeFileSync(
     title: 'Airstream in the Wild — real community photos',
     description: 'Real, freely-licensed photographs of Airstream travel trailers from photographers via Wikimedia Commons, grouped by model and setting. Every photo credited.',
     body: renderCommunityBody(community, ''),
+    active: 'community',
   }),
 );
 writeFileSync(
@@ -98,6 +100,7 @@ writeFileSync(
     title: 'Photo credits & licenses — Airstream Explorer',
     description: 'Full attribution for every community photograph: photographer, license, and original source.',
     body: renderCreditsBody(community, ''),
+    active: 'community',
   }),
 );
 log('wrote community.html + credits.html');

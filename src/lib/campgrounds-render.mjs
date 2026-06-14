@@ -149,7 +149,7 @@ export function renderCampgroundsPage(campgrounds, trailers) {
 </section>
 <p class="cg-summary" id="cg-summary"></p>
 <div class="cg-layout">
-<div id="cg-map" class="cg-map" aria-label="Map of campgrounds"></div>
+<div id="cg-map" class="cg-map" aria-label="Map of campgrounds"><div class="cg-map-loading" aria-hidden="true"><span class="cg-map-loading-pin">▲</span><span class="cg-map-loading-txt">Loading map…</span></div></div>
 <div class="cg-list" id="cg-list" aria-live="polite"></div>
 </div>
 <p class="cg-more" id="cg-more" hidden><button type="button" id="cg-more-btn" class="cg-more-btn">Show more</button></p>

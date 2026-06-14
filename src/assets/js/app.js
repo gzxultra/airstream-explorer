@@ -772,6 +772,8 @@
     function onMapReady() {
       if (watchdog) { clearTimeout(watchdog); watchdog = null; }
       mapReady = true;
+      var loadingEl = mapEl.querySelector('.cg-map-loading');
+      if (loadingEl) loadingEl.parentNode.removeChild(loadingEl);
       addCgLayers();
       if (!interactionsBound) { wireMapInteractions(); interactionsBound = true; }
       drawMarkers(lastList);

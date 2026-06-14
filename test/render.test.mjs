@@ -226,6 +226,38 @@ test('every page carries the top nav with explore + compare links', () => {
   }
 });
 
+test('nav marks the current section as active (aria-current + is-active)', () => {
+  // home → Families active
+  const home = renderIndex(groupByFamily(trailers));
+  assert.match(home, /<a href="index\.html" class="is-active" aria-current="page">Families<\/a>/);
+  // explore → Explore active, and exactly one active link per page
+  const explore = renderExplore(trailers);
+  assert.match(explore, /href="explore\.html" class="is-active" aria-current="page"/);
+  assert.equal((explore.match(/aria-current="page"/g) || []).length, 1);
+  // compare → Compare active
+  const compare = renderCompare(trailers);
+  assert.match(compare, /href="compare\.html" class="is-active" aria-current="page"/);
+  // a detail page (nested) keeps Families active with the right relRoot prefix
+  const detail = renderDetail(classic);
+  assert.match(detail, /href="\.\.\/index\.html" class="is-active" aria-current="page"/);
+  assert.equal((detail.match(/aria-current="page"/g) || []).length, 1);
+});
+
+test('home leads with a cinematic hero band backed by a distinct hero image', () => {
+  const fams = groupByFamily(trailers);
+  const html = renderIndex(fams);
+  assert.match(html, /class="home-hero"/);
+  // hero <img> points at a real family hero file (International, by design)
+  const heroFam = fams.find((f) => f.family === 'International') || fams.find((f) => f.hero);
+  assert.match(html, new RegExp(`class="home-hero-img" src="${heroFam.hero.replace(/[/.]/g, '\\$&')}"`));
+  // and it is deliberately NOT the same image as the first (flagship) card,
+  // so the opening viewport isn't the same picture twice
+  assert.notEqual(heroFam.hero, fams[0].hero);
+  // headline + primary CTA into Explore
+  assert.match(html, /Every Airstream, by family/);
+  assert.match(html, /class="home-hero-btn" href="explore\.html"/);
+});
+
 import { renderOffGridTool } from '../src/lib/render.mjs';
 
 test('detail page includes the off-grid estimator with real spec data attrs', () => {
