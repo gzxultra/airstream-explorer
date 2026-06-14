@@ -601,6 +601,33 @@
       });
     }
 
+    // ---- saved shortlist (localStorage) -----------------------------------
+    // Persist a lean copy of each saved campground so it survives even after
+    // the user leaves its map region / live results. Keyed by stable id (i).
+    var CG_SAVED = 'cg.saved';
+    var savedList = [];
+    (function restoreSaved() {
+      var arr = Store.get(CG_SAVED, []);
+      if (Array.isArray(arr)) savedList = arr.filter(function (x) { return x && x.i != null; });
+    })();
+    var savedSet = {};
+    savedList.forEach(function (x) { savedSet[x.i] = true; });
+    function isSaved(c) { return !!(c && savedSet[c.i]); }
+    function leanSave(c) {
+      return { i: c.i, n: c.n, p: c.p, s: c.s, o: c.o, r: c.r, v: c.v, m: c.m, pr: c.pr, g: c.g, u: c.u, la: c.la, lo: c.lo };
+    }
+    function toggleSave(c) {
+      if (c == null || c.i == null) return;
+      if (savedSet[c.i]) {
+        delete savedSet[c.i];
+        savedList = savedList.filter(function (x) { return x.i !== c.i; });
+      } else {
+        savedSet[c.i] = true;
+        savedList.push(leanSave(c));
+      }
+      Store.set(CG_SAVED, savedList);
+    }
+
     // ---- fit logic (mirrors src/lib/campgrounds.mjs exactly) ----
     function fitClass(len, max) {
       if (max == null) return 'unknown';
@@ -748,13 +775,17 @@
       var price = c.pr != null ? '$' + c.pr + '/night' : '';
       var rating = c.r ? '\u2605 ' + c.r.toFixed(1) + ' (' + (c.v || 0) + ')' : '';
       var why = (len > 0 && info.why) ? '<span class="cg-pop-why">' + esc(info.why) + '</span>' : '';
+      var saved = isSaved(c);
+      var saveBtn = '<button type="button" class="cg-pop-save' + (saved ? ' is-saved' : '') + '" data-save="' + esc(c.i) + '" aria-pressed="' + (saved ? 'true' : 'false') + '">'
+        + (saved ? '\u2665 Saved' : '\u2661 Save') + '</button>';
       return '<div class="cg-pop"><strong>' + esc(c.n) + '</strong><br>' +
         (c.p ? esc(c.p) + '<br>' : '') +
         '<span class="cg-pop-fit cg-fit-' + info.cls + '">' + esc(info.label) + '</span> \u00b7 ' + esc(lenTxt) + '<br>' +
         why +
         [rating, price].filter(Boolean).join(' \u00b7 ') +
-        (c.u ? '<br><a href="' + esc(c.u) + '" target="_blank" rel="noopener">View on Recreation.gov \u2192</a>' : '') +
-        '</div>';
+        '<div class="cg-pop-actions">' + saveBtn +
+        (c.u ? '<a href="' + esc(c.u) + '" target="_blank" rel="noopener">Recreation.gov \u2192</a>' : '') +
+        '</div></div>';
     }
 
     // ---- list ----
@@ -777,13 +808,19 @@
         .map(function (s) { return '<span>' + s + '</span>'; }).join('');
       // The "why" explainer: only when a rig is set (it explains the verdict).
       var why = (len > 0 && info.why) ? '<p class="cg-fit-why cg-fit-why-' + info.cls + '">' + esc(info.why) + '</p>' : '';
-      return '<a class="cg-card" href="' + esc(c.u || '#') + '" target="_blank" rel="noopener">' + img +
+      var saved = isSaved(c);
+      var saveBtn = '<button type="button" class="cg-save' + (saved ? ' is-saved' : '') + '" '
+        + 'data-save="' + esc(c.i) + '" aria-pressed="' + (saved ? 'true' : 'false') + '" '
+        + 'aria-label="' + (saved ? 'Saved \u2014 remove from shortlist' : 'Save to shortlist') + '" '
+        + 'title="' + (saved ? 'Saved' : 'Save') + '">' + (saved ? '\u2665' : '\u2661') + '</button>';
+      return '<div class="cg-card-outer">' +
+        '<a class="cg-card" href="' + esc(c.u || '#') + '" target="_blank" rel="noopener">' + img +
         '<div class="cg-card-body"><div class="cg-card-top">' + fitChip + (c.r ? '<span class="cg-stars">\u2605 ' + c.r.toFixed(1) + '</span>' : '') + '</div>' +
         '<h3 class="cg-card-name">' + esc(c.n) + '</h3>' +
         '<p class="cg-card-where">' + esc(where) + (org ? ' \u00b7 ' + esc(org) : '') + '</p>' +
         why +
         '<p class="cg-card-meta">' + meta + '</p>' +
-        '</div></a>';
+        '</div></a>' + saveBtn + '</div>';
     }
     function render() {
       var list = visible();
@@ -929,6 +966,112 @@
       }
     }
 
+    // ---- saved shortlist tray + compare -----------------------------------
+    // Resolve an id back to a full record (live pool first, then static, then
+    // the saved snapshot) so save/compare works regardless of current view.
+    function recordById(id) {
+      var p = pool();
+      for (var k = 0; k < p.length; k++) if (String(p[k].i) === String(id)) return p[k];
+      for (var j = 0; j < STATIC.length; j++) if (String(STATIC[j].i) === String(id)) return STATIC[j];
+      for (var s = 0; s < savedList.length; s++) if (String(savedList[s].i) === String(id)) return savedList[s];
+      return null;
+    }
+
+    // Delegated: the heart button on each card toggles the shortlist without
+    // following the card's link.
+    root.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('.cg-save');
+      if (!btn || !root.contains(btn)) return;
+      e.preventDefault(); e.stopPropagation();
+      var rec = recordById(btn.getAttribute('data-save'));
+      if (rec) { toggleSave(rec); render(); drawSavedTray(); }
+    });
+
+    // Delegated: save button inside a map popup.
+    mapEl.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('.cg-pop-save');
+      if (!btn) return;
+      e.preventDefault(); e.stopPropagation();
+      var rec = recordById(btn.getAttribute('data-save'));
+      if (!rec) return;
+      toggleSave(rec);
+      var nowSaved = isSaved(rec);
+      btn.classList.toggle('is-saved', nowSaved);
+      btn.setAttribute('aria-pressed', nowSaved ? 'true' : 'false');
+      btn.innerHTML = nowSaved ? '\u2665 Saved' : '\u2661 Save';
+      render(); drawSavedTray();
+    });
+
+    // Build the saved tray once and reuse. Lives just under the summary.
+    var trayWrap = null, trayPanel = null, trayOpen = false;
+    function ensureTray() {
+      if (trayWrap) return;
+      trayWrap = document.createElement('div');
+      trayWrap.className = 'cg-tray';
+      trayWrap.innerHTML =
+        '<button type="button" class="cg-tray-toggle" aria-expanded="false">'
+        + '<span class="cg-tray-heart">\u2665</span> Saved <span class="cg-tray-count">0</span></button>'
+        + '<div class="cg-tray-panel" hidden></div>';
+      var summary = document.getElementById('cg-summary');
+      if (summary && summary.parentNode) summary.parentNode.insertBefore(trayWrap, summary.nextSibling);
+      else root.parentNode.insertBefore(trayWrap, root);
+      trayPanel = trayWrap.querySelector('.cg-tray-panel');
+      trayWrap.querySelector('.cg-tray-toggle').addEventListener('click', function () {
+        trayOpen = !trayOpen;
+        this.setAttribute('aria-expanded', trayOpen ? 'true' : 'false');
+        trayPanel.hidden = !trayOpen;
+      });
+      trayPanel.addEventListener('click', function (e) {
+        var rm = e.target.closest && e.target.closest('[data-unsave]');
+        if (rm) {
+          var rec = recordById(rm.getAttribute('data-unsave'));
+          if (rec) { toggleSave(rec); render(); drawSavedTray(); }
+          return;
+        }
+        if (e.target.closest && e.target.closest('.cg-tray-clear')) {
+          savedList = []; savedSet = {}; Store.set(CG_SAVED, savedList);
+          render(); drawSavedTray();
+        }
+      });
+    }
+    function fmtFitForLen(c) {
+      var info = fitInfo(c, state.len);
+      return '<span class="cg-fit cg-fit-' + info.cls + '">' + esc(info.label) + '</span>';
+    }
+    function drawSavedTray() {
+      ensureTray();
+      var n = savedList.length;
+      trayWrap.querySelector('.cg-tray-count').textContent = n;
+      trayWrap.classList.toggle('has-saved', n > 0);
+      if (!n) {
+        trayPanel.innerHTML = '<p class="cg-tray-empty">No saved campgrounds yet. Tap the \u2661 on any campground to build a shortlist you can compare.</p>';
+        return;
+      }
+      var rows = savedList.map(function (c) {
+        var where = [c.s].filter(Boolean).join(', ');
+        var len = c.m ? c.m + '\u2032 max' : 'No posted limit';
+        var price = c.pr != null ? '$' + c.pr + '/night' : '\u2014';
+        var rating = c.r ? '\u2605 ' + c.r.toFixed(1) : '\u2014';
+        return '<tr>'
+          + '<td class="cg-tr-name"><a href="' + esc(c.u || '#') + '" target="_blank" rel="noopener">' + esc(c.n) + '</a>'
+          + '<span class="cg-tr-where">' + esc(where) + '</span></td>'
+          + '<td>' + (state.len > 0 ? fmtFitForLen(c) : esc(len)) + '</td>'
+          + '<td>' + esc(len) + '</td>'
+          + '<td>' + esc(rating) + '</td>'
+          + '<td>' + esc(price) + '</td>'
+          + '<td><button type="button" class="cg-tr-x" data-unsave="' + esc(c.i) + '" aria-label="Remove">\u00d7</button></td>'
+          + '</tr>';
+      }).join('');
+      trayPanel.innerHTML =
+        '<div class="cg-tray-head"><strong>' + n + '</strong> saved'
+        + (state.len > 0 ? ' \u00b7 fit shown for your ' + (Math.round(state.len * 10) / 10) + '\u2032 rig' : '')
+        + ' <button type="button" class="cg-tray-clear">Clear all</button></div>'
+        + '<div class="cg-tray-scroll"><table class="cg-tray-table"><thead><tr>'
+        + '<th>Campground</th><th>Fit</th><th>Posted max</th><th>Rating</th><th>Price</th><th></th>'
+        + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+    }
+
     render();
+    drawSavedTray();
   })();
 })();
