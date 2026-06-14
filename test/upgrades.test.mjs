@@ -36,6 +36,45 @@ test('validator catches a non-http source url', () => {
   assert.ok(problems.some((p) => p.includes('not http(s)')), problems.join('\n'));
 });
 
+test('the power category carries the factory program table, fully sourced', () => {
+  const power = data.categories.find((c) => c.id === 'power');
+  assert.ok(power && power.table, 'power category should have a table');
+  const t = power.table;
+  assert.ok(Array.isArray(t.columns) && t.columns.length >= 3);
+  assert.ok(Array.isArray(t.rows) && t.rows.length >= 5, `expected per-model rows, got ${t.rows && t.rows.length}`);
+  for (const r of t.rows) assert.equal(r.length, t.columns.length, `row width: ${JSON.stringify(r)}`);
+  assert.ok(Array.isArray(t.sources) && t.sources.length >= 1);
+  for (const s of t.sources) assert.match(s.url, /^https:\/\//);
+  // Trade Wind's standout official numbers must be present and correct.
+  const flat = JSON.stringify(t.rows);
+  assert.ok(flat.includes('810Ah'), 'Trade Wind 810Ah should be in the table');
+  assert.ok(flat.includes('600W'), 'Trade Wind 600W should be in the table');
+});
+
+test('validator catches a table row whose width != columns', () => {
+  const bad = { categories: [{ id: 'x', title: 'X',
+    items: [{ name: 'Y', why: 'z', type: 'Factory', sources: [{ label: 'a', url: 'https://a.com' }] }],
+    table: { columns: ['a', 'b'], rows: [['only-one']], sources: [{ label: 's', url: 'https://s.com' }] } }] };
+  const problems = validateUpgrades(bad);
+  assert.ok(problems.some((p) => p.includes('row width')), problems.join('\n'));
+});
+
+test('validator requires a table to carry a source', () => {
+  const bad = { categories: [{ id: 'x', title: 'X',
+    items: [{ name: 'Y', why: 'z', type: 'Factory', sources: [{ label: 'a', url: 'https://a.com' }] }],
+    table: { columns: ['a'], rows: [['v']], sources: [] } }] };
+  const problems = validateUpgrades(bad);
+  assert.ok(problems.some((p) => p.includes('table: needs at least one source')), problems.join('\n'));
+});
+
+test('renderUpgradesBody renders the factory table with headers and Trade Wind row', () => {
+  const html = renderUpgradesBody(data, '');
+  assert.ok(html.includes('up-table'), 'should emit the table');
+  assert.ok(html.includes('Trade Wind'));
+  assert.ok(html.includes('810Ah'));
+  assert.ok(html.includes('Rooftop solar'));
+});
+
 test('renderUpgradesBody emits cards, badges, jump nav and escapes', () => {
   const html = renderUpgradesBody(data, '');
   assert.ok(html.includes('What owners actually add'));

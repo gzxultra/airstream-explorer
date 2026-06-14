@@ -55,6 +55,33 @@ export function validateUpgrades(data) {
         }
       }
     }
+    // An optional per-category comparison table (e.g. the factory solar/lithium
+    // program). Same source contract: if a table is present it must carry rows
+    // that match its column count and at least one verifiable source link.
+    if (cat.table) {
+      const t = cat.table;
+      const ttag = `${cat.id}/table`;
+      if (!Array.isArray(t.columns) || t.columns.length === 0) {
+        problems.push(`${ttag}: missing columns`);
+      }
+      if (!Array.isArray(t.rows) || t.rows.length === 0) {
+        problems.push(`${ttag}: missing rows`);
+      } else if (Array.isArray(t.columns)) {
+        for (const r of t.rows) {
+          if (!Array.isArray(r) || r.length !== t.columns.length) {
+            problems.push(`${ttag}: row width != ${t.columns.length}: ${JSON.stringify(r)}`);
+          }
+        }
+      }
+      if (!Array.isArray(t.sources) || t.sources.length === 0) {
+        problems.push(`${ttag}: needs at least one source`);
+      } else {
+        for (const s of t.sources) {
+          if (!s.label || !s.url) problems.push(`${ttag}: source missing label/url`);
+          else if (!/^https?:\/\//.test(s.url)) problems.push(`${ttag}: source url not http(s): ${s.url}`);
+        }
+      }
+    }
   }
   return problems;
 }
@@ -97,15 +124,56 @@ ${popular}
 </article>`;
 }
 
+/** An optional per-category comparison table (e.g. the factory power program). */
+function categoryTable(t) {
+  if (!t) return '';
+  const head = t.columns.map((c) => `<th scope="col">${esc(c)}</th>`).join('');
+  const body = t.rows
+    .map((r) => {
+      const cells = r
+        .map((cell, i) =>
+          i === 0
+            ? `<th scope="row">${esc(cell)}</th>`
+            : `<td>${esc(cell)}</td>`,
+        )
+        .join('');
+      return `<tr>${cells}</tr>`;
+    })
+    .join('\n');
+  const intro = t.intro ? `<p class="up-table-intro">${esc(t.intro)}</p>` : '';
+  const note = t.note ? `<p class="up-table-note muted">${esc(t.note)}</p>` : '';
+  const sources = t.sources
+    .map(
+      (s) =>
+        `<li><a href="${esc(s.url)}" target="_blank" rel="noopener nofollow">${esc(s.label)}</a></li>`,
+    )
+    .join('');
+  const title = t.title ? `<h3 class="up-table-title">${esc(t.title)}</h3>` : '';
+  return `<div class="up-table-wrap">
+${title}
+${intro}
+<div class="up-table-scroll"><table class="up-table">
+<thead><tr>${head}</tr></thead>
+<tbody>
+${body}
+</tbody>
+</table></div>
+${note}
+<details class="up-sources"><summary>Sources (${t.sources.length})</summary><ul>${sources}</ul></details>
+</div>`;
+}
+
 /** The Upgrades page body. `relRoot` lets it live at site root (''). */
 export function renderUpgradesBody(data, relRoot = '') {
   const sections = data.categories
     .map((cat) => {
       const blurb = cat.blurb ? `<p class="up-sec-blurb">${esc(cat.blurb)}</p>` : '';
+      const table = categoryTable(cat.table);
       const cards = cat.items.map(upgradeCard).join('\n');
       return `<section class="up-sec" id="${esc(cat.id)}">
 <header class="up-sec-head"><h2>${esc(cat.title)}</h2><span class="up-sec-count">${cat.items.length}</span></header>
 ${blurb}
+${table}
 <div class="up-grid">${cards}</div>
 </section>`;
     })

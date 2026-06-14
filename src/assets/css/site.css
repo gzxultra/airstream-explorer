@@ -1021,6 +1021,20 @@ body.cg-drawer-open { overflow: hidden; }
 .up-sec-head h2 { font-size: clamp(22px, 3.2vw, 32px); margin: 0; }
 .up-sec-count { font-size: 13px; color: var(--muted); font-weight: 700; letter-spacing: .06em; }
 .up-sec-blurb { color: var(--muted); margin: 0 0 22px; max-width: 72ch; font-size: 15px; }
+/* Featured factory-program comparison table */
+.up-table-wrap { background: #fff; border: 1px solid var(--line); border-radius: 2px; padding: 22px 22px 16px; margin: 0 0 26px; box-shadow: 0 1px 2px rgba(40,28,16,.04); }
+.up-table-title { font-family: var(--serif); font-size: clamp(17px, 2.4vw, 21px); margin: 0 0 6px; color: var(--ink); }
+.up-table-intro { color: var(--muted); font-size: 14px; margin: 0 0 16px; max-width: 76ch; }
+.up-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.up-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 560px; }
+.up-table thead th { text-align: left; font-family: var(--sans); font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--copper-deep); padding: 0 14px 9px 0; border-bottom: 2px solid var(--copper); white-space: nowrap; }
+.up-table tbody th, .up-table tbody td { padding: 11px 14px 11px 0; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.4; }
+.up-table tbody th { font-weight: 700; color: var(--ink); font-family: var(--sans); text-align: left; min-width: 150px; }
+.up-table tbody td { color: var(--ink-soft, #4a4036); }
+.up-table tbody tr:last-child th, .up-table tbody tr:last-child td { border-bottom: 0; }
+.up-table-note { font-size: 12.5px; margin: 12px 0 0; max-width: 78ch; }
+@media (max-width: 640px) { .up-table-wrap { padding: 16px 14px 12px; } }
+
 .up-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
 .up-card {
   background: var(--surface); border: 1px solid var(--line);

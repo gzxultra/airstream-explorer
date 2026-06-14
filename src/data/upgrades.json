@@ -4,39 +4,61 @@
     {
       "id": "power",
       "title": "Power: lithium, solar & inverters",
-      "blurb": "The single most-recommended upgrade path. Factory lead-acid is fine for hookups; lithium + solar + an inverter is what unlocks real off-grid time. Owners overwhelmingly go this route, either as a factory solar package or a full aftermarket build.",
+      "blurb": "The single most-recommended upgrade path. Airstream sells solar and lithium from the factory, sized to each model line (table below) — and going aftermarket unlocks far bigger off-grid builds. Either way, lithium + solar + an inverter is what turns a hookup-only trailer into a boondocking one.",
       "items": [
         {
           "name": "Lithium (LiFePO4) house batteries",
           "type": "Both",
-          "priceText": "$259–949 per 100Ah",
-          "why": "2–3× the usable capacity of lead-acid (100% depth of discharge vs ~50%), far lighter, ~10-year life, and charge faster. Airstream itself notes lithium has 2–3× more usable power and a 100% depth of discharge. Since model-year 2023, buyers can choose house battery chemistry at the dealer; Classic ships with a 200Ah lithium bank standard.",
-          "popular": "Battle Born 100Ah ($799, 10-yr warranty, Reno-assembled) is the enthusiast default; Epoch Elite V2 (up to 460Ah, built-in Class-T fuse, internal heater) is the current high-end pick installers favor. Budget drop-ins (Power Queen, LiTime) run $230–280/100Ah.",
+          "priceText": "Factory 200–810Ah · aftermarket $230–949 per 100Ah",
+          "why": "2–3× the usable capacity of lead-acid (100% depth of discharge vs ~50%), far lighter, ~10-year life, and they charge faster. Airstream now sells lithium from the factory as a heated 200Ah (~2.5 kWh) bank — standard on Classic and Pottery Barn, optional on Globetrotter, International, Flying Cloud, Caravel, Bambi and Basecamp — but only bundled with the solar package. The Trade Wind goes furthest with a standard 810Ah heated bank.",
+          "popular": "Airstream's own factory cells are Battle Born — the Trade Wind runs three heated Battle Born units for its 810Ah bank. Aftermarket, Battle Born 100Ah (~$799, 10-yr warranty) is the default and the Epoch Elite V2T (up to 460Ah, built-in Class-T fuse, internal heater) is the installer high-end. Budget drop-ins (Power Queen, LiTime) run ~$230–280 per 100Ah.",
           "sources": [
-            { "label": "Airstream Support — battery chemistry & lithium benefits", "url": "https://support.airstream.com/hc/en-us/articles/360051136833" },
-            { "label": "Battle Born BB10012 — official price", "url": "https://battlebornbatteries.com" }
+            {
+              "label": "Airstream — Optional Features (factory lithium tiers, by model)",
+              "url": "https://www.airstream.com/blog/optional-features-available-across-airstreams-travel-trailer-lineup/"
+            },
+            {
+              "label": "Airstream Support — battery chemistry & lithium benefits",
+              "url": "https://support.airstream.com/hc/en-us/articles/15704289851412-What-Airstream-Upgrade-or-Product-Options-Are-Available-From-The-Factory"
+            },
+            {
+              "label": "Battle Born BB10012 — official product/price",
+              "url": "https://battlebornbatteries.com"
+            }
           ]
         },
         {
-          "name": "Rooftop solar (200–1000W)",
+          "name": "Rooftop solar (factory 100–600W, or bigger aftermarket)",
           "type": "Both",
           "priceText": "Factory 300W $2,600 · aftermarket $500–3,000+",
-          "why": "Keeps the battery bank topped up off-grid so you can stay out for days without a generator. Airstream's factory '300W Solar Package with Interior Monitor' adds three 100W panels, a controller and a battery monitor for $2,600 on most floorplans. Owners going bigger fit 600–1000W aftermarket for serious boondocking.",
-          "popular": "Factory 300W package is the easy box-tick. Aftermarket favorites: Lightleaf removable curved panels (match the Airstream roof curve), or installer builds at 600–1000W. A front-end portable-solar port is built into 2017+ trailers for shaded parking.",
+          "why": "Keeps the battery bank topped up off-grid so you can stay out for days without a generator. Airstream matches factory solar to the model: 600W standard on Trade Wind, 300W on Classic, 300W optional ($2,600) on Globetrotter/International/Flying Cloud, and 100–200W on the smaller Caravel, Bambi and Basecamp — with a 360W tier on Basecamp when you add lithium. See the table above for the full per-model breakdown.",
+          "popular": "The factory 300W package (three 100W panels + controller + interior battery monitor) is the easy box-tick. Owners going bigger fit 600–1000W aftermarket for serious boondocking; a front portable-solar port on 2017+ trailers lets you plug in a ground panel for shaded sites.",
           "sources": [
-            { "label": "Airstream Support — factory option list & 300W package price", "url": "https://support.airstream.com/hc/en-us/articles/15704289851412-What-Airstream-Upgrade-or-Product-Options-Are-Available-From-The-Factory" },
-            { "label": "Outside — DIY off-grid Airstream solar build", "url": "https://www.outsideonline.com" }
+            {
+              "label": "Airstream — Optional Features (per-model solar tiers)",
+              "url": "https://www.airstream.com/blog/optional-features-available-across-airstreams-travel-trailer-lineup/"
+            },
+            {
+              "label": "Airstream Support — factory option list & 300W $2,600 price",
+              "url": "https://support.airstream.com/hc/en-us/articles/15704289851412-What-Airstream-Upgrade-or-Product-Options-Are-Available-From-The-Factory"
+            }
           ]
         },
         {
           "name": "Inverter / inverter-charger (2000–3000W)",
           "type": "Aftermarket",
           "priceText": "$1,000–1,400 (Victron 3000VA)",
-          "why": "Runs household AC outlets — coffee maker, microwave, TV — off the battery bank when you're not plugged in. A pure-sine 2000–3000W unit covers most loads; pair with lithium and solar for a complete off-grid system.",
+          "why": "Runs household AC outlets — coffee maker, microwave, TV — off the battery bank when you're not plugged in. A pure-sine 2000–3000W unit covers most loads; pair with lithium and solar for a complete off-grid system. The Trade Wind already ships a 3,000W inverter standard with every outlet inverted; on other trailers it's an aftermarket add.",
           "popular": "Victron MultiPlus / MultiPlus-II 12V 3000VA (US 50A model ~$1,088–1,375) is the near-universal installer choice, usually with a Victron Lynx distributor, Orion XS DC-DC charger and a Cerbo GX touchscreen for monitoring.",
           "sources": [
-            { "label": "NAZ Solar Electric — Victron MultiPlus-II 12/3000/120 (UL458) price", "url": "https://www.solar-electric.com" },
-            { "label": "SotaSolar — 24V Victron Airstream build walkthrough", "url": "https://sotasolar.com" }
+            {
+              "label": "NAZ Solar Electric — Victron MultiPlus-II 12/3000/120 (UL458) price",
+              "url": "https://www.solar-electric.com"
+            },
+            {
+              "label": "SotaSolar — 24V Victron Airstream build walkthrough",
+              "url": "https://sotasolar.com"
+            }
           ]
         },
         {
@@ -46,10 +68,86 @@
           "why": "Lets the tow vehicle's alternator safely charge a lithium bank while you drive, without overloading the alternator. Essential once you switch to lithium because the factory converter alone charges slowly and the alternator needs current limiting.",
           "popular": "Victron Orion XS 1400 is the current favorite in installer builds.",
           "sources": [
-            { "label": "RV.com — adding lithium + DC-DC charging", "url": "https://www.rv.com" }
+            {
+              "label": "RV.com — adding lithium + DC-DC charging",
+              "url": "https://www.rv.com"
+            }
           ]
         }
-      ]
+      ],
+      "table": {
+        "title": "Airstream's factory solar & lithium program, by model",
+        "intro": "Airstream matches solar wattage and lithium capacity to each model line. Two rules to know: factory lithium is only sold bundled with the solar package, and on Basecamp it requires the 360W solar tier. Everything below is from Airstream's own feature pages.",
+        "columns": [
+          "Model line",
+          "Rooftop solar",
+          "Lithium house battery",
+          "How it's sold"
+        ],
+        "rows": [
+          [
+            "Trade Wind",
+            "600W — standard",
+            "810Ah heated — standard",
+            "Standard off-grid build; 3,000W inverter, every outlet inverted"
+          ],
+          [
+            "Classic",
+            "300W — standard",
+            "200Ah / 2.5 kWh heated — standard",
+            "Standard"
+          ],
+          [
+            "Pottery Barn Special Edition",
+            "300W — standard",
+            "200Ah / 2.5 kWh heated — standard",
+            "Standard"
+          ],
+          [
+            "Globetrotter · International · Flying Cloud",
+            "300W — optional ($2,600)",
+            "200Ah / 2.5 kWh heated — optional",
+            "Lithium only with the solar package"
+          ],
+          [
+            "Basecamp 20 · 20X",
+            "300W — optional (360W with lithium)",
+            "200Ah — optional",
+            "Lithium requires the 360W solar tier"
+          ],
+          [
+            "Caravel 20FB/22FB · Bambi 20FB/22FB · Basecamp 16/16X",
+            "200W — optional (360W on Basecamp w/ lithium)",
+            "200Ah — optional",
+            "Lithium with the solar package"
+          ],
+          [
+            "Caravel 16RB/19CB · Bambi 16RB/19CB",
+            "100W — optional",
+            "200Ah — optional",
+            "Lithium with the solar package"
+          ]
+        ],
+        "note": "The 10.3/17.2 kWh “Advanced Power System” is a Model-Year-2026 motorhome platform (Atlas, Interstate) — it is not offered on travel trailers, so it's deliberately left off this list.",
+        "sources": [
+          {
+            "label": "Airstream — Optional Features Across the Travel Trailer Lineup (solar & lithium tiers)",
+            "url": "https://www.airstream.com/blog/optional-features-available-across-airstreams-travel-trailer-lineup/"
+          },
+          {
+            "label": "Airstream Support — factory option list & 300W package price",
+            "url": "https://support.airstream.com/hc/en-us/articles/15704289851412-What-Airstream-Upgrade-or-Product-Options-Are-Available-From-The-Factory"
+          },
+          {
+            "label": "Airstream — All-New Trade Wind (810Ah / 600W / 3,000W standard)",
+            "url": "https://www.airstream.com/blog/introducing-the-all-new-airstream-trade-wind-travel-trailer/"
+          },
+          {
+            "label": "Airstream — World Traveler features (300W + 2.5 kWh heated lithium wording)",
+            "url": "https://www.airstream.com/travel-trailers/world-traveler/features/"
+          }
+        ]
+      }
     },
     {
       "id": "climate",
@@ -63,8 +161,14 @@
           "why": "A rooftop A/C draws 60–100+ amps the instant the compressor kicks on, which trips breakers and stalls inverters. A soft start cuts that surge by ~70% (down to ~25–30A), so you can run the A/C off lithium + inverter, or start it on a small 2,000W generator or a 15/20A household plug. Owners call this near-mandatory if you want A/C off-grid.",
           "popular": "Micro-Air EasyStart 364 and SoftStartRV are the two enthusiast standards; installers report thousands of installs with no warranty issues. Needed on each A/C unit if you have two.",
           "sources": [
-            { "label": "Pagosa Supply — soft start guide & brand picks", "url": "https://pagosasupply.co" },
-            { "label": "Micro-Air EasyStart — manufacturer", "url": "https://www.microair.net" }
+            {
+              "label": "Pagosa Supply — soft start guide & brand picks",
+              "url": "https://pagosasupply.co"
+            },
+            {
+              "label": "Micro-Air EasyStart — manufacturer",
+              "url": "https://www.microair.net"
+            }
           ]
         },
         {
@@ -74,7 +178,10 @@
           "why": "Adds cooling capacity for hot climates or larger floorplans and boosts the electrical system to 50 amps. Factory option on several International and Globetrotter floorplans (not all — e.g. excluded on the 30RB).",
           "popular": "Factory-only; most owners who camp in the South add it. The heat-pump function also extends shoulder-season heating without burning propane.",
           "sources": [
-            { "label": "Airstream Support — factory option list & price", "url": "https://support.airstream.com/hc/en-us/articles/15704289851412-What-Airstream-Upgrade-or-Product-Options-Are-Available-From-The-Factory" }
+            {
+              "label": "Airstream Support — factory option list & price",
+              "url": "https://support.airstream.com/hc/en-us/articles/15704289851412-What-Airstream-Upgrade-or-Product-Options-Are-Available-From-The-Factory"
+            }
           ]
         },
         {
@@ -84,7 +191,10 @@
           "why": "Inflatable tubes seal the gap under the trailer to cut heat loss in winter and heat gain in summer — no drilling, stores compactly. Airstream highlights it in their own customization guide for four-season use.",
           "popular": "AirSkirts is the named product owners use; sold in model-specific kits.",
           "sources": [
-            { "label": "Airstream — Customization Guide (AirSkirts)", "url": "https://www.airstream.com" }
+            {
+              "label": "Airstream — Customization Guide (AirSkirts)",
+              "url": "https://www.airstream.com"
+            }
           ]
         }
       ]
@@ -101,8 +211,14 @@
           "why": "Distributes tongue weight across all axles and fights trailer sway — the biggest single towing-safety upgrade. Airstream's long wheelbase tows well, but a proper WD/anti-sway hitch transforms stability, especially in crosswinds and truck passes.",
           "popular": "Equal-i-zer 4-point (integrated sway, ~$500–700) is the value standard. ProPride 3P (Jim Hensley design, $2,995–3,645) is the no-sway premium pick enthusiasts swear by for larger trailers. Size the model to your loaded hitch weight.",
           "sources": [
-            { "label": "ProPride 3P — official store & price", "url": "https://store.propridehitch.com" },
-            { "label": "Equal-i-zer 4-point — product page", "url": "https://www.equalizerhitch.com" }
+            {
+              "label": "ProPride 3P — official store & price",
+              "url": "https://store.propridehitch.com"
+            },
+            {
+              "label": "Equal-i-zer 4-point — product page",
+              "url": "https://www.equalizerhitch.com"
+            }
           ]
         },
         {
@@ -112,8 +228,14 @@
           "why": "Trailer tires fail far from the driver's seat; a TPMS alarms on pressure or temperature before a blowout that can shred a fender and bodywork. Universally recommended by the Airstream Club and owners.",
           "popular": "TST 507 (flow-through or cap sensors, color monitor; 6-sensor kit ~$446) is the enthusiast standard; a signal repeater is recommended for travel-trailer length.",
           "sources": [
-            { "label": "Airstream Club — 36 Things Every Airstreamer Should Carry", "url": "https://blog.airstreamclub.org" },
-            { "label": "TST 507 6-sensor — retail price", "url": "https://www.amazon.com" }
+            {
+              "label": "Airstream Club — 36 Things Every Airstreamer Should Carry",
+              "url": "https://blog.airstreamclub.org"
+            },
+            {
+              "label": "TST 507 6-sensor — retail price",
+              "url": "https://www.amazon.com"
+            }
           ]
         },
         {
@@ -123,8 +245,14 @@
           "why": "Campground pedestals deliver miswired, low, or surging power that can fry the converter, A/C and electronics. A surge protector blocks spikes; a full Electrical Management System also disconnects on low/high voltage and wiring faults. Owners consider this cheap insurance.",
           "popular": "Progressive Industries EMS (portable or hardwired EMS-HW50C) and Hughes Autoformer are the recommended names; match 30A or 50A to your trailer.",
           "sources": [
-            { "label": "Airstream Beginner's Guide — surge protector", "url": "https://www.airstream.com" },
-            { "label": "Pagosa Supply — EMS / surge FAQ", "url": "https://pagosasupply.co" }
+            {
+              "label": "Airstream Beginner's Guide — surge protector",
+              "url": "https://www.airstream.com"
+            },
+            {
+              "label": "Pagosa Supply — EMS / surge FAQ",
+              "url": "https://pagosasupply.co"
+            }
           ]
         },
         {
@@ -134,8 +262,14 @@
           "why": "Campsites are rarely level, and the absorption fridge works best level. Curved drive-on levelers plus solid chocks are the fast, reliable setup the Airstream Beginner's Guide and owners recommend.",
           "popular": "Andersen Levelers are the most-recommended drive-on levelers; pair with X-chocks between dual… (single-axle trailers use standard chocks).",
           "sources": [
-            { "label": "Airstream Beginner's Guide — chocking & leveling", "url": "https://www.airstream.com" },
-            { "label": "Pagosa Supply — Andersen levelers", "url": "https://pagosasupply.co" }
+            {
+              "label": "Airstream Beginner's Guide — chocking & leveling",
+              "url": "https://www.airstream.com"
+            },
+            {
+              "label": "Pagosa Supply — Andersen levelers",
+              "url": "https://pagosasupply.co"
+            }
           ]
         }
       ]
@@ -152,7 +286,10 @@
           "why": "Campground water pressure can spike high enough to burst RV plumbing lines. An adjustable regulator with a gauge protects the system — a cheap, universally recommended first buy.",
           "popular": "Adjustable brass regulators (e.g. Renator, Valterra) with a gauge are the common pick.",
           "sources": [
-            { "label": "Pagosa Supply — water hose & filter essentials", "url": "https://pagosasupply.co" }
+            {
+              "label": "Pagosa Supply — water hose & filter essentials",
+              "url": "https://pagosasupply.co"
+            }
           ]
         },
         {
@@ -162,7 +299,10 @@
           "why": "Removes sediment, chlorine taste and impurities from campground water. Owners who care about taste step up from cheap blue inline filters to a higher-flow multi-stage system.",
           "popular": "Basic Camco inline for most; the Airstream Club specifically calls out the Blu Technology / Clearsource-type ELITE multi-stage filters for serious filtration.",
           "sources": [
-            { "label": "Airstream Club — drinking water filter", "url": "https://blog.airstreamclub.org" }
+            {
+              "label": "Airstream Club — drinking water filter",
+              "url": "https://blog.airstreamclub.org"
+            }
           ]
         },
         {
@@ -172,7 +312,10 @@
           "why": "Saves fresh and grey tank capacity off-grid by cutting the cold-water purge before hot arrives — a popular small mod for boondockers. Frequently cited in owner 'upgrades I'd do again' lists.",
           "popular": "Shower mixing/recirculation valve upgrades show up in long-term owner upgrade roundups.",
           "sources": [
-            { "label": "Owner upgrade roundup — recirculation valve", "url": "https://www.youtube.com" }
+            {
+              "label": "Owner upgrade roundup — recirculation valve",
+              "url": "https://www.youtube.com"
+            }
           ]
         }
       ]
@@ -189,7 +332,10 @@
           "why": "Airstream's wraparound windows let in a lot of heat and sun; tint cuts cabin heat and glare and adds daytime privacy. Recurring item on 'upgrades I'd do again' lists.",
           "popular": "Professional ceramic tint (e.g. TNT Tinting in owner videos) is the common route.",
           "sources": [
-            { "label": "Owner upgrade roundup — window tint", "url": "https://www.youtube.com" }
+            {
+              "label": "Owner upgrade roundup — window tint",
+              "url": "https://www.youtube.com"
+            }
           ]
         },
         {
@@ -199,7 +345,10 @@
           "why": "Replaces the stock plastic dome with a clear glass skylight for a better view and a more premium feel. Popular cosmetic + light upgrade.",
           "popular": "Maxim Skylights is the brand owners name.",
           "sources": [
-            { "label": "Owner upgrade roundup — glass skylights", "url": "https://www.youtube.com" }
+            {
+              "label": "Owner upgrade roundup — glass skylights",
+              "url": "https://www.youtube.com"
+            }
           ]
         },
         {
@@ -209,7 +358,10 @@
           "why": "Stock cabinet doors only open partway; swapping to 170° hinges gives full access to closets and lockers. Cheap, high-satisfaction DIY fix that comes up constantly.",
           "popular": "170° soft-close hinges (Amazon/ROK) — a top community 'fixes' recommendation.",
           "sources": [
-            { "label": "Owner fixes & upgrades — 170° hinges", "url": "https://www.youtube.com" }
+            {
+              "label": "Owner fixes & upgrades — 170° hinges",
+              "url": "https://www.youtube.com"
+            }
           ]
         },
         {
@@ -219,7 +371,10 @@
           "why": "Swap plastic exterior parts for stainless for durability and shine; padded window and stone guards protect the shell and windows from road debris. Airstream sells both as customization kits.",
           "popular": "Airstream's own stainless upgrade bundle and stone/window guard kits (no drilling, multiple colors).",
           "sources": [
-            { "label": "Airstream — Customization Guide", "url": "https://www.airstream.com" }
+            {
+              "label": "Airstream — Customization Guide",
+              "url": "https://www.airstream.com"
+            }
           ]
         },
         {
@@ -229,7 +384,10 @@
           "why": "Locks the coupler and hitch so a thief can't simply tow the trailer away, hitched or unhitched. Recommended security basic.",
           "popular": "Airstream's Anti-Theft Lock Kit (three locks) or a heavy-duty coupler lock.",
           "sources": [
-            { "label": "Airstream Beginner's Guide — security & locks", "url": "https://www.airstream.com" }
+            {
+              "label": "Airstream Beginner's Guide — security & locks",
+              "url": "https://www.airstream.com"
+            }
           ]
         }
       ]
