@@ -558,7 +558,27 @@ export function renderCompare(trailers, resolve = assetPaths) {
 <div class="cmp-table-wrap" id="cmp-table-wrap" hidden>
 <table class="cmp-table" id="cmp-table"></table>
 </div>
-<p class="cmp-placeholder" id="cmp-placeholder">Nothing selected yet. Search above or pick from <a href="explore.html">Explore &amp; match</a>.</p>
+<div class="cmp-placeholder" id="cmp-placeholder">
+<p class="cmp-empty-lead">Search above to add any floorplan, or start with one of these:</p>
+<div class="cmp-starter">
+<a class="cmp-starter-card" href="compare.html?ids=basecamp-16x-2026,caravel-16rb-2026,bambi-16rb-2026">
+<span class="cmp-starter-tag">Compact &amp; light</span>
+<strong>Basecamp 16X · Caravel 16RB · Bambi 16RB</strong>
+<span class="cmp-starter-sub">The smallest, easiest-to-tow trio — $54.9k–$83.9k</span>
+</a>
+<a class="cmp-starter-card" href="compare.html?ids=flying-cloud-25fb-2026,globetrotter-25fb-2026,trade-wind-25fb-2026">
+<span class="cmp-starter-tag">Mid-size all-rounders</span>
+<strong>Flying Cloud · Globetrotter · Trade Wind 25FB</strong>
+<span class="cmp-starter-sub">Three 26-footers, three personalities — $118.9k–$139.9k</span>
+</a>
+<a class="cmp-starter-card" href="compare.html?ids=classic-33fb-2026,globetrotter-27fb-2026,international-28rb-2026">
+<span class="cmp-starter-tag">Big &amp; luxe</span>
+<strong>Classic 33FB · Globetrotter 27FB · International 28RB</strong>
+<span class="cmp-starter-sub">Full-size flagships for long hauls — $145k–$222.9k</span>
+</a>
+</div>
+<p class="cmp-empty-foot">Or browse the full lineup on <a href="explore.html">Explore &amp; match</a>.</p>
+</div>
 <script type="application/json" id="cmp-data">${json}</script>`;
   return page({
     title: 'Compare Airstream floorplans side by side',

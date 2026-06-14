@@ -66,9 +66,18 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .home-hero-ghost { color: #fff; font-weight: 600; font-size: 15px; }
 .home-hero-ghost:hover { color: #f0c9b4; text-decoration: none; }
 @media (max-width: 560px) {
-  .home-hero { margin-top: 8px; border-radius: 8px; }
-  .home-hero-img { aspect-ratio: 4/3; }
-  .home-hero-cta { gap: 12px; }
+  .home-hero {
+    margin-top: 8px; border-radius: 10px;
+    display: flex; flex-direction: column; background: #17120d;
+  }
+  .home-hero-img { aspect-ratio: 3/2; }
+  /* Text no longer overlays the photo on phones, so the scrim is unneeded —
+     it previously caused the title to overflow the short 4/3 image. */
+  .home-hero-shade { display: none; }
+  .home-hero-inner { position: static; padding: 20px 20px 24px; }
+  .home-hero-inner h1 { font-size: clamp(30px, 8.4vw, 40px); line-height: 1.06; margin-bottom: 10px; }
+  .home-hero-inner .lede { font-size: 15px; max-width: none; }
+  .home-hero-cta { gap: 12px; margin-top: 18px; }
   .home-hero-btn { width: 100%; justify-content: center; }
   .home-hero-ghost { width: 100%; text-align: center; }
 }
@@ -467,7 +476,32 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .cmp-chip { display: inline-flex; align-items: center; gap: 4px; background: rgba(176,92,50,.1); border: 1px solid rgba(176,92,50,.25); color: var(--copper-deep); font-size: 14px; font-weight: 600; padding: 6px 8px 6px 14px; border-radius: 999px; }
 .cmp-chip-x { font: inherit; font-size: 18px; line-height: 1; background: none; border: 0; color: var(--copper-deep); cursor: pointer; padding: 0 4px; }
 .cmp-chip-x:hover { color: var(--ink); }
-.cmp-placeholder { max-width: var(--maxw); margin: 28px auto; padding: 40px 20px; text-align: center; color: var(--muted); font-size: 16px; }
+.cmp-placeholder { max-width: var(--maxw); margin: 28px auto 64px; padding: 8px 20px; text-align: center; }
+.cmp-empty-lead { color: var(--muted); font-size: 16px; margin: 12px 0 22px; }
+.cmp-starter {
+  display: grid; gap: 14px; text-align: left;
+  grid-template-columns: repeat(3, 1fr); max-width: 980px; margin: 0 auto;
+}
+.cmp-starter-card {
+  display: flex; flex-direction: column; gap: 7px;
+  padding: 18px 18px 20px; border: 1px solid var(--line); border-radius: 12px;
+  background: var(--surface); color: var(--ink); text-decoration: none;
+  transition: border-color .14s ease, transform .12s ease, box-shadow .14s ease;
+}
+.cmp-starter-card:hover {
+  border-color: var(--copper); transform: translateY(-2px);
+  box-shadow: var(--shadow); text-decoration: none;
+}
+.cmp-starter-tag {
+  font: 700 11px/1 "DM Sans", sans-serif; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--copper-deep);
+}
+.cmp-starter-card strong { font: 600 16px/1.3 "Fraunces", serif; color: var(--ink); }
+.cmp-starter-sub { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.cmp-empty-foot { color: var(--muted); font-size: 14.5px; margin: 24px 0 0; }
+@media (max-width: 760px) {
+  .cmp-starter { grid-template-columns: 1fr; max-width: 460px; }
+}
 .cmp-table-wrap { max-width: var(--maxw); margin: 28px auto 64px; padding: 0 20px; overflow-x: auto; }
 .cmp-table { width: 100%; border-collapse: collapse; min-width: 480px; }
 .cmp-table thead th { vertical-align: bottom; padding: 0 10px 14px; text-align: center; }
