@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   fitClass, canPark, campgroundsForLength, fitSummary,
-  statesWithCounts, toClientRecord, orgShort,
+  statesWithCounts, toClientRecord, orgShort, fitExplain,
 } from '../src/lib/campgrounds.mjs';
 import { renderCampgroundsPage } from '../src/lib/campgrounds-render.mjs';
 
@@ -100,4 +100,54 @@ test('renderCampgroundsPage embeds coords + leaflet mount + live-fetch controls'
   assert.equal(payload.campgrounds.length, 1);
   assert.equal(typeof payload.campgrounds[0].la, 'number');
   assert.equal(typeof payload.campgrounds[0].lo, 'number');
+});
+
+test('fitExplain: verdict, confidence, and the arithmetic in the "why"', () => {
+  // Comfortable fit: shows feet-to-spare and references the 3' buffer.
+  const fits = fitExplain(25, 30);
+  assert.equal(fits.cls, 'fits');
+  assert.equal(fits.conf, 'posted');
+  assert.match(fits.why, /30′ max/);
+  assert.match(fits.why, /your 25′/);
+  assert.match(fits.why, /5′ to spare/);
+
+  // Tight band: under the buffer, tells the user to verify the exact site.
+  const tight = fitExplain(25, 27);
+  assert.equal(tight.cls, 'tight');
+  assert.equal(tight.conf, 'posted');
+  assert.match(tight.why, /just 2′/);
+  assert.match(tight.why, /verify/i);
+
+  // Too long: states the overage explicitly.
+  const no = fitExplain(30, 24);
+  assert.equal(no.cls, 'no');
+  assert.match(no.why, /6′ over/);
+});
+
+test('fitExplain: no posted limit is honestly "unverified", never a fabricated fit', () => {
+  const unknown = fitExplain(25, null);
+  assert.equal(unknown.cls, 'unknown');
+  assert.equal(unknown.conf, 'unverified');
+  assert.equal(unknown.label, 'Fit unverified');
+  assert.match(unknown.why, /can’t be confirmed/);
+  // Never claims it fits.
+  assert.doesNotMatch(unknown.why, /to spare|fits/i);
+});
+
+test('fitExplain: no rig chosen reports the posted limit, with no "why"', () => {
+  const posted = fitExplain(0, 30);
+  assert.equal(posted.cls, 'limit');
+  assert.equal(posted.label, 'Up to 30′');
+  assert.equal(posted.why, '');
+
+  const nolimit = fitExplain(0, null);
+  assert.equal(nolimit.cls, 'unknown');
+  assert.equal(nolimit.conf, 'unverified');
+  assert.equal(nolimit.why, '');
+});
+
+test('fitExplain labels/classes stay consistent with fitClass', () => {
+  for (const [len, max] of [[25, 30], [25, 27], [25, 25], [30, 24]]) {
+    assert.equal(fitExplain(len, max).cls, fitClass(len, max));
+  }
 });

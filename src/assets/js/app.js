@@ -655,14 +655,47 @@
     var layer = L.layerGroup().addTo(map);
     var FIT_COLOR = { fits: '#2e7d4f', tight: '#c98a16', no: '#c0392b', unknown: '#8a8f98', limit: '#6B6258' };
 
-    // Single source of truth for the chip so the map dot, list chip, and popup
-    // never disagree. Rig selected -> fit verdict. No rig -> the campground's own
-    // posted-limit status (never the fabricated "unknown" that contradicted the row).
-    function chipFor(c, len) {
-      if (len > 0) { var f = fitClass(len, num(c.m)); return { cls: f, label: FIT_LABEL[f] }; }
-      if (c.m != null) return { cls: 'limit', label: 'Up to ' + c.m + '\u2032' };
-      return { cls: 'unknown', label: 'No posted limit' };
+    // Single source of truth for the fit verdict + confidence + plain-language
+    // "why". Used by the list card, the map dot/popup, so they never disagree.
+    //   - Rig selected -> fit verdict (fits/tight/no) with the arithmetic.
+    //   - No rig       -> the campground's own posted-limit status.
+    // Confidence is HONEST about provenance: 'posted' when Recreation.gov gives
+    // a real max-vehicle-length, 'unverified' when the field is null. We never
+    // invent a number or claim a fit we can't source. (Per-SITE precision is a
+    // later upgrade; today's number is the campground's blanket posted max.)
+    function fmtFtShort(n) { return (Math.round(n * 10) / 10) + '\u2032'; }
+    function fitInfo(c, len) {
+      var max = num(c.m);
+      if (!(len > 0)) {
+        if (max != null) return { cls: 'limit', label: 'Up to ' + max + '\u2032', conf: 'posted', why: '' };
+        return { cls: 'unknown', label: 'No posted limit', conf: 'unverified', why: '' };
+      }
+      var rigTxt = fmtFtShort(len);
+      if (max == null) {
+        return {
+          cls: 'unknown', label: 'Fit unverified', conf: 'unverified',
+          why: 'No max length is posted here, so a ' + rigTxt + ' fit can\u2019t be confirmed \u2014 check Recreation.gov.',
+        };
+      }
+      if (max >= len + CLEARANCE) {
+        return {
+          cls: 'fits', label: 'Fits comfortably', conf: 'posted',
+          why: 'Posted ' + max + '\u2032 max \u2212 your ' + rigTxt + ' = ' + fmtFtShort(max - len) + ' to spare (clears the 3\u2032 buffer).',
+        };
+      }
+      if (max >= len) {
+        return {
+          cls: 'tight', label: 'Fits \u2014 tight', conf: 'posted',
+          why: 'Posted ' + max + '\u2032 max leaves just ' + fmtFtShort(max - len) + ' over your ' + rigTxt + ', under the 3\u2032 buffer \u2014 verify the exact site.',
+        };
+      }
+      return {
+        cls: 'no', label: 'Too long', conf: 'posted',
+        why: 'Your ' + rigTxt + ' is ' + fmtFtShort(len - max) + ' over the posted ' + max + '\u2032 max.',
+      };
     }
+    // Back-compat alias: callers that only need {cls,label}.
+    function chipFor(c, len) { return fitInfo(c, len); }
 
     function drawMarkers(list) {
       layer.clearLayers();
@@ -682,12 +715,16 @@
     }
 
     function popupHtml(c, chip) {
+      var len = state.len;
+      var info = (chip && chip.why !== undefined) ? chip : fitInfo(c, len);
       var lenTxt = c.m ? c.m + "' max" : 'No posted limit';
       var price = c.pr != null ? '$' + c.pr + '/night' : '';
       var rating = c.r ? '\u2605 ' + c.r.toFixed(1) + ' (' + (c.v || 0) + ')' : '';
+      var why = (len > 0 && info.why) ? '<span class="cg-pop-why">' + esc(info.why) + '</span>' : '';
       return '<div class="cg-pop"><strong>' + esc(c.n) + '</strong><br>' +
         (c.p ? esc(c.p) + '<br>' : '') +
-        '<span class="cg-pop-fit cg-fit-' + chip.cls + '">' + esc(chip.label) + '</span> \u00b7 ' + esc(lenTxt) + '<br>' +
+        '<span class="cg-pop-fit cg-fit-' + info.cls + '">' + esc(info.label) + '</span> \u00b7 ' + esc(lenTxt) + '<br>' +
+        why +
         [rating, price].filter(Boolean).join(' \u00b7 ') +
         (c.u ? '<br><a href="' + esc(c.u) + '" target="_blank" rel="noopener">View on Recreation.gov \u2192</a>' : '') +
         '</div>';
@@ -696,8 +733,11 @@
     // ---- list ----
     function card(c, len) {
       var where = [c.s].filter(Boolean).join(', ');
-      var chip = chipFor(c, len);
-      var fitChip = '<span class="cg-fit cg-fit-' + chip.cls + '">' + esc(chip.label) + '</span>';
+      var info = fitInfo(c, len);
+      var confDot = (len > 0)
+        ? '<span class="cg-conf cg-conf-' + info.conf + '" title="' + (info.conf === 'posted' ? 'Based on Recreation.gov\u2019s posted max length' : 'No posted length \u2014 not verified') + '"></span>'
+        : '';
+      var fitChip = '<span class="cg-fit cg-fit-' + info.cls + '">' + confDot + esc(info.label) + '</span>';
       // Rig set -> chip is a verdict, so the row repeats raw max for context.
       // No rig -> chip already says "Up to N'", so do not repeat it in the row.
       var lenTxt = len > 0 ? (c.m ? c.m + "&prime; max" : 'No posted limit') : '';
@@ -708,10 +748,13 @@
       var org = c.o ? (ORG_LONG[c.o] || c.o) : '';
       var meta = [lenTxt, price, (c.v ? c.v + ' reviews' : '')].filter(Boolean)
         .map(function (s) { return '<span>' + s + '</span>'; }).join('');
+      // The "why" explainer: only when a rig is set (it explains the verdict).
+      var why = (len > 0 && info.why) ? '<p class="cg-fit-why cg-fit-why-' + info.cls + '">' + esc(info.why) + '</p>' : '';
       return '<a class="cg-card" href="' + esc(c.u || '#') + '" target="_blank" rel="noopener">' + img +
         '<div class="cg-card-body"><div class="cg-card-top">' + fitChip + (c.r ? '<span class="cg-stars">\u2605 ' + c.r.toFixed(1) + '</span>' : '') + '</div>' +
         '<h3 class="cg-card-name">' + esc(c.n) + '</h3>' +
         '<p class="cg-card-where">' + esc(where) + (org ? ' \u00b7 ' + esc(org) : '') + '</p>' +
+        why +
         '<p class="cg-card-meta">' + meta + '</p>' +
         '</div></a>';
     }

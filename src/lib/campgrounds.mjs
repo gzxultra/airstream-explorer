@@ -60,6 +60,48 @@ export const FIT_LABEL = {
   unknown: 'No posted limit',
 };
 
+/** Round to at most one decimal and append a foot mark (e.g. 4.5′). */
+function ftShort(n) { return (Math.round(n * 10) / 10) + '\u2032'; }
+
+/**
+ * Full fit verdict for a rig against a campground's posted max length, with
+ * an HONEST confidence flag and a plain-language explanation of the math.
+ *   conf: 'posted'     — Recreation.gov posts a real max length we used.
+ *         'unverified' — no posted length; we will not invent a fit.
+ * The `label`/`cls` mirror fitClass; `why` is empty when no rig is chosen.
+ * This is the single source of truth the client's fitInfo() mirrors.
+ */
+export function fitExplain(lengthFt, maxLengthFt) {
+  // No rig chosen: report the campground's own posted limit, nothing more.
+  if (!(lengthFt > 0)) {
+    if (maxLengthFt != null) return { cls: 'limit', label: `Up to ${maxLengthFt}\u2032`, conf: 'posted', why: '' };
+    return { cls: 'unknown', label: 'No posted limit', conf: 'unverified', why: '' };
+  }
+  const rig = ftShort(lengthFt);
+  if (maxLengthFt == null) {
+    return {
+      cls: 'unknown', label: 'Fit unverified', conf: 'unverified',
+      why: `No max length is posted here, so a ${rig} fit can\u2019t be confirmed \u2014 check Recreation.gov.`,
+    };
+  }
+  if (maxLengthFt >= lengthFt + CLEARANCE) {
+    return {
+      cls: 'fits', label: 'Fits comfortably', conf: 'posted',
+      why: `Posted ${maxLengthFt}\u2032 max \u2212 your ${rig} = ${ftShort(maxLengthFt - lengthFt)} to spare (clears the 3\u2032 buffer).`,
+    };
+  }
+  if (maxLengthFt >= lengthFt) {
+    return {
+      cls: 'tight', label: 'Fits \u2014 tight', conf: 'posted',
+      why: `Posted ${maxLengthFt}\u2032 max leaves just ${ftShort(maxLengthFt - lengthFt)} over your ${rig}, under the 3\u2032 buffer \u2014 verify the exact site.`,
+    };
+  }
+  return {
+    cls: 'no', label: 'Too long', conf: 'posted',
+    why: `Your ${rig} is ${ftShort(lengthFt - maxLengthFt)} over the posted ${maxLengthFt}\u2032 max.`,
+  };
+}
+
 /** True if the rig can physically use the site (fits/tight/unknown, not 'no'). */
 export function canPark(lengthFt, maxLengthFt) {
   return fitClass(lengthFt, maxLengthFt) !== 'no';
