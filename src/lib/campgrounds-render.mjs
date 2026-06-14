@@ -67,7 +67,7 @@ export function renderCampgroundFit(t, campgrounds) {
   const top = campgroundsForLength(campgrounds, L, { limit: 6, includeUnknown: false });
   const pct = Math.round((sum.usable / sum.total) * 100);
   const cards = top.map((c) => cgCard(c, '../')).join('\n');
-  return `<section class="cg-fit" aria-label="Where this fits" data-length="${esc(L)}">
+  return `<section class="cgfit" aria-label="Where this fits" data-length="${esc(L)}">
 <div class="cg-fit-head">
 <h2>Where the ${esc(t.model)} ${esc(t.floorplan)} fits</h2>
 <p class="cg-fit-sub">At ${esc(formatLength(L))} long, this rig can use <strong>${esc(sum.usable.toLocaleString('en-US'))}</strong> of ${esc(sum.total.toLocaleString('en-US'))} RV-friendly campgrounds on Recreation.gov (<strong>${esc(pct)}%</strong>) — ${esc(sum.fits.toLocaleString('en-US'))} with comfortable clearance, ${esc(sum.tight.toLocaleString('en-US'))} a tight squeeze, ${esc(sum.no.toLocaleString('en-US'))} too short to take it.</p>

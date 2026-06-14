@@ -719,6 +719,82 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .cg-fit-why-unknown { background: #efeee9; border-left-color: #9a9488; color: #6a6358; }
 .cg-pop-why { display: block; margin: 4px 0 6px; font: 500 12px/1.4 "DM Sans", sans-serif; color: #555; }
 
+/* --- Detail-page "Where the <model> fits" panel ------------------------- */
+/* NB: container class is `.cgfit` (NOT `.cg-fit` — that's the pill chip used on
+   campground cards; reusing it here collapsed the whole section into an inline
+   nowrap pill and blew the layout out to ~3300px wide). */
+.cgfit {
+  max-width: var(--maxw); margin: 40px auto 8px; padding: 0 24px;
+}
+.cgfit-head { margin: 0 0 18px; }
+.cgfit h2 {
+  font: 600 26px/1.15 "Fraunces", serif; letter-spacing: -.01em;
+  margin: 0 0 8px; color: var(--ink);
+}
+.cg-fit-sub {
+  font: 500 15px/1.55 "DM Sans", sans-serif; color: var(--muted);
+  margin: 0; max-width: 70ch;
+}
+.cg-fit-sub strong { color: var(--ink); font-weight: 700; }
+
+/* Four horizontal proportion bars: [label] [====track====] [value] */
+.cg-fit-bars {
+  display: grid; gap: 10px; margin: 0 0 26px;
+  max-width: 620px;
+}
+.cg-bar {
+  display: grid;
+  grid-template-columns: 132px 1fr 56px;
+  align-items: center; gap: 12px;
+}
+.cg-bar-label {
+  font: 500 13px/1.3 "DM Sans", sans-serif; color: var(--ink);
+  text-align: right; white-space: nowrap;
+}
+.cg-bar-track {
+  position: relative; height: 9px; border-radius: 999px;
+  background: #ece6da; overflow: hidden;
+}
+.cg-bar-fill {
+  position: absolute; inset: 0 auto 0 0; height: 100%;
+  border-radius: 999px; min-width: 3px;
+}
+.cg-bar-fits { background: #2e7d4f; }
+.cg-bar-tight { background: #c98a16; }
+.cg-bar-unknown { background: #9a9488; }
+.cg-bar-no { background: #c0392b; }
+.cg-bar-val {
+  font: 600 13.5px "DM Sans", sans-serif; color: var(--ink);
+  text-align: right; font-variant-numeric: tabular-nums;
+}
+
+.cg-fit-pick {
+  font: 600 17px/1.2 "Fraunces", serif; letter-spacing: -.005em;
+  margin: 0 0 14px; color: var(--ink);
+}
+/* Responsive card grid — was unconstrained, so 6 cards forced horizontal
+   overflow. Auto-fill keeps cards a sane width and wraps to rows. */
+.cgfit .cg-card-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+}
+.cg-fit-cta { margin: 18px 0 0; }
+.cg-fit-link {
+  font: 600 15px "DM Sans", sans-serif; color: var(--copper-deep);
+  text-decoration: none; border-bottom: 1.5px solid transparent;
+  transition: border-color .12s ease;
+}
+.cg-fit-link:hover { border-bottom-color: var(--copper); }
+.cg-fit-src { margin: 16px 0 0; max-width: 80ch; font-size: 12.5px; line-height: 1.55; }
+
+@media (max-width: 560px) {
+  .cgfit { padding: 0 18px; }
+  .cgfit h2 { font-size: 22px; }
+  .cg-bar { grid-template-columns: 108px 1fr 48px; gap: 9px; }
+  .cg-bar-label { font-size: 12px; }
+  .cgfit .cg-card-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+}
+
 /* Map clusters are GPU-rendered MapLibre circle+symbol layers (see app.js
    'cg-clusters'/'cg-cluster-count'), styled via paint props in JS — no DOM
    bubble elements, so the old .marker-cluster/.cg-cluster CSS was removed. */
