@@ -335,7 +335,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null) {
   const gallery = a.gallery
     .map(
       (g, i) =>
-        `<img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="lazy" class="gallery-img" width="920" height="600">`,
+        `<div class="gallery-img-wrap"><img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="lazy" class="gallery-img" width="920" height="600"></div>`,
     )
     .join('\n');
   const floorplanSection = a.floorplan
