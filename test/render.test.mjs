@@ -51,10 +51,18 @@ test('home subhead and footer agree on the floorplan count (distinct layouts)', 
   assert.doesNotMatch(html, /59 floorplans across/);
 });
 
-test('home families are ordered budget -> flagship by entry price', () => {
+test('home families are ordered flagship -> budget by entry price', () => {
   const prices = families.filter((f) => f.priceMin != null).map((f) => f.priceMin);
-  const sorted = [...prices].sort((a, b) => a - b);
+  const sorted = [...prices].sort((a, b) => b - a);
   assert.deepEqual(prices, sorted);
+});
+
+test('home leads with Classic and sinks Basecamp below it', () => {
+  const priced = families.filter((f) => f.priceMin != null);
+  assert.equal(priced[0].family, 'Classic');
+  const classicIdx = priced.findIndex((f) => f.family === 'Classic');
+  const basecampIdx = priced.findIndex((f) => f.family === 'Basecamp');
+  assert.ok(basecampIdx > classicIdx, 'Basecamp sits below Classic');
 });
 
 test('renderFamily shows all of a family\'s floorplans with hero + back link', () => {

@@ -593,6 +593,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .cg-fit-tight { background: #fbf0d8; color: #9a6a10; }
 .cg-fit-no { background: #f7e0db; color: #c0392b; }
 .cg-fit-unknown { background: #ece6da; color: var(--muted); }
+.cg-fit-limit { background: #efeae0; color: #6b6258; }
 
 .cg-empty { grid-column: 1 / -1; padding: 40px 16px; text-align: center; color: var(--muted); font: 500 16px "DM Sans", sans-serif; }
 .cg-more { max-width: var(--maxw); margin: 0 auto; padding: 4px 24px 0; text-align: center; }

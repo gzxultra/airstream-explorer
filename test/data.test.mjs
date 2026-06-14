@@ -197,10 +197,10 @@ test('groupByFamily returns 12 families covering every floorplan exactly once', 
   assert.equal(total, 59);
 });
 
-test('groupByFamily is ordered by entry price ascending (priced families)', () => {
+test('groupByFamily is ordered by entry price descending (priced families)', () => {
   const fams = groupByFamily(trailers).filter((f) => f.priceMin != null);
   const prices = fams.map((f) => f.priceMin);
-  assert.deepEqual(prices, [...prices].sort((a, b) => a - b));
+  assert.deepEqual(prices, [...prices].sort((a, b) => b - a));
 });
 
 test('groupByFamily computes correct ranges for Flying Cloud', () => {

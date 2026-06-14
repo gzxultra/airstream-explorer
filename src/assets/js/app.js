@@ -572,12 +572,23 @@
     }
 
     // ---- map ----
-    var map = L.map(mapEl, { scrollWheelZoom: true, worldCopyJump: true }).setView([39.5, -98.35], 4);
+    // worldCopyJump OFF: it can hand back wrapped longitudes (e.g. +240) that
+    // break the geo query. Keep one world copy and clamp lon ourselves.
+    var map = L.map(mapEl, { scrollWheelZoom: true, worldCopyJump: false, maxBounds: [[-85, -180], [85, 180]], maxBoundsViscosity: 1 }).setView([39.5, -98.35], 4);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 18,
+      attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 18, noWrap: true,
     }).addTo(map);
     var layer = L.layerGroup().addTo(map);
-    var FIT_COLOR = { fits: '#2e7d4f', tight: '#c98a16', unknown: '#8a8f98', no: '#c0392b' };
+    var FIT_COLOR = { fits: '#2e7d4f', tight: '#c98a16', no: '#c0392b', unknown: '#8a8f98', limit: '#6B6258' };
+
+    // Single source of truth for the chip so the map dot, list chip, and popup
+    // never disagree. Rig selected -> fit verdict. No rig -> the campground's own
+    // posted-limit status (never the fabricated "unknown" that contradicted the row).
+    function chipFor(c, len) {
+      if (len > 0) { var f = fitClass(len, num(c.m)); return { cls: f, label: FIT_LABEL[f] }; }
+      if (c.m != null) return { cls: 'limit', label: 'Up to ' + c.m + '\u2032' };
+      return { cls: 'unknown', label: 'No posted limit' };
+    }
 
     function drawMarkers(list) {
       layer.clearLayers();
@@ -586,80 +597,93 @@
       capped.forEach(function (c) {
         var lat = c.la, lon = c.lo;
         if (lat == null || lon == null) return;
-        var f = len > 0 ? fitClass(len, num(c.m)) : 'unknown';
-        var col = FIT_COLOR[f] || '#8a8f98';
+        var chip = chipFor(c, len);
+        var col = FIT_COLOR[chip.cls] || '#8a8f98';
         var mk = L.circleMarker([lat, lon], {
           radius: 5, color: '#fff', weight: 1, fillColor: col, fillOpacity: 0.9,
         });
-        mk.bindPopup(popupHtml(c, f));
+        mk.bindPopup(popupHtml(c, chip));
         layer.addLayer(mk);
       });
     }
 
-    function popupHtml(c, f) {
-      var where = [c.s].filter(Boolean).join(', ');
-      var len = c.m ? c.m + "' max" : 'No posted limit';
+    function popupHtml(c, chip) {
+      var lenTxt = c.m ? c.m + "' max" : 'No posted limit';
       var price = c.pr != null ? '$' + c.pr + '/night' : '';
-      var rating = c.r ? '★ ' + c.r.toFixed(1) + ' (' + (c.v || 0) + ')' : '';
+      var rating = c.r ? '\u2605 ' + c.r.toFixed(1) + ' (' + (c.v || 0) + ')' : '';
       return '<div class="cg-pop"><strong>' + esc(c.n) + '</strong><br>' +
         (c.p ? esc(c.p) + '<br>' : '') +
-        '<span class="cg-pop-fit cg-fit-' + f + '">' + esc(FIT_LABEL[f]) + '</span> · ' + esc(len) + '<br>' +
-        [rating, price].filter(Boolean).join(' · ') +
-        (c.u ? '<br><a href="' + esc(c.u) + '" target="_blank" rel="noopener">View on Recreation.gov →</a>' : '') +
+        '<span class="cg-pop-fit cg-fit-' + chip.cls + '">' + esc(chip.label) + '</span> \u00b7 ' + esc(lenTxt) + '<br>' +
+        [rating, price].filter(Boolean).join(' \u00b7 ') +
+        (c.u ? '<br><a href="' + esc(c.u) + '" target="_blank" rel="noopener">View on Recreation.gov \u2192</a>' : '') +
         '</div>';
     }
 
     // ---- list ----
-    function card(c, f) {
+    function card(c, len) {
       var where = [c.s].filter(Boolean).join(', ');
-      var fitChip = '<span class="cg-fit cg-fit-' + f + '">' + esc(FIT_LABEL[f]) + '</span>';
-      var lenTxt = c.m ? c.m + "&prime; max" : 'No posted limit';
+      var chip = chipFor(c, len);
+      var fitChip = '<span class="cg-fit cg-fit-' + chip.cls + '">' + esc(chip.label) + '</span>';
+      // Rig set -> chip is a verdict, so the row repeats raw max for context.
+      // No rig -> chip already says "Up to N'", so do not repeat it in the row.
+      var lenTxt = len > 0 ? (c.m ? c.m + "&prime; max" : 'No posted limit') : '';
       var price = c.pr != null ? '$' + c.pr + '/night' : '';
       var img = c.g
         ? '<img src="' + esc(c.g) + '" alt="' + esc(c.n) + '" loading="lazy" class="cg-card-img" width="320" height="200" referrerpolicy="no-referrer">'
-        : '<div class="cg-card-img cg-card-noimg" aria-hidden="true">▲</div>';
+        : '<div class="cg-card-img cg-card-noimg" aria-hidden="true">\u25b2</div>';
       var org = c.o ? (ORG_LONG[c.o] || c.o) : '';
+      var meta = [lenTxt, price, (c.v ? c.v + ' reviews' : '')].filter(Boolean)
+        .map(function (s) { return '<span>' + s + '</span>'; }).join('');
       return '<a class="cg-card" href="' + esc(c.u || '#') + '" target="_blank" rel="noopener">' + img +
-        '<div class="cg-card-body"><div class="cg-card-top">' + fitChip + (c.r ? '<span class="cg-stars">★ ' + c.r.toFixed(1) + '</span>' : '') + '</div>' +
+        '<div class="cg-card-body"><div class="cg-card-top">' + fitChip + (c.r ? '<span class="cg-stars">\u2605 ' + c.r.toFixed(1) + '</span>' : '') + '</div>' +
         '<h3 class="cg-card-name">' + esc(c.n) + '</h3>' +
-        '<p class="cg-card-where">' + esc(where) + (org ? ' · ' + esc(org) : '') + '</p>' +
-        '<p class="cg-card-meta"><span>' + lenTxt + '</span>' + (price ? '<span>' + esc(price) + '</span>' : '') + (c.v ? '<span>' + c.v + ' reviews</span>' : '') + '</p>' +
+        '<p class="cg-card-where">' + esc(where) + (org ? ' \u00b7 ' + esc(org) : '') + '</p>' +
+        '<p class="cg-card-meta">' + meta + '</p>' +
         '</div></a>';
     }
-
     function render() {
       var list = visible();
       var len = state.len;
       drawMarkers(list);
       var slice = list.slice(0, state.shown);
-      root.innerHTML = slice.map(function (c) {
-        return card(c, len > 0 ? fitClass(len, num(c.m)) : 'unknown');
-      }).join('') || '<p class="cg-empty">No campgrounds match. Try widening the length, clearing the state, or zooming the map out.</p>';
+      root.innerHTML = slice.map(function (c) { return card(c, len); }).join('') ||
+        '<p class="cg-empty">No campgrounds match in this area. Try widening the length, clearing filters, or moving the map.</p>';
       if (elMore) elMore.hidden = list.length <= state.shown;
-      // summary
+      // summary - the count always equals exactly what is listed/plotted
       var srcTxt = state.source === 'live'
         ? 'Live from Recreation.gov'
-        : (state.source === 'fallback' ? 'Live data unavailable — showing cached set' : 'Cached set');
-      var rigTxt = len > 0 ? (' · fitting a ' + len + "&prime; rig") : '';
-      elSummary.innerHTML = '<strong>' + list.length.toLocaleString('en-US') + '</strong> campgrounds' + rigTxt +
+        : (state.source === 'fallback' ? 'Live unavailable \u2014 cached set' : 'Cached set');
+      var scopeTxt = state.source === 'live' ? ' in view' : '';
+      var rigTxt = len > 0 ? (' \u00b7 fitting a ' + (Math.round(len * 10) / 10) + "&prime; rig") : '';
+      elSummary.innerHTML = '<strong>' + list.length.toLocaleString('en-US') + '</strong> campgrounds' + scopeTxt + rigTxt +
         ' <span class="cg-src-tag cg-src-' + state.source + '">' + esc(srcTxt) + '</span>';
     }
 
-    // ---- live fetch (region-scoped, with fallback) ----
+    // ---- live scheduling ----
     var liveTimer = null, liveSeq = 0;
     function scheduleLive() {
       if (liveTimer) clearTimeout(liveTimer);
       liveTimer = setTimeout(fetchLive, 450);
     }
+    // ---- live fetch (viewport-scoped, clipped to bounds, with fallback) ----
+    var R_MI = 3958.8;
+    function miBetween(aLat, aLng, bLat, bLng) {
+      var dLat = (bLat - aLat) * Math.PI / 180, dLng = (bLng - aLng) * Math.PI / 180;
+      var s = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(aLat * Math.PI / 180) * Math.cos(bLat * Math.PI / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      return R_MI * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+    }
     function fetchLive() {
-      var c = map.getCenter();
       var z = map.getZoom();
-      if (z < 5) { // national view: static is more complete than the distance-ranked API
+      if (z < 5) { // national view: the distance-ranked API cannot return a clean nationwide set
         state.live = null; state.source = 'static'; render(); return;
       }
-      var radius = Math.min(500, Math.max(15, Math.round(8000 / Math.pow(1.7, z - 5))));
+      var b = map.getBounds();
+      var ctr = b.getCenter();
+      var lat = ctr.lat, lng = ((ctr.lng + 540) % 360) - 180; // clamp to [-180,180]
+      // radius = center->corner so the query covers the whole visible rectangle (+10% pad), capped at the API useful max
+      var radius = Math.min(500, Math.ceil(miBetween(lat, lng, b.getNorth(), b.getEast()) * 1.1));
       var url = 'https://www.recreation.gov/api/search?entity_type=campground&size=500&lat=' +
-        c.lat.toFixed(4) + '&lng=' + c.lng.toFixed(4) + '&radius=' + radius;
+        lat.toFixed(4) + '&lng=' + lng.toFixed(4) + '&radius=' + radius;
       var seq = ++liveSeq;
       var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
       var to = setTimeout(function () { if (ctrl) ctrl.abort(); }, 9000);
@@ -667,11 +691,13 @@
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (d) {
           clearTimeout(to);
-          if (seq !== liveSeq) return; // stale
+          if (seq !== liveSeq) return; // a newer move superseded this one
           var rv = (d.results || []).filter(function (x) {
             return x.entity_type === 'campground' &&
               (x.campsite_equipment_name || []).some(function (e) { return /RV|Trailer|Fifth/i.test(e); }) &&
-              x.latitude && x.longitude;
+              x.latitude && x.longitude &&
+              // CLIP to the actual visible rectangle so list + markers match the map exactly
+              b.contains([Number(x.latitude), Number(x.longitude)]);
           }).map(normalizeLive);
           state.live = rv; state.source = 'live'; render();
         })

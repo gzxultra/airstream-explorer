@@ -138,11 +138,12 @@ export function groupByFamily(trailers) {
       limited: /\b(limited|special)\b.*edition/i.test(family),
     };
   });
-  // Budget -> flagship. Families with no price sink to the end, name-stable.
+  // Flagship -> budget: lead with the premium families (Classic on top), step
+  // down to the entry models (Basecamp). Families with no price sink to the end.
   families.sort((a, b) => {
     if (a.priceMin == null) return 1;
     if (b.priceMin == null) return -1;
-    return a.priceMin - b.priceMin || a.family.localeCompare(b.family);
+    return b.priceMin - a.priceMin || a.family.localeCompare(b.family);
   });
   return families;
 }
