@@ -56,8 +56,22 @@ test('audited specs: Flying Cloud 25FB 2026', () => {
 test('audited specs: Basecamp 16X 2026', () => {
   const t = trailers.find((x) => x.slug === 'basecamp-16x-2026');
   assert.ok(t);
-  assert.equal(t.weightLb, 2650);
+  // Official airstream.com MY2026 Basecamp 16X: dry 2700, GVWR 3500, hitch 450, NCC 800.
+  assert.equal(t.weightLb, 2700);
+  assert.equal(t.gvwrLb, 3500);
+  assert.equal(t.hitchWeightLb, 450);
+  assert.equal(t.cccLb, 800);
   assert.equal(t.msrp, 54900);
+});
+
+test('audited specs: Basecamp 20X 2026', () => {
+  const t = trailers.find((x) => x.slug === 'basecamp-20x-2026');
+  assert.ok(t);
+  // Official airstream.com MY2026 Basecamp 20X: dry 3500, GVWR 4300, hitch 535, NCC 800.
+  assert.equal(t.weightLb, 3500);
+  assert.equal(t.gvwrLb, 4300);
+  assert.equal(t.hitchWeightLb, 535);
+  assert.equal(t.cccLb, 800);
 });
 
 test('validateTrailer catches a ccc mismatch', () => {
