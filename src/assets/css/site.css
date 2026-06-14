@@ -627,6 +627,16 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .cg-map-loading-txt { font: 600 13px/1 "DM Sans", sans-serif; letter-spacing: .04em; }
 @keyframes cgPinPulse { 0%,100% { transform: translateY(0); opacity: .55; } 50% { transform: translateY(-4px); opacity: .9; } }
 @media (prefers-reduced-motion: reduce) { .cg-map-loading-pin { animation: none; } }
+/* Honest fallback when WebGL is unavailable: the interactive map can't draw,
+   but the full list below still works. Replaces the loading placeholder. */
+.cg-map-fallback {
+  position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px; text-align: center;
+  padding: 24px; background: #dfe5e2; color: var(--muted);
+}
+.cg-map-fallback-pin { font-size: 26px; color: var(--copper); opacity: .8; }
+.cg-map-fallback strong { font: 600 16px/1.2 "Fraunces", serif; color: var(--ink); }
+.cg-map-fallback span { font: 500 13px/1.5 "DM Sans", sans-serif; max-width: 30ch; }
 .cg-list { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; min-height: 200px; }
 .cg-card {
   display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line);

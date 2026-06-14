@@ -692,12 +692,60 @@
         layers: [{ id: 'carto', type: 'raster', source: 'carto' }],
       };
     }
-    var map = new maplibregl.Map({
-      container: mapEl, style: VECTOR_STYLE,
-      center: [-98.35, 39.5], zoom: 3.4, minZoom: 2, maxZoom: 18,
-      maxBounds: [[-180, -84], [180, 84]], renderWorldCopies: false,
-      attributionControl: false, dragRotate: false,
-    });
+    // No-op MapLibre stand-in, used ONLY when WebGL is unavailable so the dozens
+    // of map.xxx() calls scattered through this module degrade to harmless no-ops
+    // instead of throwing. Safe defaults for the few getters the list/share code
+    // reads: a low zoom keeps data on the static national set; getCenter feeds
+    // the share URL.
+    function mapStub() {
+      var noop = function () {};
+      return {
+        addControl: noop, addSource: noop, addLayer: noop, setStyle: noop,
+        on: noop, once: noop, off: noop, jumpTo: noop, easeTo: noop, remove: noop,
+        touchZoomRotate: { disableRotation: noop },
+        getSource: function () { return null; },
+        getCanvas: function () { return { style: {} }; },
+        queryRenderedFeatures: function () { return []; },
+        getZoom: function () { return 3.4; },
+        getCenter: function () { return { lat: 39.5, lng: -98.35 }; },
+        getBounds: function () {
+          return {
+            getCenter: function () { return { lat: 39.5, lng: -98.35 }; },
+            getNorth: function () { return 49; }, getEast: function () { return -66; },
+            getSouth: function () { return 25; }, getWest: function () { return -125; },
+          };
+        },
+      };
+    }
+    // Swap the "Loading map…" placeholder for an honest notice: the interactive
+    // map can't draw, but the full list below still works.
+    function showMapUnavailable(el) {
+      var html = '<div class="cg-map-fallback" role="note">'
+        + '<span class="cg-map-fallback-pin" aria-hidden="true">\u25b2</span>'
+        + '<strong>Interactive map needs WebGL</strong>'
+        + '<span>Your browser has it turned off, so the map can\u2019t draw — but the full campground list below works fine.</span>'
+        + '</div>';
+      var p = el.querySelector('.cg-map-loading');
+      if (p) p.outerHTML = html; else el.innerHTML = html;
+    }
+    var map, mapAvailable = true;
+    try {
+      map = new maplibregl.Map({
+        container: mapEl, style: VECTOR_STYLE,
+        center: [-98.35, 39.5], zoom: 3.4, minZoom: 2, maxZoom: 18,
+        maxBounds: [[-180, -84], [180, 84]], renderWorldCopies: false,
+        attributionControl: false, dragRotate: false,
+      });
+    } catch (err) {
+      // WebGL unavailable (disabled, blocklisted, or no GPU context). The map
+      // is optional chrome; the LIST is the core feature and needs no WebGL.
+      // Degrade to a no-op map so every map.xxx() call below is harmless, show
+      // an honest notice in the map box, and let render() paint the list.
+      mapAvailable = false;
+      map = mapStub();
+      showMapUnavailable(mapEl);
+    }
+    // These no-op on the stub (WebGL absent) and configure the real map otherwise.
     map.addControl(new maplibregl.AttributionControl({ compact: true }));
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     map.touchZoomRotate.disableRotation();
