@@ -5,6 +5,28 @@
   'use strict';
 
   // =========================================================================
+  // 0. PERSISTENCE — remember the visitor's selections across visits.
+  //    Thin, fail-safe localStorage wrapper (private-mode / disabled storage
+  //    just becomes a no-op). Each module owns a namespaced key and decides
+  //    what to save; deep-link query params always win over saved state.
+  // =========================================================================
+  var Store = {
+    get: function (key, fallback) {
+      try {
+        var raw = localStorage.getItem('ae:' + key);
+        return raw == null ? fallback : JSON.parse(raw);
+      } catch (e) { return fallback; }
+    },
+    set: function (key, val) {
+      try { localStorage.setItem('ae:' + key, JSON.stringify(val)); } catch (e) {}
+    },
+    del: function (key) {
+      try { localStorage.removeItem('ae:' + key); } catch (e) {}
+    },
+  };
+
+
+  // =========================================================================
   // 1. FAMILY PAGE — year segmented filter over server-rendered .card list
   // =========================================================================
   (function familyFilter() {
@@ -70,6 +92,22 @@
     var towPresets = Array.prototype.slice.call(document.querySelectorAll('.tow-preset'));
 
     var state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0 };
+
+    // Restore saved explore preferences (sort, year, sleeps, use-case tags, tow
+    // rating). Search text stays transient.
+    var X_PREFS = 'explore.prefs';
+    (function restoreXPrefs() {
+      var p = Store.get(X_PREFS, null);
+      if (!p || typeof p !== 'object') return;
+      if (typeof p.sort === 'string') state.sort = p.sort;
+      if (typeof p.year === 'string') state.year = p.year;
+      if (typeof p.sleeps === 'number') state.sleeps = p.sleeps;
+      if (Array.isArray(p.tags)) state.tags = p.tags.filter(function (t) { return typeof t === 'string'; });
+      if (typeof p.tow === 'number' && p.tow > 0) state.tow = p.tow;
+    })();
+    function persistX() {
+      Store.set(X_PREFS, { sort: state.sort, year: state.year, sleeps: state.sleeps, tags: state.tags, tow: state.tow });
+    }
 
     function num(card, k) { return parseFloat(card.getAttribute(k)); }
 
@@ -148,26 +186,27 @@
     }
 
     if (elSearch) elSearch.addEventListener('input', function () { state.q = this.value.trim().toLowerCase(); apply(); });
-    if (elSort) elSort.addEventListener('change', function () { state.sort = this.value; apply(); });
-    if (elYear) elYear.addEventListener('change', function () { state.year = this.value; apply(); });
-    if (elSleeps) elSleeps.addEventListener('change', function () { state.sleeps = parseInt(this.value, 10) || 0; apply(); });
+    if (elSort) elSort.addEventListener('change', function () { state.sort = this.value; persistX(); apply(); });
+    if (elYear) elYear.addEventListener('change', function () { state.year = this.value; persistX(); apply(); });
+    if (elSleeps) elSleeps.addEventListener('change', function () { state.sleeps = parseInt(this.value, 10) || 0; persistX(); apply(); });
     tagBtns.forEach(function (btn) {
       btn.addEventListener('click', function () {
         var tag = btn.getAttribute('data-tag');
         var i = state.tags.indexOf(tag);
         if (i === -1) { state.tags.push(tag); btn.setAttribute('aria-pressed', 'true'); }
         else { state.tags.splice(i, 1); btn.setAttribute('aria-pressed', 'false'); }
-        apply();
+        persistX(); apply();
       });
     });
 
-    function setTow(v) {
+    function setTow(v, opts) {
       state.tow = v > 0 ? v : 0;
       if (towInput) towInput.value = v > 0 ? v : '';
       if (towClear) { if (v > 0) towClear.removeAttribute('hidden'); else towClear.setAttribute('hidden', ''); }
       towPresets.forEach(function (p) {
         p.classList.toggle('is-active', parseInt(p.getAttribute('data-tow'), 10) === v);
       });
+      if (!opts || opts.persist !== false) persistX();
       apply();
     }
     if (towInput) towInput.addEventListener('input', function () { setTow(parseInt(this.value, 10) || 0); });
@@ -183,7 +222,8 @@
       if (elYear) elYear.value = '2026';
       if (elSleeps) elSleeps.value = '';
       tagBtns.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
-      setTow(0);
+      Store.del(X_PREFS);
+      setTow(0, { persist: false });
     }
     if (elReset) elReset.addEventListener('click', resetAll);
     var emptyReset = document.getElementById('x-empty-reset');
@@ -216,6 +256,19 @@
       });
     });
     if (cmpClear) cmpClear.addEventListener('click', function () { cmpSet([]); syncCompare(); });
+
+    // ---- hydrate DOM controls from restored prefs ----
+    (function hydrateXControls() {
+      if (elSort && state.sort) elSort.value = state.sort;
+      if (elYear) elYear.value = state.year;
+      if (elSleeps) elSleeps.value = state.sleeps ? String(state.sleeps) : '';
+      if (state.tags && state.tags.length) {
+        tagBtns.forEach(function (b) {
+          if (state.tags.indexOf(b.getAttribute('data-tag')) !== -1) b.setAttribute('aria-pressed', 'true');
+        });
+      }
+      if (state.tow > 0) setTow(state.tow, { persist: false });
+    })();
 
     apply();
     syncCompare();
@@ -527,6 +580,27 @@
 
     var state = { len: 0, st: '', q: '', sort: 'rank', hideUnknown: false, fitsOnly: false, shown: 30, live: null, source: 'static' };
 
+    // Restore saved preferences (rig/length, state, sort, fit toggles). Search
+    // text is intentionally NOT persisted — it's a transient lookup, not a pref.
+    var CG_PREFS = 'cg.prefs';
+    var savedRig = '';
+    (function restoreCgPrefs() {
+      var p = Store.get(CG_PREFS, null);
+      if (!p || typeof p !== 'object') return;
+      if (typeof p.len === 'number' && p.len > 0) state.len = p.len;
+      if (typeof p.rig === 'string') savedRig = p.rig;
+      if (typeof p.st === 'string') state.st = p.st;
+      if (typeof p.sort === 'string') state.sort = p.sort;
+      if (typeof p.hideUnknown === 'boolean') state.hideUnknown = p.hideUnknown;
+      if (typeof p.fitsOnly === 'boolean') state.fitsOnly = p.fitsOnly;
+    })();
+    function persistCg() {
+      Store.set(CG_PREFS, {
+        rig: elRig ? elRig.value : '', len: state.len, st: state.st,
+        sort: state.sort, hideUnknown: state.hideUnknown, fitsOnly: state.fitsOnly,
+      });
+    }
+
     // ---- fit logic (mirrors src/lib/campgrounds.mjs exactly) ----
     function fitClass(len, max) {
       if (max == null) return 'unknown';
@@ -728,10 +802,10 @@
       state.len = isNaN(v) ? 0 : v;
       if (elLen) elLen.value = state.len > 0 ? Math.round(state.len) : '';
     }
-    if (elRig) elRig.addEventListener('change', function () { applyRigFromSelect(); state.shown = 30; render(); });
+    if (elRig) elRig.addEventListener('change', function () { applyRigFromSelect(); state.shown = 30; persistCg(); render(); });
     if (elLen) elLen.addEventListener('input', function () {
       var v = parseFloat(this.value); state.len = isNaN(v) ? 0 : v;
-      if (elRig) elRig.value = ''; state.shown = 30; render();
+      if (elRig) elRig.value = ''; state.shown = 30; persistCg(); render();
     });
     if (elState) elState.addEventListener('change', function () {
       state.st = this.value; state.shown = 30;
@@ -740,21 +814,36 @@
         var inState = STATIC.filter(function (c) { return c.s === this.value; }, this);
         // static slim has no coords; just refit using live after a search is moot — keep map, filter list
       }
-      render();
+      persistCg(); render();
     });
     if (elSearch) elSearch.addEventListener('input', function () { state.q = this.value.trim().toLowerCase(); state.shown = 30; render(); });
-    if (elSort) elSort.addEventListener('change', function () { state.sort = this.value; render(); });
-    if (elHideUnknown) elHideUnknown.addEventListener('change', function () { state.hideUnknown = this.checked; state.shown = 30; render(); });
-    if (elFitsOnly) elFitsOnly.addEventListener('change', function () { state.fitsOnly = this.checked; state.shown = 30; render(); });
+    if (elSort) elSort.addEventListener('change', function () { state.sort = this.value; persistCg(); render(); });
+    if (elHideUnknown) elHideUnknown.addEventListener('change', function () { state.hideUnknown = this.checked; state.shown = 30; persistCg(); render(); });
+    if (elFitsOnly) elFitsOnly.addEventListener('change', function () { state.fitsOnly = this.checked; state.shown = 30; persistCg(); render(); });
     if (elMoreBtn) elMoreBtn.addEventListener('click', function () { state.shown += 30; render(); });
     if (elReset) elReset.addEventListener('click', function () {
       state = { len: 0, st: '', q: '', sort: 'rank', hideUnknown: false, fitsOnly: false, shown: 30, live: state.live, source: state.source };
       if (elRig) elRig.value = ''; if (elLen) elLen.value = ''; if (elState) elState.value = '';
       if (elSearch) elSearch.value = ''; if (elSort) elSort.value = 'rank';
       if (elHideUnknown) elHideUnknown.checked = false; if (elFitsOnly) elFitsOnly.checked = false;
+      Store.del(CG_PREFS);
       map.setView([39.5, -98.35], 4); render();
     });
     map.on('moveend', scheduleLive);
+
+    // ---- hydrate DOM controls from restored prefs (before deep-link) ----
+    (function hydrateCgControls() {
+      if (elRig && savedRig) {
+        for (var i = 0; i < elRig.options.length; i++) {
+          if (elRig.options[i].value === savedRig) { elRig.selectedIndex = i; break; }
+        }
+      }
+      if (elLen) elLen.value = state.len > 0 ? Math.round(state.len) : '';
+      if (elState && state.st) elState.value = state.st;
+      if (elSort && state.sort) elSort.value = state.sort;
+      if (elHideUnknown) elHideUnknown.checked = !!state.hideUnknown;
+      if (elFitsOnly) elFitsOnly.checked = !!state.fitsOnly;
+    })();
 
     // ---- deep-link: ?len= & ?from= (coming from a detail page) ----
     var qs = new URLSearchParams(location.search);

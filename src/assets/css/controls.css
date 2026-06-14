@@ -1,0 +1,239 @@
+/* ===========================================================================
+   Refined form controls — site-wide polish layer (2026-06-13)
+   Loaded AFTER site.css so these win. Goal: turn the flat, boxy native
+   selects/inputs/checkboxes into a cohesive, tactile, editorial control set
+   (custom copper chevron, soft tactile radius, hover lift, focus glow,
+   custom check/radios, search magnifier). Pure CSS, no markup churn.
+   =========================================================================== */
+
+:root {
+  --ctl-radius: 9px;
+  --ctl-bg: #FFFDF9;
+  --ctl-bg-hover: #FFFFFF;
+  --ctl-line: #DCD2C2;
+  --ctl-line-hover: #C9A98C;
+  --ctl-shadow: 0 1px 1px rgba(31,27,22,.04), 0 1px 3px rgba(31,27,22,.05);
+  --ctl-shadow-hover: 0 2px 4px rgba(31,27,22,.07), 0 8px 18px rgba(138,69,36,.08);
+  --ctl-ring: 0 0 0 3px rgba(176,92,50,.16);
+  --copper-soft: rgba(176,92,50,.10);
+}
+
+/* --- Unified text/number/search inputs + selects ------------------------- */
+.cg-ctl select,
+.cg-ctl input[type="search"],
+.cg-ctl input[type="number"],
+.explore-controls select,
+.xc-search input,
+.est-field select,
+.est-field input[type="number"],
+.select-wrap select,
+#cmp-search,
+#tow-input {
+  font: 500 15px/1.2 "DM Sans", system-ui, sans-serif;
+  color: var(--ink);
+  background-color: var(--ctl-bg);
+  border: 1px solid var(--ctl-line);
+  border-radius: var(--ctl-radius);
+  box-shadow: var(--ctl-shadow);
+  padding: 11px 14px;
+  min-height: 46px;
+  transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease, transform .12s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Native select: kill the OS chevron, draw our own copper one */
+.cg-ctl select,
+.explore-controls select,
+.est-field select,
+.select-wrap select {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%23B05C32' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 12px 8px;
+  padding-right: 40px;
+  cursor: pointer;
+}
+.cg-ctl select::-ms-expand,
+.explore-controls select::-ms-expand,
+.est-field select::-ms-expand { display: none; }
+
+/* Hover: subtle lift + warmer border so controls feel alive */
+.cg-ctl select:hover,
+.cg-ctl input[type="search"]:hover,
+.cg-ctl input[type="number"]:hover,
+.explore-controls select:hover,
+.xc-search input:hover,
+.est-field select:hover,
+.est-field input[type="number"]:hover,
+.select-wrap select:hover,
+#cmp-search:hover,
+#tow-input:hover {
+  border-color: var(--ctl-line-hover);
+  background-color: var(--ctl-bg-hover);
+  box-shadow: var(--ctl-shadow-hover);
+}
+
+/* Focus: copper border + soft ring (replaces the hard 2px outline) */
+.cg-ctl select:focus,
+.cg-ctl select:focus-visible,
+.cg-ctl input:focus,
+.cg-ctl input:focus-visible,
+.explore-controls select:focus,
+.explore-controls select:focus-visible,
+.xc-search input:focus,
+.xc-search input:focus-visible,
+.est-field select:focus,
+.est-field input:focus,
+.est-field select:focus-visible,
+.est-field input:focus-visible,
+.select-wrap select:focus,
+#cmp-search:focus,
+#tow-input:focus {
+  outline: none;
+  border-color: var(--copper);
+  box-shadow: var(--ctl-ring);
+  background-color: var(--ctl-bg-hover);
+}
+
+/* Search fields get a magnifier glyph + room for it */
+.cg-ctl input[type="search"],
+.xc-search input,
+#cmp-search {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Ccircle cx='7' cy='7' r='5' fill='none' stroke='%238A8276' stroke-width='1.6'/%3E%3Cpath d='M11 11l4 4' stroke='%238A8276' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 13px center;
+  background-size: 16px 16px;
+  padding-left: 38px;
+}
+/* Hide the ugly native search clear button (we have Reset) */
+.cg-ctl input[type="search"]::-webkit-search-decoration,
+.cg-ctl input[type="search"]::-webkit-search-cancel-button,
+.xc-search input::-webkit-search-cancel-button,
+#cmp-search::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+
+/* Length number field: keep it tidy, hide spinners */
+.cg-len-wrap input[type="number"],
+#tow-input { -moz-appearance: textfield; }
+.cg-len-wrap input[type="number"]::-webkit-outer-spin-button,
+.cg-len-wrap input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* --- Field labels: quieter, more editorial -------------------------------- */
+.cg-ctl > label,
+.est-field label,
+.xc-sort label, .xc-year label, .xc-sleeps label {
+  font: 700 11px/1 "DM Sans", sans-serif;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* --- Custom checkboxes (Only posted limits / Comfortable fits / solar) ---- */
+.cg-check,
+.est-check,
+.xcard-compare {
+  -webkit-tap-highlight-color: transparent;
+}
+.cg-check input[type="checkbox"],
+.est-check input[type="checkbox"],
+.xcard-compare input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px; height: 20px;
+  margin: 0;
+  border: 1.5px solid var(--ctl-line-hover);
+  border-radius: 6px;
+  background: var(--ctl-bg);
+  box-shadow: var(--ctl-shadow);
+  cursor: pointer;
+  position: relative;
+  flex: 0 0 auto;
+  transition: background-color .14s ease, border-color .14s ease, box-shadow .14s ease;
+}
+.cg-check input[type="checkbox"]:hover,
+.est-check input[type="checkbox"]:hover,
+.xcard-compare input[type="checkbox"]:hover {
+  border-color: var(--copper);
+  box-shadow: var(--ctl-shadow-hover);
+}
+.cg-check input[type="checkbox"]:checked,
+.est-check input[type="checkbox"]:checked,
+.xcard-compare input[type="checkbox"]:checked {
+  background: var(--copper);
+  border-color: var(--copper);
+}
+.cg-check input[type="checkbox"]:checked::after,
+.est-check input[type="checkbox"]:checked::after,
+.xcard-compare input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 6px; top: 2px;
+  width: 5px; height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(43deg);
+}
+.cg-check input[type="checkbox"]:focus-visible,
+.est-check input[type="checkbox"]:focus-visible,
+.xcard-compare input[type="checkbox"]:focus-visible {
+  outline: none;
+  box-shadow: var(--ctl-ring);
+}
+
+/* --- Segmented control (model-year switch) -------------------------------- */
+.seg {
+  border-radius: var(--ctl-radius);
+  border-color: var(--ctl-line);
+  box-shadow: var(--ctl-shadow);
+  padding: 3px;
+  gap: 2px;
+  background: var(--ctl-bg);
+}
+.seg-btn {
+  border-radius: calc(var(--ctl-radius) - 3px);
+  transition: background-color .15s ease, color .15s ease;
+}
+.seg-btn + .seg-btn { border-left: 0; }
+.seg-btn:hover:not(.is-active) { color: var(--copper-deep); background: var(--copper-soft); }
+.seg-btn.is-active { box-shadow: 0 1px 2px rgba(138,69,36,.25); }
+
+/* --- Reset buttons: tactile ---------------------------------------------- */
+.cg-reset, .xc-reset {
+  border-radius: var(--ctl-radius);
+  box-shadow: var(--ctl-shadow);
+  transition: border-color .15s ease, background-color .15s ease, color .15s ease, box-shadow .15s ease, transform .12s ease;
+}
+.cg-reset:hover, .xc-reset:hover {
+  box-shadow: var(--ctl-shadow-hover);
+  border-color: var(--copper);
+  color: var(--copper-deep);
+}
+.cg-reset:active, .xc-reset:active { transform: translateY(1px); }
+
+/* --- Pill tag filters (use-case chips on Explore) ------------------------- */
+.tagfilter {
+  border-radius: 999px;
+  box-shadow: var(--ctl-shadow);
+  transition: border-color .15s ease, color .15s ease, background-color .15s ease, box-shadow .15s ease, transform .12s ease;
+}
+.tagfilter:hover { box-shadow: var(--ctl-shadow-hover); transform: translateY(-1px); }
+.tagfilter[aria-pressed="true"] { box-shadow: 0 2px 6px rgba(138,69,36,.22); }
+
+/* --- Tow presets get the same tactile treatment -------------------------- */
+.tow-preset {
+  border-radius: var(--ctl-radius);
+  box-shadow: var(--ctl-shadow);
+  transition: border-color .15s ease, background-color .15s ease, color .15s ease, box-shadow .15s ease, transform .12s ease;
+}
+.tow-preset:hover { box-shadow: var(--ctl-shadow-hover); border-color: var(--ctl-line-hover); }
+.tow-preset:active { transform: translateY(1px); }
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .cg-ctl select, .cg-ctl input, .explore-controls select, .xc-search input,
+  .est-field select, .est-field input, .select-wrap select, #cmp-search, #tow-input,
+  .tagfilter, .tow-preset, .cg-reset, .xc-reset, .seg-btn,
+  .cg-check input, .est-check input, .xcard-compare input { transition: none; }
+}
