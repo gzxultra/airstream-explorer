@@ -117,6 +117,20 @@ if (existsSync(join(ROOT, 'src', 'assets', 'vendor'))) {
   cpSync(join(ROOT, 'src', 'assets', 'vendor'), join(DIST, 'assets', 'vendor'), { recursive: true });
   log('copied vendor assets (maplibre)');
 }
+// Self-hosted webfonts (woff2 + fonts.css). Served from this origin so pages
+// render where Google Fonts is blocked/throttled (e.g. mainland China).
+if (existsSync(join(ROOT, 'src', 'assets', 'fonts'))) {
+  cpSync(join(ROOT, 'src', 'assets', 'fonts'), join(DIST, 'assets', 'fonts'), { recursive: true });
+  log(`copied ${readdirSync(join(DIST, 'assets', 'fonts')).length} self-hosted font files`);
+}
+// Self-hosted map basemap: US-states GeoJSON + Open Sans glyph stack. The map
+// has ZERO external dependency now — no CARTO/CDN — so it loads anywhere the
+// page does. Glyph/GeoJSON paths are templated by MapLibre at runtime, so these
+// keep stable names (NOT fingerprinted); they're foundational and rarely change.
+if (existsSync(join(ROOT, 'src', 'assets', 'map'))) {
+  cpSync(join(ROOT, 'src', 'assets', 'map'), join(DIST, 'assets', 'map'), { recursive: true });
+  log('copied self-hosted map basemap (us-states.json + glyphs)');
+}
 if (existsSync(join(PUBLIC, 'assets', 'img'))) {
   cpSync(join(PUBLIC, 'assets', 'img'), join(DIST, 'assets', 'img'), { recursive: true });
   const counts = ['thumbs', 'heroes', 'gallery', 'floorplans'].map((d) => {

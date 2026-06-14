@@ -678,23 +678,37 @@
       return list;
     }
 
-    // ---- map (MapLibre GL JS: vector basemap, GPU clustering) ----
-    // renderWorldCopies OFF: one world copy keeps longitudes in [-180,180] so
-    // the viewport->geo query never sees a wrapped value (e.g. +240).
-    var VECTOR_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
-    var GLYPHS = 'https://tiles.basemaps.cartocdn.com/fonts/{fontstack}/{range}.pbf';
-    // Raster fallback: the same CARTO basemap as PNG tiles (long proven on this
-    // page). If the vector style ever fails, the map degrades instead of going
-    // blank. Keeps glyphs so the cluster-count labels still render.
-    function rasterStyle() {
+    // ---- map (MapLibre GL JS: SELF-HOSTED vector basemap, GPU clustering) ----
+    // Everything the map needs — basemap geometry AND label glyphs — is served
+    // from THIS origin (assets/map/*). No CARTO, no external tile/glyph CDN, so
+    // the map now loads anywhere the page itself loads, including networks that
+    // throttle or block those CDNs. renderWorldCopies OFF keeps longitudes in
+    // [-180,180] so the viewport->geo query never sees a wrapped value (e.g. +240).
+    var MAP_BASE = (window.__AE_MAP_BASE__ || 'assets/map/');
+    var GLYPHS = MAP_BASE + 'glyphs/{fontstack}/{range}.pbf';
+    var STATES_URL = MAP_BASE + 'us-states.json';
+    var MAP_FONT = ['Open Sans Regular'];
+    // A compact, editorial light basemap drawn entirely from a local US-states
+    // GeoJSON: warm-paper land, soft slate water, hairline state borders, quiet
+    // collision-managed state labels. Zero network dependency beyond this origin.
+    function localStyle() {
       return {
-        version: 8, glyphs: GLYPHS,
-        sources: { carto: {
-          type: 'raster', tileSize: 256, maxzoom: 18,
-          tiles: ['a', 'b', 'c', 'd'].map(function (s) { return 'https://' + s + '.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'; }),
-          attribution: '\u00a9 OpenStreetMap \u00a9 CARTO',
-        } },
-        layers: [{ id: 'carto', type: 'raster', source: 'carto' }],
+        version: 8,
+        glyphs: GLYPHS,
+        sources: { states: { type: 'geojson', data: STATES_URL } },
+        layers: [
+          { id: 'bg', type: 'background', paint: { 'background-color': '#dbe3e7' } },
+          { id: 'state-fill', type: 'fill', source: 'states', paint: { 'fill-color': '#f0e9dc' } },
+          { id: 'state-line', type: 'line', source: 'states',
+            paint: { 'line-color': '#d2c6b1', 'line-width': ['interpolate', ['linear'], ['zoom'], 2, 0.5, 5, 1, 8, 1.6] } },
+          { id: 'state-label', type: 'symbol', source: 'states', maxzoom: 7,
+            layout: {
+              'text-field': ['get', 'name'], 'text-font': MAP_FONT,
+              'text-size': ['interpolate', ['linear'], ['zoom'], 3, 9, 5, 12],
+              'text-transform': 'uppercase', 'text-letter-spacing': 0.08, 'text-max-width': 8,
+            },
+            paint: { 'text-color': '#a99c86', 'text-halo-color': 'rgba(255,255,255,.85)', 'text-halo-width': 1.2 } },
+        ],
       };
     }
     // No-op MapLibre stand-in, used ONLY when WebGL is unavailable so the dozens
@@ -748,9 +762,9 @@
       var real;
       try {
         real = new maplibregl.Map({
-          container: mapEl, style: VECTOR_STYLE,
+          container: mapEl, style: localStyle(),
           center: [-98.35, 39.5], zoom: 3.4, minZoom: 2, maxZoom: 18,
-          maxBounds: [[-180, -84], [180, 84]], renderWorldCopies: false,
+          renderWorldCopies: false,
           attributionControl: false, dragRotate: false,
         });
         real.addControl(new maplibregl.AttributionControl({ compact: true }));
@@ -803,7 +817,7 @@
       });
       map.addLayer({
         id: 'cg-cluster-count', type: 'symbol', source: 'cg', filter: ['has', 'point_count'],
-        layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-font': ['Noto Sans Regular'], 'text-size': ['step', ['get', 'point_count'], 12, 50, 13, 200, 14], 'text-allow-overlap': true },
+        layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-font': MAP_FONT, 'text-size': ['step', ['get', 'point_count'], 12, 50, 13, 200, 14], 'text-allow-overlap': true },
         paint: { 'text-color': '#fff' },
       });
       map.addLayer({
@@ -845,18 +859,27 @@
       if (!interactionsBound) { wireMapInteractions(); interactionsBound = true; }
       drawMarkers(lastList);
     }
+    // Bare local fallback: if the basemap source ever fails to load, drop to a
+    // plain background that still carries the glyphs, so the campground clusters
+    // and counts keep rendering. No external CDN is ever contacted.
+    function bareStyle() {
+      return {
+        version: 8, glyphs: GLYPHS,
+        sources: {}, layers: [{ id: 'bg', type: 'background', paint: { 'background-color': '#dbe3e7' } }],
+      };
+    }
     function wireRealMap() {
       map.on('load', onMapReady);
-      // Fall back to the raster basemap once if the vector style fails to load.
+      // If the basemap style/source errors, degrade to the bare local style once.
       map.on('error', function (e) {
         if (didFallback || mapReady) return;
         didFallback = true;
-        try { map.setStyle(rasterStyle()); map.once('styledata', onMapReady); } catch (_) {}
+        try { map.setStyle(bareStyle()); map.once('styledata', onMapReady); } catch (_) {}
       });
       watchdog = setTimeout(function () {
         if (mapReady || didFallback) return;
         didFallback = true;
-        try { map.setStyle(rasterStyle()); map.once('styledata', onMapReady); } catch (_) {}
+        try { map.setStyle(bareStyle()); map.once('styledata', onMapReady); } catch (_) {}
       }, 8000);
       map.on('moveend', scheduleLive);
       // Honor a shared/deep-linked viewport now that the real map exists.

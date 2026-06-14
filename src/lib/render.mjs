@@ -47,9 +47,7 @@ export function page({ title, description, body, relRoot = '', head = '', script
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="${relRoot}assets/css/fonts.css">
 <link rel="stylesheet" href="${relRoot}assets/css/site.css">
 <link rel="stylesheet" href="${relRoot}assets/css/controls.css">
 ${head}</head>
