@@ -652,7 +652,28 @@
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 18, noWrap: true,
     }).addTo(map);
-    var layer = L.layerGroup().addTo(map);
+    // Cluster the (up to 2,561) markers so the national view isn't a blob.
+    // Falls back to a plain layer group if the plugin failed to load.
+    var layer = (typeof L.markerClusterGroup === 'function')
+      ? L.markerClusterGroup({
+          chunkedLoading: true,
+          maxClusterRadius: 55,
+          spiderfyOnMaxZoom: true,
+          showCoverageOnHover: false,
+          // Copper editorial cluster bubbles, sized by count.
+          iconCreateFunction: function (cluster) {
+            var n = cluster.getChildCount();
+            var size = n < 10 ? 'sm' : (n < 50 ? 'md' : (n < 200 ? 'lg' : 'xl'));
+            var px = n < 10 ? 34 : (n < 50 ? 40 : (n < 200 ? 48 : 56));
+            return L.divIcon({
+              html: '<div class="cg-cluster cg-cluster-' + size + '"><span>' + n + '</span></div>',
+              className: 'cg-cluster-wrap',
+              iconSize: [px, px],
+            });
+          },
+        })
+      : L.layerGroup();
+    layer.addTo(map);
     var FIT_COLOR = { fits: '#2e7d4f', tight: '#c98a16', no: '#c0392b', unknown: '#8a8f98', limit: '#6B6258' };
 
     // Single source of truth for the fit verdict + confidence + plain-language
@@ -700,7 +721,10 @@
     function drawMarkers(list) {
       layer.clearLayers();
       var len = state.len;
-      var capped = list.slice(0, 600); // keep the map snappy
+      // Clustering keeps it snappy, so plot the whole set (cap high as a guard).
+      var clustered = (typeof L.markerClusterGroup === 'function');
+      var capped = clustered ? list.slice(0, 3000) : list.slice(0, 600);
+      var markers = [];
       capped.forEach(function (c) {
         var lat = c.la, lon = c.lo;
         if (lat == null || lon == null) return;
@@ -710,8 +734,11 @@
           radius: 5, color: '#fff', weight: 1, fillColor: col, fillOpacity: 0.9,
         });
         mk.bindPopup(popupHtml(c, chip));
-        layer.addLayer(mk);
+        markers.push(mk);
       });
+      // Bulk-add when clustered (much faster than one-by-one).
+      if (clustered && layer.addLayers) layer.addLayers(markers);
+      else markers.forEach(function (mk) { layer.addLayer(mk); });
     }
 
     function popupHtml(c, chip) {

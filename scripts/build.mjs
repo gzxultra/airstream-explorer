@@ -70,7 +70,10 @@ log('wrote explore.html + compare.html');
 {
   const { body } = renderCampgroundsPage(campgrounds, trailers);
   const head = '<link rel="stylesheet" href="assets/vendor/leaflet.css">\n'
-    + '<script src="assets/vendor/leaflet.js" defer></script>\n';
+    + '<link rel="stylesheet" href="assets/vendor/MarkerCluster.css">\n'
+    + '<link rel="stylesheet" href="assets/vendor/MarkerCluster.Default.css">\n'
+    + '<script src="assets/vendor/leaflet.js" defer></script>\n'
+    + '<script src="assets/vendor/leaflet.markercluster.js" defer></script>\n';
   writeFileSync(
     join(DIST, 'campgrounds.html'),
     page({

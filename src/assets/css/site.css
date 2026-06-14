@@ -639,3 +639,21 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .cg-fit-why-no { background: #fae7e2; border-left-color: #c0392b; color: #9c3022; }
 .cg-fit-why-unknown { background: #efeee9; border-left-color: #9a9488; color: #6a6358; }
 .cg-pop-why { display: block; margin: 4px 0 6px; font: 500 12px/1.4 "DM Sans", sans-serif; color: #555; }
+
+/* --- Map marker clusters (copper editorial, overrides MarkerCluster.Default) */
+.marker-cluster-small, .marker-cluster-small div,
+.marker-cluster-medium, .marker-cluster-medium div,
+.marker-cluster-large, .marker-cluster-large div { background: transparent; }
+.cg-cluster-wrap { background: transparent; border: 0; }
+.cg-cluster {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%; border-radius: 50%;
+  color: #fff; font: 700 13px/1 "DM Sans", sans-serif;
+  background: var(--copper);
+  border: 2px solid rgba(255,255,255,.9);
+  box-shadow: 0 2px 6px rgba(138,69,36,.35), 0 0 0 6px rgba(176,92,50,.18);
+}
+.cg-cluster-md { background: var(--copper); }
+.cg-cluster-lg { background: var(--copper-deep); }
+.cg-cluster-xl { background: #6e3417; font-size: 14px; }
+.cg-cluster span { transform: translateY(-.5px); }
