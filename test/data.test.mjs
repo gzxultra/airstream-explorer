@@ -96,8 +96,8 @@ test('modelNames + years', () => {
 test('assetPaths shape', () => {
   const t = trailers.find((x) => x.slug === 'classic-33fb-2026');
   const a = assetPaths(t);
-  assert.equal(a.thumb, 'assets/img/thumbs/classic-33fb-2026.jpg');
-  assert.equal(a.hero, 'assets/img/heroes/classic.jpg');
+  assert.equal(a.thumb, 'assets/img/thumbs/classic-33fb-2026.webp');
+  assert.equal(a.hero, 'assets/img/heroes/classic.webp');
   assert.equal(a.gallery.length, 3);
 });
 
@@ -113,7 +113,7 @@ test('slugify maps names to file slugs', () => {
 test('every trailer hero is derived from the model (not heroFamily) and exists on disk', () => {
   for (const t of trailers) {
     const a = assetPaths(t);
-    assert.equal(a.hero, `assets/img/heroes/${slugify(t.model)}.jpg`, t.slug);
+    assert.equal(a.hero, `assets/img/heroes/${slugify(t.model)}.webp`, t.slug);
     assert.ok(hasAsset(a.hero), `missing hero file for ${t.slug}: ${a.hero}`);
   }
 });
@@ -122,7 +122,7 @@ test('all 12 model families have a hero file on disk', () => {
   const families = [...new Set(trailers.map((t) => slugify(t.model)))];
   assert.equal(families.length, 12);
   for (const f of families) {
-    assert.ok(hasAsset(`assets/img/heroes/${f}.jpg`), `missing hero: ${f}`);
+    assert.ok(hasAsset(`assets/img/heroes/${f}.webp`), `missing hero: ${f}`);
   }
 });
 
@@ -152,7 +152,7 @@ test('resolveAssets: every one of the 59 floorplans now has its OWN gallery on d
   // The official-asset pass gave each floorplan its own photos; none rely on a twin.
   for (const t of trailers) {
     const ownCount = [1, 2, 3].filter((i) =>
-      hasAsset(`assets/img/gallery/${t.slug}-${i}.jpg`),
+      hasAsset(`assets/img/gallery/${t.slug}-${i}.webp`),
     ).length;
     assert.ok(ownCount > 0, `${t.slug} has no own gallery images`);
   }
@@ -161,7 +161,7 @@ test('resolveAssets: every one of the 59 floorplans now has its OWN gallery on d
 test('resolveAssets: orphan with no gallery + no twin renders hero-only, never broken', () => {
   // synthetic orphan: nothing on disk for it or a twin
   const t = { slug: 'zzz-9zz-2026', model: 'Zzz', floorplan: '9ZZ', year: 2026 };
-  const heroOnly = (p) => p === 'assets/img/heroes/zzz.jpg';
+  const heroOnly = (p) => p === 'assets/img/heroes/zzz.webp';
   const a = resolveAssets(t, heroOnly);
   assert.equal(a.gallery.length, 0);           // no broken <img> emitted
   assert.equal(a.floorplan, null);             // no diagram either
@@ -185,9 +185,9 @@ test('resolveAssets: every one of the 59 floorplans resolves an official diagram
 test('resolveAssets: a 2026 floorplan with no own diagram falls back to its 2025 twin', () => {
   // synthetic: pretend only the 2025 twin diagram exists on disk
   const t = { slug: 'zzz-9zz-2026', model: 'Zzz', floorplan: '9ZZ', year: 2026 };
-  const only2025 = (p) => p === 'assets/img/floorplans/zzz-9zz-2025.jpg';
+  const only2025 = (p) => p === 'assets/img/floorplans/zzz-9zz-2025.webp';
   const a = resolveAssets(t, only2025);
-  assert.equal(a.floorplan, 'assets/img/floorplans/zzz-9zz-2025.jpg');
+  assert.equal(a.floorplan, 'assets/img/floorplans/zzz-9zz-2025.webp');
 });
 
 test('groupByFamily returns 12 families covering every floorplan exactly once', () => {

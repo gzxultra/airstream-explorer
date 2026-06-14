@@ -125,7 +125,7 @@ export function groupByFamily(trailers) {
     return {
       family,
       slug: familySlug(family),
-      hero: `assets/img/heroes/${familySlug(family)}.jpg`,
+      hero: `assets/img/heroes/${familySlug(family)}.webp`,
       trailers: sorted,
       floorplanCount: floorplans.size,
       entryCount: rows.length,
@@ -155,10 +155,10 @@ export function groupByFamily(trailers) {
  */
 export function assetPaths(t) {
   return {
-    thumb: `assets/img/thumbs/${t.slug}.jpg`,
-    hero: `assets/img/heroes/${slugify(t.model)}.jpg`,
-    gallery: [1, 2, 3].map((i) => `assets/img/gallery/${t.slug}-${i}.jpg`),
-    floorplan: `assets/img/floorplans/${t.slug}.jpg`,
+    thumb: `assets/img/thumbs/${t.slug}.webp`,
+    hero: `assets/img/heroes/${slugify(t.model)}.webp`,
+    gallery: [1, 2, 3].map((i) => `assets/img/gallery/${t.slug}-${i}.webp`),
+    floorplan: `assets/img/floorplans/${t.slug}.webp`,
   };
 }
 
@@ -176,9 +176,9 @@ export function resolveAssets(t, hasAsset) {
   const twin = twinSlug(t);
   const gallery = [1, 2, 3]
     .map((i) => {
-      const own = `assets/img/gallery/${t.slug}-${i}.jpg`;
+      const own = `assets/img/gallery/${t.slug}-${i}.webp`;
       if (hasAsset(own)) return own;
-      const tw = `assets/img/gallery/${twin}-${i}.jpg`;
+      const tw = `assets/img/gallery/${twin}-${i}.webp`;
       if (hasAsset(tw)) return tw;
       return null;
     })
@@ -187,8 +187,8 @@ export function resolveAssets(t, hasAsset) {
   // (the 2025/2026 of one floorplan share an identical official diagram).
   let floorplan = null;
   if (hasAsset(canon.floorplan)) floorplan = canon.floorplan;
-  else if (hasAsset(`assets/img/floorplans/${twin}.jpg`))
-    floorplan = `assets/img/floorplans/${twin}.jpg`;
+  else if (hasAsset(`assets/img/floorplans/${twin}.webp`))
+    floorplan = `assets/img/floorplans/${twin}.webp`;
   return {
     thumb: canon.thumb,
     hero: hasAsset(canon.hero) ? canon.hero : null,

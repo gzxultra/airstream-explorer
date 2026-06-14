@@ -130,7 +130,7 @@ test('gallery page shows a visible per-photo credit for every photo', () => {
 // XSS / escaping safety — no raw data-driven angle brackets leak into markup.
 test('rendered community + credits HTML escapes data-driven content', () => {
   const evil = [{
-    id: 'evil', thumb: 'assets/img/community/evil-thumb.jpg',
+    id: 'evil', thumb: 'assets/img/community/evil-thumb.webp',
     bucket: 'Bambi', title: '<script>alert(1)</script>', caption: '"><img onerror=x>',
     artist: '<b>hax</b>', license: 'CC BY 4.0', licenseUrl: 'https://x.org',
     source: 'Wikimedia Commons', sourceUrl: 'https://x.org/file',

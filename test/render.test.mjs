@@ -17,14 +17,14 @@ test('renderCard links to detail page (with linkPrefix) and carries year data-at
   const html = renderCard(classic, undefined, '../');
   assert.match(html, /href="\.\.\/m\/classic-33fb-2026\.html"/);
   assert.match(html, /data-year="2026"/);
-  assert.match(html, /\.\.\/assets\/img\/thumbs\/classic-33fb-2026\.jpg/);
+  assert.match(html, /\.\.\/assets\/img\/thumbs\/classic-33fb-2026\.webp/);
   assert.match(html, /loading="lazy"/);
 });
 
 test('renderFamilyCard links to the family page and shows range stats', () => {
   const html = renderFamilyCard(classicFam, '');
   assert.match(html, /href="f\/classic\.html"/);
-  assert.match(html, /assets\/img\/heroes\/classic\.jpg/);
+  assert.match(html, /assets\/img\/heroes\/classic\.webp/);
   assert.match(html, /Classic/);
   assert.match(html, /floorplan/);          // floorplan count badge
   assert.match(html, /\$/);                 // a price range
@@ -70,7 +70,7 @@ test('renderFamily shows all of a family\'s floorplans with hero + back link', (
   assert.ok(html.startsWith('<!DOCTYPE html>'));
   assert.match(html, /← All families/);
   assert.match(html, /class="fam-hero"/);
-  assert.match(html, /\.\.\/assets\/img\/heroes\/classic\.jpg/);
+  assert.match(html, /\.\.\/assets\/img\/heroes\/classic\.webp/);
   assert.equal((html.match(/class="card"/g) || []).length, classicFam.trailers.length);
 });
 
@@ -129,27 +129,27 @@ test('renderDetail has full spec table with audited numbers', () => {
   // back link now points at the family page
   assert.match(html, /href="\.\.\/f\/classic\.html"/);
   assert.match(html, /← All Classic floorplans/);
-  assert.match(html, /\.\.\/assets\/img\/heroes\/classic\.jpg/);
+  assert.match(html, /\.\.\/assets\/img\/heroes\/classic\.webp/);
 });
 
 test('renderDetail renders an official floor-plan section when a diagram resolves', () => {
   const resolve = (t) => ({
-    thumb: `assets/img/thumbs/${t.slug}.jpg`,
-    hero: `assets/img/heroes/classic.jpg`,
+    thumb: `assets/img/thumbs/${t.slug}.webp`,
+    hero: `assets/img/heroes/classic.webp`,
     gallery: [],
-    floorplan: `assets/img/floorplans/${t.slug}.jpg`,
+    floorplan: `assets/img/floorplans/${t.slug}.webp`,
   });
   const html = renderDetail(classic, resolve);
   assert.match(html, /<section class="floorplan"/);
   assert.match(html, /Floor plan/);
-  assert.match(html, new RegExp(`assets/img/floorplans/${classic.slug}\\.jpg`));
+  assert.match(html, new RegExp(`assets/img/floorplans/${classic.slug}\\.webp`));
   assert.match(html, /Official Airstream 33FB floor plan/);
 });
 
 test('renderDetail omits the floor-plan section when no diagram resolves', () => {
   const resolve = (t) => ({
-    thumb: `assets/img/thumbs/${t.slug}.jpg`,
-    hero: `assets/img/heroes/classic.jpg`,
+    thumb: `assets/img/thumbs/${t.slug}.webp`,
+    hero: `assets/img/heroes/classic.webp`,
     gallery: [],
     floorplan: null,
   });
