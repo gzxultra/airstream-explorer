@@ -68,7 +68,15 @@ log('wrote explore.html + compare.html');
 
 // 4a2. Campground Finder (national, map + list)
 {
-  const { body } = renderCampgroundsPage(campgrounds, trailers);
+  const { body, payload } = renderCampgroundsPage(campgrounds, trailers);
+  // The campground dataset (~905 KB baked) is written to its OWN file rather
+  // than inlined into the HTML. Inlining forced every visit to re-download the
+  // whole dataset (HTML is no-cache) and blocked first paint on a 900 KB parse.
+  // As a standalone file it's fingerprinted + immutable-cached (step 6/8): one
+  // download, cached forever, fetched async by app.js without blocking the list.
+  mkdirSync(join(DIST, 'assets', 'data'), { recursive: true });
+  writeFileSync(join(DIST, 'assets', 'data', 'campgrounds.json'), JSON.stringify(payload));
+  log(`wrote campground dataset (${(JSON.stringify(payload).length / 1024).toFixed(0)} KB, external + cacheable)`);
   // MapLibre (~940 KB) is the heaviest asset on the site. We DON'T load it
   // render-blocking here — app.js lazy-loads it after the campground list is on
   // screen, so a slow/blocked/aborted map download can never stop the list from
@@ -183,7 +191,11 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
   fingerprintTree('img', /\.(jpe?g|png|webp|avif|gif|svg)$/i);
   fingerprintTree('js', /\.js$/i);
   fingerprintTree('css', /\.css$/i);
-  log(`fingerprinted ${counts.img || 0} images, ${counts.js || 0} js, ${counts.css || 0} css`);
+  // The campground dataset (assets/data/campgrounds.json) is large, immutable
+  // per build, and referenced once (in campgrounds.html via #cg-data[data-src]).
+  // Fingerprinting it makes it safe to cache forever AND fresh on every rebuild.
+  fingerprintTree('data', /\.json$/i);
+  log(`fingerprinted ${counts.img || 0} images, ${counts.js || 0} js, ${counts.css || 0} css, ${counts.data || 0} data`);
 
   // Rewrite every emitted HTML file's image references to the hashed names.
   // References appear as ".../assets/img/<...>" with varying relRoot prefixes

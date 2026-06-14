@@ -662,6 +662,9 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .cg-fit-limit { background: #efeae0; color: #6b6258; }
 
 .cg-empty { grid-column: 1 / -1; padding: 40px 16px; text-align: center; color: var(--muted); font: 500 16px "DM Sans", sans-serif; }
+.cg-loading { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 48px 16px; color: var(--muted); font: 500 16px "DM Sans", sans-serif; }
+.cg-retry { margin-left: 8px; font: 600 14px "DM Sans", sans-serif; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 18px; cursor: pointer; }
+.cg-retry:hover { border-color: var(--copper); color: var(--copper); }
 .cg-more { max-width: var(--maxw); margin: 0 auto; padding: 4px 24px 0; text-align: center; }
 .cg-more-btn { font: 600 14px "DM Sans", sans-serif; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 28px; cursor: pointer; }
 .cg-more-btn:hover { border-color: var(--copper); color: var(--copper); }

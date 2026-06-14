@@ -63,6 +63,23 @@ test('toClientRecord carries coordinates so the map can plot every site', () => 
   assert.ok(r.a.length <= 4, 'activities trimmed to keep payload lean');
 });
 
+test('toClientRecord slims the payload: omits derivable URL, strips photo CDN prefix', () => {
+  const c = {
+    id: '232490', name: 'MATHER CAMPGROUND', org: 'NPS',
+    photo: 'https://cdn.recreation.gov/public/2018/y.webp',
+    url: 'https://www.recreation.gov/camping/campgrounds/232490',
+    lat: 36, lon: -112, activities: [],
+  };
+  const r = toClientRecord(c);
+  // The page URL is always REC_URL_PREFIX + id, so it's never shipped (client rebuilds it).
+  assert.equal(r.u, undefined, 'page URL omitted — rebuilt client-side from id');
+  // The photo ships WITHOUT the shared CDN prefix (client prepends it back).
+  assert.equal(r.g, 'public/2018/y.webp', 'photo CDN prefix stripped');
+  // A photo NOT under the known CDN is kept whole (defensive).
+  const r2 = toClientRecord({ id: '1', org: 'NPS', photo: 'https://other.example/p.jpg' });
+  assert.equal(r2.g, 'https://other.example/p.jpg');
+});
+
 test('orgShort normalizes long agency names', () => {
   assert.equal(orgShort('National Park Service'), 'NPS');
   assert.equal(orgShort('USDA Forest Service'), 'USFS');
@@ -87,19 +104,24 @@ test('renderCampgroundsPage embeds coords + leaflet mount + live-fetch controls'
     { slug: 'bambi-16rb-2026', model: 'Bambi', floorplan: '16RB', lengthFt: 16.3, year: 2026 },
     { slug: 'classic-33fb-2026', model: 'Classic', floorplan: '33FB', lengthFt: 33.0, year: 2026 },
   ];
-  const { body } = renderCampgroundsPage(campgrounds, trailers);
+  const { body, payload } = renderCampgroundsPage(campgrounds, trailers);
   assert.ok(body.includes('id="cg-map"'), 'has map mount');
-  assert.ok(body.includes('id="cg-data"'), 'has data block');
+  assert.ok(body.includes('id="cg-data"'), 'has data mount');
   assert.ok(body.includes('id="cg-rig"'), 'has rig picker');
   // rig options expose real lengths
   assert.ok(body.includes('16RB') && body.includes('33FB'));
-  // embedded payload parses and carries coordinates
-  const m = body.match(/<script type="application\/json" id="cg-data">([\s\S]*?)<\/script>/);
-  assert.ok(m, 'data block present');
-  const payload = JSON.parse(m[1].replace(/\\u003c/g, '<'));
+  // The dataset is NO LONGER inlined — it ships as an external, cache-forever
+  // file. The page only carries a data-src pointer; the payload is returned
+  // separately for build.mjs to write out and fingerprint.
+  assert.ok(!/<script type="application\/json" id="cg-data">/.test(body), 'dataset is NOT inlined into the HTML');
+  assert.ok(/id="cg-data"[^>]*data-src="assets\/data\/campgrounds\.json"/.test(body), 'page points at the external dataset');
+  assert.ok(payload && Array.isArray(payload.campgrounds), 'payload returned for external write');
   assert.equal(payload.campgrounds.length, 1);
   assert.equal(typeof payload.campgrounds[0].la, 'number');
   assert.equal(typeof payload.campgrounds[0].lo, 'number');
+  // slimming: the page URL is omitted (rebuilt client-side from id), and the
+  // photo ships without its shared CDN prefix.
+  assert.equal(payload.campgrounds[0].u, undefined, 'page URL omitted from payload');
 });
 
 test('fitExplain: verdict, confidence, and the arithmetic in the "why"', () => {

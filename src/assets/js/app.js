@@ -559,7 +559,18 @@
     if (!root || !mapEl || !dataEl) return;
 
     var STATIC = [];
-    try { STATIC = (JSON.parse(dataEl.textContent) || {}).campgrounds || []; } catch (e) { STATIC = []; }
+    // The dataset is loaded ASYNC from an external, cache-forever file (see
+    // loadData() near the end) instead of being inlined into this page. Records
+    // ship slimmed to cut transfer size: `.u` (the Recreation.gov page URL) is
+    // omitted and rebuilt from `.i`, and `.g` (photo) ships without its shared
+    // CDN prefix. hydrate() restores both so the rest of the module is unchanged.
+    var REC_URL_PREFIX = 'https://www.recreation.gov/camping/campgrounds/';
+    var REC_PHOTO_PREFIX = 'https://cdn.recreation.gov/';
+    function hydrate(c) {
+      if (c && c.g && c.g.indexOf('http') !== 0) c.g = REC_PHOTO_PREFIX + c.g;
+      if (c && !c.u && c.i != null) c.u = REC_URL_PREFIX + c.i;
+      return c;
+    }
 
     var CLEARANCE = 3;
     var STATE_NAME = {}; // filled from option text if present
@@ -1410,8 +1421,37 @@
         + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
     }
 
-    render();
-    drawSavedTray();
+    // ---- load the dataset (external, cache-forever file), THEN boot the UI --
+    // The ~905 KB dataset is no longer inlined in the page; it's fetched from a
+    // fingerprinted, immutable-cached JSON file so the HTML stays tiny and the
+    // data is downloaded once and reused. The list, saved tray, and map all wait
+    // on this. Same-origin (Cloudflare Pages) so it loads wherever the page does.
+    function boot() {
+      render();
+      drawSavedTray();
+      loadMapLibrary();
+    }
+    (function loadData() {
+      var url = (dataEl && dataEl.getAttribute('data-src')) || 'assets/data/campgrounds.json';
+      root.innerHTML = '<p class="cg-loading"><span class="cg-spinner"></span> Loading campgrounds\u2026</p>';
+      var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      var to = setTimeout(function () { if (ctrl) ctrl.abort(); }, 15000);
+      fetch(url, { signal: ctrl ? ctrl.signal : undefined })
+        .then(function (r) { clearTimeout(to); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (d) {
+          STATIC = ((d && d.campgrounds) || []).map(hydrate);
+          boot();
+        })
+        .catch(function () {
+          clearTimeout(to);
+          STATIC = [];
+          root.innerHTML = '<p class="cg-empty">Couldn\u2019t load the campground list on this connection. '
+            + '<button type="button" class="cg-retry" id="cg-retry">Try again</button></p>';
+          var rb = document.getElementById('cg-retry');
+          if (rb) rb.addEventListener('click', function () { location.reload(); });
+          showMapUnavailable(mapEl);
+        });
+    })();
 
     // ---- lazy-load the map AFTER the list is on screen --------------------
     // MapLibre is ~940 KB — by far the heaviest asset on the site. Loading it
@@ -1420,7 +1460,7 @@
     // the whole page looked broken ("打不开"). So we ship the list first, then
     // fetch the map library on demand and upgrade the map in place. The list is
     // already fully interactive (filter/sort/search/save/availability) by now.
-    (function loadMapLibrary() {
+    function loadMapLibrary() {
       if (typeof maplibregl !== 'undefined') { initMap(); return; } // already present
       var src = (window.__AE_MAPLIBRE_SRC__ || 'assets/vendor/maplibre/maplibre-gl.js');
       var s = document.createElement('script');
@@ -1440,7 +1480,7 @@
         done = true; showMapUnavailable(mapEl);
       }, 12000);
       document.head.appendChild(s);
-    })();
+    }
 
     // ---- availability drawer (#7 per-site fit, #8 hookups, #10 this weekend) -
     // Opens on a card/popup "Check availability" click and fetches live data

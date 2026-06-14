@@ -156,7 +156,20 @@ export function statesWithCounts(campgrounds) {
 }
 
 /** Slim per-record shape for the client browser (keeps the payload lean). */
+// Common URL prefixes, factored OUT of every per-campground record to shrink the
+// shipped payload. The client rebuilds the full URLs from these (see app.js).
+//  - Every Recreation.gov campground page is REC_URL_PREFIX + id, so `.u` is 100%
+//    derivable from `.i` and never needs shipping (~150 KB saved across 2561 rows).
+//  - Every campground photo lives under REC_PHOTO_PREFIX on the Recreation.gov CDN,
+//    so we ship only the tail in `.g` and prepend the prefix client-side (~60 KB).
+export const REC_URL_PREFIX = 'https://www.recreation.gov/camping/campgrounds/';
+export const REC_PHOTO_PREFIX = 'https://cdn.recreation.gov/';
+
 export function toClientRecord(c) {
+  // Strip the shared CDN prefix from the photo URL when present; the client
+  // prepends it back. Anything not under that prefix is kept whole (defensive).
+  let g;
+  if (c.photo) g = c.photo.startsWith(REC_PHOTO_PREFIX) ? c.photo.slice(REC_PHOTO_PREFIX.length) : c.photo;
   return {
     i: c.id,
     n: c.name,
@@ -167,8 +180,9 @@ export function toClientRecord(c) {
     v: c.reviews || undefined,
     m: c.maxLengthFt || undefined, // max length; absent = no posted limit
     pr: c.price ? c.price.min : undefined,
-    g: c.photo || undefined,
-    u: c.url || undefined,
+    g: g || undefined,
+    // .u (Recreation.gov page URL) intentionally OMITTED — it's always
+    // REC_URL_PREFIX + i, so the client reconstructs it. See app.js hydrate().
     la: c.lat != null ? Math.round(c.lat * 1e5) / 1e5 : undefined,
     lo: c.lon != null ? Math.round(c.lon * 1e5) / 1e5 : undefined,
     a: (c.activities || []).slice(0, 4),

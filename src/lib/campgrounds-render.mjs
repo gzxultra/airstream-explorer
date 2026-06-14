@@ -8,6 +8,12 @@ const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
+// Canonical (pre-fingerprint) path of the external campground dataset. build.mjs
+// writes the JSON here, fingerprints it to assets/data/campgrounds.<hash>.json,
+// and rewrites this reference in the HTML to the hashed name (same pass as
+// images/js/css). app.js reads it from #cg-data[data-src] and fetches async.
+export const CAMP_DATA_REL = 'assets/data/campgrounds.json';
+
 const STATE_NAMES = {
   AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California',
   CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware', FL: 'Florida', GA: 'Georgia',
@@ -107,7 +113,6 @@ export function renderCampgroundsPage(campgrounds, trailers) {
     rigOpts.push(`<option value="${esc(r.len)}" data-slug="${esc(r.slug)}">${esc(r.label)} — ${esc(formatLength(r.len))}</option>`);
   }
   const payload = { campgrounds: slim, states: states.length, generatedAt: new Date().toISOString().slice(0, 10) };
-
   const body = `<header class="cg-hero">
 <p class="eyebrow">NATIONWIDE</p>
 <h1>Campground Finder</h1>
@@ -154,7 +159,16 @@ export function renderCampgroundsPage(campgrounds, trailers) {
 </div>
 <p class="cg-more" id="cg-more" hidden><button type="button" id="cg-more-btn" class="cg-more-btn">Show more</button></p>
 <p class="cg-src muted">Source: Recreation.gov (RIDB), public data, baked ${esc(payload.generatedAt)}. Only campgrounds that advertise RV/trailer/fifth-wheel equipment are included. “Fits” allows ~3 ft of maneuvering clearance beyond your rig; “tight” means the posted limit is between your exact length and that clearance; “no posted limit” means the agency lists none — always confirm site length before booking.</p>
-<script type="application/json" id="cg-data">${JSON.stringify(payload).replace(/</g, '\\u003c')}</script>`;
+<noscript><p class="cg-src muted">The interactive finder needs JavaScript. With it off, browse models from the menu above or visit Recreation.gov directly.</p></noscript>
+<div id="cg-data" data-src="${esc(CAMP_DATA_REL)}" hidden></div>`;
 
-  return { body };
+  // The campground dataset is NOT inlined into the HTML anymore. Inlining baked
+  // ~905 KB of JSON into a `no-cache` HTML page, so every visit re-downloaded it
+  // and the parse blocked first paint. Instead build.mjs writes `payload` to a
+  // fingerprinted, immutable-cached file (assets/data/campgrounds.<hash>.json)
+  // that app.js fetches async — downloaded once, cached forever, never blocking
+  // the list scaffold. Same-origin (Cloudflare Pages), so it loads wherever the
+  // page itself does. `data-src` is the canonical path; the build rewrites it to
+  // the hashed name in the same pass that fingerprints images/js/css.
+  return { body, payload };
 }
