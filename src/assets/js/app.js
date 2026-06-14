@@ -551,7 +551,7 @@
     var root = document.getElementById('cg-list');
     var mapEl = document.getElementById('cg-map');
     var dataEl = document.getElementById('cg-data');
-    if (!root || !mapEl || !dataEl || typeof L === 'undefined') return;
+    if (!root || !mapEl || !dataEl || typeof maplibregl === 'undefined') return;
 
     var STATIC = [];
     try { STATIC = (JSON.parse(dataEl.textContent) || {}).campgrounds || []; } catch (e) { STATIC = []; }
@@ -673,36 +673,121 @@
       return list;
     }
 
-    // ---- map ----
-    // worldCopyJump OFF: it can hand back wrapped longitudes (e.g. +240) that
-    // break the geo query. Keep one world copy and clamp lon ourselves.
-    var map = L.map(mapEl, { scrollWheelZoom: true, worldCopyJump: false, maxBounds: [[-85, -180], [85, 180]], maxBoundsViscosity: 1 }).setView([39.5, -98.35], 4);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 18, noWrap: true,
-    }).addTo(map);
-    // Cluster the (up to 2,561) markers so the national view isn't a blob.
-    // Falls back to a plain layer group if the plugin failed to load.
-    var layer = (typeof L.markerClusterGroup === 'function')
-      ? L.markerClusterGroup({
-          chunkedLoading: true,
-          maxClusterRadius: 55,
-          spiderfyOnMaxZoom: true,
-          showCoverageOnHover: false,
-          // Copper editorial cluster bubbles, sized by count.
-          iconCreateFunction: function (cluster) {
-            var n = cluster.getChildCount();
-            var size = n < 10 ? 'sm' : (n < 50 ? 'md' : (n < 200 ? 'lg' : 'xl'));
-            var px = n < 10 ? 34 : (n < 50 ? 40 : (n < 200 ? 48 : 56));
-            return L.divIcon({
-              html: '<div class="cg-cluster cg-cluster-' + size + '"><span>' + n + '</span></div>',
-              className: 'cg-cluster-wrap',
-              iconSize: [px, px],
-            });
-          },
-        })
-      : L.layerGroup();
-    layer.addTo(map);
+    // ---- map (MapLibre GL JS: vector basemap, GPU clustering) ----
+    // renderWorldCopies OFF: one world copy keeps longitudes in [-180,180] so
+    // the viewport->geo query never sees a wrapped value (e.g. +240).
+    var VECTOR_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+    var GLYPHS = 'https://tiles.basemaps.cartocdn.com/fonts/{fontstack}/{range}.pbf';
+    // Raster fallback: the same CARTO basemap as PNG tiles (long proven on this
+    // page). If the vector style ever fails, the map degrades instead of going
+    // blank. Keeps glyphs so the cluster-count labels still render.
+    function rasterStyle() {
+      return {
+        version: 8, glyphs: GLYPHS,
+        sources: { carto: {
+          type: 'raster', tileSize: 256, maxzoom: 18,
+          tiles: ['a', 'b', 'c', 'd'].map(function (s) { return 'https://' + s + '.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'; }),
+          attribution: '\u00a9 OpenStreetMap \u00a9 CARTO',
+        } },
+        layers: [{ id: 'carto', type: 'raster', source: 'carto' }],
+      };
+    }
+    var map = new maplibregl.Map({
+      container: mapEl, style: VECTOR_STYLE,
+      center: [-98.35, 39.5], zoom: 3.4, minZoom: 2, maxZoom: 18,
+      maxBounds: [[-180, -84], [180, 84]], renderWorldCopies: false,
+      attributionControl: false, dragRotate: false,
+    });
+    map.addControl(new maplibregl.AttributionControl({ compact: true }));
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    map.touchZoomRotate.disableRotation();
+
     var FIT_COLOR = { fits: '#2e7d4f', tight: '#c98a16', no: '#c0392b', unknown: '#8a8f98', limit: '#6B6258' };
+
+    // ---- native GPU clustering: one GeoJSON source, three layers --------
+    // (cluster bubbles sized+shaded by count, the count label, and fit-colored
+    // dots). Far smoother than DOM markers, and plots the whole set at once.
+    var mapReady = false, didFallback = false, interactionsBound = false, lastList = [], watchdog = null, mapPopup = null;
+    function buildFeatures(list) {
+      var len = state.len, feats = [], capped = list.slice(0, 3000);
+      for (var i = 0; i < capped.length; i++) {
+        var c = capped[i];
+        if (c.la == null || c.lo == null) continue;
+        var chip = chipFor(c, len);
+        feats.push({
+          type: 'Feature',
+          properties: { i: String(c.i), col: FIT_COLOR[chip.cls] || '#8a8f98' },
+          geometry: { type: 'Point', coordinates: [Number(c.lo), Number(c.la)] },
+        });
+      }
+      return { type: 'FeatureCollection', features: feats };
+    }
+    function addCgLayers() {
+      if (map.getSource('cg')) return;
+      map.addSource('cg', { type: 'geojson', data: buildFeatures(lastList), cluster: true, clusterRadius: 52, clusterMaxZoom: 11 });
+      map.addLayer({
+        id: 'cg-clusters', type: 'circle', source: 'cg', filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': ['step', ['get', 'point_count'], '#C2703F', 50, '#A6532C', 200, '#8A4524'],
+          'circle-opacity': 0.92,
+          'circle-radius': ['step', ['get', 'point_count'], 15, 10, 19, 50, 24, 200, 30],
+          'circle-stroke-width': 2, 'circle-stroke-color': 'rgba(255,255,255,.85)',
+        },
+      });
+      map.addLayer({
+        id: 'cg-cluster-count', type: 'symbol', source: 'cg', filter: ['has', 'point_count'],
+        layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-font': ['Noto Sans Regular'], 'text-size': ['step', ['get', 'point_count'], 12, 50, 13, 200, 14], 'text-allow-overlap': true },
+        paint: { 'text-color': '#fff' },
+      });
+      map.addLayer({
+        id: 'cg-pts', type: 'circle', source: 'cg', filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-color': ['get', 'col'],
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 4.5, 10, 7],
+          'circle-stroke-width': 1.4, 'circle-stroke-color': '#fff', 'circle-opacity': 0.95,
+        },
+      });
+    }
+    function wireMapInteractions() {
+      ['cg-pts', 'cg-clusters'].forEach(function (lyr) {
+        map.on('mouseenter', lyr, function () { map.getCanvas().style.cursor = 'pointer'; });
+        map.on('mouseleave', lyr, function () { map.getCanvas().style.cursor = ''; });
+      });
+      map.on('click', 'cg-pts', function (e) {
+        var f = e.features && e.features[0]; if (!f) return;
+        var rec = recordById(f.properties.i); if (!rec) return;
+        if (mapPopup) mapPopup.remove();
+        mapPopup = new maplibregl.Popup({ closeButton: true, maxWidth: '280px', className: 'cg-ml-popup', offset: 10 })
+          .setLngLat(f.geometry.coordinates.slice())
+          .setHTML(popupHtml(rec, fitInfo(rec, state.len)))
+          .addTo(map);
+      });
+      map.on('click', 'cg-clusters', function (e) {
+        var f = map.queryRenderedFeatures(e.point, { layers: ['cg-clusters'] })[0]; if (!f) return;
+        map.getSource('cg').getClusterExpansionZoom(f.properties.cluster_id).then(function (z) {
+          map.easeTo({ center: f.geometry.coordinates, zoom: z + 0.2 });
+        });
+      });
+    }
+    function onMapReady() {
+      if (watchdog) { clearTimeout(watchdog); watchdog = null; }
+      mapReady = true;
+      addCgLayers();
+      if (!interactionsBound) { wireMapInteractions(); interactionsBound = true; }
+      drawMarkers(lastList);
+    }
+    map.on('load', onMapReady);
+    // Fall back to the raster basemap once if the vector style fails to load.
+    map.on('error', function (e) {
+      if (didFallback || mapReady) return;
+      didFallback = true;
+      try { map.setStyle(rasterStyle()); map.once('styledata', onMapReady); } catch (_) {}
+    });
+    watchdog = setTimeout(function () {
+      if (mapReady || didFallback) return;
+      didFallback = true;
+      try { map.setStyle(rasterStyle()); map.once('styledata', onMapReady); } catch (_) {}
+    }, 8000);
 
     // Single source of truth for the fit verdict + confidence + plain-language
     // "why". Used by the list card, the map dot/popup, so they never disagree.
@@ -823,26 +908,10 @@
     }
 
     function drawMarkers(list) {
-      layer.clearLayers();
-      var len = state.len;
-      // Clustering keeps it snappy, so plot the whole set (cap high as a guard).
-      var clustered = (typeof L.markerClusterGroup === 'function');
-      var capped = clustered ? list.slice(0, 3000) : list.slice(0, 600);
-      var markers = [];
-      capped.forEach(function (c) {
-        var lat = c.la, lon = c.lo;
-        if (lat == null || lon == null) return;
-        var chip = chipFor(c, len);
-        var col = FIT_COLOR[chip.cls] || '#8a8f98';
-        var mk = L.circleMarker([lat, lon], {
-          radius: 5, color: '#fff', weight: 1, fillColor: col, fillOpacity: 0.9,
-        });
-        mk.bindPopup(popupHtml(c, chip));
-        markers.push(mk);
-      });
-      // Bulk-add when clustered (much faster than one-by-one).
-      if (clustered && layer.addLayers) layer.addLayers(markers);
-      else markers.forEach(function (mk) { layer.addLayer(mk); });
+      lastList = list || [];
+      if (!mapReady) return; // queued; onMapReady will draw once the source exists
+      var src = map.getSource('cg');
+      if (src) src.setData(buildFeatures(lastList));
     }
 
     function popupHtml(c, chip) {
@@ -963,8 +1032,9 @@
             return x.entity_type === 'campground' &&
               (x.campsite_equipment_name || []).some(function (e) { return /RV|Trailer|Fifth/i.test(e); }) &&
               x.latitude && x.longitude &&
-              // CLIP to the actual visible rectangle so list + markers match the map exactly
-              b.contains([Number(x.latitude), Number(x.longitude)]);
+              // CLIP to the actual visible rectangle so list + markers match the map exactly.
+              // MapLibre bounds.contains expects [lng, lat] (opposite of Leaflet's [lat, lng]).
+              b.contains([Number(x.longitude), Number(x.latitude)]);
           }).map(normalizeLive);
           state.live = rv; state.source = 'live'; render();
         })
@@ -1020,7 +1090,7 @@
       if (elSearch) elSearch.value = ''; if (elSort) elSort.value = 'rank';
       if (elHideUnknown) elHideUnknown.checked = false; if (elFitsOnly) elFitsOnly.checked = false;
       Store.del(CG_PREFS);
-      map.setView([39.5, -98.35], 4); render();
+      map.jumpTo({ center: [-98.35, 39.5], zoom: 3.4 }); render();
     });
     map.on('moveend', scheduleLive);
 
@@ -1090,7 +1160,7 @@
       if (elHideUnknown) elHideUnknown.checked = state.hideUnknown;
       if (elFitsOnly) elFitsOnly.checked = state.fitsOnly;
     })();
-    if (pendingMapView) map.setView([pendingMapView.lat, pendingMapView.lng], pendingMapView.z);
+    if (pendingMapView) map.jumpTo({ center: [pendingMapView.lng, pendingMapView.lat], zoom: pendingMapView.z });
 
     // Build a shareable URL that reproduces the current view.
     function buildShareUrl() {

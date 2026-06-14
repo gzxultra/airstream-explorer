@@ -567,7 +567,10 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
   max-width: var(--maxw); margin: 18px auto 0; padding: 0 24px 40px;
   display: grid; grid-template-columns: 1.05fr 1fr; gap: 22px; align-items: start;
 }
-.cg-map {
+/* #cg-map.cg-map (id+class) deliberately out-specifies MapLibre's
+   `.maplibregl-map{position:relative}`, which loads AFTER site.css and would
+   otherwise win the cascade tie and kill the sticky desktop map. */
+#cg-map.cg-map {
   height: 640px; position: sticky; top: 16px; border: 1px solid var(--line); border-radius: var(--radius);
   box-shadow: var(--shadow); background: #dfe5e2; z-index: 0;
 }
@@ -601,16 +604,26 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .cg-more-btn:hover { border-color: var(--copper); color: var(--copper); }
 .cg-src { max-width: var(--maxw); margin: 18px auto 0; padding: 0 24px; font-size: 12.5px; line-height: 1.55; }
 
-/* Leaflet popup → editorial */
+/* Popup inner content → editorial (.cg-pop is our markup inside the MapLibre popup) */
 .cg-pop { font: 500 13px/1.45 "DM Sans", sans-serif; color: var(--ink); min-width: 170px; }
 .cg-pop strong { font: 600 15px "Fraunces", serif; }
 .cg-pop a { color: var(--copper); font-weight: 600; text-decoration: none; }
 .cg-pop-fit { display: inline-block; margin-top: 4px; padding: 2px 7px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-.leaflet-popup-content-wrapper { border-radius: var(--radius); }
+/* MapLibre popup chrome → editorial (popup created with className 'cg-ml-popup') */
+.cg-ml-popup .maplibregl-popup-content {
+  border-radius: var(--radius); padding: 13px 14px 12px;
+  box-shadow: var(--shadow); border: 1px solid var(--line);
+}
+.cg-ml-popup .maplibregl-popup-close-button {
+  width: 26px; height: 26px; font-size: 18px; line-height: 24px; color: var(--muted);
+  border-radius: 0 var(--radius) 0 8px;
+}
+.cg-ml-popup .maplibregl-popup-close-button:hover { background: #f1ece2; color: var(--ink); }
+.cg-ml-popup .maplibregl-popup-tip { border-top-color: var(--surface); }
 
 @media (max-width: 880px) {
   .cg-layout { grid-template-columns: 1fr; }
-  .cg-map { height: 360px; position: relative; top: 0; order: -1; }
+  #cg-map.cg-map { height: 360px; position: relative; top: 0; order: -1; }
   .cg-list { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 520px) {
@@ -640,23 +653,9 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .cg-fit-why-unknown { background: #efeee9; border-left-color: #9a9488; color: #6a6358; }
 .cg-pop-why { display: block; margin: 4px 0 6px; font: 500 12px/1.4 "DM Sans", sans-serif; color: #555; }
 
-/* --- Map marker clusters (copper editorial, overrides MarkerCluster.Default) */
-.marker-cluster-small, .marker-cluster-small div,
-.marker-cluster-medium, .marker-cluster-medium div,
-.marker-cluster-large, .marker-cluster-large div { background: transparent; }
-.cg-cluster-wrap { background: transparent; border: 0; }
-.cg-cluster {
-  display: flex; align-items: center; justify-content: center;
-  width: 100%; height: 100%; border-radius: 50%;
-  color: #fff; font: 700 13px/1 "DM Sans", sans-serif;
-  background: var(--copper);
-  border: 2px solid rgba(255,255,255,.9);
-  box-shadow: 0 2px 6px rgba(138,69,36,.35), 0 0 0 6px rgba(176,92,50,.18);
-}
-.cg-cluster-md { background: var(--copper); }
-.cg-cluster-lg { background: var(--copper-deep); }
-.cg-cluster-xl { background: #6e3417; font-size: 14px; }
-.cg-cluster span { transform: translateY(-.5px); }
+/* Map clusters are GPU-rendered MapLibre circle+symbol layers (see app.js
+   'cg-clusters'/'cg-cluster-count'), styled via paint props in JS — no DOM
+   bubble elements, so the old .marker-cluster/.cg-cluster CSS was removed. */
 
 /* --- Saved shortlist: heart button on cards + popups --------------------- */
 .cg-card-outer { position: relative; display: flex; }

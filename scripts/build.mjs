@@ -69,11 +69,8 @@ log('wrote explore.html + compare.html');
 // 4a2. Campground Finder (national, map + list)
 {
   const { body } = renderCampgroundsPage(campgrounds, trailers);
-  const head = '<link rel="stylesheet" href="assets/vendor/leaflet.css">\n'
-    + '<link rel="stylesheet" href="assets/vendor/MarkerCluster.css">\n'
-    + '<link rel="stylesheet" href="assets/vendor/MarkerCluster.Default.css">\n'
-    + '<script src="assets/vendor/leaflet.js" defer></script>\n'
-    + '<script src="assets/vendor/leaflet.markercluster.js" defer></script>\n';
+  const head = '<link rel="stylesheet" href="assets/vendor/maplibre/maplibre-gl.css">\n'
+    + '<script src="assets/vendor/maplibre/maplibre-gl.js" defer></script>\n';
   writeFileSync(
     join(DIST, 'campgrounds.html'),
     page({
@@ -110,7 +107,7 @@ cpSync(join(ROOT, 'src', 'assets', 'css'), join(DIST, 'assets', 'css'), { recurs
 cpSync(join(ROOT, 'src', 'assets', 'js'), join(DIST, 'assets', 'js'), { recursive: true });
 if (existsSync(join(ROOT, 'src', 'assets', 'vendor'))) {
   cpSync(join(ROOT, 'src', 'assets', 'vendor'), join(DIST, 'assets', 'vendor'), { recursive: true });
-  log('copied vendor assets (leaflet)');
+  log('copied vendor assets (maplibre)');
 }
 if (existsSync(join(PUBLIC, 'assets', 'img'))) {
   cpSync(join(PUBLIC, 'assets', 'img'), join(DIST, 'assets', 'img'), { recursive: true });
