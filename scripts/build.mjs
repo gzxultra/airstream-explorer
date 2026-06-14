@@ -69,8 +69,13 @@ log('wrote explore.html + compare.html');
 // 4a2. Campground Finder (national, map + list)
 {
   const { body } = renderCampgroundsPage(campgrounds, trailers);
+  // MapLibre (~940 KB) is the heaviest asset on the site. We DON'T load it
+  // render-blocking here — app.js lazy-loads it after the campground list is on
+  // screen, so a slow/blocked/aborted map download can never stop the list from
+  // rendering. Keep the CSS (small) and preload the JS at low priority so it's
+  // usually warm by the time app.js asks for it.
   const head = '<link rel="stylesheet" href="assets/vendor/maplibre/maplibre-gl.css">\n'
-    + '<script src="assets/vendor/maplibre/maplibre-gl.js" defer></script>\n';
+    + '<link rel="preload" href="assets/vendor/maplibre/maplibre-gl.js" as="script">\n';
   writeFileSync(
     join(DIST, 'campgrounds.html'),
     page({

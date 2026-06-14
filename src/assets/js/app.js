@@ -551,7 +551,12 @@
     var root = document.getElementById('cg-list');
     var mapEl = document.getElementById('cg-map');
     var dataEl = document.getElementById('cg-data');
-    if (!root || !mapEl || !dataEl || typeof maplibregl === 'undefined') return;
+    // The LIST is the core feature and must render even if the (heavy, ~940 KB)
+    // MapLibre library never loads — slow/throttled/blocked networks, an aborted
+    // download, or a CDN block. So we DON'T gate the module on `maplibregl`
+    // here; the map is wired up separately and degrades on its own (see initMap
+    // below). Only bail if the page's own list scaffold is missing.
+    if (!root || !mapEl || !dataEl) return;
 
     var STATIC = [];
     try { STATIC = (JSON.parse(dataEl.textContent) || {}).campgrounds || []; } catch (e) { STATIC = []; }
@@ -718,37 +723,51 @@
       };
     }
     // Swap the "Loading map…" placeholder for an honest notice: the interactive
-    // map can't draw, but the full list below still works.
+    // map can't draw (WebGL off, or the map library couldn't load on this
+    // network), but the full list below still works.
     function showMapUnavailable(el) {
       var html = '<div class="cg-map-fallback" role="note">'
         + '<span class="cg-map-fallback-pin" aria-hidden="true">\u25b2</span>'
-        + '<strong>Interactive map needs WebGL</strong>'
-        + '<span>Your browser has it turned off, so the map can\u2019t draw — but the full campground list below works fine.</span>'
+        + '<strong>Map unavailable</strong>'
+        + '<span>The interactive map couldn\u2019t load on this connection \u2014 but the full campground list below works fine.</span>'
         + '</div>';
       var p = el.querySelector('.cg-map-loading');
       if (p) p.outerHTML = html; else el.innerHTML = html;
     }
-    var map, mapAvailable = true;
-    try {
-      map = new maplibregl.Map({
-        container: mapEl, style: VECTOR_STYLE,
-        center: [-98.35, 39.5], zoom: 3.4, minZoom: 2, maxZoom: 18,
-        maxBounds: [[-180, -84], [180, 84]], renderWorldCopies: false,
-        attributionControl: false, dragRotate: false,
-      });
-    } catch (err) {
-      // WebGL unavailable (disabled, blocklisted, or no GPU context). The map
-      // is optional chrome; the LIST is the core feature and needs no WebGL.
-      // Degrade to a no-op map so every map.xxx() call below is harmless, show
-      // an honest notice in the map box, and let render() paint the list.
-      mapAvailable = false;
-      map = mapStub();
-      showMapUnavailable(mapEl);
+    // ---- map bootstrap -----------------------------------------------------
+    // `map` starts as the no-op stub so EVERY map.xxx() call sprinkled through
+    // this module (controls, getCenter for share links, jumpTo, moveend, etc.)
+    // is harmless before — or forever, if — the real map exists. initMap()
+    // upgrades `map` to a real MapLibre instance once the library has loaded.
+    // This keeps the LIST fully functional with zero dependency on the map.
+    var map = mapStub(), mapAvailable = false;
+    function initMap() {
+      // Library still not here (lazy load failed / blocked / aborted): leave the
+      // stub in place and show an honest notice. The list already works.
+      if (typeof maplibregl === 'undefined') { showMapUnavailable(mapEl); return; }
+      var real;
+      try {
+        real = new maplibregl.Map({
+          container: mapEl, style: VECTOR_STYLE,
+          center: [-98.35, 39.5], zoom: 3.4, minZoom: 2, maxZoom: 18,
+          maxBounds: [[-180, -84], [180, 84]], renderWorldCopies: false,
+          attributionControl: false, dragRotate: false,
+        });
+        real.addControl(new maplibregl.AttributionControl({ compact: true }));
+        real.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+        real.touchZoomRotate.disableRotation();
+      } catch (err) {
+        // WebGL unavailable (disabled, blocklisted, no GPU context) OR the
+        // library partly failed. The map is optional chrome; degrade to the
+        // stub + honest notice and let the list carry the page.
+        showMapUnavailable(mapEl);
+        return;
+      }
+      map = real;
+      mapAvailable = true;
+      wireRealMap();
     }
-    // These no-op on the stub (WebGL absent) and configure the real map otherwise.
-    map.addControl(new maplibregl.AttributionControl({ compact: true }));
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-    map.touchZoomRotate.disableRotation();
+
 
     var FIT_COLOR = { fits: '#2e7d4f', tight: '#c98a16', no: '#c0392b', unknown: '#8a8f98', limit: '#6B6258' };
 
@@ -826,18 +845,23 @@
       if (!interactionsBound) { wireMapInteractions(); interactionsBound = true; }
       drawMarkers(lastList);
     }
-    map.on('load', onMapReady);
-    // Fall back to the raster basemap once if the vector style fails to load.
-    map.on('error', function (e) {
-      if (didFallback || mapReady) return;
-      didFallback = true;
-      try { map.setStyle(rasterStyle()); map.once('styledata', onMapReady); } catch (_) {}
-    });
-    watchdog = setTimeout(function () {
-      if (mapReady || didFallback) return;
-      didFallback = true;
-      try { map.setStyle(rasterStyle()); map.once('styledata', onMapReady); } catch (_) {}
-    }, 8000);
+    function wireRealMap() {
+      map.on('load', onMapReady);
+      // Fall back to the raster basemap once if the vector style fails to load.
+      map.on('error', function (e) {
+        if (didFallback || mapReady) return;
+        didFallback = true;
+        try { map.setStyle(rasterStyle()); map.once('styledata', onMapReady); } catch (_) {}
+      });
+      watchdog = setTimeout(function () {
+        if (mapReady || didFallback) return;
+        didFallback = true;
+        try { map.setStyle(rasterStyle()); map.once('styledata', onMapReady); } catch (_) {}
+      }, 8000);
+      map.on('moveend', scheduleLive);
+      // Honor a shared/deep-linked viewport now that the real map exists.
+      if (pendingMapView) map.jumpTo({ center: [pendingMapView.lng, pendingMapView.lat], zoom: pendingMapView.z });
+    }
 
     // Single source of truth for the fit verdict + confidence + plain-language
     // "why". Used by the list card, the map dot/popup, so they never disagree.
@@ -1142,7 +1166,7 @@
       Store.del(CG_PREFS);
       map.jumpTo({ center: [-98.35, 39.5], zoom: 3.4 }); render();
     });
-    map.on('moveend', scheduleLive);
+    // (map 'moveend' -> scheduleLive is bound in wireRealMap once the real map exists)
 
     // ---- hydrate DOM controls from restored prefs (before deep-link) ----
     (function hydrateCgControls() {
@@ -1210,7 +1234,7 @@
       if (elHideUnknown) elHideUnknown.checked = state.hideUnknown;
       if (elFitsOnly) elFitsOnly.checked = state.fitsOnly;
     })();
-    if (pendingMapView) map.jumpTo({ center: [pendingMapView.lng, pendingMapView.lat], zoom: pendingMapView.z });
+    // (pendingMapView is applied inside wireRealMap once the real map exists)
 
     // Build a shareable URL that reproduces the current view.
     function buildShareUrl() {
@@ -1365,6 +1389,35 @@
 
     render();
     drawSavedTray();
+
+    // ---- lazy-load the map AFTER the list is on screen --------------------
+    // MapLibre is ~940 KB — by far the heaviest asset on the site. Loading it
+    // render-blocking (a <script defer> in <head>) meant the campground LIST
+    // couldn't appear until that download finished, and if the download failed
+    // the whole page looked broken ("打不开"). So we ship the list first, then
+    // fetch the map library on demand and upgrade the map in place. The list is
+    // already fully interactive (filter/sort/search/save/availability) by now.
+    (function loadMapLibrary() {
+      if (typeof maplibregl !== 'undefined') { initMap(); return; } // already present
+      var src = (window.__AE_MAPLIBRE_SRC__ || 'assets/vendor/maplibre/maplibre-gl.js');
+      var s = document.createElement('script');
+      s.src = src; s.async = true;
+      var done = false;
+      s.onload = function () { if (done) return; done = true; initMap(); };
+      s.onerror = function () {
+        if (done) return; done = true;
+        // Library couldn't be fetched (offline / blocked / aborted): the list
+        // stands on its own; just swap the placeholder for an honest notice.
+        showMapUnavailable(mapEl);
+      };
+      // Safety net: if the script neither loads nor errors within 12s (stalled
+      // connection), stop showing the map "Loading…" spinner.
+      setTimeout(function () {
+        if (done || typeof maplibregl !== 'undefined') return;
+        done = true; showMapUnavailable(mapEl);
+      }, 12000);
+      document.head.appendChild(s);
+    })();
 
     // ---- availability drawer (#7 per-site fit, #8 hookups, #10 this weekend) -
     // Opens on a card/popup "Check availability" click and fetches live data
