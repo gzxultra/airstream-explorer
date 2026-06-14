@@ -145,6 +145,7 @@ export function renderCampgroundsPage(campgrounds, trailers) {
 <label class="cg-check"><input type="checkbox" id="cg-fits-only"> Comfortable fits only</label>
 </div>
 <button type="button" class="cg-reset" id="cg-reset">Reset</button>
+<button type="button" class="cg-share" id="cg-share" title="Copy a link to this exact view">Share view</button>
 </section>
 <p class="cg-summary" id="cg-summary"></p>
 <div class="cg-layout">

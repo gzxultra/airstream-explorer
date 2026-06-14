@@ -574,6 +574,7 @@
     var elHideUnknown = document.getElementById('cg-hide-unknown');
     var elFitsOnly = document.getElementById('cg-fits-only');
     var elReset = document.getElementById('cg-reset');
+    var elShare = document.getElementById('cg-share');
     var elSummary = document.getElementById('cg-summary');
     var elMore = document.getElementById('cg-more');
     var elMoreBtn = document.getElementById('cg-more-btn');
@@ -963,6 +964,92 @@
         for (var i = 0; i < elRig.options.length; i++) {
           if (parseFloat(elRig.options[i].value) === qlen) { elRig.selectedIndex = i; break; }
         }
+      }
+    }
+
+    // ---- shareable view via URL hash (#len=..&st=..&sort=..&hu=1&fo=1&map=lat,lng,z)
+    // A share link reflects the sender's exact view, so it wins over both saved
+    // prefs and ?len=. We re-sync DOM controls after applying it.
+    var pendingMapView = null;
+    (function applyShareHash() {
+      var h = (location.hash || '').replace(/^#/, '');
+      if (!h) return;
+      var sp = new URLSearchParams(h);
+      if (sp.has('len')) {
+        var l = parseFloat(sp.get('len'));
+        state.len = (!isNaN(l) && l > 0) ? l : 0;
+      }
+      if (sp.has('st')) state.st = sp.get('st') || '';
+      if (sp.has('sort')) state.sort = sp.get('sort') || 'rank';
+      if (sp.has('q')) state.q = (sp.get('q') || '').toLowerCase();
+      if (sp.has('hu')) state.hideUnknown = sp.get('hu') === '1';
+      if (sp.has('fo')) state.fitsOnly = sp.get('fo') === '1';
+      var mv = sp.get('map');
+      if (mv) {
+        var parts = mv.split(',').map(parseFloat);
+        if (parts.length === 3 && parts.every(function (x) { return !isNaN(x); })) {
+          pendingMapView = { lat: parts[0], lng: parts[1], z: Math.max(2, Math.min(18, parts[2])) };
+        }
+      }
+      // Re-sync the controls to the shared state.
+      if (elLen) elLen.value = state.len > 0 ? Math.round(state.len) : '';
+      if (elRig) {
+        elRig.value = '';
+        for (var i = 0; i < elRig.options.length; i++) {
+          if (parseFloat(elRig.options[i].value) === state.len) { elRig.selectedIndex = i; break; }
+        }
+      }
+      if (elState) elState.value = state.st;
+      if (elSort) elSort.value = state.sort;
+      if (elSearch && state.q) elSearch.value = state.q;
+      if (elHideUnknown) elHideUnknown.checked = state.hideUnknown;
+      if (elFitsOnly) elFitsOnly.checked = state.fitsOnly;
+    })();
+    if (pendingMapView) map.setView([pendingMapView.lat, pendingMapView.lng], pendingMapView.z);
+
+    // Build a shareable URL that reproduces the current view.
+    function buildShareUrl() {
+      var sp = new URLSearchParams();
+      if (state.len > 0) sp.set('len', String(Math.round(state.len * 10) / 10));
+      if (state.st) sp.set('st', state.st);
+      if (state.sort && state.sort !== 'rank') sp.set('sort', state.sort);
+      if (state.q) sp.set('q', state.q);
+      if (state.hideUnknown) sp.set('hu', '1');
+      if (state.fitsOnly) sp.set('fo', '1');
+      var c = map.getCenter();
+      sp.set('map', (Math.round(c.lat * 1e4) / 1e4) + ',' + (Math.round(c.lng * 1e4) / 1e4) + ',' + map.getZoom());
+      return location.origin + location.pathname + '#' + sp.toString();
+    }
+
+    // Share button: copy the link to the current view; graceful fallback.
+    if (elShare) {
+      elShare.addEventListener('click', function () {
+        var url = buildShareUrl();
+        var btn = this;
+        function flash(msg) {
+          var prev = btn.getAttribute('data-label') || btn.textContent;
+          btn.setAttribute('data-label', prev);
+          btn.textContent = msg; btn.classList.add('is-copied');
+          setTimeout(function () { btn.textContent = btn.getAttribute('data-label') || 'Share view'; btn.classList.remove('is-copied'); }, 1600);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(function () { flash('Link copied \u2713'); }, function () { fallbackCopy(url, flash); });
+        } else {
+          fallbackCopy(url, flash);
+        }
+      });
+    }
+    function fallbackCopy(text, flash) {
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'absolute'; ta.style.left = '-9999px';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+        flash('Link copied \u2713');
+      } catch (e) {
+        // Last resort: drop it in the address bar so the user can copy manually.
+        location.hash = buildShareUrl().split('#')[1] || '';
+        flash('Link in address bar');
       }
     }
 

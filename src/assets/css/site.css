@@ -712,3 +712,14 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .cg-tr-where { display: block; color: var(--muted); font-size: 11.5px; }
 .cg-tr-x { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 1px solid var(--line); background: #faf4ee; color: var(--muted); font-size: 15px; line-height: 1; }
 .cg-tr-x:hover { color: #c0392b; border-color: #e2b3aa; }
+
+/* --- Share-this-view button --------------------------------------------- */
+.cg-share {
+  align-self: end; cursor: pointer; white-space: nowrap;
+  font: 600 13px "DM Sans", sans-serif; color: #fff;
+  background: var(--copper); border: 1px solid var(--copper);
+  border-radius: var(--ctl-radius, 9px); padding: 10px 16px;
+  transition: background .12s ease, transform .12s ease;
+}
+.cg-share:hover { background: var(--copper-deep); border-color: var(--copper-deep); }
+.cg-share.is-copied { background: #2e7d4f; border-color: #2e7d4f; }
