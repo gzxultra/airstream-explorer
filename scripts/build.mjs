@@ -9,6 +9,7 @@ import { dirname, join, relative } from 'node:path';
 import { loadTrailers, validateDataset, groupByFamily, resolveAssets, loadDecor, resolveDecor } from '../src/lib/data.mjs';
 import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, page } from '../src/lib/render.mjs';
 import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
+import { loadUpgrades, validateUpgrades, renderUpgradesBody } from '../src/lib/upgrades.mjs';
 import { loadCampgrounds, validateCampgrounds } from '../src/lib/campgrounds.mjs';
 import { renderCampgroundsPage } from '../src/lib/campgrounds-render.mjs';
 
@@ -45,6 +46,16 @@ const decorMap = loadDecor();
 const decorFamilies = Object.keys(decorMap).length;
 const decorSchemes = Object.values(decorMap).reduce((n, s) => n + (Array.isArray(s) ? s.length : 0), 0);
 log(`décor ok: ${decorSchemes} schemes across ${decorFamilies} families`);
+
+// 1e. Load + validate upgrades/options (fail the build if any item lacks a
+//     type tag or a source link — accuracy is the contract for this page)
+const upgrades = loadUpgrades();
+const upgradeProblems = validateUpgrades(upgrades);
+if (upgradeProblems.length) {
+  throw new Error('Upgrades data invalid:\n' + upgradeProblems.join('\n'));
+}
+const upgradeCount = upgrades.categories.reduce((n, c) => n + c.items.length, 0);
+log(`upgrades ok: ${upgradeCount} items in ${upgrades.categories.length} categories (all sourced)`);
 
 // 2. Clean dist
 rmSync(DIST, { recursive: true, force: true });
@@ -123,6 +134,18 @@ writeFileSync(
   }),
 );
 log('wrote community.html + credits.html');
+
+// 4c. Upgrades & options page (root-level, so relRoot = '')
+writeFileSync(
+  join(DIST, 'upgrades.html'),
+  page({
+    title: 'Airstream upgrades & options owners actually add',
+    description: 'The most-recommended Airstream upgrades — lithium, solar, soft start, anti-sway hitch, TPMS and more — split into factory options and aftermarket mods, each with a price reference and sources.',
+    body: renderUpgradesBody(upgrades, ''),
+    active: 'upgrades',
+  }),
+);
+log('wrote upgrades.html');
 
 // 5. Static assets: CSS/JS from src, images from public
 cpSync(join(ROOT, 'src', 'assets', 'css'), join(DIST, 'assets', 'css'), { recursive: true });
@@ -211,6 +234,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     join(DIST, 'explore.html'),
     join(DIST, 'compare.html'),
     join(DIST, 'campgrounds.html'),
+    join(DIST, 'upgrades.html'),
     join(DIST, 'community.html'),
     join(DIST, 'credits.html'),
     ...families.map((f) => join(DIST, 'f', `${f.slug}.html`)),
@@ -242,6 +266,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     { file: join(DIST, 'explore.html'), base: DIST },
     { file: join(DIST, 'compare.html'), base: DIST },
     { file: join(DIST, 'campgrounds.html'), base: DIST },
+    { file: join(DIST, 'upgrades.html'), base: DIST },
     { file: join(DIST, 'community.html'), base: DIST },
     { file: join(DIST, 'credits.html'), base: DIST },
     ...families.map((f) => ({ file: join(DIST, 'f', `${f.slug}.html`), base: join(DIST, 'f') })),

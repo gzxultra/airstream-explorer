@@ -32,6 +32,7 @@ const NAV_ITEMS = [
   ['explore.html', 'Explore &amp; match', 'explore'],
   ['compare.html', 'Compare', 'compare'],
   ['campgrounds.html', 'Campgrounds', 'campgrounds'],
+  ['upgrades.html', 'Upgrades', 'upgrades'],
   ['community.html', 'Community', 'community'],
 ];
 
