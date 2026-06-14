@@ -9,6 +9,8 @@ import { dirname, join, relative } from 'node:path';
 import { loadTrailers, validateDataset, groupByFamily, resolveAssets } from '../src/lib/data.mjs';
 import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, page } from '../src/lib/render.mjs';
 import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
+import { loadCampgrounds, validateCampgrounds } from '../src/lib/campgrounds.mjs';
+import { renderCampgroundsPage } from '../src/lib/campgrounds-render.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -32,6 +34,12 @@ const community = loadCommunityPhotos();
 validateCommunity(community);
 log(`community photos ok: ${community.length} (all attributed)`);
 
+// 1c. Load + validate campground dataset (Recreation.gov, baked static JSON)
+const campData = loadCampgrounds();
+validateCampgrounds(campData);
+const campgrounds = campData.campgrounds;
+log(`campgrounds ok: ${campgrounds.length} RV-capable sites in ${campData.stats.states} states`);
+
 // 2. Clean dist
 rmSync(DIST, { recursive: true, force: true });
 mkdirSync(join(DIST, 'm'), { recursive: true });
@@ -49,7 +57,7 @@ log(`wrote ${families.length} family pages`);
 
 // 4. Detail pages
 for (const t of trailers) {
-  writeFileSync(join(DIST, 'm', `${t.slug}.html`), renderDetail(t, resolve));
+  writeFileSync(join(DIST, 'm', `${t.slug}.html`), renderDetail(t, resolve, campgrounds));
 }
 log(`wrote ${trailers.length} detail pages`);
 
@@ -57,6 +65,23 @@ log(`wrote ${trailers.length} detail pages`);
 writeFileSync(join(DIST, 'explore.html'), renderExplore(trailers, resolve));
 writeFileSync(join(DIST, 'compare.html'), renderCompare(trailers, resolve));
 log('wrote explore.html + compare.html');
+
+// 4a2. Campground Finder (national, map + list)
+{
+  const { body } = renderCampgroundsPage(campgrounds, trailers);
+  const head = '<link rel="stylesheet" href="assets/vendor/leaflet.css">\n'
+    + '<script src="assets/vendor/leaflet.js" defer></script>\n';
+  writeFileSync(
+    join(DIST, 'campgrounds.html'),
+    page({
+      title: 'Campground Finder — where your Airstream fits',
+      description: `Find RV-friendly campgrounds nationwide matched to your Airstream's real length. ${campgrounds.length} campgrounds across ${campData.stats.states} states from Recreation.gov, with posted max-length limits, ratings, and prices.`,
+      body,
+      head,
+    }),
+  );
+  log('wrote campgrounds.html (national finder)');
+}
 
 // 4b. Community gallery + credits pages (root-level, so relRoot = '')
 writeFileSync(
@@ -80,6 +105,10 @@ log('wrote community.html + credits.html');
 // 5. Static assets: CSS/JS from src, images from public
 cpSync(join(ROOT, 'src', 'assets', 'css'), join(DIST, 'assets', 'css'), { recursive: true });
 cpSync(join(ROOT, 'src', 'assets', 'js'), join(DIST, 'assets', 'js'), { recursive: true });
+if (existsSync(join(ROOT, 'src', 'assets', 'vendor'))) {
+  cpSync(join(ROOT, 'src', 'assets', 'vendor'), join(DIST, 'assets', 'vendor'), { recursive: true });
+  log('copied vendor assets (leaflet)');
+}
 if (existsSync(join(PUBLIC, 'assets', 'img'))) {
   cpSync(join(PUBLIC, 'assets', 'img'), join(DIST, 'assets', 'img'), { recursive: true });
   const counts = ['thumbs', 'heroes', 'gallery', 'floorplans'].map((d) => {
@@ -141,6 +170,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     join(DIST, 'index.html'),
     join(DIST, 'explore.html'),
     join(DIST, 'compare.html'),
+    join(DIST, 'campgrounds.html'),
     join(DIST, 'community.html'),
     join(DIST, 'credits.html'),
     ...families.map((f) => join(DIST, 'f', `${f.slug}.html`)),
@@ -171,6 +201,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     { file: join(DIST, 'index.html'), base: DIST },
     { file: join(DIST, 'explore.html'), base: DIST },
     { file: join(DIST, 'compare.html'), base: DIST },
+    { file: join(DIST, 'campgrounds.html'), base: DIST },
     { file: join(DIST, 'community.html'), base: DIST },
     { file: join(DIST, 'credits.html'), base: DIST },
     ...families.map((f) => ({ file: join(DIST, 'f', `${f.slug}.html`), base: join(DIST, 'f') })),

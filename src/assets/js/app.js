@@ -485,4 +485,265 @@
     if (elSolar) elSolar.addEventListener('change', compute);
     compute();
   })();
+
+  // ---- Campground Finder (campgrounds.html only) ---------------------------
+  // Hybrid data model:
+  //  * STATIC baked set (2561 sites, 47 states) powers the instant national view
+  //    and is the offline fallback — the live API ranks by distance and can't
+  //    return a clean nationwide set, so static is actually better at national zoom.
+  //  * LIVE Recreation.gov search refreshes whatever region you pan/zoom/search
+  //    into (fresh ratings, prices, posted limits), falling back to static on
+  //    any failure/timeout. Source is labeled honestly in the UI.
+  (function campgrounds() {
+    var root = document.getElementById('cg-list');
+    var mapEl = document.getElementById('cg-map');
+    var dataEl = document.getElementById('cg-data');
+    if (!root || !mapEl || !dataEl || typeof L === 'undefined') return;
+
+    var STATIC = [];
+    try { STATIC = (JSON.parse(dataEl.textContent) || {}).campgrounds || []; } catch (e) { STATIC = []; }
+
+    var CLEARANCE = 3;
+    var STATE_NAME = {}; // filled from option text if present
+    // map full state name <-> 2-letter code so the state filter works whether the
+    // active pool is static (stores full name in .s) or live (stores code in .s).
+    var STATE_PAIRS = [['Alabama','AL'],['Alaska','AK'],['Arizona','AZ'],['Arkansas','AR'],['California','CA'],['Colorado','CO'],['Connecticut','CT'],['Delaware','DE'],['Florida','FL'],['Georgia','GA'],['Hawaii','HI'],['Idaho','ID'],['Illinois','IL'],['Indiana','IN'],['Iowa','IA'],['Kansas','KS'],['Kentucky','KY'],['Louisiana','LA'],['Maine','ME'],['Maryland','MD'],['Massachusetts','MA'],['Michigan','MI'],['Minnesota','MN'],['Mississippi','MS'],['Missouri','MO'],['Montana','MT'],['Nebraska','NE'],['Nevada','NV'],['New Hampshire','NH'],['New Jersey','NJ'],['New Mexico','NM'],['New York','NY'],['North Carolina','NC'],['North Dakota','ND'],['Ohio','OH'],['Oklahoma','OK'],['Oregon','OR'],['Pennsylvania','PA'],['Rhode Island','RI'],['South Carolina','SC'],['South Dakota','SD'],['Tennessee','TN'],['Texas','TX'],['Utah','UT'],['Vermont','VT'],['Virginia','VA'],['Washington','WA'],['West Virginia','WV'],['Wisconsin','WI'],['Wyoming','WY'],['District of Columbia','DC'],['Puerto Rico','PR']];
+    var STATE_CODE_OF = {}, STATE_NAME_OF = {};
+    STATE_PAIRS.forEach(function (p) { STATE_CODE_OF[p[0]] = p[1]; STATE_NAME_OF[p[1]] = p[0]; });
+    var ORG_LONG = { NPS: 'National Park Service', USFS: 'USDA Forest Service', BLM: 'Bureau of Land Management', USACE: 'US Army Corps of Engineers', BOR: 'Bureau of Reclamation', USFWS: 'US Fish & Wildlife Service', TVA: 'Tennessee Valley Authority' };
+
+    // Controls
+    var elRig = document.getElementById('cg-rig');
+    var elLen = document.getElementById('cg-len');
+    var elState = document.getElementById('cg-state');
+    var elSearch = document.getElementById('cg-search');
+    var elSort = document.getElementById('cg-sort');
+    var elHideUnknown = document.getElementById('cg-hide-unknown');
+    var elFitsOnly = document.getElementById('cg-fits-only');
+    var elReset = document.getElementById('cg-reset');
+    var elSummary = document.getElementById('cg-summary');
+    var elMore = document.getElementById('cg-more');
+    var elMoreBtn = document.getElementById('cg-more-btn');
+
+    var state = { len: 0, st: '', q: '', sort: 'rank', hideUnknown: false, fitsOnly: false, shown: 30, live: null, source: 'static' };
+
+    // ---- fit logic (mirrors src/lib/campgrounds.mjs exactly) ----
+    function fitClass(len, max) {
+      if (max == null) return 'unknown';
+      if (max >= len + CLEARANCE) return 'fits';
+      if (max >= len) return 'tight';
+      return 'no';
+    }
+    var FIT_LABEL = { fits: 'Fits comfortably', tight: 'Fits — tight', no: 'Too long', unknown: 'No posted limit' };
+
+    function num(n) { return typeof n === 'number' && !isNaN(n) ? n : null; }
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function rankScore(c) { return (c.r || 0) * Math.log10((c.v || 0) + 1); }
+
+    // Active pool: live results for the current region if present, else static.
+    function pool() { return state.live && state.live.length ? state.live : STATIC; }
+
+    function visible() {
+      var len = state.len;
+      var list = pool().filter(function (c) {
+        if (state.st && c.s !== state.st && STATE_CODE_OF[c.s] !== state.st && STATE_NAME_OF[c.s] !== state.st) return false;
+        if (state.q) {
+          var hay = ((c.n || '') + ' ' + (c.p || '') + ' ' + (c.s || '')).toLowerCase();
+          if (hay.indexOf(state.q) < 0) return false;
+        }
+        if (len > 0) {
+          var f = fitClass(len, num(c.m));
+          if (f === 'no') return false;
+          if (state.fitsOnly && f !== 'fits') return false;
+        }
+        if (state.hideUnknown && c.m == null) return false;
+        return true;
+      });
+      list.sort(function (a, b) {
+        switch (state.sort) {
+          case 'reviews': return (b.v || 0) - (a.v || 0);
+          case 'length': return (num(b.m) || 0) - (num(a.m) || 0);
+          case 'price': return (a.pr == null ? 1e9 : a.pr) - (b.pr == null ? 1e9 : b.pr);
+          case 'name': return (a.n || '').localeCompare(b.n || '');
+          default: { var d = rankScore(b) - rankScore(a); return d !== 0 ? d : (b.v || 0) - (a.v || 0); }
+        }
+      });
+      return list;
+    }
+
+    // ---- map ----
+    var map = L.map(mapEl, { scrollWheelZoom: true, worldCopyJump: true }).setView([39.5, -98.35], 4);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 18,
+    }).addTo(map);
+    var layer = L.layerGroup().addTo(map);
+    var FIT_COLOR = { fits: '#2e7d4f', tight: '#c98a16', unknown: '#8a8f98', no: '#c0392b' };
+
+    function drawMarkers(list) {
+      layer.clearLayers();
+      var len = state.len;
+      var capped = list.slice(0, 600); // keep the map snappy
+      capped.forEach(function (c) {
+        var lat = c.la, lon = c.lo;
+        if (lat == null || lon == null) return;
+        var f = len > 0 ? fitClass(len, num(c.m)) : 'unknown';
+        var col = FIT_COLOR[f] || '#8a8f98';
+        var mk = L.circleMarker([lat, lon], {
+          radius: 5, color: '#fff', weight: 1, fillColor: col, fillOpacity: 0.9,
+        });
+        mk.bindPopup(popupHtml(c, f));
+        layer.addLayer(mk);
+      });
+    }
+
+    function popupHtml(c, f) {
+      var where = [c.s].filter(Boolean).join(', ');
+      var len = c.m ? c.m + "' max" : 'No posted limit';
+      var price = c.pr != null ? '$' + c.pr + '/night' : '';
+      var rating = c.r ? '★ ' + c.r.toFixed(1) + ' (' + (c.v || 0) + ')' : '';
+      return '<div class="cg-pop"><strong>' + esc(c.n) + '</strong><br>' +
+        (c.p ? esc(c.p) + '<br>' : '') +
+        '<span class="cg-pop-fit cg-fit-' + f + '">' + esc(FIT_LABEL[f]) + '</span> · ' + esc(len) + '<br>' +
+        [rating, price].filter(Boolean).join(' · ') +
+        (c.u ? '<br><a href="' + esc(c.u) + '" target="_blank" rel="noopener">View on Recreation.gov →</a>' : '') +
+        '</div>';
+    }
+
+    // ---- list ----
+    function card(c, f) {
+      var where = [c.s].filter(Boolean).join(', ');
+      var fitChip = '<span class="cg-fit cg-fit-' + f + '">' + esc(FIT_LABEL[f]) + '</span>';
+      var lenTxt = c.m ? c.m + "&prime; max" : 'No posted limit';
+      var price = c.pr != null ? '$' + c.pr + '/night' : '';
+      var img = c.g
+        ? '<img src="' + esc(c.g) + '" alt="' + esc(c.n) + '" loading="lazy" class="cg-card-img" width="320" height="200" referrerpolicy="no-referrer">'
+        : '<div class="cg-card-img cg-card-noimg" aria-hidden="true">▲</div>';
+      var org = c.o ? (ORG_LONG[c.o] || c.o) : '';
+      return '<a class="cg-card" href="' + esc(c.u || '#') + '" target="_blank" rel="noopener">' + img +
+        '<div class="cg-card-body"><div class="cg-card-top">' + fitChip + (c.r ? '<span class="cg-stars">★ ' + c.r.toFixed(1) + '</span>' : '') + '</div>' +
+        '<h3 class="cg-card-name">' + esc(c.n) + '</h3>' +
+        '<p class="cg-card-where">' + esc(where) + (org ? ' · ' + esc(org) : '') + '</p>' +
+        '<p class="cg-card-meta"><span>' + lenTxt + '</span>' + (price ? '<span>' + esc(price) + '</span>' : '') + (c.v ? '<span>' + c.v + ' reviews</span>' : '') + '</p>' +
+        '</div></a>';
+    }
+
+    function render() {
+      var list = visible();
+      var len = state.len;
+      drawMarkers(list);
+      var slice = list.slice(0, state.shown);
+      root.innerHTML = slice.map(function (c) {
+        return card(c, len > 0 ? fitClass(len, num(c.m)) : 'unknown');
+      }).join('') || '<p class="cg-empty">No campgrounds match. Try widening the length, clearing the state, or zooming the map out.</p>';
+      if (elMore) elMore.hidden = list.length <= state.shown;
+      // summary
+      var srcTxt = state.source === 'live'
+        ? 'Live from Recreation.gov'
+        : (state.source === 'fallback' ? 'Live data unavailable — showing cached set' : 'Cached set');
+      var rigTxt = len > 0 ? (' · fitting a ' + len + "&prime; rig") : '';
+      elSummary.innerHTML = '<strong>' + list.length.toLocaleString('en-US') + '</strong> campgrounds' + rigTxt +
+        ' <span class="cg-src-tag cg-src-' + state.source + '">' + esc(srcTxt) + '</span>';
+    }
+
+    // ---- live fetch (region-scoped, with fallback) ----
+    var liveTimer = null, liveSeq = 0;
+    function scheduleLive() {
+      if (liveTimer) clearTimeout(liveTimer);
+      liveTimer = setTimeout(fetchLive, 450);
+    }
+    function fetchLive() {
+      var c = map.getCenter();
+      var z = map.getZoom();
+      if (z < 5) { // national view: static is more complete than the distance-ranked API
+        state.live = null; state.source = 'static'; render(); return;
+      }
+      var radius = Math.min(500, Math.max(15, Math.round(8000 / Math.pow(1.7, z - 5))));
+      var url = 'https://www.recreation.gov/api/search?entity_type=campground&size=500&lat=' +
+        c.lat.toFixed(4) + '&lng=' + c.lng.toFixed(4) + '&radius=' + radius;
+      var seq = ++liveSeq;
+      var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      var to = setTimeout(function () { if (ctrl) ctrl.abort(); }, 9000);
+      fetch(url, { headers: { accept: 'application/json' }, signal: ctrl ? ctrl.signal : undefined })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (d) {
+          clearTimeout(to);
+          if (seq !== liveSeq) return; // stale
+          var rv = (d.results || []).filter(function (x) {
+            return x.entity_type === 'campground' &&
+              (x.campsite_equipment_name || []).some(function (e) { return /RV|Trailer|Fifth/i.test(e); }) &&
+              x.latitude && x.longitude;
+          }).map(normalizeLive);
+          state.live = rv; state.source = 'live'; render();
+        })
+        .catch(function () {
+          clearTimeout(to);
+          if (seq !== liveSeq) return;
+          state.live = null; state.source = 'fallback'; render();
+        });
+    }
+    function maxNum(x) { return Array.isArray(x) ? Math.max.apply(null, [0].concat(x.map(Number).filter(function (n) { return !isNaN(n); }))) : (Number(x) || 0); }
+    function normalizeLive(x) {
+      var maxL = maxNum(x.campsite_max_vehicle_length);
+      return {
+        i: String(x.entity_id || x.id), n: (x.name || '').replace(/\s+/g, ' ').trim(),
+        p: (x.parent_name || '').trim() || undefined, s: x.state_code || undefined,
+        o: x.org_name || undefined, r: x.average_rating ? Math.round(x.average_rating * 10) / 10 : undefined,
+        v: x.number_of_ratings ? Number(x.number_of_ratings) : undefined,
+        m: maxL > 0 ? maxL : undefined, pr: x.price_range ? x.price_range.amount_min : undefined,
+        g: x.preview_image_url || undefined, la: Number(x.latitude), lo: Number(x.longitude),
+        u: 'https://www.recreation.gov/camping/campgrounds/' + (x.entity_id || x.id),
+      };
+    }
+
+    // ---- wire controls ----
+    function applyRigFromSelect() {
+      if (!elRig) return;
+      var v = parseFloat(elRig.value);
+      state.len = isNaN(v) ? 0 : v;
+      if (elLen) elLen.value = state.len > 0 ? Math.round(state.len) : '';
+    }
+    if (elRig) elRig.addEventListener('change', function () { applyRigFromSelect(); state.shown = 30; render(); });
+    if (elLen) elLen.addEventListener('input', function () {
+      var v = parseFloat(this.value); state.len = isNaN(v) ? 0 : v;
+      if (elRig) elRig.value = ''; state.shown = 30; render();
+    });
+    if (elState) elState.addEventListener('change', function () {
+      state.st = this.value; state.shown = 30;
+      // recenter the map on the chosen state if we have a campground there
+      if (this.value) {
+        var inState = STATIC.filter(function (c) { return c.s === this.value; }, this);
+        // static slim has no coords; just refit using live after a search is moot — keep map, filter list
+      }
+      render();
+    });
+    if (elSearch) elSearch.addEventListener('input', function () { state.q = this.value.trim().toLowerCase(); state.shown = 30; render(); });
+    if (elSort) elSort.addEventListener('change', function () { state.sort = this.value; render(); });
+    if (elHideUnknown) elHideUnknown.addEventListener('change', function () { state.hideUnknown = this.checked; state.shown = 30; render(); });
+    if (elFitsOnly) elFitsOnly.addEventListener('change', function () { state.fitsOnly = this.checked; state.shown = 30; render(); });
+    if (elMoreBtn) elMoreBtn.addEventListener('click', function () { state.shown += 30; render(); });
+    if (elReset) elReset.addEventListener('click', function () {
+      state = { len: 0, st: '', q: '', sort: 'rank', hideUnknown: false, fitsOnly: false, shown: 30, live: state.live, source: state.source };
+      if (elRig) elRig.value = ''; if (elLen) elLen.value = ''; if (elState) elState.value = '';
+      if (elSearch) elSearch.value = ''; if (elSort) elSort.value = 'rank';
+      if (elHideUnknown) elHideUnknown.checked = false; if (elFitsOnly) elFitsOnly.checked = false;
+      map.setView([39.5, -98.35], 4); render();
+    });
+    map.on('moveend', scheduleLive);
+
+    // ---- deep-link: ?len= & ?from= (coming from a detail page) ----
+    var qs = new URLSearchParams(location.search);
+    var qlen = parseFloat(qs.get('len'));
+    if (!isNaN(qlen) && qlen > 0) {
+      state.len = qlen;
+      if (elLen) elLen.value = Math.round(qlen);
+      // try to select the matching rig option by length
+      if (elRig) {
+        for (var i = 0; i < elRig.options.length; i++) {
+          if (parseFloat(elRig.options[i].value) === qlen) { elRig.selectedIndex = i; break; }
+        }
+      }
+    }
+
+    render();
+  })();
 })();

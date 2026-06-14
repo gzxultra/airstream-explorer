@@ -9,6 +9,7 @@ import {
 } from './format.mjs';
 import { assetPaths, familySlug } from './data.mjs';
 import { SORT_KEYS, exploreTags, tagLabel } from './explore.mjs';
+import { renderCampgroundFit } from './campgrounds-render.mjs';
 import {
   estimateOffGrid, formatNights,
   LOAD_PRESETS,
@@ -24,7 +25,7 @@ export function esc(s) {
     .replace(/'/g, '&#39;');
 }
 
-export function page({ title, description, body, relRoot = '' }) {
+export function page({ title, description, body, relRoot = '', head = '', scripts = '' }) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,7 +37,7 @@ export function page({ title, description, body, relRoot = '' }) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${relRoot}assets/css/site.css">
-</head>
+${head}</head>
 <body>
 <header class="topnav">
 <a class="brandbar" href="${relRoot}index.html"><span class="brandbar-mark">▲</span> Airstream Explorer</a>
@@ -44,16 +45,17 @@ export function page({ title, description, body, relRoot = '' }) {
 <a href="${relRoot}index.html">Families</a>
 <a href="${relRoot}explore.html">Explore &amp; match</a>
 <a href="${relRoot}compare.html">Compare</a>
+<a href="${relRoot}campgrounds.html">Campgrounds</a>
 <a href="${relRoot}community.html">Community</a>
 </nav>
 </header>
 ${body}
 <footer class="site-footer">
-<p>Airstream Explorer · enthusiast catalog · ${31} floorplans across 12 families (2026 + 2025). · <a href="${relRoot}explore.html">Explore &amp; match</a> · <a href="${relRoot}compare.html">Compare</a> · <a href="${relRoot}community.html">Community photos</a> · <a href="${relRoot}credits.html">Credits</a></p>
+<p>Airstream Explorer · enthusiast catalog · ${31} floorplans across 12 families (2026 + 2025). · <a href="${relRoot}explore.html">Explore &amp; match</a> · <a href="${relRoot}compare.html">Compare</a> · <a href="${relRoot}campgrounds.html">Campgrounds</a> · <a href="${relRoot}community.html">Community photos</a> · <a href="${relRoot}credits.html">Credits</a></p>
 <p class="muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Some imagery is AI-generated and labeled accordingly; community photographs are real and used under their stated Creative Commons / public-domain licenses (see credits).</p>
 </footer>
 <script src="${relRoot}assets/js/app.js" defer></script>
-</body>
+${scripts}</body>
 </html>`;
 }
 
@@ -292,7 +294,7 @@ function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 // ---------------------------------------------------------------------------
 
 /** A single trailer detail page. */
-export function renderDetail(t, resolve = assetPaths) {
+export function renderDetail(t, resolve = assetPaths, campgrounds = null) {
   const a = resolve(t);
   const fam = familySlug(t.model);
   const heroImg = a.hero
@@ -352,6 +354,7 @@ ${note}
 ${towCallout}
 ${renderOffGridTool(t)}
 ${floorplanSection}
+${campgrounds ? renderCampgroundFit(t, campgrounds) : ''}
 ${pros || cons ? `<section class="proscons">
 ${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}
 ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
