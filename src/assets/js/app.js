@@ -746,6 +746,82 @@
     // Back-compat alias: callers that only need {cls,label}.
     function chipFor(c, len) { return fitInfo(c, len); }
 
+    // ---- live availability helpers (mirror src/lib/availability.mjs) -------
+    function avDateKey(d) {
+      if (d instanceof Date) return d.toISOString().slice(0, 10);
+      return String(d).slice(0, 10);
+    }
+    function avHookups(campsiteType) {
+      var t = String(campsiteType || '').toUpperCase();
+      var nonElectric = t.indexOf('NONELECTRIC') >= 0 || t.indexOf('NON-ELECTRIC') >= 0 || t.indexOf('NO ELECTRIC') >= 0;
+      var electric = !nonElectric && t.indexOf('ELECTRIC') >= 0;
+      var label;
+      if (electric) label = 'Electric';
+      else if (nonElectric) label = 'No hookups';
+      else label = 'Hookups not listed';
+      return { electric: electric, label: label, nonElectric: nonElectric };
+    }
+    function avTrailerMax(eq) {
+      eq = eq || [];
+      function byName(name) {
+        for (var i = 0; i < eq.length; i++) {
+          if (String(eq[i].equipment_name || '').toLowerCase() === name && eq[i].max_length > 0) return eq[i].max_length;
+        }
+        return null;
+      }
+      var tr = byName('trailer'); if (tr != null) return tr;
+      var rv = byName('rv'); if (rv != null) return rv;
+      var best = null;
+      for (var j = 0; j < eq.length; j++) if (eq[j].max_length > 0 && (best == null || eq[j].max_length > best)) best = eq[j].max_length;
+      return best;
+    }
+    function avSiteFit(len, max) {
+      if (!(len > 0)) return max != null ? 'limit' : 'unknown';
+      if (max == null) return 'unknown';
+      if (max >= len + CLEARANCE) return 'fits';
+      if (max >= len) return 'tight';
+      return 'no';
+    }
+    function avParse(payload) {
+      var cs = (payload && payload.campsites) || {};
+      var out = [];
+      Object.keys(cs).forEach(function (id) {
+        var v = cs[id] || {};
+        var nights = {}; var av = v.availabilities || {};
+        Object.keys(av).forEach(function (k) { nights[avDateKey(k)] = av[k]; });
+        out.push({
+          id: String(id), site: v.site || '', loop: v.loop || '', type: v.campsite_type || '',
+          maxPeople: v.max_num_people != null ? v.max_num_people : null,
+          hookups: avHookups(v.campsite_type), nights: nights,
+        });
+      });
+      return out;
+    }
+    function avFreeForRange(site, startYmd, endYmd) {
+      var start = new Date(startYmd + 'T00:00:00Z'), end = new Date(endYmd + 'T00:00:00Z');
+      if (!(start < end)) return false;
+      for (var d = new Date(start); d < end; d.setUTCDate(d.getUTCDate() + 1)) {
+        if (site.nights[avDateKey(d)] !== 'Available') return false;
+      }
+      return true;
+    }
+    function avUpcomingWeekend(from) {
+      from = from || new Date();
+      var d = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate()));
+      var dow = d.getUTCDay(); var toFri;
+      if (dow === 5 || dow === 6) toFri = dow === 5 ? 0 : -1;
+      else toFri = (5 - dow + 7) % 7;
+      var fri = new Date(d); fri.setUTCDate(d.getUTCDate() + toFri);
+      var sun = new Date(fri); sun.setUTCDate(fri.getUTCDate() + 2);
+      return { start: avDateKey(fri), end: avDateKey(sun) };
+    }
+    function avMonthsForRange(startYmd, endYmd) {
+      var out = []; var start = new Date(startYmd + 'T00:00:00Z'), end = new Date(endYmd + 'T00:00:00Z');
+      var cur = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
+      while (cur <= end) { out.push(cur.toISOString().slice(0, 10)); cur = new Date(Date.UTC(cur.getUTCFullYear(), cur.getUTCMonth() + 1, 1)); }
+      return out;
+    }
+
     function drawMarkers(list) {
       layer.clearLayers();
       var len = state.len;
@@ -779,12 +855,15 @@
       var saved = isSaved(c);
       var saveBtn = '<button type="button" class="cg-pop-save' + (saved ? ' is-saved' : '') + '" data-save="' + esc(c.i) + '" aria-pressed="' + (saved ? 'true' : 'false') + '">'
         + (saved ? '\u2665 Saved' : '\u2661 Save') + '</button>';
+      var availBtn = /^\d+$/.test(String(c.i))
+        ? '<button type="button" class="cg-pop-avail" data-avail="' + esc(c.i) + '">Availability</button>'
+        : '';
       return '<div class="cg-pop"><strong>' + esc(c.n) + '</strong><br>' +
         (c.p ? esc(c.p) + '<br>' : '') +
         '<span class="cg-pop-fit cg-fit-' + info.cls + '">' + esc(info.label) + '</span> \u00b7 ' + esc(lenTxt) + '<br>' +
         why +
         [rating, price].filter(Boolean).join(' \u00b7 ') +
-        '<div class="cg-pop-actions">' + saveBtn +
+        '<div class="cg-pop-actions">' + saveBtn + availBtn +
         (c.u ? '<a href="' + esc(c.u) + '" target="_blank" rel="noopener">Recreation.gov \u2192</a>' : '') +
         '</div></div>';
     }
@@ -814,6 +893,11 @@
         + 'data-save="' + esc(c.i) + '" aria-pressed="' + (saved ? 'true' : 'false') + '" '
         + 'aria-label="' + (saved ? 'Saved \u2014 remove from shortlist' : 'Save to shortlist') + '" '
         + 'title="' + (saved ? 'Saved' : 'Save') + '">' + (saved ? '\u2665' : '\u2661') + '</button>';
+      // Availability button — opens the live drawer (#7/#8/#10). Only useful
+      // for reservable Recreation.gov campgrounds (those carry a numeric id).
+      var availBtn = /^\d+$/.test(String(c.i))
+        ? '<button type="button" class="cg-avail-btn" data-avail="' + esc(c.i) + '">Check availability &amp; site fit</button>'
+        : '';
       return '<div class="cg-card-outer">' +
         '<a class="cg-card" href="' + esc(c.u || '#') + '" target="_blank" rel="noopener">' + img +
         '<div class="cg-card-body"><div class="cg-card-top">' + fitChip + (c.r ? '<span class="cg-stars">\u2605 ' + c.r.toFixed(1) + '</span>' : '') + '</div>' +
@@ -821,6 +905,7 @@
         '<p class="cg-card-where">' + esc(where) + (org ? ' \u00b7 ' + esc(org) : '') + '</p>' +
         why +
         '<p class="cg-card-meta">' + meta + '</p>' +
+        availBtn +
         '</div></a>' + saveBtn + '</div>';
     }
     function render() {
@@ -1160,5 +1245,170 @@
 
     render();
     drawSavedTray();
+
+    // ---- availability drawer (#7 per-site fit, #8 hookups, #10 this weekend) -
+    // Opens on a card/popup "Check availability" click and fetches live data
+    // from Recreation.gov's public month endpoint (CORS-open). One call covers
+    // a whole campground-month; we fetch the month(s) the chosen range spans.
+    var drawer = null, drawerBody = null, drawerTitle = null, drawerCache = {};
+    var drawerCtx = { id: null, range: null, mode: 'weekend' };
+    function ensureDrawer() {
+      if (drawer) return;
+      drawer = document.createElement('div');
+      drawer.className = 'cg-drawer'; drawer.setAttribute('hidden', '');
+      drawer.innerHTML =
+        '<div class="cg-drawer-scrim" data-close="1"></div>' +
+        '<aside class="cg-drawer-panel" role="dialog" aria-modal="true" aria-label="Campground availability">' +
+        '<header class="cg-drawer-head"><h2 class="cg-drawer-title">Availability</h2>' +
+        '<button type="button" class="cg-drawer-x" data-close="1" aria-label="Close">\u00d7</button></header>' +
+        '<div class="cg-drawer-body"></div></aside>';
+      document.body.appendChild(drawer);
+      drawerBody = drawer.querySelector('.cg-drawer-body');
+      drawerTitle = drawer.querySelector('.cg-drawer-title');
+      drawer.addEventListener('click', function (e) {
+        if (e.target.getAttribute && e.target.getAttribute('data-close')) closeDrawer();
+        var seg = e.target.closest && e.target.closest('[data-range]');
+        if (seg) { drawerCtx.mode = seg.getAttribute('data-range'); loadDrawer(); }
+      });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && drawer && !drawer.hasAttribute('hidden')) closeDrawer(); });
+    }
+    function openDrawer(rec) {
+      ensureDrawer();
+      drawerCtx.id = rec.i; drawerCtx.rec = rec; drawerCtx.mode = 'weekend';
+      drawer.removeAttribute('hidden'); document.body.classList.add('cg-drawer-open');
+      drawerTitle.textContent = rec.n || 'Availability';
+      loadDrawer();
+    }
+    function closeDrawer() {
+      if (!drawer) return;
+      drawer.setAttribute('hidden', ''); document.body.classList.remove('cg-drawer-open');
+    }
+    function rangeFor(mode) {
+      if (mode === 'weekend') return avUpcomingWeekend(new Date());
+      if (mode === 'next-weekend') {
+        var wk = avUpcomingWeekend(new Date());
+        var fri = new Date(wk.start + 'T00:00:00Z'); fri.setUTCDate(fri.getUTCDate() + 7);
+        var sun = new Date(fri); sun.setUTCDate(fri.getUTCDate() + 2);
+        return { start: avDateKey(fri), end: avDateKey(sun) };
+      }
+      // month: today -> +30d, summarized per-night (we show the best week)
+      var t = new Date(); var s = avDateKey(t);
+      var e = new Date(t); e.setUTCDate(e.getUTCDate() + 30);
+      return { start: s, end: avDateKey(e) };
+    }
+    function monthUrl(id, monthStart) {
+      return 'https://www.recreation.gov/api/camps/availability/campground/' + id +
+        '/month?start_date=' + encodeURIComponent(monthStart + 'T00:00:00.000Z');
+    }
+    function fetchMonth(id, monthStart) {
+      var key = id + '|' + monthStart;
+      if (drawerCache[key]) return Promise.resolve(drawerCache[key]);
+      var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      var to = setTimeout(function () { if (ctrl) ctrl.abort(); }, 12000);
+      return fetch(monthUrl(id, monthStart), { headers: { accept: 'application/json' }, signal: ctrl ? ctrl.signal : undefined })
+        .then(function (r) { clearTimeout(to); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (d) { drawerCache[key] = d; return d; });
+    }
+    function loadDrawer() {
+      var rec = drawerCtx.rec; if (!rec) return;
+      var range = rangeFor(drawerCtx.mode); drawerCtx.range = range;
+      drawerBody.innerHTML = drawerControlsHtml(rec, range) +
+        '<div class="cg-av-status"><span class="cg-spinner"></span> Checking live availability on Recreation.gov\u2026</div>';
+      var months = avMonthsForRange(range.start, range.end);
+      Promise.all(months.map(function (m) { return fetchMonth(rec.i, m); }))
+        .then(function (payloads) {
+          // merge sites across months (union of night maps)
+          var merged = {};
+          payloads.forEach(function (p) {
+            avParse(p).forEach(function (s) {
+              if (!merged[s.id]) merged[s.id] = s;
+              else { for (var k in s.nights) merged[s.id].nights[k] = s.nights[k]; }
+            });
+          });
+          var sites = Object.keys(merged).map(function (k) { return merged[k]; });
+          renderDrawerResults(rec, range, sites);
+        })
+        .catch(function () {
+          drawerBody.querySelector('.cg-av-status').innerHTML =
+            '<div class="cg-av-error"><strong>Couldn\u2019t load live availability.</strong> Recreation.gov may be busy or this campground isn\u2019t reservable online. ' +
+            '<a href="' + esc(rec.u || '#') + '" target="_blank" rel="noopener">Open it on Recreation.gov \u2192</a></div>';
+        });
+    }
+    function drawerControlsHtml(rec, range) {
+      function seg(mode, label) {
+        return '<button type="button" class="cg-av-seg' + (drawerCtx.mode === mode ? ' is-on' : '') + '" data-range="' + mode + '">' + label + '</button>';
+      }
+      var rig = state.len > 0 ? (Math.round(state.len * 10) / 10) + '\u2032 rig' : 'no rig set';
+      return '<div class="cg-av-controls">' +
+        '<div class="cg-av-segs">' + seg('weekend', 'This weekend') + seg('next-weekend', 'Next weekend') + seg('month', 'Next 30 days') + '</div>' +
+        '<p class="cg-av-range">' + fmtRange(range) + ' \u00b7 fitting your <strong>' + rig + '</strong></p>' +
+        '</div>';
+    }
+    function fmtRange(range) {
+      function d(ymd) { var x = new Date(ymd + 'T00:00:00Z'); return x.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }); }
+      return d(range.start) + ' \u2013 ' + d(range.end);
+    }
+    function renderDrawerResults(rec, range, sites) {
+      var len = state.len;
+      var cgMax = rec.m != null ? rec.m : null;
+      // Sites free for the whole range, classified by per-site Trailer fit.
+      var free = sites.filter(function (s) { return avFreeForRange(s, range.start, range.end); });
+      var rows = free.map(function (s) {
+        var max = (s.trailerMax != null) ? s.trailerMax : cgMax; // detail not fetched yet -> cg blanket
+        var fit = avSiteFit(len, max);
+        return { s: s, max: max, fit: fit };
+      }).filter(function (r) { return r.fit !== 'no'; });
+      // Sort: best fit first, then has-hookup, then site name.
+      var ORDER = { fits: 0, tight: 1, limit: 2, unknown: 3 };
+      rows.sort(function (a, b) {
+        var d = (ORDER[a.fit] || 9) - (ORDER[b.fit] || 9); if (d) return d;
+        var h = (b.s.hookups.electric ? 1 : 0) - (a.s.hookups.electric ? 1 : 0); if (h) return h;
+        return (a.s.site || '').localeCompare(b.s.site || '');
+      });
+      var FITLAB = { fits: 'Fits', tight: 'Tight', limit: 'Open', unknown: 'No site limit' };
+      var head;
+      if (!free.length) {
+        head = '<div class="cg-av-headline cg-av-none">No sites are open for ' + esc(fmtRange(range).toLowerCase()) +
+          '. <a href="' + esc(rec.u || '#') + '" target="_blank" rel="noopener">Try other dates on Recreation.gov \u2192</a></div>';
+      } else if (len > 0) {
+        var fitCount = rows.filter(function (r) { return r.fit === 'fits' || r.fit === 'tight'; }).length;
+        head = '<div class="cg-av-headline">' +
+          '<strong>' + free.length + '</strong> site' + (free.length === 1 ? '' : 's') + ' open' +
+          (fitCount < free.length ? ' \u00b7 <strong>' + fitCount + '</strong> fit your rig' : ' \u00b7 all fit your rig') +
+          '</div>';
+      } else {
+        head = '<div class="cg-av-headline"><strong>' + free.length + '</strong> site' + (free.length === 1 ? '' : 's') + ' open. Set your rig length to see which ones fit.</div>';
+      }
+      var note = (cgMax != null)
+        ? '<p class="cg-av-note">Fit shown against this campground\u2019s posted ' + cgMax + '\u2032 max. Open a site on Recreation.gov for its exact per-site length.</p>'
+        : '<p class="cg-av-note">This campground posts no max length; confirm each site\u2019s length on Recreation.gov before booking.</p>';
+      var list = rows.length ? '<ul class="cg-av-list">' + rows.map(function (r) {
+        var s = r.s;
+        return '<li class="cg-av-site cg-av-' + r.fit + '">' +
+          '<span class="cg-av-site-id">' + esc(s.site || s.id) + (s.loop ? ' <span class="cg-av-loop">' + esc(s.loop) + '</span>' : '') + '</span>' +
+          '<span class="cg-av-tags">' +
+          '<span class="cg-av-fit cg-fit-' + (r.fit === 'limit' ? 'limit' : r.fit) + '">' + (FITLAB[r.fit] || r.fit) + (r.max != null ? ' \u00b7 ' + r.max + '\u2032' : '') + '</span>' +
+          '<span class="cg-av-hook' + (s.hookups.electric ? ' has-elec' : '') + '">' + esc(s.hookups.label) + '</span>' +
+          '</span></li>';
+      }).join('') + '</ul>' : '';
+      var book = '<a class="cg-av-book" href="' + esc(rec.u || '#') + '" target="_blank" rel="noopener">Book on Recreation.gov \u2192</a>';
+      drawerBody.innerHTML = drawerControlsHtml(rec, range) + head + (free.length ? note + list + book : book);
+    }
+
+    // Delegated open handlers (cards in the list + popups on the map).
+    root.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('.cg-avail-btn');
+      if (!btn || !root.contains(btn)) return;
+      e.preventDefault(); e.stopPropagation();
+      var rec = recordById(btn.getAttribute('data-avail'));
+      if (rec) openDrawer(rec);
+    });
+    mapEl.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('.cg-pop-avail');
+      if (!btn) return;
+      e.preventDefault(); e.stopPropagation();
+      var rec = recordById(btn.getAttribute('data-avail'));
+      if (rec) openDrawer(rec);
+    });
   })();
 })();
