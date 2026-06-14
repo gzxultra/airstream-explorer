@@ -4,7 +4,7 @@
 import {
   formatMsrp, formatWeight, formatLength, formatGal, formatTanks,
   formatPriceRange, formatLengthRange, formatMsrpShort,
-  recommendedTowRating, hitchPctOfGvwr,
+  hitchPctOfGvwr,
   trailerTitle, trailerLabel,
 } from './format.mjs';
 import { assetPaths, familySlug } from './data.mjs';
@@ -346,15 +346,17 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null) {
   const note = t.specNote
     ? `<p class="spec-note">${esc(t.specNote)}</p>`
     : '';
-  const towRating = recommendedTowRating(t.gvwrLb);
   const hitchPct = hitchPctOfGvwr(t.hitchWeightLb, t.gvwrLb);
-  const towCallout = towRating
+  // Towing guidance built only from Airstream's official published figures —
+  // GVWR (the fully-loaded weight a tow vehicle must be rated to pull) and the
+  // official hitch (tongue) weight. No derived/estimated "recommended rating".
+  const towCallout = t.gvwrLb
     ? `<section class="tow-callout" aria-label="Towing">
 <div class="tow-callout-main">
-<p class="tow-callout-label">Recommended minimum tow rating</p>
-<p class="tow-callout-value">${formatWeight(towRating)}<span>or more</span></p>
+<p class="tow-callout-label">Your tow vehicle must be rated for at least</p>
+<p class="tow-callout-value">${formatWeight(t.gvwrLb)}<span>fully-loaded GVWR</span></p>
 </div>
-<p class="tow-callout-note">Sized so this floorplan's fully-loaded GVWR of ${esc(formatWeight(t.gvwrLb))} sits at a comfortable ~80% of your tow vehicle's limit${hitchPct ? `. Hitch weight is ${esc(formatWeight(t.hitchWeightLb))} (~${hitchPct}% of GVWR)` : ''}. <a href="../explore.html">Match it to your vehicle →</a></p>
+<p class="tow-callout-note">This is the official Airstream GVWR — the most this floorplan can weigh loaded, and the minimum tow rating your vehicle needs.${t.hitchWeightLb ? ` Official hitch (tongue) weight is ${esc(formatWeight(t.hitchWeightLb))}${hitchPct ? ` (~${hitchPct}% of GVWR)` : ''}.` : ''} <a href="../explore.html">Match it to your vehicle →</a></p>
 </section>`
     : '';
   const body = `<nav class="detail-nav"><a href="../f/${esc(fam)}.html" class="back-link">← All ${esc(t.model)} floorplans</a></nav>

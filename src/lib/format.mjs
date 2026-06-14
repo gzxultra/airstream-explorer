@@ -67,17 +67,6 @@ export function formatLengthRange(min, max) {
   return formatLength(min) + ' – ' + formatLength(max);
 }
 
-/**
- * Minimum tow vehicle rating we'd recommend for a trailer, in lb. We size it so
- * the trailer's fully-loaded GVWR lands at ~80% of the rating (a comfortable
- * tow, not riding the ceiling), rounded up to the next 500 lb. This is the same
- * 80% comfort band the Explore tow-matcher uses, expressed as a recommendation.
- */
-export function recommendedTowRating(gvwrLb) {
-  if (!(gvwrLb > 0)) return null;
-  return Math.ceil(gvwrLb / 0.8 / 500) * 500;
-}
-
 /** Hitch (tongue) weight as a percent of GVWR, rounded — handling sweet spot is 10–15%. */
 export function hitchPctOfGvwr(hitchLb, gvwrLb) {
   if (!(hitchLb > 0) || !(gvwrLb > 0)) return null;

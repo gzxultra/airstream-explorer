@@ -211,11 +211,16 @@ test('renderCompare embeds a valid, XSS-safe JSON island of all trailers', () =>
   assert.ok(data[0].slug && data[0].msrp && data[0].thumb);
 });
 
-test('detail page renders the towing callout with a recommended rating', () => {
+test('detail page renders the towing callout from official GVWR (no derived rating)', () => {
   const t = trailers.find((x) => x.slug === 'flying-cloud-25fb-2026');
   const html = renderDetail(t);
-  assert.match(html, /Recommended minimum tow rating/);
   assert.match(html, /class="tow-callout"/);
+  assert.match(html, /Your tow vehicle must be rated for at least/);
+  assert.match(html, /fully-loaded GVWR/);
+  assert.match(html, /official Airstream GVWR/);
+  // shows the real GVWR (7,300 lb), not a derived "recommended rating"
+  assert.match(html, /7,300\s*lb/);
+  assert.doesNotMatch(html, /Recommended minimum tow rating/);
 });
 
 test('every page carries the top nav with explore + compare links', () => {
