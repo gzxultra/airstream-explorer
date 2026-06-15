@@ -62,9 +62,9 @@ rmSync(DIST, { recursive: true, force: true });
 mkdirSync(join(DIST, 'm'), { recursive: true });
 mkdirSync(join(DIST, 'f'), { recursive: true });
 
-// 3. Index (family grid)
-writeFileSync(join(DIST, 'index.html'), renderIndex(families));
-log('wrote index.html (family grid)');
+// 3. Explore hub (index.html) — family grid + all-floorplans, one page
+writeFileSync(join(DIST, 'index.html'), renderIndex(families, trailers, resolve));
+log('wrote index.html (Explore hub: family grid + all-floorplans)');
 
 // 3b. Family pages
 for (const fam of families) {

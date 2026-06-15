@@ -25,6 +25,75 @@
     },
   };
 
+  // =========================================================================
+  // 0b. EXPLORE.HTML SHIM — old bookmark lands here; bounce to the canonical
+  //     hub view. Guarded by [data-redirect]; no-op everywhere else. Without
+  //     JS the shim still shows the full Explore experience inline.
+  // =========================================================================
+  (function exploreShim() {
+    var shim = document.querySelector('.explore-shim[data-redirect]');
+    if (!shim) return;
+    location.replace(shim.getAttribute('data-redirect'));
+  })();
+
+  // =========================================================================
+  // 0c. EXPLORE HUB — toggle "By family" vs "All floorplans" on index.html.
+  //     Both views are server-rendered; we just show one and reflect it in the
+  //     URL hash (#families default / #all) for deep-linking + back-button.
+  //     Distinct markup (.viewseg / .hub-view) from the family-page year
+  //     toggle (.seg-btn) so the modules never collide.
+  // =========================================================================
+  (function exploreHub() {
+    var toggle = document.getElementById('view-toggle');
+    if (!toggle) return;
+    var btns = Array.prototype.slice.call(toggle.querySelectorAll('.viewseg-btn'));
+    var views = {
+      families: document.getElementById('view-families'),
+      all: document.getElementById('view-all'),
+    };
+    if (!views.families || !views.all) return;
+
+    function show(view, push) {
+      if (view !== 'all') view = 'families';
+      Object.keys(views).forEach(function (k) {
+        if (k === view) views[k].removeAttribute('hidden');
+        else views[k].setAttribute('hidden', '');
+      });
+      btns.forEach(function (b) {
+        var on = b.getAttribute('data-view') === view;
+        b.classList.toggle('is-active', on);
+        if (on) b.setAttribute('aria-current', 'page');
+        else b.removeAttribute('aria-current');
+      });
+      if (push) {
+        var hash = '#' + view;
+        if (location.hash !== hash) {
+          try { history.pushState(null, '', view === 'families' ? location.pathname + location.search : hash); }
+          catch (e) { location.hash = view === 'families' ? '' : view; }
+        }
+      }
+    }
+
+    function fromHash() {
+      return (location.hash.replace('#', '') === 'all') ? 'all' : 'families';
+    }
+
+    // Any link to #all / #families (toggle buttons + the hero CTA) drives it.
+    Array.prototype.slice.call(document.querySelectorAll('[data-view],[data-view-go]')).forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        var v = el.getAttribute('data-view') || el.getAttribute('data-view-go');
+        if (v !== 'all' && v !== 'families') return;
+        e.preventDefault();
+        show(v, true);
+        if (v === 'all') { try { views.all.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e2) {} }
+      });
+    });
+    window.addEventListener('popstate', function () { show(fromHash(), false); });
+    window.addEventListener('hashchange', function () { show(fromHash(), false); });
+
+    show(fromHash(), false);
+  })();
+
 
   // =========================================================================
   // 1. FAMILY PAGE — year segmented filter over server-rendered .card list

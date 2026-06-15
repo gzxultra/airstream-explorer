@@ -363,6 +363,45 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 }
 
 /* ============================================================ */
+/* Explore hub — editorial view toggle (magazine section divider,*/
+/* NOT a SaaS pill). Two modes: By family / All floorplans.      */
+/* ============================================================ */
+.viewseg {
+  max-width: var(--maxw); margin: 28px auto 4px; padding: 0 20px;
+  display: flex; gap: 36px; align-items: flex-end;
+  border-bottom: 1px solid var(--line);
+}
+.viewseg-btn {
+  display: inline-flex; flex-direction: column; gap: 2px;
+  padding: 0 0 14px; margin-bottom: -1px;
+  color: var(--muted); border-bottom: 2px solid transparent;
+  transition: color .25s ease, border-color .25s ease;
+}
+.viewseg-btn:hover { color: var(--ink); text-decoration: none; border-bottom-color: var(--line); }
+.viewseg-label {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 600;
+  font-size: clamp(20px, 3vw, 28px); line-height: 1.05; letter-spacing: -.01em;
+}
+.viewseg-sub {
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase; font-weight: 600;
+}
+.viewseg-btn.is-active { color: var(--copper-deep); border-bottom-color: var(--copper); }
+.viewseg-btn.is-active .viewseg-sub { color: var(--copper); }
+@media (max-width: 560px) {
+  .viewseg { gap: 22px; margin-top: 20px; }
+  .viewseg-btn { padding-bottom: 10px; }
+  .viewseg-sub { font-size: 10px; letter-spacing: .12em; }
+}
+
+/* Hub views: JS toggles [hidden] on each. Without JS both are shown (the
+   page is still complete + usable); the toggle just deep-links/scrolls. */
+.hub-view[hidden] { display: none; }
+.explore-shim-note {
+  max-width: var(--maxw); margin: 18px auto 0; padding: 0 20px;
+  font-size: 14px; font-weight: 600;
+}
+
+/* ============================================================ */
 /* Explore page                                                 */
 /* ============================================================ */
 .explore-head { max-width: var(--maxw); margin: 0 auto; padding: 40px 20px 8px; }

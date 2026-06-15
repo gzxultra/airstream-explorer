@@ -266,34 +266,68 @@ test('detail page renders the towing callout from official GVWR (no derived rati
   assert.doesNotMatch(html, /Recommended minimum tow rating/);
 });
 
-test('every page carries the top nav with explore + compare links', () => {
-  for (const html of [renderIndex(groupByFamily(trailers)), renderExplore(trailers), renderCompare(trailers)]) {
+test('top nav is exactly the 3 consolidated tabs — no Compare/Community/Explore tab', () => {
+  for (const html of [renderIndex(groupByFamily(trailers), trailers), renderExplore(trailers), renderCompare(trailers)]) {
     assert.match(html, /class="topnav-links"/);
-    assert.match(html, /explore\.html/);
-    assert.match(html, /compare\.html/);
+    // exactly three top-level nav links
+    const nav = html.match(/<nav class="topnav-links"[^>]*>([\s\S]*?)<\/nav>/);
+    assert.ok(nav, 'has a topnav-links nav');
+    const links = nav[1].match(/<a /g) || [];
+    assert.equal(links.length, 3, 'exactly 3 top tabs');
+    // the three tabs are Explore (index) / Campgrounds / Upgrades
+    assert.match(nav[1], /href="index\.html"[^>]*>Explore</);
+    assert.match(nav[1], /href="campgrounds\.html"[^>]*>Campgrounds</);
+    assert.match(nav[1], /href="upgrades\.html"[^>]*>Upgrades</);
+    // Compare and Community are NOT top tabs anymore
+    assert.doesNotMatch(nav[1], /compare\.html/);
+    assert.doesNotMatch(nav[1], /community\.html/);
+    assert.doesNotMatch(nav[1], />Families</);
   }
 });
 
+test('Compare + Community survive as footer destinations (not top tabs)', () => {
+  const home = renderIndex(groupByFamily(trailers), trailers);
+  const footer = home.match(/<footer[\s\S]*?<\/footer>/)[0];
+  assert.match(footer, /compare\.html/);
+  assert.match(footer, /community\.html/);
+  assert.match(footer, /credits\.html/);
+});
+
 test('nav marks the current section as active (aria-current + is-active)', () => {
-  // home → Families active
-  const home = renderIndex(groupByFamily(trailers));
-  assert.match(home, /<a href="index\.html" class="is-active" aria-current="page">Families<\/a>/);
-  // explore → Explore active, and exactly one active link per page
-  const explore = renderExplore(trailers);
-  assert.match(explore, /href="explore\.html" class="is-active" aria-current="page"/);
-  assert.equal((explore.match(/aria-current="page"/g) || []).length, 1);
-  // compare → Compare active
-  const compare = renderCompare(trailers);
-  assert.match(compare, /href="compare\.html" class="is-active" aria-current="page"/);
-  // a detail page (nested) keeps Families active with the right relRoot prefix
+  // home (Explore hub) → Explore active
+  const home = renderIndex(groupByFamily(trailers), trailers);
+  assert.match(home, /<a href="index\.html" class="is-active" aria-current="page">Explore<\/a>/);
+  assert.equal((home.match(/topnav-links[\s\S]*?<\/nav>/)[0].match(/aria-current="page"/g) || []).length, 1);
+  // a detail page (nested) keeps the Explore hub active with the right relRoot prefix
   const detail = renderDetail(classic);
   assert.match(detail, /href="\.\.\/index\.html" class="is-active" aria-current="page"/);
-  assert.equal((detail.match(/aria-current="page"/g) || []).length, 1);
+  assert.equal((detail.match(/topnav-links[\s\S]*?<\/nav>/)[0].match(/aria-current="page"/g) || []).length, 1);
+});
+
+test('Explore hub serves both views server-rendered, with an editorial toggle', () => {
+  const html = renderIndex(groupByFamily(trailers), trailers);
+  // editorial segmented control (NOT a .seg-btn / SaaS pill) with both modes
+  assert.match(html, /class="viewseg"/);
+  assert.match(html, /data-view="families"/);
+  assert.match(html, /data-view="all"/);
+  // both views present in the static HTML (progressive enhancement)
+  assert.match(html, /id="view-families"/);
+  assert.match(html, /id="view-all"/);
+  // By-family view carries the 12 family cards
+  assert.equal((html.match(/class="fam"/g) || []).length, 12);
+  // All-floorplans view carries the full explore experience: every xcard, the
+  // tow matcher, and the compare tray
+  assert.equal((html.match(/class="xcard"/g) || []).length, trailers.length);
+  assert.match(html, /id="tow-input"/);
+  assert.match(html, /id="cmp-bar"/);
+  // deep-linkable: hero CTA + toggle target the #all / #families hashes
+  assert.match(html, /href="#all"/);
+  assert.match(html, /href="#families"/);
 });
 
 test('home leads with a cinematic hero band backed by a distinct hero image', () => {
   const fams = groupByFamily(trailers);
-  const html = renderIndex(fams);
+  const html = renderIndex(fams, trailers);
   assert.match(html, /class="home-hero"/);
   // hero <img> points at a real family hero file (International, by design)
   const heroFam = fams.find((f) => f.family === 'International') || fams.find((f) => f.hero);
@@ -301,9 +335,9 @@ test('home leads with a cinematic hero band backed by a distinct hero image', ()
   // and it is deliberately NOT the same image as the first (flagship) card,
   // so the opening viewport isn't the same picture twice
   assert.notEqual(heroFam.hero, fams[0].hero);
-  // headline + primary CTA into Explore
+  // headline + primary CTA that switches to the all-floorplans view (in-page)
   assert.match(html, /Every Airstream, by family/);
-  assert.match(html, /class="home-hero-btn" href="explore\.html"/);
+  assert.match(html, /class="home-hero-btn" href="#all"/);
 });
 
 import { renderOffGridTool } from '../src/lib/render.mjs';

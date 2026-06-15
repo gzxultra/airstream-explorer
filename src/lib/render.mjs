@@ -27,13 +27,15 @@ export function esc(s) {
 
 // Primary nav, single source of truth: [href, label, key]. `active` (a key)
 // marks the current section so every page shows a "you are here" state.
+// Consolidated to 3 tabs (was 6). Explore is the hub: it absorbs the old
+// Families grid + Explore & match + Compare into one page (index.html) via a
+// segmented control. Compare lives on as a selection tray → compare.html, and
+// Community/Credits live on as footer-linked destinations — neither is a tab.
+// 3 items fit a single persistent bar on mobile (no hamburger needed).
 const NAV_ITEMS = [
-  ['index.html', 'Families', 'index'],
-  ['explore.html', 'Explore &amp; match', 'explore'],
-  ['compare.html', 'Compare', 'compare'],
+  ['index.html', 'Explore', 'index'],
   ['campgrounds.html', 'Campgrounds', 'campgrounds'],
   ['upgrades.html', 'Upgrades', 'upgrades'],
-  ['community.html', 'Community', 'community'],
 ];
 
 export function page({ title, description, body, relRoot = '', head = '', scripts = '', active = '' }) {
@@ -61,7 +63,7 @@ ${navLinks}
 </header>
 ${body}
 <footer class="site-footer">
-<p>Airstream Explorer · enthusiast catalog · ${31} floorplans across 12 families (2026 + 2025). · <a href="${relRoot}explore.html">Explore &amp; match</a> · <a href="${relRoot}compare.html">Compare</a> · <a href="${relRoot}campgrounds.html">Campgrounds</a> · <a href="${relRoot}community.html">Community photos</a> · <a href="${relRoot}credits.html">Credits</a></p>
+<p>Airstream Explorer · enthusiast catalog · ${31} floorplans across 12 families (2026 + 2025). · <a href="${relRoot}index.html#all">Explore &amp; match</a> · <a href="${relRoot}compare.html">Compare</a> · <a href="${relRoot}campgrounds.html">Campgrounds</a> · <a href="${relRoot}upgrades.html">Upgrades</a> · <a href="${relRoot}community.html">Community photos</a> · <a href="${relRoot}credits.html">Credits</a></p>
 <p class="muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Some imagery is AI-generated and labeled accordingly; community photographs are real and used under their stated Creative Commons / public-domain licenses (see credits).</p>
 </footer>
 <script src="${relRoot}assets/js/app.js" defer></script>
@@ -112,8 +114,16 @@ ${specRow('Years', yrs)}
 </a>`;
 }
 
-/** The home/catalog page — 12 family cards, budget to flagship. */
-export function renderIndex(families) {
+/**
+ * The Explore hub (index.html). Consolidates three former tabs into one page:
+ *   • "By family" — the cinematic 12-family grid (default view)
+ *   • "All floorplans" — the full Explore & match experience (tow matcher +
+ *     search/sort/filter + the 59-floorplan grid + compare tray)
+ * Both views are SERVER-RENDERED so the page is complete with no JS; app.js
+ * toggles between them and mirrors state in the URL hash (#families / #all)
+ * for deep-linking + back-button. `trailers`/`resolve` power the all view.
+ */
+export function renderIndex(families, trailers = [], resolve = assetPaths) {
   const cards = families.map((f) => renderFamilyCard(f, '')).join('\n');
   const totalPlans = families.reduce((n, f) => n + f.floorplanCount, 0);
   // Cinematic full-bleed hero. Pick a deliberately *different* establishing
@@ -133,19 +143,33 @@ export function renderIndex(families) {
 <p class="eyebrow eyebrow-light">AIRSTREAM · 2026 + 2025</p>
 <h1>Every Airstream, by family</h1>
 <p class="lede">A cinematic, spec-accurate field guide to the current Airstream travel-trailer lineup — ${families.length} families, ${totalPlans} floorplans.</p>
-<p class="home-hero-cta"><a class="home-hero-btn" href="explore.html">Explore &amp; match</a><a class="home-hero-ghost" href="community.html">Real community photos →</a></p>
+<p class="home-hero-cta"><a class="home-hero-btn" href="#all" data-view-go="all">Explore all floorplans</a><a class="home-hero-ghost" href="community.html">Real community photos →</a></p>
 </div>
 </header>`
     : `<header class="hero-head">
 <p class="eyebrow">AIRSTREAM · 2026 + 2025</p>
 <h1>Every Airstream, by family</h1>
 <p class="lede">A cinematic, spec-accurate field guide to the current Airstream travel-trailer lineup — ${families.length} families, ${totalPlans} floorplans. Start with a family, then dive into each floorplan’s full specs.</p>
-<p class="hero-cta"><a href="community.html">Browse real community photos →</a></p>
+<p class="hero-cta"><a href="#all" data-view-go="all">Explore all floorplans →</a></p>
 </header>`;
+  // Editorial segmented control — styled as a magazine section divider
+  // (Fraunces letterspaced caps + copper underline), NOT a SaaS pill. Distinct
+  // class from the family-page year toggle (.seg-btn) so app.js modules don't
+  // collide. aria-pressed conveys state to AT; hash deep-links each view.
+  const viewToggle = `<nav class="viewseg" id="view-toggle" aria-label="Browse mode">
+<a class="viewseg-btn is-active" href="#families" data-view="families" aria-current="page"><span class="viewseg-label">By family</span><span class="viewseg-sub">${families.length} model lines</span></a>
+<a class="viewseg-btn" href="#all" data-view="all"><span class="viewseg-label">All floorplans</span><span class="viewseg-sub">${trailers.length} by the numbers</span></a>
+</nav>`;
   const body = `${heroBand}
+${viewToggle}
+<section class="hub-view" id="view-families" data-view="families">
 <main class="fam-grid" id="families">
 ${cards}
-</main>`;
+</main>
+</section>
+<section class="hub-view" id="view-all" data-view="all">
+${renderExploreSections(trailers, resolve)}
+</section>`;
   return page({
     title: 'Airstream Explorer — the full travel-trailer lineup by family',
     description: `A spec-accurate, cinematic catalog of every current Airstream travel-trailer family (2026 + 2025): ${families.length} families, ${totalPlans} floorplans, with dimensions, weights, off-grid and pricing.`,
@@ -394,7 +418,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
 <p class="tow-callout-label">Your tow vehicle must be rated for at least</p>
 <p class="tow-callout-value">${formatWeight(t.gvwrLb)}<span>fully-loaded GVWR</span></p>
 </div>
-<p class="tow-callout-note">This is the official Airstream GVWR — the most this floorplan can weigh loaded, and the minimum tow rating your vehicle needs.${t.hitchWeightLb ? ` Official hitch (tongue) weight is ${esc(formatWeight(t.hitchWeightLb))}${hitchPct ? ` (~${hitchPct}% of GVWR)` : ''}.` : ''} <a href="../explore.html">Match it to your vehicle →</a></p>
+<p class="tow-callout-note">This is the official Airstream GVWR — the most this floorplan can weigh loaded, and the minimum tow rating your vehicle needs.${t.hitchWeightLb ? ` Official hitch (tongue) weight is ${esc(formatWeight(t.hitchWeightLb))}${hitchPct ? ` (~${hitchPct}% of GVWR)` : ''}.` : ''} <a href="../index.html#all">Match it to your vehicle →</a></p>
 </section>`
     : '';
   const body = `<nav class="detail-nav"><a href="../f/${esc(fam)}.html" class="back-link">← All ${esc(t.model)} floorplans</a></nav>
@@ -478,8 +502,14 @@ ${specRow('MSRP', formatMsrp(t.msrp))}
 </article>`;
 }
 
-/** The Explore & match page. `trailers` is the full (unsorted) dataset. */
-export function renderExplore(trailers, resolve = assetPaths) {
+/**
+ * The Explore & match sections (tow matcher + search/sort/filter + grid +
+ * compare tray) as a reusable body fragment. Used inside the Explore hub
+ * (renderIndex "All floorplans" view) AND the standalone explore.html shim.
+ * `trailers` is the full (unsorted) dataset. All links are root-relative
+ * (m/…, compare.html) so it renders correctly at the site root either way.
+ */
+export function renderExploreSections(trailers, resolve = assetPaths) {
   const sortOpts = Object.entries(SORT_KEYS)
     .map(([k, def], i) => `<option value="${esc(k)}"${i === 0 ? ' selected' : ''}>${esc(def.label)}</option>`)
     .join('');
@@ -495,9 +525,9 @@ export function renderExplore(trailers, resolve = assetPaths) {
   );
   const cards = ordered.map((t) => renderExploreCard(t, resolve, t.year !== 2026)).join('\n');
   const total = trailers.filter((t) => t.year === 2026).length;
-  const body = `<header class="explore-head">
+  return `<header class="explore-head">
 <p class="eyebrow">FIND YOUR FLOORPLAN</p>
-<h1>Explore &amp; match</h1>
+<h1>Every floorplan, by the numbers</h1>
 <p class="lede">Search, sort and filter all ${trailers.length} floorplans — match them to your tow vehicle, by size, sleeping capacity or off-grid capability.</p>
 </header>
 <section class="tow-tool" aria-label="Tow vehicle matcher">
@@ -556,11 +586,25 @@ ${cards}
 <a class="cmp-bar-go" id="cmp-go" href="compare.html">Compare →</a>
 </div>
 </div>`;
+}
+
+/**
+ * Standalone explore.html — kept as a real file so old bookmarks/links don't
+ * 404 and the build's fingerprint + image-guardrail lists stay valid. It is
+ * NOT in the top nav. With JS it redirects to the canonical hub (index.html#all);
+ * without JS it still shows the full Explore & match experience inline so the
+ * page is never a dead end.
+ */
+export function renderExplore(trailers, resolve = assetPaths) {
+  const body = `<div class="explore-shim" data-redirect="index.html#all">
+<p class="explore-shim-note"><a href="index.html#all">Explore &amp; match has moved to the Explore hub →</a></p>
+${renderExploreSections(trailers, resolve)}
+</div>`;
   return page({
     title: 'Explore & match — every Airstream floorplan, by the numbers',
     description: `Search, sort and filter all ${trailers.length} Airstream floorplans by price, weight, sleeps and use. Enter your tow vehicle rating to see what you can safely tow.`,
     body,
-    active: 'explore',
+    active: 'index',
   });
 }
 
@@ -589,7 +633,7 @@ export function renderCompare(trailers, resolve = assetPaths) {
   const body = `<header class="explore-head">
 <p class="eyebrow">SIDE BY SIDE</p>
 <h1>Compare floorplans</h1>
-<p class="lede">Pick up to three floorplans and see every spec lined up. Add them from the <a href="explore.html">Explore</a> page, or search below.</p>
+<p class="lede">Pick up to three floorplans and see every spec lined up. Add them from the <a href="index.html#all">Explore</a> hub, or search below.</p>
 </header>
 <section class="cmp-pick" aria-label="Pick floorplans">
 <input type="search" id="cmp-search" placeholder="Search to add a floorplan…" aria-label="Search floorplans to compare" autocomplete="off">
@@ -618,7 +662,7 @@ export function renderCompare(trailers, resolve = assetPaths) {
 <span class="cmp-starter-sub">Full-size flagships for long hauls — $145k–$222.9k</span>
 </a>
 </div>
-<p class="cmp-empty-foot">Or browse the full lineup on <a href="explore.html">Explore &amp; match</a>.</p>
+<p class="cmp-empty-foot">Or browse the full lineup on <a href="index.html#all">Explore &amp; match</a>.</p>
 </div>
 <script type="application/json" id="cmp-data">${json}</script>`;
   return page({
