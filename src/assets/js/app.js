@@ -78,8 +78,17 @@
       return (location.hash.replace('#', '') === 'all') ? 'all' : 'families';
     }
 
-    // Any link to #all / #families (toggle buttons + the hero CTA) drives it.
-    Array.prototype.slice.call(document.querySelectorAll('[data-view],[data-view-go]')).forEach(function (el) {
+    // Only the toggle buttons + the hero CTA drive the view switch.
+    // NOTE: do NOT bind to a bare [data-view] selector — the two .hub-view
+    // <section data-view="..."> wrappers also carry data-view, and binding
+    // them would catch every bubbled card click and preventDefault() it,
+    // killing all family/floorplan links on the homepage. Bind only to the
+    // actual controls: the segmented buttons and [data-view-go] CTAs.
+    var controls = btns.slice();
+    Array.prototype.slice.call(document.querySelectorAll('[data-view-go]')).forEach(function (el) {
+      controls.push(el);
+    });
+    controls.forEach(function (el) {
       el.addEventListener('click', function (e) {
         var v = el.getAttribute('data-view') || el.getAttribute('data-view-go');
         if (v !== 'all' && v !== 'families') return;
