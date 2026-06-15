@@ -344,6 +344,118 @@
   })();
 
   // =========================================================================
+  // 2b. UPGRADES PAGE — filter the owner-recommended options by community
+  //     signal (consensus tier), source (factory/aftermarket) and use-case.
+  //     Progressive enhancement: the page is fully readable with no JS; this
+  //     only reveals the filter lens and wires it up when JS is available.
+  // =========================================================================
+  (function upgradesFilter() {
+    var lens = document.getElementById('up-lens');
+    var main = document.getElementById('up-main');
+    if (!lens || !main) return;
+
+    var cards = Array.prototype.slice.call(main.querySelectorAll('.up-card'));
+    if (!cards.length) return;
+    var sections = Array.prototype.slice.call(main.querySelectorAll('[data-sec]'));
+    var chips = Array.prototype.slice.call(lens.querySelectorAll('.up-chip'));
+    var countEl = document.getElementById('up-count');
+    var resetEl = document.getElementById('up-reset');
+    var emptyEl = document.getElementById('up-empty');
+    var emptyReset = document.getElementById('up-empty-reset');
+
+    // The lens is server-rendered hidden so it never flashes for no-JS readers.
+    lens.removeAttribute('hidden');
+
+    // state: each filter dimension is a Set of selected values. Within a
+    // dimension values are OR'd; across dimensions they are AND'd. Use-case
+    // chips selected together require ALL (a card must serve every chosen use).
+    var state = { consensus: [], type: [], uc: [] };
+
+    var UP_PREFS = 'upgrades.prefs';
+    (function restore() {
+      var p = Store.get(UP_PREFS, null);
+      if (!p || typeof p !== 'object') return;
+      ['consensus', 'type', 'uc'].forEach(function (k) {
+        if (Array.isArray(p[k])) state[k] = p[k].filter(function (v) { return typeof v === 'string'; });
+      });
+    })();
+    function persist() { Store.set(UP_PREFS, state); }
+
+    function matches(card) {
+      if (state.consensus.length && state.consensus.indexOf(card.getAttribute('data-consensus')) === -1) return false;
+      if (state.type.length) {
+        // "Both" cards satisfy either a Factory or an Aftermarket filter.
+        var t = card.getAttribute('data-type');
+        var ok = state.type.indexOf(t) !== -1 || (t === 'Both');
+        if (!ok) return false;
+      }
+      if (state.uc.length) {
+        var ucs = (card.getAttribute('data-uc') || '').split(' ');
+        for (var i = 0; i < state.uc.length; i++) {
+          if (ucs.indexOf(state.uc[i]) === -1) return false;
+        }
+      }
+      return true;
+    }
+
+    function apply() {
+      var shown = 0;
+      cards.forEach(function (card) {
+        if (matches(card)) { card.removeAttribute('hidden'); shown++; }
+        else { card.setAttribute('hidden', ''); }
+      });
+      // Per-section counts + hide sections with nothing left.
+      sections.forEach(function (sec) {
+        var secCards = Array.prototype.slice.call(sec.querySelectorAll('.up-card'));
+        var vis = secCards.filter(function (c) { return !c.hasAttribute('hidden'); }).length;
+        var c = sec.querySelector('[data-seccount]');
+        if (c) c.textContent = vis;
+        if (vis === 0) sec.setAttribute('hidden', '');
+        else sec.removeAttribute('hidden');
+      });
+      var any = state.consensus.length || state.type.length || state.uc.length;
+      if (countEl) {
+        countEl.textContent = any
+          ? (shown + ' of ' + cards.length + ' upgrades')
+          : (cards.length + ' upgrades');
+      }
+      if (resetEl) { if (any) resetEl.removeAttribute('hidden'); else resetEl.setAttribute('hidden', ''); }
+      if (emptyEl) { if (shown === 0) emptyEl.removeAttribute('hidden'); else emptyEl.setAttribute('hidden', ''); }
+    }
+
+    function toggle(dim, val, btn) {
+      var arr = state[dim];
+      var i = arr.indexOf(val);
+      if (i === -1) { arr.push(val); btn.setAttribute('aria-pressed', 'true'); }
+      else { arr.splice(i, 1); btn.setAttribute('aria-pressed', 'false'); }
+      persist(); apply();
+    }
+
+    chips.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        toggle(btn.getAttribute('data-filter'), btn.getAttribute('data-value'), btn);
+      });
+    });
+
+    function resetAll() {
+      state = { consensus: [], type: [], uc: [] };
+      chips.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+      Store.del(UP_PREFS);
+      apply();
+    }
+    if (resetEl) resetEl.addEventListener('click', resetAll);
+    if (emptyReset) emptyReset.addEventListener('click', resetAll);
+
+    // Hydrate chip pressed-state from restored prefs, then apply.
+    chips.forEach(function (btn) {
+      var dim = btn.getAttribute('data-filter');
+      var val = btn.getAttribute('data-value');
+      if (state[dim] && state[dim].indexOf(val) !== -1) btn.setAttribute('aria-pressed', 'true');
+    });
+    apply();
+  })();
+
+  // =========================================================================
   // 3. COMPARE PAGE — build the side-by-side table from selection + search
   // =========================================================================
   (function compare() {

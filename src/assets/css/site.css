@@ -1101,6 +1101,71 @@ body.cg-drawer-open { overflow: hidden; }
 .up-sources li { margin: 4px 0; line-height: 1.45; }
 .up-foot { max-width: var(--maxw); margin: 0 auto; padding: 0 20px 56px; font-size: 13px; }
 
+/* --- Community-signal meter (●●●○) on each card + in the legend ---------- */
+.up-consensus { display: flex; align-items: center; gap: 9px; margin: 0 0 11px; }
+.up-pips { display: inline-flex; gap: 3px; align-items: center; }
+.up-pip { width: 7px; height: 7px; border-radius: 999px; background: transparent; border: 1.5px solid var(--copper); opacity: .42; }
+.up-pip.is-on { background: var(--copper); opacity: 1; }
+.up-tier { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--copper-deep); }
+
+/* --- Use-case chips on a card (non-interactive labels) ------------------- */
+.up-ucs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.up-uc {
+  font-size: 11px; font-weight: 600; letter-spacing: .02em; color: var(--muted);
+  background: rgba(31,27,22,.035); border: 1px solid var(--line);
+  border-radius: 999px; padding: 3px 10px; line-height: 1.5;
+}
+
+/* --- The "why this signal" evidence line --------------------------------- */
+.up-evidence { font-size: 12.5px; line-height: 1.55; color: var(--muted); margin: 0 0 12px; }
+.up-evidence-label { display: block; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--copper-deep); margin-bottom: 3px; }
+
+/* --- Legend: how the community signal is judged -------------------------- */
+.up-legend { max-width: var(--maxw); margin: 0 auto 6px; padding: 0 20px; }
+.up-legend > summary {
+  cursor: pointer; font-size: 13px; font-weight: 700; letter-spacing: .02em;
+  color: var(--copper-deep); padding: 8px 0; list-style: none; display: inline-flex; align-items: center; gap: 7px;
+}
+.up-legend > summary::-webkit-details-marker { display: none; }
+.up-legend > summary::before { content: "▸"; font-size: 11px; transition: transform .15s ease; }
+.up-legend[open] > summary::before { transform: rotate(90deg); }
+.up-legend-body { padding: 6px 0 14px; max-width: 80ch; }
+.up-legend-lede { font-size: 13.5px; line-height: 1.6; color: var(--ink); margin: 0 0 14px; }
+.up-legend-row { display: grid; grid-template-columns: 70px 130px 1fr; gap: 12px; align-items: baseline; padding: 7px 0; border-top: 1px solid var(--line); }
+.up-legend-name { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--copper-deep); }
+.up-legend-blurb { font-size: 13px; line-height: 1.5; color: var(--muted); }
+.up-legend-note { font-size: 12.5px; margin: 12px 0 0; }
+
+/* --- Filter lens (revealed by JS) --------------------------------------- */
+.up-lens { max-width: var(--maxw); margin: 8px auto 4px; padding: 16px 20px; }
+.up-lens-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 12px; }
+.up-lens-label {
+  flex: 0 0 64px; font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted);
+}
+.up-lens-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.up-chip {
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; min-height: 38px;
+  background: var(--surface); color: var(--muted); border: 1px solid var(--line);
+  border-radius: 999px; padding: 7px 14px;
+  transition: border-color .15s ease, color .15s ease, background-color .15s ease, box-shadow .15s ease, transform .12s ease;
+}
+.up-chip:hover { border-color: var(--copper); color: var(--copper-deep); transform: translateY(-1px); }
+.up-chip[aria-pressed="true"] { background: var(--copper); border-color: var(--copper); color: #fff; box-shadow: 0 2px 6px rgba(138,69,36,.22); }
+.up-lens-foot { display: flex; align-items: center; gap: 16px; padding-top: 2px; border-top: 1px solid var(--line); margin-top: 4px; }
+.up-lens-count { font-size: 14px; color: var(--muted); padding-top: 12px; font-variant-numeric: tabular-nums; }
+.up-lens-reset {
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; min-height: 38px;
+  background: transparent; color: var(--muted); border: 1px solid var(--line);
+  border-radius: 999px; padding: 7px 16px; margin-top: 10px;
+}
+.up-lens-reset:hover { color: var(--ink); border-color: var(--muted); }
+.up-empty { max-width: var(--maxw); margin: 8px auto 0; padding: 0 20px 8px; font-size: 15px; color: var(--muted); }
+.linkbtn { font: inherit; background: none; border: 0; padding: 0; color: var(--copper-deep); font-weight: 700; cursor: pointer; text-decoration: underline; }
+
 @media (max-width: 860px) {
   .up-grid { grid-template-columns: 1fr; }
+  .up-legend-row { grid-template-columns: 60px 1fr; }
+  .up-legend-blurb { grid-column: 1 / -1; }
+  .up-lens-label { flex-basis: 100%; }
 }

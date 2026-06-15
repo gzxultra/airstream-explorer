@@ -1,10 +1,26 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  loadUpgrades, validateUpgrades, renderUpgradesBody,
+  loadUpgrades, validateUpgrades, renderUpgradesBody, TIER_META, PIP_MAX,
 } from '../src/lib/upgrades.mjs';
 
 const data = loadUpgrades();
+
+// A minimal valid item factory, so each negative test changes exactly one thing.
+function okItem(over = {}) {
+  return Object.assign({
+    name: 'Y', why: 'z', type: 'Factory',
+    consensus: 'Near-universal', consensusNote: 'cited',
+    useCases: ['Boondocking'],
+    sources: [{ label: 'a', url: 'https://a.com' }],
+  }, over);
+}
+function wrap(item, extra = {}) {
+  return Object.assign({
+    useCaseLegend: { Boondocking: 'b', 'Full-timing': 'f' },
+    categories: [{ id: 'x', title: 'X', items: [item] }],
+  }, extra);
+}
 
 test('upgrades dataset loads with categories and items', () => {
   assert.ok(data && Array.isArray(data.categories));
@@ -101,4 +117,73 @@ test('renderUpgradesBody escapes HTML in fields', () => {
   assert.ok(!html.includes('<script>'));
   assert.ok(html.includes('&lt;script&gt;'));
   assert.ok(html.includes('a &amp; b'));
+});
+
+// --- Community-signal contract -------------------------------------------
+
+test('every real item declares a valid consensus tier + evidence note', () => {
+  for (const c of data.categories) {
+    for (const it of c.items) {
+      assert.ok(TIER_META[it.consensus], `${c.id}/${it.name}: bad tier "${it.consensus}"`);
+      assert.ok(it.consensusNote && it.consensusNote.length > 0, `${c.id}/${it.name}: missing consensusNote`);
+      assert.ok(Array.isArray(it.useCases), `${c.id}/${it.name}: useCases not array`);
+    }
+  }
+});
+
+test('every item use-case is defined in the legend vocabulary', () => {
+  const legend = new Set(Object.keys(data.useCaseLegend || {}));
+  for (const c of data.categories) {
+    for (const it of c.items) {
+      for (const u of it.useCases) assert.ok(legend.has(u), `${c.id}/${it.name}: unknown use-case "${u}"`);
+    }
+  }
+});
+
+test('TIER_META pip counts stay within the meter range', () => {
+  for (const m of Object.values(TIER_META)) {
+    assert.ok(m.pips >= 1 && m.pips <= PIP_MAX, `tier pips out of range: ${m.pips}`);
+  }
+});
+
+test('validator catches a bad consensus tier', () => {
+  const problems = validateUpgrades(wrap(okItem({ consensus: 'Wildly popular' })));
+  assert.ok(problems.some((p) => p.includes('bad consensus tier')), problems.join('\n'));
+});
+
+test('validator catches a missing consensusNote', () => {
+  const item = okItem(); delete item.consensusNote;
+  const problems = validateUpgrades(wrap(item));
+  assert.ok(problems.some((p) => p.includes('missing consensusNote')), problems.join('\n'));
+});
+
+test('validator catches an unknown use-case', () => {
+  const problems = validateUpgrades(wrap(okItem({ useCases: ['Spelunking'] })));
+  assert.ok(problems.some((p) => p.includes('unknown useCase')), problems.join('\n'));
+});
+
+test('validator flags a dataset with no useCaseLegend', () => {
+  const bad = { categories: [{ id: 'x', title: 'X', items: [okItem()] }] };
+  const problems = validateUpgrades(bad);
+  assert.ok(problems.some((p) => p.includes('missing useCaseLegend')), problems.join('\n'));
+});
+
+test('renderUpgradesBody emits the consensus meter, legend, filter lens and use-case chips', () => {
+  const html = renderUpgradesBody(data, '');
+  assert.ok(html.includes('up-consensus'), 'card consensus meter');
+  assert.ok(html.includes('up-pip'), 'pip elements');
+  assert.ok(html.includes('up-legend'), 'consensus legend');
+  assert.ok(html.includes('up-lens'), 'filter lens');
+  assert.ok(html.includes('data-filter="consensus"'), 'consensus filter chips');
+  assert.ok(html.includes('data-filter="uc"'), 'use-case filter chips');
+  assert.ok(html.includes('data-consensus='), 'cards carry consensus data attr');
+  assert.ok(html.includes('data-uc='), 'cards carry use-case data attr');
+  // The lens ships hidden so it never flashes for no-JS readers.
+  assert.ok(/id="up-lens"[^>]*hidden/.test(html), 'lens hidden by default');
+});
+
+test('cards expose the pip count matching their tier (render ↔ TIER_META)', () => {
+  const html = renderUpgradesBody(data, '');
+  // Near-universal == PIP_MAX pips; the data-pips attr must reflect it.
+  assert.ok(html.includes(`data-pips="${TIER_META['Near-universal'].pips}"`));
 });
