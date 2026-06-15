@@ -1077,9 +1077,21 @@ body.cg-drawer-open { overflow: hidden; }
 .up-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
 .up-card {
   background: var(--surface); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: 22px 22px 18px; box-shadow: var(--shadow);
-  display: flex; flex-direction: column;
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  display: flex; flex-direction: column; overflow: hidden;
 }
+.up-media {
+  position: relative; aspect-ratio: 16/9;
+  background: linear-gradient(135deg, #e8dfd0 0%, #d8cbb6 100%);
+  overflow: hidden;
+}
+.up-media::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(40,28,18,0) 55%, rgba(40,28,18,.18) 100%);
+}
+.up-media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
+.up-card:hover .up-media img { transform: scale(1.045); }
+.up-card-body { padding: 20px 22px 18px; display: flex; flex-direction: column; flex: 1; }
 .up-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
 .up-name { font-family: 'Fraunces', Georgia, serif; font-size: 19px; font-weight: 600; color: var(--ink); margin: 0; line-height: 1.18; }
 .up-badge {

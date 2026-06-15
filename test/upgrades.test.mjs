@@ -10,6 +10,7 @@ const data = loadUpgrades();
 function okItem(over = {}) {
   return Object.assign({
     name: 'Y', why: 'z', type: 'Factory',
+    image: 'assets/img/upgrades/lithium.webp',
     consensus: 'Near-universal', consensusNote: 'cited',
     useCases: ['Boondocking'],
     sources: [{ label: 'a', url: 'https://a.com' }],
@@ -160,6 +161,35 @@ test('validator catches a missing consensusNote', () => {
 test('validator catches an unknown use-case', () => {
   const problems = validateUpgrades(wrap(okItem({ useCases: ['Spelunking'] })));
   assert.ok(problems.some((p) => p.includes('unknown useCase')), problems.join('\n'));
+});
+
+// --- Image contract -------------------------------------------------------
+
+test('every real item carries a valid upgrades image path', () => {
+  const re = /^assets\/img\/upgrades\/[a-z0-9-]+\.webp$/;
+  for (const c of data.categories) {
+    for (const it of c.items) {
+      assert.ok(re.test(it.image || ''), `${c.id}/${it.name}: bad image "${it.image}"`);
+    }
+  }
+});
+
+test('validator catches a missing image', () => {
+  const item = okItem(); delete item.image;
+  const problems = validateUpgrades(wrap(item));
+  assert.ok(problems.some((p) => p.includes('missing image')), problems.join('\n'));
+});
+
+test('validator catches a malformed image path', () => {
+  const problems = validateUpgrades(wrap(okItem({ image: 'http://x.com/a.png' })));
+  assert.ok(problems.some((p) => p.includes('image must be')), problems.join('\n'));
+});
+
+test('renderUpgradesBody emits a lazy-loaded card image with relRoot', () => {
+  const html = renderUpgradesBody(data, '../');
+  assert.ok(html.includes('class="up-media"'), 'has media frame');
+  assert.ok(html.includes('src="../assets/img/upgrades/'), 'prefixes relRoot on image src');
+  assert.ok(html.includes('loading="lazy"'), 'image is lazy-loaded');
 });
 
 test('validator flags a dataset with no useCaseLegend', () => {

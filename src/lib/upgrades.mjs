@@ -84,6 +84,10 @@ export function validateUpgrades(data) {
       const tag = `${cat.id}/${it.name || '?'}`;
       if (!it.name) problems.push(`${cat.id}: item missing name`);
       if (!it.why) problems.push(`${tag}: missing why`);
+      if (!it.image) problems.push(`${tag}: missing image`);
+      else if (!/^assets\/img\/upgrades\/[a-z0-9-]+\.webp$/.test(it.image)) {
+        problems.push(`${tag}: image must be assets/img/upgrades/<slug>.webp, got "${it.image}"`);
+      }
       if (!VALID_TYPES.has(it.type)) problems.push(`${tag}: bad type "${it.type}"`);
       // Community-consensus contract.
       if (!VALID_TIERS.has(it.consensus)) {
@@ -179,7 +183,7 @@ function useCaseChips(it) {
 }
 
 /** One upgrade card. Carries data-* attributes the filter lens reads. */
-function upgradeCard(it) {
+function upgradeCard(it, relRoot = '') {
   const sources = it.sources
     .map(
       (s) =>
@@ -197,7 +201,12 @@ function upgradeCard(it) {
   const noteLine = it.consensusNote
     ? `<p class="up-evidence"><span class="up-evidence-label">Why this signal</span> ${esc(it.consensusNote)}</p>`
     : '';
+  const media = it.image
+    ? `<div class="up-media"><img src="${esc(relRoot + it.image)}" alt="${esc(it.name)}" loading="lazy" width="800" height="450"></div>`
+    : '';
   return `<article class="up-card" data-type="${esc(it.type)}" data-consensus="${esc(it.consensus)}" data-pips="${meta.pips}" data-uc="${esc(ucTokens)}" data-name="${esc((it.name || '').toLowerCase())}">
+${media}
+<div class="up-card-body">
 <header class="up-card-head">
 <h3 class="up-name">${esc(it.name)}</h3>
 ${typeBadge(it.type)}
@@ -212,6 +221,7 @@ ${noteLine}
 <summary>Sources (${it.sources.length})</summary>
 <ul>${sources}</ul>
 </details>
+</div>
 </article>`;
 }
 
@@ -309,7 +319,7 @@ export function renderUpgradesBody(data, relRoot = '') {
     .map((cat) => {
       const blurb = cat.blurb ? `<p class="up-sec-blurb">${esc(cat.blurb)}</p>` : '';
       const table = categoryTable(cat.table);
-      const cards = cat.items.map(upgradeCard).join('\n');
+      const cards = cat.items.map((it) => upgradeCard(it, relRoot)).join('\n');
       return `<section class="up-sec" id="${esc(cat.id)}" data-sec>
 <header class="up-sec-head"><h2>${esc(cat.title)}</h2><span class="up-sec-count" data-seccount>${cat.items.length}</span></header>
 ${blurb}
