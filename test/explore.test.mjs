@@ -53,7 +53,7 @@ test('sortTrailers price-asc puts cheapest first, price-desc the reverse', () =>
   const desc = sortTrailers(trailers, 'price-desc');
   assert.ok(asc[0].msrp <= asc[asc.length - 1].msrp);
   assert.ok(desc[0].msrp >= desc[desc.length - 1].msrp);
-  assert.equal(asc[0].msrp, 54900); // cheapest Basecamp
+  assert.equal(asc[0].msrp, 55900); // cheapest Basecamp 16X
   assert.equal(desc[0].msrp, 222900); // Classic 33FB
 });
 

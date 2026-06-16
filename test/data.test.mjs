@@ -62,7 +62,7 @@ test('audited specs: Basecamp 16X 2026', () => {
   assert.equal(t.gvwrLb, 3500);
   assert.equal(t.hitchWeightLb, 450);
   assert.equal(t.cccLb, 800);
-  assert.equal(t.msrp, 54900);
+  assert.equal(t.msrp, 55900);
 });
 
 test('audited specs: Basecamp 20X 2026', () => {
@@ -73,6 +73,35 @@ test('audited specs: Basecamp 20X 2026', () => {
   assert.equal(t.gvwrLb, 4300);
   assert.equal(t.hitchWeightLb, 535);
   assert.equal(t.cccLb, 800);
+  assert.equal(t.msrp, 65900);
+});
+
+// Full official MY2026 base-price table (airstream.com "Starting Price", verified
+// against the embedded __NUXT_DATA__ spec blob + visible page). Locks the price
+// calibration so a future data pass can't silently drift these.
+test('audited 2026 MSRPs match airstream.com Starting Price', () => {
+  const OFFICIAL_2026 = {
+    'bambi-16rb-2026': 68900, 'bambi-20fb-2026': 75400, 'bambi-22fb-2026': 78900,
+    'basecamp-16x-2026': 55900, 'basecamp-20x-2026': 65900, 'basecamp-xe-20xe-2026': 84900,
+    'caravel-20fb-2026': 90400,
+    'classic-28rb-2026': 190400, 'classic-30rb-2026': 204900, 'classic-33fb-2026': 222900,
+    'flying-cloud-23fb-2026': 106400, 'flying-cloud-25fb-2026': 118900,
+    'flying-cloud-27fb-2026': 127400, 'flying-cloud-28rb-2026': 127400,
+    'flying-cloud-30fb-bunk-2026': 137400,
+    'globetrotter-25fb-2026': 139900, 'globetrotter-27fb-2026': 148400,
+    'globetrotter-30rb-2026': 161400,
+    'international-23fb-2026': 121400, 'international-25fb-2026': 133900,
+    'international-27fb-2026': 142400, 'international-28rb-2026': 142400,
+    'international-30rb-2026': 149900,
+    'trade-wind-23fb-2026': 129900, 'trade-wind-25fb-2026': 139900,
+    'trade-wind-27fb-2026': 155400,
+    'world-traveler-22rb-2026': 69400,
+  };
+  for (const [slug, price] of Object.entries(OFFICIAL_2026)) {
+    const t = trailers.find((x) => x.slug === slug);
+    assert.ok(t, `${slug} exists`);
+    assert.equal(t.msrp, price, `${slug} MSRP`);
+  }
 });
 
 test('validateTrailer catches a ccc mismatch', () => {
