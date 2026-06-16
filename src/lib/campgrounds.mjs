@@ -166,6 +166,28 @@ export function statesWithCounts(campgrounds) {
 export const REC_URL_PREFIX = 'https://www.recreation.gov/camping/campgrounds/';
 export const REC_PHOTO_PREFIX = 'https://cdn.recreation.gov/';
 
+// Same-origin proxy prefix for campground photos. The CDN host
+// (cdn.recreation.gov) is not reliably reachable from mainland China, so every
+// photo is served through our own origin via the /cdn/* Pages Function
+// (functions/cdn/[[path]].js), which fetches upstream at the Cloudflare edge.
+// This is the single source of truth for that path — server render, the client
+// hydrate step, and the live-API path all build photo URLs through photoProxy().
+export const REC_PHOTO_PROXY = '/cdn/';
+
+/**
+ * Map any Recreation.gov photo reference to our same-origin proxy path.
+ * Accepts either a full `https://cdn.recreation.gov/<tail>` URL or the bare
+ * `<tail>` we ship in the slim record's `.g`. Returns `/cdn/<tail>`.
+ * A non-CDN URL (defensive: some records carry a foreign host) is passed
+ * through untouched so it still renders if reachable.
+ */
+export function photoProxy(ref) {
+  if (!ref) return undefined;
+  if (ref.startsWith(REC_PHOTO_PREFIX)) return REC_PHOTO_PROXY + ref.slice(REC_PHOTO_PREFIX.length);
+  if (/^https?:\/\//.test(ref)) return ref; // foreign host — leave as-is
+  return REC_PHOTO_PROXY + ref.replace(/^\/+/, ''); // bare tail
+}
+
 export function toClientRecord(c) {
   // Strip the shared CDN prefix from the photo URL when present; the client
   // prepends it back. Anything not under that prefix is kept whole (defensive).

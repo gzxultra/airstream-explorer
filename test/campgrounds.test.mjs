@@ -2,9 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   fitClass, canPark, campgroundsForLength, fitSummary,
-  statesWithCounts, toClientRecord, orgShort, fitExplain,
+  statesWithCounts, toClientRecord, orgShort, fitExplain, photoProxy,
 } from '../src/lib/campgrounds.mjs';
-import { renderCampgroundsPage } from '../src/lib/campgrounds-render.mjs';
+import { renderCampgroundsPage, renderCampgroundFit } from '../src/lib/campgrounds-render.mjs';
 
 test('fitClass: clearance, tight band, too-long, and unknown', () => {
   // 3 ft clearance rule
@@ -78,6 +78,38 @@ test('toClientRecord slims the payload: omits derivable URL, strips photo CDN pr
   // A photo NOT under the known CDN is kept whole (defensive).
   const r2 = toClientRecord({ id: '1', org: 'NPS', photo: 'https://other.example/p.jpg' });
   assert.equal(r2.g, 'https://other.example/p.jpg');
+});
+
+test('photoProxy maps Recreation.gov CDN photos to the same-origin /cdn/ proxy', () => {
+  // Full CDN URL -> /cdn/<tail> (used server-side from c.photo).
+  assert.equal(
+    photoProxy('https://cdn.recreation.gov/public/2018/y.webp'),
+    '/cdn/public/2018/y.webp',
+  );
+  // Bare tail (the slim record's .g) -> /cdn/<tail> (used client-side after hydrate).
+  assert.equal(photoProxy('public/2018/y.webp'), '/cdn/public/2018/y.webp');
+  // Leading slash on a bare tail is normalized, not doubled.
+  assert.equal(photoProxy('/public/2018/y.webp'), '/cdn/public/2018/y.webp');
+  // A foreign host is passed through untouched (still renders if reachable).
+  assert.equal(photoProxy('https://other.example/p.jpg'), 'https://other.example/p.jpg');
+  // Empty/absent -> undefined (no broken /cdn/ prefix on a missing photo).
+  assert.equal(photoProxy(''), undefined);
+  assert.equal(photoProxy(undefined), undefined);
+});
+
+test('the campgrounds page never hot-links cdn.recreation.gov — every photo goes through /cdn/', () => {
+  // The detail-page "where it fits" cards (renderCampgroundFit -> cgCard) are the
+  // only server-rendered surface that emits campground photo <img> tags.
+  const campgrounds = [{
+    id: '232490', name: 'MATHER CAMPGROUND', org: 'NPS', state: 'AZ',
+    photo: 'https://cdn.recreation.gov/public/2018/mather.webp',
+    lat: 36, lon: -112, rating: 4.6, reviews: 120, activities: ['CAMPING'],
+    trailerLenHistogram: { 25: 8, 30: 5 },
+  }];
+  const t = { slug: 'bambi-22fb-2026', model: 'Bambi', floorplan: '22FB', lengthFt: 22.5, year: 2026 };
+  const html = renderCampgroundFit(t, campgrounds);
+  assert.ok(html.includes('/cdn/public/2018/mather.webp'), 'photo should be served through the same-origin /cdn/ proxy');
+  assert.ok(!html.includes('cdn.recreation.gov'), 'no raw CDN host should be hot-linked in server-rendered HTML');
 });
 
 test('orgShort normalizes long agency names', () => {

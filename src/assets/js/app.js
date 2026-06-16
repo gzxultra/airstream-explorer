@@ -894,8 +894,19 @@
     // CDN prefix. hydrate() restores both so the rest of the module is unchanged.
     var REC_URL_PREFIX = 'https://www.recreation.gov/camping/campgrounds/';
     var REC_PHOTO_PREFIX = 'https://cdn.recreation.gov/';
+    // Same-origin proxy for campground photos: cdn.recreation.gov is not reliably
+    // reachable from mainland China, so every photo is served through our own
+    // origin via the /cdn/* Pages Function. Mirror of photoProxy() in
+    // src/lib/campgrounds.mjs — keep the two in sync.
+    var REC_PHOTO_PROXY = '/cdn/';
+    function proxyPhoto(ref) {
+      if (!ref) return ref;
+      if (ref.indexOf(REC_PHOTO_PREFIX) === 0) return REC_PHOTO_PROXY + ref.slice(REC_PHOTO_PREFIX.length);
+      if (ref.indexOf('http') === 0) return ref; // foreign host — leave as-is
+      return REC_PHOTO_PROXY + ref.replace(/^\/+/, ''); // bare tail from slim record
+    }
     function hydrate(c) {
-      if (c && c.g && c.g.indexOf('http') !== 0) c.g = REC_PHOTO_PREFIX + c.g;
+      if (c && c.g) c.g = proxyPhoto(c.g);
       if (c && !c.u && c.i != null) c.u = REC_URL_PREFIX + c.i;
       return c;
     }
@@ -1717,7 +1728,7 @@
         o: x.org_name || undefined, r: x.average_rating ? Math.round(x.average_rating * 10) / 10 : undefined,
         v: x.number_of_ratings ? Number(x.number_of_ratings) : undefined,
         m: maxL > 0 ? maxL : undefined, pr: x.price_range ? x.price_range.amount_min : undefined,
-        g: x.preview_image_url || undefined, la: Number(x.latitude), lo: Number(x.longitude),
+        g: proxyPhoto(x.preview_image_url) || undefined, la: Number(x.latitude), lo: Number(x.longitude),
         u: 'https://www.recreation.gov/camping/campgrounds/' + (x.entity_id || x.id),
       };
     }

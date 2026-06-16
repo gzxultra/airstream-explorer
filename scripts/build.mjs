@@ -279,6 +279,9 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     for (const m of src.matchAll(/<img[^>]*\ssrc="([^"]+)"/g)) {
       const ref = m[1];
       if (/^(https?:)?\/\//.test(ref) || ref.startsWith('data:')) continue; // external/data URIs
+      // /cdn/* is served at runtime by the Pages Function (functions/cdn/[[path]].js),
+      // a same-origin proxy to cdn.recreation.gov — not a static file on disk.
+      if (ref.startsWith('/cdn/')) continue;
       checked++;
       // resolve ref relative to the page's directory, then check under dist
       const abs = join(base, ref);

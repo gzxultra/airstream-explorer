@@ -1,7 +1,7 @@
 // Render the campground-fit feature: a per-trailer "where this fits" panel for
 // detail pages, and the standalone national Campground Finder page (map + list,
 // filtered live by the rig you pick). All data is baked in at build time.
-import { statesWithCounts, toClientRecord } from './campgrounds.mjs';
+import { statesWithCounts, toClientRecord, photoProxy } from './campgrounds.mjs';
 import { trailerFit, nationalFit, hookupMatch, elevationContext, nightsHere, ELEVATION_BANDS } from './campsite-fit.mjs';
 import { COLLECTIONS, collectionCounts } from './collections.mjs';
 import { formatNights } from './estimate.mjs';
@@ -72,7 +72,7 @@ function cgCard(c, lengthFt, trailer) {
   }
   const price = c.price ? `$${c.price.min}${c.price.max && c.price.max !== c.price.min ? `–${c.price.max}` : ''}/night` : '';
   const img = c.photo
-    ? `<img src="${esc(c.photo)}" alt="${esc(c.name)}" loading="lazy" class="cg-card-img" width="320" height="200" referrerpolicy="no-referrer">`
+    ? `<img src="${esc(photoProxy(c.photo))}" alt="${esc(c.name)}" loading="lazy" class="cg-card-img" width="320" height="200" referrerpolicy="no-referrer">`
     : '<div class="cg-card-img cg-card-noimg" aria-hidden="true">▲</div>';
   return `<a class="cg-card" href="${esc(c.url || '#')}" target="_blank" rel="noopener">
 ${img}
