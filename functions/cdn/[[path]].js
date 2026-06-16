@@ -55,10 +55,15 @@ export async function onRequestGet(context) {
     return new Response('Upstream error', { status: upstream.status === 404 ? 404 : 502 });
   }
 
-  const ct = upstream.headers.get('content-type') || '';
-  if (!ct.startsWith('image/')) {
-    return new Response('Not an image', { status: 415 });
-  }
+  // Recreation.gov's CDN serves photos as `application/octet-stream`, so we
+  // can't trust the upstream content-type. We already validated the extension
+  // via ALLOWED, so derive the image type from it — that's what makes the
+  // browser actually render the bytes instead of offering a download.
+  const ext = path.slice(path.lastIndexOf('.') + 1).toLowerCase();
+  const ct = ext === 'webp' ? 'image/webp'
+    : ext === 'png' ? 'image/png'
+    : ext === 'gif' ? 'image/gif'
+    : 'image/jpeg'; // jpg | jpeg
 
   const res = new Response(upstream.body, {
     status: 200,
