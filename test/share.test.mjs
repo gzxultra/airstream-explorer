@@ -55,3 +55,13 @@ test('decodeView treats a non-positive len as "no rig"', () => {
   assert.equal(decodeView('#len=0').len, 0);
   assert.equal(decodeView('#len=-5').len, 0);
 });
+
+test('encodeView/decodeView round-trips the collection key (col)', () => {
+  const h = encodeView({ len: 25, collection: 'ds', sort: 'rank' });
+  const sp = new URLSearchParams(h);
+  assert.equal(sp.get('col'), 'ds');
+  const decoded = decodeView('#' + h);
+  assert.equal(decoded.collection, 'ds');
+  // omitted when empty (keeps links short)
+  assert.equal(new URLSearchParams(encodeView({ collection: '' })).has('col'), false);
+});

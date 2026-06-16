@@ -7,6 +7,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { collectionsFor } from './collections.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -223,6 +224,12 @@ export function toClientRecord(c) {
     sh: c.showers === true ? 1 : undefined,
     fl: c.flushToilets === true ? 1 : undefined,
     ac: c.accessibleSiteCount || undefined,
+    // ---- curated collection membership (baked from the FULL record) -------
+    // Array of collection keys this campground belongs to (e.g. ['ed','np']).
+    // Baked here from the complete record so the client filter never has to
+    // re-derive it from the slimmed fields (which would undercount dark-sky,
+    // since only the top-4 activities ship). Omitted when empty to stay slim.
+    cl: (() => { const m = collectionsFor(c); return m.length ? m : undefined; })(),
   };
 }
 

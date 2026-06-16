@@ -234,3 +234,33 @@ test('renderCampgroundsPage server-renders the new hookup/elevation/pull-through
   assert.match(body, /Low \(under 2,000/);
   assert.match(body, /High \(8,000/);
 });
+
+test('renderCampgroundsPage server-renders the curated collections rail with honest counts', () => {
+  const campgrounds = [
+    // editor's pick + alpine
+    { id: '1', name: 'High Star', state: 'Colorado', org: 'NPS', parent: 'Rocky Mountain National Park',
+      lat: 40, lon: -105, activities: ['Star Gazing'], rating: 4.8, reviews: 500, elevationFt: 8200,
+      maxLengthFt: 30, hookups: 'none', price: { min: 30, max: 30 }, reservable: true },
+    // army corps lakeside, full hookups
+    { id: '2', name: 'Lakeview', state: 'Texas', org: 'US Army Corps of Engineers', parent: 'Some Lake',
+      lat: 31, lon: -97, activities: ['Boating'], rating: 4.2, reviews: 40, elevationFt: 600,
+      maxLengthFt: 40, hookups: 'full', price: { min: 24, max: 24 }, reservable: true },
+  ];
+  const trailers = [{ slug: 'classic-33fb-2026', model: 'Classic', floorplan: '33FB', lengthFt: 33.25, year: 2026 }];
+  const { body, payload } = renderCampgroundsPage(campgrounds, trailers);
+  assert.ok(body.includes('class="cg-collections"'), 'collections rail present');
+  assert.ok(body.includes('data-col="ed"'), 'Editor\'s Picks chip present');
+  assert.ok(body.includes('data-col="al"'), 'Alpine chip present');
+  assert.ok(body.includes('data-col="lk"'), 'Lakeside chip present');
+  assert.ok(body.includes('cg-col-all'), 'All campgrounds chip present');
+  // honest counts baked into the payload + reflected in chip labels
+  assert.equal(payload.collections.ed, 1, 'one editor pick');
+  assert.equal(payload.collections.al, 1, 'one alpine');
+  assert.equal(payload.collections.lk, 1, 'one lakeside');
+  assert.equal(payload.collections.fh, 1, 'one full-hookup');
+  assert.equal(payload.collections.ds, 1, 'one dark-sky');
+  assert.equal(payload.collections.np, 1, 'one inside-a-NP');
+  // the baked client records carry membership for the filter
+  const c1 = payload.campgrounds.find((c) => c.i === '1');
+  assert.ok(c1.cl.includes('ed') && c1.cl.includes('al') && c1.cl.includes('ds') && c1.cl.includes('np'));
+});

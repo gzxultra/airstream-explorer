@@ -3,6 +3,7 @@
 // filtered live by the rig you pick). All data is baked in at build time.
 import { statesWithCounts, toClientRecord } from './campgrounds.mjs';
 import { trailerFit, nationalFit, hookupMatch, elevationContext, nightsHere, ELEVATION_BANDS } from './campsite-fit.mjs';
+import { COLLECTIONS, collectionCounts } from './collections.mjs';
 import { formatNights } from './estimate.mjs';
 import { formatLength } from './format.mjs';
 
@@ -176,12 +177,34 @@ export function renderCampgroundsPage(campgrounds, trailers) {
     seen.add(key);
     rigOpts.push(`<option value="${esc(r.len)}" data-slug="${esc(r.slug)}">${esc(r.label)} — ${esc(formatLength(r.len))}</option>`);
   }
-  const payload = { campgrounds: slim, states: states.length, generatedAt: new Date().toISOString().slice(0, 10) };
+  const colCounts = collectionCounts(campgrounds);
+  const payload = { campgrounds: slim, states: states.length, collections: colCounts, generatedAt: new Date().toISOString().slice(0, 10) };
+  // Curated editorial collections rail. Progressive enhancement: it renders as
+  // real, crawlable HTML (each chip a button); app.js wires click->filter. With
+  // JS off the chips are inert but the page + full list still work. Counts are
+  // the honest, build-time totals from collectionCounts (same predicate the
+  // baked .cl membership uses), so the label and the filter can never disagree.
+  const railChips = COLLECTIONS.map((col) => {
+    const n = colCounts[col.key] || 0;
+    return `<button type="button" class="cg-col" data-col="${esc(col.key)}" aria-pressed="false" title="${esc(col.blurb)}">`
+      + `<span class="cg-col-eyebrow">${esc(col.eyebrow)}</span>`
+      + `<span class="cg-col-label">${esc(col.label)}</span>`
+      + `<span class="cg-col-count">${esc(n.toLocaleString('en-US'))}</span>`
+      + `</button>`;
+  }).join('');
+  const rail = `<section class="cg-collections" aria-label="Curated collections">
+<div class="cg-col-scroll" role="group">
+<button type="button" class="cg-col cg-col-all is-on" data-col="" aria-pressed="true"><span class="cg-col-label">All campgrounds</span></button>
+${railChips}
+</div>
+<p class="cg-col-blurb" id="cg-col-blurb" hidden></p>
+</section>`;
   const body = `<header class="cg-hero">
 <p class="eyebrow">NATIONWIDE</p>
 <h1>Campground Finder</h1>
 <p class="lede">Every RV-friendly campground on Recreation.gov — <strong>${esc(campgrounds.length.toLocaleString('en-US'))}</strong> sites across <strong>${esc(states.length)}</strong> states — matched to your Airstream's real length. Pick your rig and instantly see where it fits.</p>
 </header>
+${rail}
 <section class="cg-controls" aria-label="Filters">
 <div class="cg-ctl">
 <label for="cg-rig">Your rig</label>

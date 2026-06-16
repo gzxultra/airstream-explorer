@@ -926,7 +926,7 @@
     var elMore = document.getElementById('cg-more');
     var elMoreBtn = document.getElementById('cg-more-btn');
 
-    var state = { len: 0, st: '', q: '', sort: 'rank', hideUnknown: false, fitsOnly: false, hookup: '', elev: '', pullthrough: false, shown: 30, live: null, source: 'static' };
+    var state = { len: 0, st: '', collection: '', q: '', sort: 'rank', hideUnknown: false, fitsOnly: false, hookup: '', elev: '', pullthrough: false, shown: 30, live: null, source: 'static' };
 
     // Restore saved preferences (rig/length, state, sort, fit toggles). Search
     // text is intentionally NOT persisted — it's a transient lookup, not a pref.
@@ -938,6 +938,7 @@
       if (typeof p.len === 'number' && p.len > 0) state.len = p.len;
       if (typeof p.rig === 'string') savedRig = p.rig;
       if (typeof p.st === 'string') state.st = p.st;
+      if (typeof p.collection === 'string') state.collection = p.collection;
       if (typeof p.sort === 'string') state.sort = p.sort;
       if (typeof p.hideUnknown === 'boolean') state.hideUnknown = p.hideUnknown;
       if (typeof p.fitsOnly === 'boolean') state.fitsOnly = p.fitsOnly;
@@ -948,6 +949,7 @@
     function persistCg() {
       Store.set(CG_PREFS, {
         rig: elRig ? elRig.value : '', len: state.len, st: state.st,
+        collection: state.collection,
         sort: state.sort, hideUnknown: state.hideUnknown, fitsOnly: state.fitsOnly,
         hookup: state.hookup, elev: state.elev, pullthrough: state.pullthrough,
       });
@@ -1145,12 +1147,25 @@
     function rankScore(c) { return (c.r || 0) * Math.log10((c.v || 0) + 1); }
 
     // Active pool: live results for the current region if present, else static.
-    function pool() { return state.live && state.live.length ? state.live : STATIC; }
+    // Curated collections are a property of the BAKED static set (live API rows
+    // carry no .cl membership), so an active collection always reads from STATIC
+    // — otherwise zooming into live mode would empty a collection view.
+    function pool() {
+      if (state.collection) return STATIC;
+      return state.live && state.live.length ? state.live : STATIC;
+    }
 
     function visible() {
       var len = state.len;
       var list = pool().filter(function (c) {
         if (state.st && c.s !== state.st && STATE_CODE_OF[c.s] !== state.st && STATE_NAME_OF[c.s] !== state.st) return false;
+        // Curated collection lens. Reads the baked membership array .cl (set by
+        // toClientRecord from the FULL record). Live Recreation.gov API rows
+        // carry no .cl, so an active collection honestly excludes them rather
+        // than guessing membership from slimmed fields.
+        if (state.collection) {
+          if (!c.cl || c.cl.indexOf(state.collection) < 0) return false;
+        }
         if (state.q) {
           var hay = ((c.n || '') + ' ' + (c.p || '') + ' ' + (c.s || '')).toLowerCase();
           if (hay.indexOf(state.q) < 0) return false;
@@ -1624,13 +1639,24 @@
         '<p class="cg-empty">No campgrounds match in this area. Try widening the length, clearing filters, or moving the map.</p>';
       if (elMore) elMore.hidden = list.length <= state.shown;
       // summary - the count always equals exactly what is listed/plotted
-      var srcTxt = state.source === 'live'
+      // A collection view always reads the national baked set, so label it
+      // honestly as the cached set regardless of the live/fallback source.
+      var effSource = state.collection ? 'static' : state.source;
+      var srcTxt = effSource === 'live'
         ? 'Live from Recreation.gov'
-        : (state.source === 'fallback' ? 'Live unavailable \u2014 cached set' : 'Cached set');
-      var scopeTxt = state.source === 'live' ? ' in view' : '';
+        : (effSource === 'fallback' ? 'Live unavailable \u2014 cached set' : 'Cached set');
+      var scopeTxt = effSource === 'live' ? ' in view' : '';
       var rigTxt = len > 0 ? (' \u00b7 fitting a ' + (Math.round(len * 10) / 10) + "&prime; rig") : '';
-      elSummary.innerHTML = '<strong>' + list.length.toLocaleString('en-US') + '</strong> campgrounds' + scopeTxt + rigTxt +
-        ' <span class="cg-src-tag cg-src-' + state.source + '">' + esc(srcTxt) + '</span>';
+      // When a curated collection is active, fold its label into the noun so the
+      // count reads like "487 Editor's Picks campgrounds". Pulled from the live
+      // chip text so the wording stays in one place (the rail).
+      var colTxt = '';
+      if (state.collection) {
+        var activeChip = document.querySelector('.cg-col[data-col="' + state.collection + '"] .cg-col-label');
+        if (activeChip) colTxt = ' ' + esc(activeChip.textContent.trim());
+      }
+      elSummary.innerHTML = '<strong>' + list.length.toLocaleString('en-US') + '</strong>' + colTxt + ' campgrounds' + scopeTxt + rigTxt +
+        ' <span class="cg-src-tag cg-src-' + effSource + '">' + esc(srcTxt) + '</span>';
     }
 
     // ---- live scheduling ----
@@ -1724,13 +1750,53 @@
     if (elHookup) elHookup.addEventListener('change', function () { state.hookup = this.value; state.shown = 30; persistCg(); render(); });
     if (elElev) elElev.addEventListener('change', function () { state.elev = this.value; state.shown = 30; persistCg(); render(); });
     if (elPullthrough) elPullthrough.addEventListener('change', function () { state.pullthrough = this.checked; state.shown = 30; persistCg(); render(); });
+    // ---- curated collections rail ----
+    var colRail = document.querySelector('.cg-collections');
+    var colBlurb = document.getElementById('cg-col-blurb');
+    var colChips = colRail ? [].slice.call(colRail.querySelectorAll('.cg-col')) : [];
+    // Visually sync the rail to state.collection: pressed chip, blurb text. The
+    // blurb (and its title attr source) lives on each chip so there's no second
+    // copy of the editorial strings in JS.
+    function syncCollectionRail() {
+      if (!colRail) return;
+      // Validate the active key against the real chips; an unknown key (stale or
+      // hand-edited share link) falls back to "All campgrounds".
+      if (state.collection) {
+        var valid = colChips.some(function (ch) { return ch.getAttribute('data-col') === state.collection; });
+        if (!valid) state.collection = '';
+      }
+      var activeBlurb = '';
+      colChips.forEach(function (chip) {
+        var on = (chip.getAttribute('data-col') || '') === (state.collection || '');
+        chip.classList.toggle('is-on', on);
+        chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+        if (on && chip.getAttribute('data-col')) activeBlurb = chip.getAttribute('title') || '';
+      });
+      if (colBlurb) {
+        if (activeBlurb) { colBlurb.textContent = activeBlurb; colBlurb.hidden = false; }
+        else { colBlurb.textContent = ''; colBlurb.hidden = true; }
+      }
+    }
+    colChips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var key = this.getAttribute('data-col') || '';
+        // Toggle: clicking the active collection clears it back to "All".
+        state.collection = (state.collection === key) ? '' : key;
+        state.shown = 30;
+        syncCollectionRail(); persistCg(); render();
+      });
+    });
+    // NOTE: the authoritative initial sync runs AFTER prefs + share-hash are
+    // applied (search for "syncCollectionRail(); // init") so a deep-linked
+    // col= is reflected on the chips. Don't sync here — state isn't final yet.
     if (elMoreBtn) elMoreBtn.addEventListener('click', function () { state.shown += 30; render(); });
     if (elReset) elReset.addEventListener('click', function () {
-      state = { len: 0, st: '', q: '', sort: 'rank', hideUnknown: false, fitsOnly: false, hookup: '', elev: '', pullthrough: false, shown: 30, live: state.live, source: state.source };
+      state = { len: 0, st: '', collection: '', q: '', sort: 'rank', hideUnknown: false, fitsOnly: false, hookup: '', elev: '', pullthrough: false, shown: 30, live: state.live, source: state.source };
       if (elRig) elRig.value = ''; if (elLen) elLen.value = ''; if (elState) elState.value = '';
       if (elSearch) elSearch.value = ''; if (elSort) elSort.value = 'rank';
       if (elHideUnknown) elHideUnknown.checked = false; if (elFitsOnly) elFitsOnly.checked = false;
       if (elHookup) elHookup.value = ''; if (elElev) elElev.value = ''; if (elPullthrough) elPullthrough.checked = false;
+      syncCollectionRail();
       Store.del(CG_PREFS);
       map.jumpTo({ center: [-98.35, 39.5], zoom: 3.4 }); render();
     });
@@ -1780,6 +1846,7 @@
         state.len = (!isNaN(l) && l > 0) ? l : 0;
       }
       if (sp.has('st')) state.st = sp.get('st') || '';
+      if (sp.has('col')) state.collection = sp.get('col') || '';
       if (sp.has('sort')) state.sort = sp.get('sort') || 'rank';
       if (sp.has('q')) state.q = (sp.get('q') || '').toLowerCase();
       if (sp.has('hu')) state.hideUnknown = sp.get('hu') === '1';
@@ -1812,12 +1879,17 @@
       if (elPullthrough) elPullthrough.checked = !!state.pullthrough;
     })();
     // (pendingMapView is applied inside wireRealMap once the real map exists)
+    // Authoritative initial rail sync: now that saved prefs AND a deep-linked
+    // col= (share hash) have both been applied to state.collection, reflect it
+    // on the chips (pressed state + blurb), validating unknown keys to "All".
+    syncCollectionRail(); // init
 
     // Build a shareable URL that reproduces the current view.
     function buildShareUrl() {
       var sp = new URLSearchParams();
       if (state.len > 0) sp.set('len', String(Math.round(state.len * 10) / 10));
       if (state.st) sp.set('st', state.st);
+      if (state.collection) sp.set('col', state.collection);
       if (state.sort && state.sort !== 'rank') sp.set('sort', state.sort);
       if (state.q) sp.set('q', state.q);
       if (state.hideUnknown) sp.set('hu', '1');

@@ -768,6 +768,45 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .cg-hero .lede { font-size: 18px; line-height: 1.5; color: var(--muted); max-width: 70ch; margin: 0; }
 .cg-hero .lede strong { color: var(--ink); }
 
+/* ---- curated collections rail (editorial discovery lenses) ---- */
+.cg-collections { max-width: var(--maxw); margin: 0 auto; padding: 8px 24px 4px; }
+.cg-col-scroll {
+  display: flex; gap: 10px; overflow-x: auto; padding: 6px 2px 10px;
+  scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin; scrollbar-color: var(--line) transparent;
+}
+.cg-col-scroll::-webkit-scrollbar { height: 6px; }
+.cg-col-scroll::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
+.cg-col {
+  flex: 0 0 auto; scroll-snap-align: start; cursor: pointer;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  min-width: 132px; padding: 11px 15px; text-align: left;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 3px;
+  color: var(--ink); transition: border-color .15s ease, background .15s ease, transform .12s ease, box-shadow .15s ease;
+}
+.cg-col:hover { border-color: rgba(176,92,50,.45); transform: translateY(-1px); box-shadow: var(--shadow); text-decoration: none; }
+.cg-col:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+.cg-col-eyebrow { font: 700 9.5px/1 "DM Sans", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--copper); }
+.cg-col-label { font: 600 15px/1.15 "Fraunces", serif; letter-spacing: -.005em; }
+.cg-col-count { font: 600 11px/1 "DM Sans", sans-serif; color: var(--muted); letter-spacing: .02em; }
+.cg-col.is-on { background: var(--copper); border-color: var(--copper); color: #fff; box-shadow: var(--shadow); }
+.cg-col.is-on .cg-col-eyebrow, .cg-col.is-on .cg-col-count { color: rgba(255,255,255,.82); }
+.cg-col-all { justify-content: center; min-width: 0; }
+.cg-col-all .cg-col-label { font-size: 14px; }
+.cg-col-blurb {
+  max-width: 70ch; margin: 2px 2px 0; padding: 0;
+  font: 400 15px/1.5 "Fraunces", serif; font-style: italic; color: var(--muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cg-col { transition: none; }
+  .cg-col:hover { transform: none; }
+}
+@media (max-width: 640px) {
+  .cg-collections { padding: 6px 16px 2px; }
+  .cg-col { min-width: 124px; padding: 10px 13px; }
+}
+
+
 .cg-controls {
   max-width: var(--maxw); margin: 24px auto 0; padding: 16px 24px;
   display: flex; flex-wrap: wrap; gap: 16px 18px; align-items: end;
