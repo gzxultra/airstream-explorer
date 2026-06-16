@@ -219,8 +219,62 @@ test('no detail page contains an unescaped data-driven angle bracket in body tex
   for (const t of trailers) {
     const html = renderDetail(t);
     const scripts = html.match(/<script/g) || [];
-    assert.equal(scripts.length, 1, `${t.slug} has unexpected <script> count`);
+    // Two legitimate scripts: the deferred app.js, and the tow-tool's
+    // application/json data island. No data-driven script should appear.
+    assert.equal(scripts.length, 2, `${t.slug} has unexpected <script> count`);
+    // The only non-app.js script is the JSON data island, and it must never
+    // contain a raw </script> breakout (we neutralize </ in the island).
+    assert.ok(!/<\/script>\s*<\/script>/.test(html), `${t.slug} double script close`);
+    const island = html.match(/<script type="application\/json" id="tow-data">([\s\S]*?)<\/script>/);
+    assert.ok(island, `${t.slug} has the tow-data island`);
+    assert.ok(!island[1].includes('</'), `${t.slug} tow-data island has an un-neutralized </`);
   }
+});
+
+import { renderTowTool } from '../src/lib/render.mjs';
+
+test('renderTowTool: server-renders a real default pairing with verdict + 3 checks', () => {
+  const html = renderTowTool(classic);
+  assert.match(html, /class="towtool"/);
+  assert.match(html, /id="tow-data"/);
+  // A verdict banner with a grade class.
+  assert.match(html, /class="tow-verdict (tow-ok|tow-tight|tow-over)"/);
+  // Exactly the three checks (tow / payload / gcwr).
+  assert.match(html, /data-key="tow"/);
+  assert.match(html, /data-key="payload"/);
+  assert.match(html, /data-key="gcwr"/);
+  // Method disclosure present.
+  assert.match(html, /How this is calculated/);
+});
+
+test('renderTowTool: every vehicle option carries a config string, and a source link is shown', () => {
+  const html = renderTowTool(classic);
+  // The default vehicle's sources render as real https links.
+  assert.match(html, /href="https:\/\/[^"]+"[^>]*>source/);
+  // The modeled-config line is present.
+  assert.match(html, /Modeled config:/);
+});
+
+test('renderTowTool: the data island is valid JSON with the full vehicle table', () => {
+  const html = renderTowTool(classic);
+  const m = html.match(/<script type="application\/json" id="tow-data">([\s\S]*?)<\/script>/);
+  assert.ok(m, 'data island present');
+  // Un-neutralize the <\/ we added for safety, then parse.
+  const parsed = JSON.parse(m[1].replace(/<\\\//g, '</'));
+  assert.ok(Array.isArray(parsed.vehicles) && parsed.vehicles.length >= 10);
+  assert.ok(parsed.defaultVehicleId, 'a default vehicle id is chosen');
+  assert.ok(parsed.trailer && parsed.trailer.gvwrLb > 0, 'trailer gvwr carried');
+  // Every vehicle in the island has the fields the client needs.
+  for (const v of parsed.vehicles) {
+    for (const k of ['id', 'name', 'config', 'maxTowLb', 'payloadLb', 'gcwrLb', 'curbWeightLb', 'sources']) {
+      assert.ok(v[k] != null, `vehicle ${v.id} missing ${k}`);
+    }
+  }
+});
+
+test('renderTowTool: omits itself when the trailer lacks a GVWR (stays honest)', () => {
+  const noGvwr = { ...classic, gvwrLb: 0 };
+  assert.equal(renderTowTool(noGvwr), '');
 });
 
 import { renderExplore, renderCompare, renderExploreCard } from '../src/lib/render.mjs';

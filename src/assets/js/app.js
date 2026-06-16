@@ -729,6 +729,144 @@
     compute();
   })();
 
+  // ---- Tow-safety calculator (detail pages) --------------------------------
+  // Mirrors the server-side math in src/lib/tow.mjs EXACTLY so the rendered
+  // default and any client recompute agree. Reads the vehicle table + trailer
+  // from a CSP-safe JSON island (#tow-data); no network, works offline. All DOM
+  // is built with textContent / createElement (no innerHTML of data).
+  (function towTool() {
+    var root = document.querySelector('.towtool');
+    if (!root) return;
+    var dataEl = document.getElementById('tow-data');
+    if (!dataEl) return;
+    var data;
+    try { data = JSON.parse(dataEl.textContent); } catch (e) { return; }
+    if (!data || !data.vehicles || !data.vehicles.length || !data.trailer) return;
+
+    // Constants must match tow.mjs.
+    var COMFORT = 0.80, CAUTION = 1.00;
+    var tonguePct = typeof data.tonguePct === 'number' ? data.tonguePct : 0.13;
+
+    var VMETA = {
+      comfortable: { label: 'Comfortable match', cls: 'tow-ok', blurb: 'Good margin on every limit.' },
+      tight: { label: 'Tight but legal', cls: 'tow-tight', blurb: 'Within ratings, but little headroom — load carefully.' },
+      over: { label: 'Over a limit', cls: 'tow-over', blurb: 'Exceeds a rating loaded — not a safe match as configured.' },
+    };
+
+    var trailer = data.trailer;
+    var trailerLoaded = trailer.gvwrLb || trailer.weightLb || 0;
+    var byId = {};
+    data.vehicles.forEach(function (v) { byId[v.id] = v; });
+
+    var elVehicle = document.getElementById('tow-vehicle');
+    var elLoad = document.getElementById('tow-load');
+    var elVerdict = document.getElementById('tow-verdict');
+    var elVLabel = document.getElementById('tow-verdict-label');
+    var elVVehicle = document.getElementById('tow-verdict-vehicle');
+    var elVBlurb = document.getElementById('tow-verdict-blurb');
+    var elChecks = document.getElementById('tow-checks');
+    var elConfig = document.getElementById('tow-config');
+    var elSources = document.getElementById('tow-sources');
+
+    function fmtLbLocal(n) { return Math.round(n).toLocaleString('en-US') + ' lb'; }
+    function pctLabel(frac) { return isFinite(frac) ? Math.round(frac * 100) + '%' : '—'; }
+    function grade(frac) {
+      if (frac > CAUTION) return 'over';
+      if (frac > COMFORT) return 'tight';
+      return 'comfortable';
+    }
+
+    // Pure mirror of evaluateTow() in tow.mjs.
+    function evaluate(v, truckLoad) {
+      var tongueLoaded = Math.round(trailerLoaded * tonguePct);
+      var curb = v.curbWeightLb || 0;
+      var combined = trailerLoaded + curb + truckLoad;
+      var payloadUsed = tongueLoaded + truckLoad;
+      var checks = [
+        { key: 'tow', label: 'Trailer tow rating', used: trailerLoaded, limit: v.maxTowLb },
+        { key: 'payload', label: 'Truck payload', used: payloadUsed, limit: v.payloadLb },
+        { key: 'gcwr', label: 'Combined weight (GCWR)', used: combined, limit: v.gcwrLb },
+      ].map(function (c) {
+        var frac = c.limit > 0 ? c.used / c.limit : Infinity;
+        c.frac = frac; c.grade = grade(frac); return c;
+      });
+      var binding = checks.reduce(function (a, b) { return b.frac > a.frac ? b : a; });
+      var order = { comfortable: 0, tight: 1, over: 2 };
+      var verdict = checks.reduce(function (worst, c) {
+        return order[c.grade] > order[worst] ? c.grade : worst;
+      }, 'comfortable');
+      return { verdict: verdict, binding: binding, checks: checks };
+    }
+
+    function rebuildChecks(result) {
+      while (elChecks.firstChild) elChecks.removeChild(elChecks.firstChild);
+      result.checks.forEach(function (c) {
+        var meta = VMETA[c.grade];
+        var pctW = Math.max(2, Math.min(100, Math.round(c.frac * 100)));
+        var wrap = document.createElement('div');
+        wrap.className = 'tow-check tow-check-' + c.grade;
+        wrap.setAttribute('data-key', c.key);
+
+        var top = document.createElement('div'); top.className = 'tow-check-top';
+        var lab = document.createElement('span'); lab.className = 'tow-check-label'; lab.textContent = c.label;
+        var pc = document.createElement('span'); pc.className = 'tow-check-pct'; pc.textContent = pctLabel(c.frac);
+        top.appendChild(lab); top.appendChild(pc);
+
+        var track = document.createElement('div'); track.className = 'tow-check-track';
+        var fill = document.createElement('span'); fill.className = 'tow-check-fill ' + meta.cls;
+        fill.style.width = pctW + '%';
+        track.appendChild(fill);
+
+        var nums = document.createElement('div'); nums.className = 'tow-check-nums';
+        var u = document.createElement('span'); u.textContent = fmtLbLocal(c.used) + ' used';
+        var l = document.createElement('span'); l.textContent = 'of ' + fmtLbLocal(c.limit);
+        nums.appendChild(u); nums.appendChild(l);
+
+        wrap.appendChild(top); wrap.appendChild(track); wrap.appendChild(nums);
+        elChecks.appendChild(wrap);
+      });
+    }
+
+    function rebuildSources(v) {
+      while (elSources.firstChild) elSources.removeChild(elSources.firstChild);
+      (v.sources || []).forEach(function (s, i) {
+        if (i > 0) elSources.appendChild(document.createTextNode(' · '));
+        var a = document.createElement('a');
+        a.href = s; a.target = '_blank'; a.rel = 'noopener nofollow';
+        a.textContent = v.sources.length > 1 ? 'source ' + (i + 1) : 'source';
+        elSources.appendChild(a);
+      });
+    }
+
+    function compute() {
+      var v = byId[elVehicle.value] || data.vehicles[0];
+      var truckLoad = parseInt(elLoad.value, 10);
+      if (isNaN(truckLoad)) truckLoad = data.defaultTruckLoadLb || 300;
+      var result = evaluate(v, truckLoad);
+      var meta = VMETA[result.verdict];
+
+      elVerdict.className = 'tow-verdict ' + meta.cls;
+      elVerdict.setAttribute('data-verdict', result.verdict);
+      elVLabel.textContent = meta.label;
+      elVVehicle.textContent = v.name;
+      elVBlurb.textContent = meta.blurb + ' Binds on ' + result.binding.label.toLowerCase() + ' at ' + pctLabel(result.binding.frac) + '.';
+
+      rebuildChecks(result);
+
+      // Config text: keep the leading label, swap the config + sources.
+      while (elConfig.firstChild) elConfig.removeChild(elConfig.firstChild);
+      elConfig.appendChild(document.createTextNode('Modeled config: ' + v.config + '. '));
+      var srcSpan = document.createElement('span'); srcSpan.id = 'tow-sources';
+      elConfig.appendChild(srcSpan);
+      elSources = srcSpan;
+      rebuildSources(v);
+    }
+
+    if (elVehicle) elVehicle.addEventListener('change', compute);
+    if (elLoad) elLoad.addEventListener('change', compute);
+    compute();
+  })();
+
   // ---- Campground Finder (campgrounds.html only) ---------------------------
   // Hybrid data model:
   //  * STATIC baked set (2561 sites, 47 states) powers the instant national view

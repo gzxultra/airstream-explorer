@@ -14,6 +14,15 @@ import {
   estimateOffGrid, formatNights,
   LOAD_PRESETS,
 } from './estimate.mjs';
+import {
+  loadVehicles, evaluateTow, pickDefaultVehicle, formatPct,
+  TONGUE_PCT_LOADED, DEFAULT_TRUCK_OCCUPANT_LB,
+} from './tow.mjs';
+
+// Tow-vehicle dataset is loaded once at module load (pure read) and reused for
+// every detail page's calculator. Each vehicle carries ONE coherent, sourced
+// 2025 configuration (see tow-vehicles.json _meta).
+const TOW_VEHICLES = loadVehicles();
 
 /** Escape text for HTML body/attribute context. */
 export function esc(s) {
@@ -347,6 +356,121 @@ function daysLabel(d) {
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
 // ---------------------------------------------------------------------------
+// DETAIL: tow-safety calculator
+// ---------------------------------------------------------------------------
+
+const TOW_VERDICT_META = {
+  comfortable: { label: 'Comfortable match', cls: 'tow-ok', blurb: 'Good margin on every limit.' },
+  tight: { label: 'Tight but legal', cls: 'tow-tight', blurb: 'Within ratings, but little headroom — load carefully.' },
+  over: { label: 'Over a limit', cls: 'tow-over', blurb: 'Exceeds a rating loaded — not a safe match as configured.' },
+};
+
+/** One result row per check (tow / payload / GCWR) with a usage meter. */
+function towCheckRows(result) {
+  return result.checks.map((c) => {
+    const meta = TOW_VERDICT_META[c.grade];
+    const pctW = Math.max(2, Math.min(100, Math.round(c.frac * 100)));
+    return `<div class="tow-check tow-check-${esc(c.grade)}" data-key="${esc(c.key)}">
+<div class="tow-check-top"><span class="tow-check-label">${esc(c.label)}</span><span class="tow-check-pct">${esc(formatPct(c.frac))}</span></div>
+<div class="tow-check-track"><span class="tow-check-fill ${esc(meta.cls)}" style="width:${pctW}%"></span></div>
+<div class="tow-check-nums"><span>${esc(formatWeight(c.used))} used</span><span>of ${esc(formatWeight(c.limit))}</span></div>
+</div>`;
+  }).join('');
+}
+
+/**
+ * Tow-safety calculator for one floorplan. Server-renders a real default
+ * pairing (this trailer behind a sensible vehicle) so the page is useful with
+ * JS off; the client (app.js towTool) recomputes when the reader picks another
+ * vehicle or changes the cab load. Mirrors the off-grid tool's contract:
+ * data-* defaults, a method <details>, and a CSP-safe JSON data island.
+ *
+ * Honesty rules baked in:
+ *  - Compares against the trailer's GVWR (loaded), not dry weight.
+ *  - Loaded tongue weight modeled at 13% of GVWR (the 10-15% rule), not the
+ *    optimistic published dry hitch figure.
+ *  - Every vehicle states its exact configuration and links its sources.
+ */
+export function renderTowTool(t) {
+  // Need a real loaded weight to compare against. GVWR is the honest basis.
+  if (!(t.gvwrLb > 0) || !TOW_VEHICLES.length) return '';
+  const trailer = { gvwrLb: t.gvwrLb, weightLb: t.weightLb, hitchWeightLb: t.hitchWeightLb };
+  const def = pickDefaultVehicle(TOW_VEHICLES, trailer, { truckLoadLb: DEFAULT_TRUCK_OCCUPANT_LB });
+  if (!def) return '';
+  const defResult = evaluateTow(def, trailer, { truckLoadLb: DEFAULT_TRUCK_OCCUPANT_LB });
+  const defMeta = TOW_VERDICT_META[defResult.verdict];
+
+  const vehicleOpts = TOW_VEHICLES
+    .slice()
+    .sort((a, b) => b.maxTowLb - a.maxTowLb)
+    .map((v) => `<option value="${esc(v.id)}"${v.id === def.id ? ' selected' : ''}>${esc(v.name)} — ${esc(v.config)}</option>`)
+    .join('');
+
+  // CSP-safe data island: the full vehicle table for the client. No inline JS;
+  // app.js reads + parses this <script type="application/json"> by id. Values
+  // are JSON-encoded so esc() isn't needed, but we still neutralize any "</"
+  // sequence so the block can't break out of the script element.
+  const dataIsland = JSON.stringify({
+    trailer: {
+      model: t.model, floorplan: t.floorplan,
+      gvwrLb: t.gvwrLb, weightLb: t.weightLb || null, hitchWeightLb: t.hitchWeightLb || null,
+    },
+    tonguePct: TONGUE_PCT_LOADED,
+    defaultTruckLoadLb: DEFAULT_TRUCK_OCCUPANT_LB,
+    defaultVehicleId: def.id,
+    vehicles: TOW_VEHICLES,
+  }).replace(/<\//g, '<\\/');
+
+  const sourceLinks = def.sources
+    .map((s, i) => `<a href="${esc(s)}" target="_blank" rel="noopener nofollow">source${def.sources.length > 1 ? ' ' + (i + 1) : ''}</a>`)
+    .join(' · ');
+
+  return `<section class="towtool" aria-label="Tow-safety calculator"
+ data-gvwr="${esc(t.gvwrLb)}"${t.weightLb ? ` data-weight="${esc(t.weightLb)}"` : ''}${t.hitchWeightLb ? ` data-hitch="${esc(t.hitchWeightLb)}"` : ''}>
+<script type="application/json" id="tow-data">${dataIsland}</script>
+<div class="tow-head">
+<h2>Can your vehicle tow it?</h2>
+<p class="tow-sub">Checks this floorplan's <strong>loaded</strong> weight (${esc(formatWeight(t.gvwrLb))} GVWR) against a tow vehicle's three real limits — tow rating, payload, and combined weight (GCWR). Pick your vehicle:</p>
+</div>
+<div class="tow-controls">
+<div class="tow-field tow-field-wide">
+<label for="tow-vehicle">Tow vehicle</label>
+<select id="tow-vehicle">${vehicleOpts}</select>
+</div>
+<div class="tow-field">
+<label for="tow-load">People &amp; gear in the cab</label>
+<select id="tow-load">
+<option value="150">~150 lb (1 adult)</option>
+<option value="300"${DEFAULT_TRUCK_OCCUPANT_LB === 300 ? ' selected' : ''}>~300 lb (2 adults)</option>
+<option value="500">~500 lb (family)</option>
+<option value="800">~800 lb (family + gear)</option>
+</select>
+</div>
+</div>
+<div class="tow-verdict ${esc(defMeta.cls)}" id="tow-verdict"
+ data-verdict="${esc(defResult.verdict)}">
+<div class="tow-verdict-badge">
+<span class="tow-verdict-label" id="tow-verdict-label">${esc(defMeta.label)}</span>
+<span class="tow-verdict-vehicle" id="tow-verdict-vehicle">${esc(def.name)}</span>
+</div>
+<p class="tow-verdict-blurb" id="tow-verdict-blurb">${esc(defMeta.blurb)} Binds on ${esc(defResult.binding.label.toLowerCase())} at ${esc(formatPct(defResult.binding.frac))}.</p>
+</div>
+<div class="tow-checks" id="tow-checks">${towCheckRows(defResult)}</div>
+<p class="tow-config muted" id="tow-config">Modeled config: ${esc(def.config)}. <span id="tow-sources">${sourceLinks}</span></p>
+<details class="tow-method">
+<summary>How this is calculated</summary>
+<p>Three checks, each from the tow vehicle's <strong>published ${esc(def.year)}-spec</strong> ratings for one stated configuration:</p>
+<ul>
+<li><strong>Trailer tow rating</strong> — the trailer at its loaded weight (GVWR, not dry) vs. the truck's max tow rating.</li>
+<li><strong>Payload</strong> — loaded tongue weight (modeled at ${Math.round(TONGUE_PCT_LOADED * 100)}% of trailer GVWR, the mid of the 10–15% rule) plus people &amp; gear in the cab vs. the truck's payload.</li>
+<li><strong>Combined weight (GCWR)</strong> — truck + trailer + everything vs. the gross combined weight rating.</li>
+</ul>
+<p>The verdict is the <em>worst</em> of the three: ≤80% of a limit is comfortable, 80–100% is tight, over 100% exceeds it. Manufacturers' "max tow" and "max payload" usually come from <em>different</em> configurations and are mutually exclusive, so each vehicle here uses ONE coherent, sourced config. These are planning figures — your truck's door-jamb certification label is the final word.</p>
+</details>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
 // DETAIL: one floorplan
 // ---------------------------------------------------------------------------
 
@@ -448,6 +572,7 @@ ${specRow('MSRP', formatMsrp(t.msrp))}
 ${note}
 </section>
 ${towCallout}
+${renderTowTool(t)}
 ${renderOffGridTool(t)}
 ${floorplanSection}
 ${decorSection}

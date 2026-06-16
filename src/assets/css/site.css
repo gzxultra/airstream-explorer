@@ -685,6 +685,82 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
   .est-bar { grid-template-columns: 80px 1fr 64px; gap: 8px; }
 }
 
+/* ===================== Tow-safety calculator ===================== */
+.towtool {
+  max-width: var(--maxw); margin: 26px auto 0; padding: 26px 28px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+}
+.tow-head h2 {
+  font-family: 'Fraunces', Georgia, serif; font-size: 24px; font-weight: 600;
+  margin: 0 0 6px; letter-spacing: -.01em;
+}
+.tow-sub { font-size: 14px; line-height: 1.55; color: var(--muted); margin: 0 0 18px; max-width: 72ch; }
+.tow-sub strong { color: var(--ink); }
+.tow-controls {
+  display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: flex-end;
+  padding-bottom: 20px; border-bottom: 1px solid var(--line);
+}
+.tow-field { display: flex; flex-direction: column; gap: 6px; }
+.tow-field-wide { flex: 1 1 360px; min-width: 260px; }
+.tow-field label { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.tow-field select {
+  font: inherit; padding: 10px 12px; min-height: 46px; border: 1px solid var(--line);
+  border-radius: 6px; background: #fff; color: var(--ink); max-width: 100%;
+}
+.tow-field select:focus { outline: 2px solid var(--copper); outline-offset: 1px; border-color: var(--copper); }
+
+/* Verdict banner — color-coded by safety grade. */
+.tow-verdict {
+  margin: 20px 0 0; padding: 16px 18px; border-radius: 8px;
+  border: 1px solid var(--line); border-left-width: 4px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.tow-verdict-badge { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.tow-verdict-label { font-family: 'Fraunces', Georgia, serif; font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
+.tow-verdict-vehicle { font-size: 13px; font-weight: 600; color: var(--muted); }
+.tow-verdict-blurb { font-size: 14px; line-height: 1.5; color: var(--ink); margin: 0; }
+/* Grade palettes: green (ok), amber (tight), red (over). */
+.tow-verdict.tow-ok { background: #EEF6EE; border-color: #BFE0C0; border-left-color: #3E8E41; }
+.tow-verdict.tow-ok .tow-verdict-label { color: #2E6B30; }
+.tow-verdict.tow-tight { background: #FBF3E3; border-color: #EAD49C; border-left-color: #C9920E; }
+.tow-verdict.tow-tight .tow-verdict-label { color: #9A6C04; }
+.tow-verdict.tow-over { background: #FBEDEA; border-color: #ECC2B8; border-left-color: #C0492E; }
+.tow-verdict.tow-over .tow-verdict-label { color: #9E3A22; }
+
+/* The three usage meters. */
+.tow-checks { margin-top: 18px; display: flex; flex-direction: column; gap: 14px; }
+.tow-check { display: flex; flex-direction: column; gap: 5px; }
+.tow-check-top { display: flex; justify-content: space-between; align-items: baseline; }
+.tow-check-label { font-size: 13px; color: var(--ink); font-weight: 600; }
+.tow-check-pct { font-size: 13px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tow-check-track { height: 9px; background: #EDE5D6; border-radius: 100px; overflow: hidden; }
+.tow-check-fill { display: block; height: 100%; border-radius: 100px; }
+.tow-check-fill.tow-ok { background: linear-gradient(90deg, #5BAE5E, #3E8E41); }
+.tow-check-fill.tow-tight { background: linear-gradient(90deg, #E2B23C, #C9920E); }
+.tow-check-fill.tow-over { background: linear-gradient(90deg, #D26A4F, #C0492E); }
+.tow-check-nums { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.tow-config { max-width: var(--maxw); margin: 16px 0 0; font-size: 13px; }
+.tow-config a { color: var(--copper-deep); font-weight: 600; }
+.tow-config a:hover { color: var(--copper); }
+
+.tow-method { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; }
+.tow-method summary { font-size: 13px; font-weight: 600; color: var(--copper); cursor: pointer; list-style: none; }
+.tow-method summary::-webkit-details-marker { display: none; }
+.tow-method summary::before { content: '+ '; font-weight: 700; }
+.tow-method[open] summary::before { content: '– '; }
+.tow-method p { font-size: 13px; line-height: 1.6; color: var(--muted); margin: 10px 0 2px; max-width: 82ch; }
+.tow-method ul { margin: 8px 0; padding-left: 20px; }
+.tow-method li { font-size: 13px; line-height: 1.6; color: var(--muted); margin: 4px 0; }
+.tow-method strong { color: var(--ink); }
+
+@media (max-width: 640px) {
+  .towtool { padding: 20px 18px; }
+  .tow-verdict-label { font-size: 18px; }
+  .tow-field-wide { flex-basis: 100%; }
+}
+
 /* ===================== Campground Finder ===================== */
 .cg-hero { max-width: var(--maxw); margin: 0 auto; padding: 56px 24px 20px; }
 .cg-hero .eyebrow { font: 600 12px/1 "DM Sans", sans-serif; letter-spacing: .18em; color: var(--copper); margin: 0 0 14px; }

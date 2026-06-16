@@ -1,0 +1,190 @@
+{
+  "_meta": {
+    "purpose": "Tow-vehicle ratings for the Tow Safety Calculator. Every vehicle models ONE real, popular, properly-equipped 2025 configuration; the four ratings below are taken from that SAME configuration so they are internally coherent. Manufacturers publish a 'max tow' figure and a 'max payload' figure that usually come from DIFFERENT body/axle configs and are explicitly mutually exclusive (Ram and Ford both say so) — we never mix them.",
+    "method": {
+      "payload": "Each config's published payload. Cross-checks against the SAE identity payload = GVWR - curb weight (verified exact against Toyota and Chevrolet factory tables).",
+      "gcwr": "Manufacturer-published GCWR where available; otherwise the SAE J2807 basis: max trailer weight + curb weight + 300 lb occupant allowance (the same relationship Ram/Ford state on their own towing charts). This is conservative — a manufacturer's rated GCWR is equal to or slightly higher.",
+      "tongueWeight": "Not stored per vehicle; the calculator models loaded tongue weight as a % of the trailer's loaded weight (10-15%, default 13%), per the conventional travel-trailer rule.",
+      "disclaimer": "Representative figures for trip planning, not a substitute for the door-jamb Safety Compliance Certification Label, which is the truth for any specific truck. Real ratings shift with engine, axle ratio, cab/bed, and option content."
+    },
+    "modelYear": 2025
+  },
+  "vehicles": [
+    {
+      "id": "ford-f150-supercrew-ecoboost",
+      "name": "Ford F-150",
+      "year": 2025,
+      "class": "Half-ton pickup",
+      "config": "SuperCrew 4\u00d74 \u00b7 3.5L EcoBoost V6 \u00b7 Max Trailer Tow Package",
+      "maxTowLb": 13500,
+      "payloadLb": 1950,
+      "gvwrLb": 7050,
+      "curbWeightLb": 5100,
+      "gcwrLb": 18900,
+      "sources": [
+        "https://www.earnhardtford.com/eli-2025-ford-f-150-towing-capacity-guide",
+        "https://www.imlaycityfordsales.com/research-ford-f150-towing.html"
+      ]
+    },
+    {
+      "id": "ram-1500-crew-hemi-etorque",
+      "name": "Ram 1500",
+      "year": 2025,
+      "class": "Half-ton pickup",
+      "config": "Crew Cab 4\u00d74 \u00b7 5.7L HEMI V8 eTorque \u00b7 Max Tow",
+      "maxTowLb": 11340,
+      "payloadLb": 1710,
+      "gvwrLb": 7100,
+      "curbWeightLb": 5390,
+      "gcwrLb": 17030,
+      "sources": [
+        "https://www.nationaldodge.com/2025-ram-1500-towing-guide.htm",
+        "https://www.jeffdambrosiochryslerjeepdodge.com/blogs/3502/ram-trucks/2025-ram-1500-towing-capabilities/"
+      ]
+    },
+    {
+      "id": "chevy-silverado-1500-crew-53-nht",
+      "name": "Chevrolet Silverado 1500",
+      "year": 2025,
+      "class": "Half-ton pickup",
+      "config": "Crew Cab 4\u00d74 \u00b7 5.3L V8 \u00b7 Max Trailering Package (NHT)",
+      "maxTowLb": 11000,
+      "payloadLb": 2030,
+      "gvwrLb": 7200,
+      "curbWeightLb": 5170,
+      "gcwrLb": 16470,
+      "sources": [
+        "https://www.chevyusa.com/manufacturer-information/2025-chevy-silverado-1500-towing-capacity/",
+        "https://gmauthority.com/blog/2025/03/heres-how-much-the-2025-chevy-silverado-1500-can-tow/"
+      ]
+    },
+    {
+      "id": "toyota-tundra-crewmax-iforce",
+      "name": "Toyota Tundra",
+      "year": 2025,
+      "class": "Half-ton pickup",
+      "config": "CrewMax 4\u00d74 \u00b7 3.4L i-FORCE twin-turbo V6",
+      "maxTowLb": 11170,
+      "payloadLb": 1600,
+      "gvwrLb": 7390,
+      "curbWeightLb": 5790,
+      "gcwrLb": 17260,
+      "sources": [
+        "https://pickuptrucktalk.com/2022/02/2022-toyota-tundra-tow-gcwr-gvwr-tongue-weight-explained/",
+        "https://www.northgeorgiatoyota.com/2025-toyota-tundra-towing-guide.htm"
+      ]
+    },
+    {
+      "id": "ford-expedition-4x4-hd-tow",
+      "name": "Ford Expedition",
+      "year": 2025,
+      "class": "Full-size SUV",
+      "config": "Standard wheelbase 4\u00d74 \u00b7 3.5L EcoBoost V6 \u00b7 Heavy-Duty Trailer Tow",
+      "maxTowLb": 9600,
+      "payloadLb": 1750,
+      "gvwrLb": 7450,
+      "curbWeightLb": 5700,
+      "gcwrLb": 15600,
+      "sources": [
+        "https://www.jclewisford.com/2025-ford-expedition-towing-capacity-payload-specs",
+        "https://www.capitalone.com/cars/learn/finding-the-right-car/2025-ford-expedition-towing-test/3904"
+      ]
+    },
+    {
+      "id": "toyota-sequoia-iforce-max-4wd",
+      "name": "Toyota Sequoia",
+      "year": 2025,
+      "class": "Full-size SUV",
+      "config": "i-FORCE MAX hybrid \u00b7 4\u00d74 (Platinum)",
+      "maxTowLb": 9010,
+      "payloadLb": 1410,
+      "gvwrLb": 7560,
+      "curbWeightLb": 6150,
+      "gcwrLb": 15460,
+      "sources": [
+        "https://www.toyota.com/content/dam/toyota/brochures/pdf/2025/sequoia_ebrochure.pdf",
+        "https://www.355toyota.com/toyota-sequoia-towing-capacity"
+      ]
+    },
+    {
+      "id": "chevy-tahoe-53-2wd",
+      "name": "Chevrolet Tahoe",
+      "year": 2025,
+      "class": "Full-size SUV",
+      "config": "5.3L V8 \u00b7 2WD",
+      "maxTowLb": 8400,
+      "payloadLb": 1834,
+      "gvwrLb": 7400,
+      "curbWeightLb": 5473,
+      "gcwrLb": 14000,
+      "sources": [
+        "https://www.carweek.com/research/chevrolet/tahoe/2025/specs",
+        "https://www.southcarolinachevy.com/how-much-does-a-chevrolet-tahoe-weigh/"
+      ]
+    },
+    {
+      "id": "toyota-tacoma-double-cab-4x4",
+      "name": "Toyota Tacoma",
+      "year": 2025,
+      "class": "Mid-size pickup",
+      "config": "Double Cab 4\u00d74 \u00b7 2.4L i-FORCE turbo",
+      "maxTowLb": 6400,
+      "payloadLb": 1590,
+      "gvwrLb": 6305,
+      "curbWeightLb": 4710,
+      "gcwrLb": 11410,
+      "sources": [
+        "https://www.toyotaofanaheim.com/toyota-research/toyota-tacoma-towing-capacity/",
+        "https://www.motortrend.com/cars/toyota/tacoma/specs"
+      ]
+    },
+    {
+      "id": "jeep-grand-cherokee-v6-4x4",
+      "name": "Jeep Grand Cherokee",
+      "year": 2025,
+      "class": "Mid-size SUV",
+      "config": "3.6L Pentastar V6 \u00b7 4\u00d74 \u00b7 Trailer-Tow Group",
+      "maxTowLb": 6200,
+      "payloadLb": 1280,
+      "gvwrLb": 5938,
+      "curbWeightLb": 4658,
+      "gcwrLb": 11158,
+      "sources": [
+        "https://www.stellantisfleet.com/content/dam/fca-fleet/na/fleet/en_us/shopping-tools/brochures-literature/docs/buyers-guide/2025/25DOMFLT_FBG_GrandCherokeeL.pdf",
+        "https://www.carmax.com/research/jeep/grand-cherokee/2025"
+      ]
+    },
+    {
+      "id": "toyota-4runner-iforce-4x4",
+      "name": "Toyota 4Runner",
+      "year": 2025,
+      "class": "Mid-size SUV",
+      "config": "2.4L i-FORCE turbo \u00b7 4\u00d74 (TRD Off-Road)",
+      "maxTowLb": 6000,
+      "payloadLb": 1600,
+      "gvwrLb": 6405,
+      "curbWeightLb": 4805,
+      "gcwrLb": 11105,
+      "sources": [
+        "https://www.autoblog.com/carbuying/toyota-4runner-towing-capacity",
+        "https://carbuzz.com/cars/toyota/4runner/2025/"
+      ]
+    },
+    {
+      "id": "jeep-wrangler-unlimited-4door",
+      "name": "Jeep Wrangler",
+      "year": 2025,
+      "class": "Compact SUV",
+      "config": "Unlimited 4-Door \u00b7 2.0L Turbo (Sahara)",
+      "maxTowLb": 3500,
+      "payloadLb": 1310,
+      "gvwrLb": 6450,
+      "curbWeightLb": 5140,
+      "gcwrLb": 8940,
+      "sources": [
+        "https://www.fivestarclearfield.com/2025-jeep-wrangler-towing-capacity.html",
+        "https://www.jeep-caribbean.com/2025/wrangler/faq.html"
+      ]
+    }
+  ]
+}
