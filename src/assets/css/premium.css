@@ -1,0 +1,178 @@
+/* ===========================================================================
+   premium.css — editorial polish layer (2026-06-16)
+   Loaded LAST so it wins. Pure CSS, zero new assets, all same-origin.
+   Goal: lift the whole site one notch — more magazine, less template — by
+   deepening the EXISTING design language (Fraunces + DM Sans, copper, cream),
+   never replacing it. Five levers: optical type, spacing rhythm, a layered
+   soft-shadow system, restrained micro-interactions, and image framing.
+   Every motion degrades under prefers-reduced-motion (block at the bottom).
+   =========================================================================== */
+
+:root {
+  /* --- Layered soft-shadow system -------------------------------------- */
+  /* Replaces the old two-stop drop with a graduated three-stop stack: a
+     hairline contact edge + a soft mid + a wide ambient. Reads as paper
+     lifting off a warm table rather than a hard CSS box-shadow. The base
+     `--shadow` var is overridden here so every component that already uses
+     it inherits the refinement for free. */
+  --shadow: 0 .5px 1px rgba(31,27,22,.045), 0 2px 5px rgba(31,27,22,.045), 0 10px 26px rgba(31,27,22,.055);
+  --shadow-sm: 0 .5px 1px rgba(31,27,22,.04), 0 1.5px 4px rgba(31,27,22,.05);
+  --shadow-lift: 0 1px 2px rgba(31,27,22,.05), 0 6px 14px rgba(31,27,22,.07), 0 22px 48px rgba(138,69,36,.12);
+
+  /* --- Spacing scale (1.5× / golden-ish rhythm) ------------------------ */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 18px;
+  --space-5: 26px; --space-6: 40px; --space-7: 60px; --space-8: 88px;
+
+  /* --- Motion ----------------------------------------------------------- */
+  --ease-out: cubic-bezier(.22,.61,.36,1);
+  --ease-soft: cubic-bezier(.2,.7,.2,1);
+}
+
+/* ===========================================================================
+   1. OPTICAL TYPOGRAPHY
+   =========================================================================== */
+/* Fraunces + DM Sans are true variable fonts (opsz 9–144 on Fraunces). Tie the
+   optical axis to size so big display titles get the high-contrast "display"
+   cut and small text stays legible. */
+html { font-optical-sizing: auto; text-rendering: optimizeLegibility; }
+body { font-feature-settings: "kern" 1, "liga" 1, "calt" 1; }
+
+/* Display headings: balance line breaks so titles never leave one orphan word
+   on the last line, and tighten tracking the bigger they get. */
+h1, h2, h3 { text-wrap: balance; }
+.hero-head h1, .home-hero-inner h1, .fam-hero-overlay h1,
+.detail-head h1, .explore-head h1, .cg-hero h1 {
+  letter-spacing: -.018em;
+  font-variation-settings: "opsz" 72, "wght" 600;
+}
+/* The copper accent word inside titles reads as one optical unit. */
+.detail-head h1 span, .card-title span, .home-hero-inner h1 span { letter-spacing: -.02em; }
+
+/* Long editorial prose: prettier rag, hung punctuation where supported. */
+.detail-desc, .cg-hero .lede, .explore-head .lede, .hero-head .lede,
+.up-sec-blurb, .csec-blurb, .est-sub, .tow-sub, .cg-fit-sub {
+  text-wrap: pretty;
+  hanging-punctuation: first last;
+}
+
+/* Eyebrows/kickers: a touch more air + a hairline copper tick for editorial
+   structure (the small uppercase labels that open each section). */
+.eyebrow { letter-spacing: .2em; }
+
+/* Numerals in spec/stat contexts: lining tabular figures so columns align and
+   ranges read like a spec sheet, not body copy. (Belt-and-suspenders with the
+   existing font-variant-numeric usage.) */
+.card-specs .spec dd, .fam-stats .spec dd, .xcard-specs .spec dd,
+.specs-grid .spec dd, .cmp-table tbody td, .fam-range,
+.est-number, .tow-callout-value { font-feature-settings: "tnum" 1, "lnum" 1; }
+
+/* ===========================================================================
+   2. SPACING & RHYTHM
+   =========================================================================== */
+/* A hair more breathing room between the hero band and the grids below, and a
+   calmer, more even vertical cadence on the home family grid. */
+.fam-grid { gap: 30px 26px; }
+.cards { gap: 28px 24px; }
+.xgrid { gap: 26px 22px; }
+
+/* Section dividers (Upgrades / Community) get more space above so each section
+   reads as its own editorial spread. */
+.up-sec, .csec { scroll-margin-top: 88px; }
+
+/* ===========================================================================
+   3. SURFACES — unified radius + softer cards
+   =========================================================================== */
+/* The home "by family" cards used a 2px radius while the Explore/family cards
+   used 6px — unify to the softer 6px so every browsable card matches. (Spec
+   tables, chips, and the sharp 2px editorial accents are left untouched.) */
+.card { border-radius: 8px; }
+.fam { border-radius: 8px; }
+.card-media { border-radius: 0; }
+
+/* ===========================================================================
+   4. MICRO-INTERACTIONS (restrained, fast, tasteful)
+   =========================================================================== */
+/* Smoother, more expensive-feeling card lifts with a unified easing + the new
+   layered hover shadow. Translate distances stay subtle. */
+.card, .fam, .xcard, .cg-card, .up-card {
+  transition: transform .26s var(--ease-out), box-shadow .26s var(--ease-out);
+}
+.card:hover, .xcard:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); }
+.fam:hover { transform: translateY(-5px); box-shadow: var(--shadow-lift); }
+.cg-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+
+/* Image-in-frame easing: slower, softer zoom so the photo glides rather than
+   snaps. (Frames already clip via overflow:hidden.) */
+.card-media img, .xcard-media img, .fam-media img, .up-media img {
+  transition: transform .6s var(--ease-soft);
+}
+
+/* Animated underline for in-body editorial links — a copper rule that wipes in
+   from the left instead of the default browser underline. Scoped to prose so
+   nav pills, buttons, and cards are untouched. */
+.detail-desc a, .up-why a, .cg-src a, .est-detail a, .community-foot a,
+.cg-fit-src a, .spec-note a {
+  text-decoration: none;
+  background-image: linear-gradient(var(--copper), var(--copper));
+  background-size: 0% 1.5px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size .28s var(--ease-out);
+  padding-bottom: 1px;
+}
+.detail-desc a:hover, .up-why a:hover, .cg-src a:hover, .est-detail a:hover,
+.community-foot a:hover, .cg-fit-src a:hover, .spec-note a:hover {
+  background-size: 100% 1.5px; text-decoration: none;
+}
+
+/* Unified, accessible focus ring across every interactive element. Replaces the
+   assorted hard 2px outlines with a soft copper halo that only shows for
+   keyboard users (focus-visible), never on mouse click. */
+a:focus-visible, button:focus-visible, summary:focus-visible,
+input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(176,92,50,.35), 0 0 0 1px rgba(176,92,50,.55);
+  border-radius: 4px;
+}
+
+/* Brand mark in the top nav: a whisper of motion on hover so the wordmark feels
+   alive without being cute. */
+.brandbar { transition: color .18s var(--ease-out); }
+.brandbar:hover .brandbar-mark { color: var(--copper-deep); }
+
+/* ===========================================================================
+   5. IMAGE FRAMING
+   =========================================================================== */
+/* Cinematic hero band: deepen the bottom scrim slightly and add a faint top
+   vignette so white-sky photos never wash out the eyebrow/nav, and the title
+   always has contrast to sit on. */
+.home-hero-shade {
+  background:
+    linear-gradient(to top, rgba(18,14,10,.88) 0%, rgba(18,14,10,.50) 40%, rgba(18,14,10,.12) 72%, rgba(18,14,10,.28) 100%);
+}
+.fam-hero-overlay {
+  background: linear-gradient(to top, rgba(18,14,10,.86) 0%, rgba(18,14,10,.46) 52%, rgba(18,14,10,0) 100%);
+}
+
+/* Detail hero image: unify to the cinematic 16/9 frame the rest of the site
+   uses, with the same soft shadow, so it stops being a raw full-bleed photo. */
+.detail-hero-img { aspect-ratio: 16/9; object-fit: cover; }
+
+/* A faint inner hairline on framed media so photos read as matted prints rather
+   than floating rectangles. Uses inset shadow → no layout shift. */
+.card-media, .xcard-media, .fam-media, .up-media, .detail-hero, .cg-card-img {
+  box-shadow: inset 0 0 0 1px rgba(31,27,22,.05);
+}
+
+/* ===========================================================================
+   REDUCED MOTION — degrade everything above to instant
+   =========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .card, .fam, .xcard, .cg-card, .up-card,
+  .card-media img, .xcard-media img, .fam-media img, .up-media img,
+  .detail-desc a, .up-why a, .cg-src a, .est-detail a, .community-foot a,
+  .cg-fit-src a, .spec-note a, .brandbar {
+    transition: none !important;
+  }
+  .card:hover, .fam:hover, .xcard:hover, .cg-card:hover { transform: none; }
+}

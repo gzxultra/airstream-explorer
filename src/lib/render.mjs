@@ -63,6 +63,7 @@ export function page({ title, description, body, relRoot = '', head = '', script
 <link rel="stylesheet" href="${relRoot}assets/css/fonts.css">
 <link rel="stylesheet" href="${relRoot}assets/css/site.css">
 <link rel="stylesheet" href="${relRoot}assets/css/controls.css">
+<link rel="stylesheet" href="${relRoot}assets/css/premium.css">
 ${head}</head>
 <body>
 <header class="topnav">
