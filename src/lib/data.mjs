@@ -177,6 +177,31 @@ export function groupByFamily(trailers) {
 }
 
 /**
+ * Catalog-wide stats derived from the live dataset — the single source of
+ * truth for the global footer line so it can never drift from the data
+ * (no more hardcoded `${31}` that silently lies when the catalog changes).
+ * Memoized: the dataset is static within a build.
+ */
+let _catalogStats = null;
+export function catalogStats(trailers) {
+  if (!trailers) {
+    if (_catalogStats) return _catalogStats;
+    trailers = loadTrailers();
+  }
+  const families = new Set(trailers.map((t) => t.model));
+  const floorplans = new Set(trailers.map((t) => `${t.model}\u0000${t.floorplan}`));
+  const years = [...new Set(trailers.map((t) => t.year))].sort((a, b) => b - a);
+  const stats = {
+    familyCount: families.size,
+    floorplanCount: floorplans.size,
+    entryCount: trailers.length,
+    years,
+  };
+  _catalogStats = stats;
+  return stats;
+}
+
+/**
  * Canonical (pure) asset paths for a trailer, relative + CF-root friendly.
  * Hero is derived from the model name via slugify() — NOT the legacy
  * `heroFamily` field, which was unreliable and is no longer used.

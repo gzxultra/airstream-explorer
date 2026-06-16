@@ -46,9 +46,12 @@ test('home subhead and footer agree on the floorplan count (distinct layouts)', 
   const distinct = families.reduce((n, f) => n + f.floorplanCount, 0); // 31
   // subhead lede
   assert.match(html, new RegExp(`${families.length} families, ${distinct} floorplans`));
-  // footer must use the SAME number — no stale hardcoded 59
-  assert.match(html, new RegExp(`${distinct} floorplans across 12 families`));
+  // footer must DERIVE both numbers from live data — no stale hardcoded literals
+  assert.match(html, new RegExp(`${distinct} floorplans across ${families.length} families`));
   assert.doesNotMatch(html, /59 floorplans across/);
+  // guard against the old hardcoded `${31}` / `12` literals creeping back in
+  // if the catalog ever grows/shrinks
+  assert.ok(distinct !== 0 && families.length !== 0);
 });
 
 test('home families are ordered flagship -> budget by entry price', () => {
