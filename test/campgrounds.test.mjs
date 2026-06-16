@@ -173,3 +173,64 @@ test('fitExplain labels/classes stay consistent with fitClass', () => {
     assert.equal(fitExplain(len, max).cls, fitClass(len, max));
   }
 });
+
+// ---------------------------------------------------------------------------
+// Enriched toClientRecord fields (the new per-site intelligence payload)
+// ---------------------------------------------------------------------------
+test('toClientRecord ships the enriched per-site fields with slim keys', () => {
+  const c = {
+    id: '232490', name: 'MATHER CAMPGROUND', state: 'Arizona', org: 'NPS',
+    lat: 36.05, lon: -112.12, activities: [],
+    maxLengthFt: 30, trailerMaxFt: 30,
+    trailerLenHistogram: { 15: 44, 16: 4, 21: 6, 25: 23, 27: 37, 30: 22 },
+    hookups: 'none', ampService: [], hasPullThrough: true, elevationFt: 6991,
+    rvSiteCount: 136, dumpStation: true, flushToilets: true, accessibleSiteCount: 8,
+  };
+  const r = toClientRecord(c);
+  assert.deepEqual(r.th, { 15: 44, 16: 4, 21: 6, 25: 23, 27: 37, 30: 22 }, 'histogram shipped under .th');
+  assert.equal(r.tm, 30, 'trailer-true max under .tm');
+  assert.equal(r.h, 'none', 'hookups under .h');
+  assert.equal(r.am, undefined, 'empty ampService omitted');
+  assert.equal(r.pt, 1, 'pull-through flag');
+  assert.equal(r.el, 6991, 'elevation under .el');
+  assert.equal(r.rc, 136, 'rv site count');
+  assert.equal(r.ds, 1, 'dump station');
+  assert.equal(r.fl, 1, 'flush toilets');
+  assert.equal(r.ac, 8, 'accessible site count');
+  assert.equal(r.dw, undefined, 'absent facility omitted (no drinking water field)');
+  assert.equal(r.sh, undefined, 'absent facility omitted (no showers field)');
+});
+
+test('toClientRecord keeps amp service (30/50 subset) and the unverified flag honest', () => {
+  const full = toClientRecord({
+    id: '1', name: 'Big', lat: 1, lon: 1, activities: [],
+    hookups: 'full', ampService: [20, 30, 50], trailerLenHistogram: { 50: 2 }, trailerMaxFt: 50,
+  });
+  assert.deepEqual(full.am, [30, 50], 'only the meaningful 30/50 amps survive');
+
+  const unver = toClientRecord({ id: '2', name: 'Unknown', lat: 1, lon: 1, activities: [], siteData: 'unverified' });
+  assert.equal(unver.uv, 1, 'unverified parks carry the honest-missing flag');
+  assert.equal(unver.th, undefined, 'no histogram → omitted, never zeroed');
+  assert.equal(unver.tm, undefined);
+  assert.equal(unver.h, undefined);
+});
+
+// ---------------------------------------------------------------------------
+// Finder filter controls (hookup / pull-through / elevation)
+// ---------------------------------------------------------------------------
+test('renderCampgroundsPage server-renders the new hookup/elevation/pull-through controls', () => {
+  const campgrounds = [
+    { id: '1', name: 'Mather', state: 'Arizona', org: 'NPS', lat: 36, lon: -112, activities: [],
+      maxLengthFt: 30, trailerLenHistogram: { 25: 10 }, hookups: 'none', elevationFt: 6991, hasPullThrough: true },
+  ];
+  const trailers = [{ slug: 'classic-33fb-2026', model: 'Classic', floorplan: '33FB', lengthFt: 33.25, year: 2026 }];
+  const { body } = renderCampgroundsPage(campgrounds, trailers);
+  assert.ok(body.includes('id="cg-hookup"'), 'hookup filter present');
+  assert.ok(body.includes('id="cg-elev"'), 'elevation filter present');
+  assert.ok(body.includes('id="cg-pullthrough"'), 'pull-through toggle present');
+  // hookup options
+  assert.match(body, /id="cg-hookup"[\s\S]*?Electric or better[\s\S]*?Full hookups[\s\S]*?Dry camping/);
+  // elevation bands from ELEVATION_BANDS
+  assert.match(body, /Low \(under 2,000/);
+  assert.match(body, /High \(8,000/);
+});

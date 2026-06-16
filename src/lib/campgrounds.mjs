@@ -170,6 +170,29 @@ export function toClientRecord(c) {
   // prepends it back. Anything not under that prefix is kept whole (defensive).
   let g;
   if (c.photo) g = c.photo.startsWith(REC_PHOTO_PREFIX) ? c.photo.slice(REC_PHOTO_PREFIX.length) : c.photo;
+  // Trailer-length histogram: ship a COMPACT form { "<ft>": count, ... }. This
+  // is the honest per-site fit source (see campsite-fit.trailerFit); the client
+  // computes "% of sites that take YOUR length" from it, never from a single
+  // overstated all-equipment max. Only present where the enrich pass found
+  // per-site trailer data (~2,110 of 2,561). Absent = unverified, never zeroed.
+  let th;
+  if (c.trailerLenHistogram && typeof c.trailerLenHistogram === 'object') {
+    const keys = Object.keys(c.trailerLenHistogram);
+    if (keys.length) {
+      th = {};
+      for (const k of keys) {
+        const n = Number(c.trailerLenHistogram[k]) || 0;
+        if (n > 0) th[k] = n;
+      }
+      if (!Object.keys(th).length) th = undefined;
+    }
+  }
+  // Amp service: keep only the meaningful 30/50 subset, omit when empty.
+  let am;
+  if (Array.isArray(c.ampService)) {
+    const a = c.ampService.filter((x) => x === 30 || x === 50);
+    if (a.length) am = a;
+  }
   return {
     i: c.id,
     n: c.name,
@@ -178,7 +201,7 @@ export function toClientRecord(c) {
     o: orgShort(c.org),
     r: c.rating || undefined,
     v: c.reviews || undefined,
-    m: c.maxLengthFt || undefined, // max length; absent = no posted limit
+    m: c.maxLengthFt || undefined, // legacy all-equipment max; absent = none posted
     pr: c.price ? c.price.min : undefined,
     g: g || undefined,
     // .u (Recreation.gov page URL) intentionally OMITTED — it's always
@@ -186,6 +209,20 @@ export function toClientRecord(c) {
     la: c.lat != null ? Math.round(c.lat * 1e5) / 1e5 : undefined,
     lo: c.lon != null ? Math.round(c.lon * 1e5) / 1e5 : undefined,
     a: (c.activities || []).slice(0, 4),
+    // ---- enriched per-site fields (slim keys, omitted when absent) ----
+    th, // trailerLenHistogram { ft: count } — the honest fit source
+    tm: c.trailerMaxFt || undefined, // trailer-true max length (not all-equipment)
+    h: c.hookups || undefined, // 'none' | 'electric' | 'full'
+    am, // ampService subset [30,50]
+    pt: c.hasPullThrough === true ? 1 : undefined, // pull-through sites present
+    el: c.elevationFt != null && Number.isFinite(c.elevationFt) ? Math.round(c.elevationFt) : undefined,
+    rc: c.rvSiteCount || undefined, // RV-capable site count
+    uv: c.siteData === 'unverified' ? 1 : undefined, // honest-missing flag
+    ds: c.dumpStation === true ? 1 : undefined,
+    dw: c.drinkingWater === true ? 1 : undefined,
+    sh: c.showers === true ? 1 : undefined,
+    fl: c.flushToilets === true ? 1 : undefined,
+    ac: c.accessibleSiteCount || undefined,
   };
 }
 

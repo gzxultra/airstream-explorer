@@ -990,6 +990,45 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
   .cgfit .cg-card-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
 }
 
+/* --- Enriched per-site fit: honesty banner, fit lines, badges/pills ------- */
+.cg-fit-honesty {
+  display: flex; gap: 9px; align-items: flex-start;
+  max-width: 78ch; margin: 0 0 26px; padding: 11px 14px;
+  background: #f6efe3; border: 1px solid var(--line); border-left: 3px solid var(--copper);
+  border-radius: 8px;
+  font: 500 12.5px/1.55 "DM Sans", sans-serif; color: var(--muted);
+}
+.cg-fit-honesty-icon { color: var(--copper); font-size: 11px; line-height: 1.5; flex: 0 0 auto; }
+.cg-fit-empty {
+  margin: 0 0 18px; padding: 16px; border: 1px dashed var(--line); border-radius: 10px;
+  background: var(--surface); color: var(--muted);
+  font: 500 14px/1.55 "DM Sans", sans-serif; max-width: 70ch;
+}
+.cg-card-fitline {
+  margin: 2px 0 0; font: 600 12.5px "DM Sans", sans-serif; color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.cg-card-offgrid {
+  margin: 4px 0 0; font: 600 12px "DM Sans", sans-serif; color: var(--copper-deep);
+}
+/* Editorial pill badges (hookups / pull-through / elevation) */
+.cg-card-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 0; }
+.cg-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2.5px 8px; border-radius: 999px;
+  font: 600 11px "DM Sans", sans-serif; letter-spacing: .01em;
+  border: 1px solid var(--line); background: #f3ece0; color: var(--muted);
+  white-space: nowrap;
+}
+.cg-pill-hook-full { background: #e8f3ec; border-color: #bcdcc7; color: #2c6344; }
+.cg-pill-hook-electric { background: #fcf4e2; border-color: #ecd9a8; color: #855c10; }
+.cg-pill-hook-none { background: #f1ece4; border-color: var(--line); color: var(--muted); }
+.cg-pill-pt { background: #efeaf6; border-color: #d4c9e6; color: #5a4a78; }
+.cg-pill-el-low, .cg-pill-el-moderate { background: #f3ece0; color: var(--muted); }
+.cg-pill-el-elevated { background: #eef1f5; border-color: #cdd6e0; color: #4a5a6e; }
+.cg-pill-el-high { background: #e9eef5; border-color: #c0cee0; color: #355074; }
+.cg-conf-persite { background: #2e7d4f; opacity: .9; }
+
 /* Map clusters are GPU-rendered MapLibre circle+symbol layers (see app.js
    'cg-clusters'/'cg-cluster-count'), styled via paint props in JS — no DOM
    bubble elements, so the old .marker-cluster/.cg-cluster CSS was removed. */

@@ -917,13 +917,16 @@
     var elSort = document.getElementById('cg-sort');
     var elHideUnknown = document.getElementById('cg-hide-unknown');
     var elFitsOnly = document.getElementById('cg-fits-only');
+    var elHookup = document.getElementById('cg-hookup');
+    var elElev = document.getElementById('cg-elev');
+    var elPullthrough = document.getElementById('cg-pullthrough');
     var elReset = document.getElementById('cg-reset');
     var elShare = document.getElementById('cg-share');
     var elSummary = document.getElementById('cg-summary');
     var elMore = document.getElementById('cg-more');
     var elMoreBtn = document.getElementById('cg-more-btn');
 
-    var state = { len: 0, st: '', q: '', sort: 'rank', hideUnknown: false, fitsOnly: false, shown: 30, live: null, source: 'static' };
+    var state = { len: 0, st: '', q: '', sort: 'rank', hideUnknown: false, fitsOnly: false, hookup: '', elev: '', pullthrough: false, shown: 30, live: null, source: 'static' };
 
     // Restore saved preferences (rig/length, state, sort, fit toggles). Search
     // text is intentionally NOT persisted — it's a transient lookup, not a pref.
@@ -938,11 +941,15 @@
       if (typeof p.sort === 'string') state.sort = p.sort;
       if (typeof p.hideUnknown === 'boolean') state.hideUnknown = p.hideUnknown;
       if (typeof p.fitsOnly === 'boolean') state.fitsOnly = p.fitsOnly;
+      if (typeof p.hookup === 'string') state.hookup = p.hookup;
+      if (typeof p.elev === 'string') state.elev = p.elev;
+      if (typeof p.pullthrough === 'boolean') state.pullthrough = p.pullthrough;
     })();
     function persistCg() {
       Store.set(CG_PREFS, {
         rig: elRig ? elRig.value : '', len: state.len, st: state.st,
         sort: state.sort, hideUnknown: state.hideUnknown, fitsOnly: state.fitsOnly,
+        hookup: state.hookup, elev: state.elev, pullthrough: state.pullthrough,
       });
     }
 
@@ -959,7 +966,8 @@
     savedList.forEach(function (x) { savedSet[x.i] = true; });
     function isSaved(c) { return !!(c && savedSet[c.i]); }
     function leanSave(c) {
-      return { i: c.i, n: c.n, p: c.p, s: c.s, o: c.o, r: c.r, v: c.v, m: c.m, pr: c.pr, g: c.g, u: c.u, la: c.la, lo: c.lo };
+      return { i: c.i, n: c.n, p: c.p, s: c.s, o: c.o, r: c.r, v: c.v, m: c.m, pr: c.pr, g: c.g, u: c.u, la: c.la, lo: c.lo,
+        th: c.th, tm: c.tm, h: c.h, am: c.am, pt: c.pt, el: c.el };
     }
     function toggleSave(c) {
       if (c == null || c.i == null) return;
@@ -982,6 +990,156 @@
     }
     var FIT_LABEL = { fits: 'Fits comfortably', tight: 'Fits — tight', no: 'Too long', unknown: 'No posted limit' };
 
+    // ---- enriched per-site fit logic ----
+    // MIRRORS src/lib/campsite-fit.mjs EXACTLY (trailerFit, hookupMatch,
+    // nightsHere, elevationContext, ELEVATION_BANDS). A parity tripwire test
+    // (test/client-parity.test.mjs) re-runs both copies over shared fixtures so
+    // these can never silently drift. Slim record keys: th=trailerLenHistogram,
+    // tm=trailerMaxFt, h=hookups, am=ampService, pt=pullThrough, el=elevationFt,
+    // rc=rvSiteCount, uv=unverified. The off-grid constants here also mirror
+    // src/lib/estimate.mjs (kept local so this module is self-contained).
+    /* PARITY-MIRROR:BEGIN (extracted verbatim by test/client-parity.test.mjs) */
+    var OG = {
+      LOAD: { light: 1500, moderate: 2800, heavy: 5000 },
+      PSH: { summer: 5.5, shoulder: 4.0, winter: 2.5 },
+      USABLE: 0.8, DERATE: 0.7, GRAY_FRAC: 0.8,
+      WATER: { light: { fresh: 3.0, black: 0.75 }, moderate: { fresh: 5.0, black: 1.0 }, heavy: { fresh: 8.0, black: 1.5 } },
+    };
+    var PSH_LAT_REF = 35;
+    var PSH_BAND = {
+      summer: { perDeg: -0.004, min: 0.9, max: 1.06 },
+      shoulder: { perDeg: -0.010, min: 0.72, max: 1.12 },
+      winter: { perDeg: -0.020, min: 0.5, max: 1.25 },
+    };
+    function peakSunHoursAt(season, lat) {
+      var s = OG.PSH[season] != null ? season : 'summer';
+      var base = OG.PSH[s];
+      if (lat == null || !isFinite(lat)) return { psh: base, base: base, factor: 1, refined: false };
+      var band = PSH_BAND[s];
+      var dist = Math.abs(Math.abs(lat) - PSH_LAT_REF);
+      var factor = 1 + band.perDeg * dist;
+      factor = Math.max(band.min, Math.min(band.max, factor));
+      var psh = Math.round(base * factor * 100) / 100;
+      return { psh: psh, base: base, factor: Math.round(factor * 1000) / 1000, refined: true };
+    }
+    // nightsHere: off-grid endurance for THIS rig at THIS park's latitude. Same
+    // structure as estimate.mjs estimateOffGrid + the latitude PSH refinement.
+    function nightsHere(t, opts) {
+      opts = opts || {};
+      var season = OG.PSH[opts.season] != null ? opts.season : 'summer';
+      var intensity = OG.LOAD[opts.intensity] ? opts.intensity : 'moderate';
+      var people = Math.max(1, opts.people || 2);
+      var useSolar = opts.useSolar !== false;
+      var ref = peakSunHoursAt(season, opts.lat);
+      var usableWh = (t.batteryKwh || 0) * 1000 * OG.USABLE;
+      var loadWh = OG.LOAD[intensity];
+      var solarWh = useSolar ? (t.solarW || 0) * ref.psh * OG.DERATE : 0;
+      var netWh = loadWh - solarWh;
+      var powerDays = netWh > 0 ? usableWh / netWh : null;
+      var w = OG.WATER[intensity];
+      var freshPerDay = w.fresh * people;
+      var grayPerDay = w.fresh * OG.GRAY_FRAC * people;
+      var blackPerDay = w.black * people;
+      var freshDays = freshPerDay > 0 ? (t.freshGal || 0) / freshPerDay : Infinity;
+      var grayDays = (grayPerDay > 0 && t.grayGal != null) ? t.grayGal / grayPerDay : Infinity;
+      var blackDays = (blackPerDay > 0 && t.blackGal != null) ? t.blackGal / blackPerDay : Infinity;
+      var waterDays = Math.min(freshDays, grayDays, blackDays);
+      var days, limiter;
+      if (powerDays == null || waterDays <= powerDays) { days = waterDays; limiter = 'water'; }
+      else { days = powerDays; limiter = 'power'; }
+      if (!isFinite(days)) days = 14;
+      return { days: Math.max(0, days), limiter: limiter, psh: ref.psh, pshRefined: ref.refined };
+    }
+    function formatNights(days) {
+      if (!isFinite(days) || days >= 13.5) return '14+ nights';
+      if (days < 2) return days.toFixed(1) + ' nights';
+      return Math.round(days) + ' nights';
+    }
+    var HOOKUP_LABEL = { full: 'Full hookups', electric: 'Electric hookups', none: 'No hookups (dry camping)', unknown: 'Hookups unverified' };
+    function hookupMatch(hookups, ampService) {
+      if (hookups == null) {
+        return { level: 'unknown', label: HOOKUP_LABEL.unknown, solar: 'unknown',
+          note: 'No per-site hookup data published for this campground — confirm on Recreation.gov before counting on power.' };
+      }
+      var amps = (ampService || []).filter(function (a) { return a === 30 || a === 50; });
+      var ampTxt = amps.length ? amps.join('/') + '-amp' : '';
+      if (hookups === 'full') {
+        return { level: 'full', label: HOOKUP_LABEL.full, solar: 'not-needed',
+          note: ('Water, ' + (ampTxt || 'electric') + ' and sewer at the site — your battery and solar are backup only here.').replace('  ', ' ') };
+      }
+      if (hookups === 'electric') {
+        return { level: 'electric', label: HOOKUP_LABEL.electric, solar: 'nice',
+          note: 'Shore power (' + (ampTxt || 'electric') + ') covers the battery, but there\'s no sewer — you\'ll still manage your own tanks.' };
+      }
+      return { level: 'none', label: HOOKUP_LABEL.none, solar: 'must',
+        note: 'No hookups here — your battery, solar and tanks are all you have. See the nights-here estimate below.' };
+    }
+    // trailerFit: honest "% of sites that take YOUR length" from the per-site
+    // histogram (slim key .th). NEVER from the single all-equipment max.
+    function trailerFit(c, lengthFt) {
+      var hist = c && c.th;
+      if (!hist || typeof hist !== 'object' || !(lengthFt > 0)) {
+        return { conf: 'unverified', sitesTotal: null, sitesFit: null, sitesTight: null,
+          pct: null, maxFt: (c && c.tm) || null, cls: 'unknown',
+          why: 'No per-site trailer-length data published here — fit can\u2019t be confirmed; check Recreation.gov.' };
+      }
+      var total = 0, fit = 0, tight = 0, maxFt = 0, k;
+      for (k in hist) {
+        if (!Object.prototype.hasOwnProperty.call(hist, k)) continue;
+        var cap = Number(k), n = Number(hist[k]) || 0;
+        if (!(cap > 0) || n <= 0) continue;
+        total += n;
+        if (cap > maxFt) maxFt = cap;
+        if (cap >= lengthFt + CLEARANCE) fit += n;
+        else if (cap >= lengthFt) tight += n;
+      }
+      if (total === 0) {
+        return { conf: 'unverified', sitesTotal: 0, sitesFit: 0, sitesTight: 0,
+          pct: null, maxFt: maxFt || null, cls: 'unknown',
+          why: 'No per-site trailer-length data published here — fit can\u2019t be confirmed; check Recreation.gov.' };
+      }
+      var usable = fit + tight;
+      var pct = Math.round((usable / total) * 100);
+      var rig = Math.round(lengthFt * 10) / 10;
+      var cls, why;
+      if (fit > 0 && pct >= 50) {
+        cls = 'fits';
+        why = fit + ' of ' + total + ' trailer sites take your ' + rig + '\u2032 with room to maneuver (' + pct + '% usable incl. tight).';
+      } else if (usable > 0) {
+        cls = 'tight';
+        why = 'Only ' + usable + ' of ' + total + ' trailer sites (' + pct + '%) take your ' + rig + '\u2032 — and ' + tight + ' of those are a tight squeeze. Book carefully.';
+      } else {
+        cls = 'no';
+        why = 'None of this park\'s ' + total + ' trailer sites take your ' + rig + '\u2032 (biggest is ' + maxFt + '\u2032). Look elsewhere.';
+      }
+      return { conf: 'per-site', sitesTotal: total, sitesFit: fit, sitesTight: tight, pct: pct, maxFt: maxFt, cls: cls, why: why };
+    }
+    function elevationContext(elevationFt) {
+      if (elevationFt == null || !isFinite(elevationFt)) return null;
+      var ft = Math.round(elevationFt);
+      var band, note;
+      if (ft >= 8000) { band = 'high'; note = 'High altitude — expect cold nights even in summer and noticeably weaker generator/engine output; plan battery for heating loads.'; }
+      else if (ft >= 5000) { band = 'elevated'; note = 'Elevated — nights run cold in shoulder/winter seasons; factor heater draw into the off-grid estimate.'; }
+      else if (ft >= 2000) { band = 'moderate'; note = 'Moderate elevation — mild altitude effects only.'; }
+      else { band = 'low'; note = 'Low elevation — no significant altitude effects.'; }
+      return { ft: ft, band: band, note: note };
+    }
+    var ELEVATION_BANDS = [
+      { key: 'low', label: 'Low (under 2,000\u2032)', min: -1000, max: 2000 },
+      { key: 'moderate', label: 'Moderate (2,000–5,000\u2032)', min: 2000, max: 5000 },
+      { key: 'elevated', label: 'Elevated (5,000–8,000\u2032)', min: 5000, max: 8000 },
+      { key: 'high', label: 'High (8,000\u2032+)', min: 8000, max: 100000 },
+    ];
+    function inElevationBand(elevationFt, key) {
+      if (!key) return true;
+      if (elevationFt == null || !isFinite(elevationFt)) return false;
+      var b = null;
+      for (var i = 0; i < ELEVATION_BANDS.length; i++) if (ELEVATION_BANDS[i].key === key) b = ELEVATION_BANDS[i];
+      if (!b) return true;
+      return elevationFt >= b.min && elevationFt < b.max;
+    }
+    /* PARITY-MIRROR:END */
+
     function num(n) { return typeof n === 'number' && !isNaN(n) ? n : null; }
     function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
     function rankScore(c) { return (c.r || 0) * Math.log10((c.v || 0) + 1); }
@@ -998,11 +1156,31 @@
           if (hay.indexOf(state.q) < 0) return false;
         }
         if (len > 0) {
-          var f = fitClass(len, num(c.m));
-          if (f === 'no') return false;
-          if (state.fitsOnly && f !== 'fits') return false;
+          // HONEST fit filter: prefer per-site histogram truth (.th) when the
+          // record has it; fall back to the legacy posted-max only when it
+          // doesn't (e.g. live API rows). 'no' = nothing takes the rig.
+          if (c.th) {
+            var tf = trailerFit(c, len);
+            if (tf.cls === 'no') return false;
+            if (state.fitsOnly && tf.cls !== 'fits') return false;
+          } else {
+            var f = fitClass(len, num(c.m));
+            if (f === 'no') return false;
+            if (state.fitsOnly && f !== 'fits') return false;
+          }
         }
         if (state.hideUnknown && c.m == null) return false;
+        // Hookup filter. 'electric' = electric-or-better (electric|full),
+        // 'full'/'none' exact. Records without a hookup level are excluded
+        // (honest: we won't guess they match a hookup requirement).
+        if (state.hookup) {
+          if (state.hookup === 'electric') { if (c.h !== 'electric' && c.h !== 'full') return false; }
+          else if (c.h !== state.hookup) return false;
+        }
+        // Pull-through toggle (slim key .pt = 1 when present).
+        if (state.pullthrough && c.pt !== 1) return false;
+        // Elevation band (unknown elevation excluded when a band is chosen).
+        if (state.elev && !inElevationBand(num(c.el), state.elev)) return false;
         return true;
       });
       list.sort(function (a, b) {
@@ -1376,14 +1554,25 @@
     // ---- list ----
     function card(c, len) {
       var where = [c.s].filter(Boolean).join(', ');
+      // Per-site honest fit when we have the histogram (static records); fall
+      // back to the legacy posted-max verdict for live API rows (no .th).
+      var perSite = (len > 0 && c.th) ? trailerFit(c, len) : null;
       var info = fitInfo(c, len);
-      var confDot = (len > 0)
-        ? '<span class="cg-conf cg-conf-' + info.conf + '" title="' + (info.conf === 'posted' ? 'Based on Recreation.gov\u2019s posted max length' : 'No posted length \u2014 not verified') + '"></span>'
-        : '';
-      var fitChip = '<span class="cg-fit cg-fit-' + info.cls + '">' + confDot + esc(info.label) + '</span>';
-      // Rig set -> chip is a verdict, so the row repeats raw max for context.
-      // No rig -> chip already says "Up to N'", so do not repeat it in the row.
-      var lenTxt = len > 0 ? (c.m ? c.m + "&prime; max" : 'No posted limit') : '';
+      var fitChip, why, lenTxt;
+      if (perSite) {
+        var psLabel = perSite.cls === 'fits' ? (perSite.pct + '% of sites fit')
+          : perSite.cls === 'tight' ? ('Tight — ' + perSite.pct + '% fit') : 'No site takes it';
+        fitChip = '<span class="cg-fit cg-fit-' + perSite.cls + '"><span class="cg-conf cg-conf-persite" title="Per-site trailer-length data from Recreation.gov"></span>' + esc(psLabel) + '</span>';
+        why = '<p class="cg-fit-why cg-fit-why-' + perSite.cls + '">' + esc(perSite.why) + '</p>';
+        lenTxt = (perSite.sitesFit + perSite.sitesTight).toLocaleString('en-US') + ' of ' + perSite.sitesTotal.toLocaleString('en-US') + ' sites';
+      } else {
+        var confDot = (len > 0)
+          ? '<span class="cg-conf cg-conf-' + info.conf + '" title="' + (info.conf === 'posted' ? 'Based on Recreation.gov\u2019s posted max length' : 'No posted length \u2014 not verified') + '"></span>'
+          : '';
+        fitChip = '<span class="cg-fit cg-fit-' + info.cls + '">' + confDot + esc(info.label) + '</span>';
+        lenTxt = len > 0 ? (c.m ? c.m + "&prime; max" : 'No posted limit') : '';
+        why = (len > 0 && info.why) ? '<p class="cg-fit-why cg-fit-why-' + info.cls + '">' + esc(info.why) + '</p>' : '';
+      }
       var price = c.pr != null ? '$' + c.pr + '/night' : '';
       var img = c.g
         ? '<img src="' + esc(c.g) + '" alt="' + esc(c.n) + '" loading="lazy" class="cg-card-img" width="320" height="200" referrerpolicy="no-referrer">'
@@ -1391,8 +1580,20 @@
       var org = c.o ? (ORG_LONG[c.o] || c.o) : '';
       var meta = [lenTxt, price, (c.v ? c.v + ' reviews' : '')].filter(Boolean)
         .map(function (s) { return '<span>' + s + '</span>'; }).join('');
-      // The "why" explainer: only when a rig is set (it explains the verdict).
-      var why = (len > 0 && info.why) ? '<p class="cg-fit-why cg-fit-why-' + info.cls + '">' + esc(info.why) + '</p>' : '';
+      // Enriched pills: hookups (+amp), pull-through, elevation. Only when the
+      // record carries the field (static set); omitted for live rows.
+      var pills = '';
+      if (c.h) {
+        var hl = c.h === 'full' ? 'Full hookups' : c.h === 'electric' ? 'Electric' : 'No hookups';
+        var amp = (c.h !== 'none' && c.am && c.am.length) ? ' \u00b7 ' + c.am.join('/') + 'A' : '';
+        pills += '<span class="cg-pill cg-pill-hook-' + esc(c.h) + '">' + esc(hl + amp) + '</span>';
+      }
+      if (c.pt === 1) pills += '<span class="cg-pill cg-pill-pt">Pull-through</span>';
+      if (c.el != null) {
+        var ev = elevationContext(c.el);
+        if (ev) pills += '<span class="cg-pill cg-pill-el-' + esc(ev.band) + '">' + esc(ev.ft.toLocaleString('en-US')) + '\u2032</span>';
+      }
+      var pillRow = pills ? '<p class="cg-card-pills">' + pills + '</p>' : '';
       var saved = isSaved(c);
       var saveBtn = '<button type="button" class="cg-save' + (saved ? ' is-saved' : '') + '" '
         + 'data-save="' + esc(c.i) + '" aria-pressed="' + (saved ? 'true' : 'false') + '" '
@@ -1409,6 +1610,7 @@
         '<h3 class="cg-card-name">' + esc(c.n) + '</h3>' +
         '<p class="cg-card-where">' + esc(where) + (org ? ' \u00b7 ' + esc(org) : '') + '</p>' +
         why +
+        pillRow +
         '<p class="cg-card-meta">' + meta + '</p>' +
         availBtn +
         '</div></a>' + saveBtn + '</div>';
@@ -1519,12 +1721,16 @@
     if (elSort) elSort.addEventListener('change', function () { state.sort = this.value; persistCg(); render(); });
     if (elHideUnknown) elHideUnknown.addEventListener('change', function () { state.hideUnknown = this.checked; state.shown = 30; persistCg(); render(); });
     if (elFitsOnly) elFitsOnly.addEventListener('change', function () { state.fitsOnly = this.checked; state.shown = 30; persistCg(); render(); });
+    if (elHookup) elHookup.addEventListener('change', function () { state.hookup = this.value; state.shown = 30; persistCg(); render(); });
+    if (elElev) elElev.addEventListener('change', function () { state.elev = this.value; state.shown = 30; persistCg(); render(); });
+    if (elPullthrough) elPullthrough.addEventListener('change', function () { state.pullthrough = this.checked; state.shown = 30; persistCg(); render(); });
     if (elMoreBtn) elMoreBtn.addEventListener('click', function () { state.shown += 30; render(); });
     if (elReset) elReset.addEventListener('click', function () {
-      state = { len: 0, st: '', q: '', sort: 'rank', hideUnknown: false, fitsOnly: false, shown: 30, live: state.live, source: state.source };
+      state = { len: 0, st: '', q: '', sort: 'rank', hideUnknown: false, fitsOnly: false, hookup: '', elev: '', pullthrough: false, shown: 30, live: state.live, source: state.source };
       if (elRig) elRig.value = ''; if (elLen) elLen.value = ''; if (elState) elState.value = '';
       if (elSearch) elSearch.value = ''; if (elSort) elSort.value = 'rank';
       if (elHideUnknown) elHideUnknown.checked = false; if (elFitsOnly) elFitsOnly.checked = false;
+      if (elHookup) elHookup.value = ''; if (elElev) elElev.value = ''; if (elPullthrough) elPullthrough.checked = false;
       Store.del(CG_PREFS);
       map.jumpTo({ center: [-98.35, 39.5], zoom: 3.4 }); render();
     });
@@ -1542,6 +1748,9 @@
       if (elSort && state.sort) elSort.value = state.sort;
       if (elHideUnknown) elHideUnknown.checked = !!state.hideUnknown;
       if (elFitsOnly) elFitsOnly.checked = !!state.fitsOnly;
+      if (elHookup && state.hookup) elHookup.value = state.hookup;
+      if (elElev && state.elev) elElev.value = state.elev;
+      if (elPullthrough) elPullthrough.checked = !!state.pullthrough;
     })();
 
     // ---- deep-link: ?len= & ?from= (coming from a detail page) ----
@@ -1575,6 +1784,9 @@
       if (sp.has('q')) state.q = (sp.get('q') || '').toLowerCase();
       if (sp.has('hu')) state.hideUnknown = sp.get('hu') === '1';
       if (sp.has('fo')) state.fitsOnly = sp.get('fo') === '1';
+      if (sp.has('hk')) state.hookup = sp.get('hk') || '';
+      if (sp.has('ev')) state.elev = sp.get('ev') || '';
+      if (sp.has('pt')) state.pullthrough = sp.get('pt') === '1';
       var mv = sp.get('map');
       if (mv) {
         var parts = mv.split(',').map(parseFloat);
@@ -1595,6 +1807,9 @@
       if (elSearch && state.q) elSearch.value = state.q;
       if (elHideUnknown) elHideUnknown.checked = state.hideUnknown;
       if (elFitsOnly) elFitsOnly.checked = state.fitsOnly;
+      if (elHookup) elHookup.value = state.hookup || '';
+      if (elElev) elElev.value = state.elev || '';
+      if (elPullthrough) elPullthrough.checked = !!state.pullthrough;
     })();
     // (pendingMapView is applied inside wireRealMap once the real map exists)
 
@@ -1607,6 +1822,9 @@
       if (state.q) sp.set('q', state.q);
       if (state.hideUnknown) sp.set('hu', '1');
       if (state.fitsOnly) sp.set('fo', '1');
+      if (state.hookup) sp.set('hk', state.hookup);
+      if (state.elev) sp.set('ev', state.elev);
+      if (state.pullthrough) sp.set('pt', '1');
       var c = map.getCenter();
       sp.set('map', (Math.round(c.lat * 1e4) / 1e4) + ',' + (Math.round(c.lng * 1e4) / 1e4) + ',' + map.getZoom());
       return location.origin + location.pathname + '#' + sp.toString();

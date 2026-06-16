@@ -1,7 +1,9 @@
 // Render the campground-fit feature: a per-trailer "where this fits" panel for
 // detail pages, and the standalone national Campground Finder page (map + list,
 // filtered live by the rig you pick). All data is baked in at build time.
-import { fitSummary, campgroundsForLength, statesWithCounts, toClientRecord, FIT_LABEL } from './campgrounds.mjs';
+import { statesWithCounts, toClientRecord } from './campgrounds.mjs';
+import { trailerFit, nationalFit, hookupMatch, elevationContext, nightsHere, ELEVATION_BANDS } from './campsite-fit.mjs';
+import { formatNights } from './estimate.mjs';
 import { formatLength } from './format.mjs';
 
 const esc = (s) => String(s == null ? '' : s)
@@ -34,12 +36,39 @@ function stars(rating) {
   return `<span class="cg-stars" aria-label="${esc(rating)} out of 5">★ ${rating.toFixed(1)}</span>`;
 }
 
-/** A single campground card (used in the detail-page preview list). */
-function cgCard(c, relRoot) {
-  const place = [c.name, c.parent && c.parent !== c.name ? c.parent : null].filter(Boolean).join(' · ');
+/** A single campground card for the detail-page preview list. Shows the HONEST
+ * per-site trailer fit (% of sites that take THIS rig) + hookup + elevation,
+ * not the legacy single all-equipment max length. */
+function cgCard(c, lengthFt, trailer) {
   const where = [c.city, c.state].filter(Boolean).join(', ');
-  const fitChip = `<span class="cg-fit cg-fit-${c.fit}">${esc(FIT_LABEL[c.fit])}</span>`;
-  const lenTxt = c.maxLengthFt ? `${c.maxLengthFt}&prime; max` : 'No posted limit';
+  const tf = trailerFit(c, lengthFt);
+  const hm = hookupMatch(c.hookups, c.ampService);
+  const ev = elevationContext(c.elevationFt);
+  // Headline fit chip: per-site % when we have it, else an honest "unverified".
+  let fitChip;
+  if (tf.conf === 'per-site') {
+    const label = tf.cls === 'fits'
+      ? `${tf.pct}% of sites fit`
+      : tf.cls === 'tight' ? `Tight — ${tf.pct}% fit` : 'No site takes it';
+    fitChip = `<span class="cg-fit cg-fit-${tf.cls}">${esc(label)}</span>`;
+  } else {
+    fitChip = '<span class="cg-fit cg-fit-unknown">Fit unverified</span>';
+  }
+  const nTxt = tf.conf === 'per-site'
+    ? `${esc((tf.sitesFit + tf.sitesTight).toLocaleString('en-US'))} of ${esc(tf.sitesTotal.toLocaleString('en-US'))} sites`
+    : 'Per-site data not published';
+  const hookBadge = c.hookups
+    ? `<span class="cg-pill cg-pill-hook-${esc(c.hookups)}">${esc(c.hookups === 'full' ? 'Full hookups' : c.hookups === 'electric' ? 'Electric' : 'No hookups')}${c.hookups !== 'none' && Array.isArray(c.ampService) && c.ampService.length ? ` · ${esc(c.ampService.join('/'))}A` : ''}</span>`
+    : '';
+  const elBadge = ev ? `<span class="cg-pill cg-pill-el-${esc(ev.band)}">${esc(ev.ft.toLocaleString('en-US'))}&prime;</span>` : '';
+  const ptBadge = c.hasPullThrough ? '<span class="cg-pill cg-pill-pt">Pull-through</span>' : '';
+  // Off-grid line: ONLY where there are no hookups (otherwise solar isn't the
+  // story). Uses nightsHere with this park's latitude to refine solar harvest.
+  let offgrid = '';
+  if (c.hookups === 'none' && trailer && trailer.batteryKwh > 0 && trailer.freshGal > 0) {
+    const n = nightsHere(trailer, { people: 2, intensity: 'moderate', season: 'summer', useSolar: true, lat: c.lat });
+    offgrid = `<p class="cg-card-offgrid" title="Boondocking estimate: 2 people, moderate use, summer, solar on">~${esc(formatNights(n.days))} off-grid · ${esc(n.limiter === 'power' ? 'battery-limited' : 'water-limited')}</p>`;
+  }
   const price = c.price ? `$${c.price.min}${c.price.max && c.price.max !== c.price.min ? `–${c.price.max}` : ''}/night` : '';
   const img = c.photo
     ? `<img src="${esc(c.photo)}" alt="${esc(c.name)}" loading="lazy" class="cg-card-img" width="320" height="200" referrerpolicy="no-referrer">`
@@ -50,9 +79,36 @@ ${img}
 <div class="cg-card-top">${fitChip}${c.rating ? stars(c.rating) : ''}</div>
 <h3 class="cg-card-name">${esc(c.name)}</h3>
 <p class="cg-card-where">${esc(where)}${c.org ? ` · ${esc(c.org)}` : ''}</p>
-<p class="cg-card-meta"><span>${lenTxt}</span>${price ? `<span>${esc(price)}</span>` : ''}${c.reviews ? `<span>${esc(c.reviews)} reviews</span>` : ''}</p>
+<p class="cg-card-fitline">${esc(nTxt)}</p>
+<p class="cg-card-pills">${hookBadge}${ptBadge}${elBadge}</p>
+${offgrid}
+<p class="cg-card-meta">${price ? `<span>${esc(price)}</span>` : ''}${c.reviews ? `<span>${esc(c.reviews)} reviews</span>` : ''}</p>
 </div>
 </a>`;
+}
+
+/** Rank campgrounds by HONEST per-site fit for this rig: parks where the most
+ * (and the highest %) trailer sites actually take the rig, weighted by rating.
+ * Parks with no per-site data are excluded from the picks (they'd be a guess). */
+function topPicksForRig(campgrounds, lengthFt, limit) {
+  const scored = [];
+  for (const c of campgrounds) {
+    const tf = trailerFit(c, lengthFt);
+    if (tf.conf !== 'per-site') continue;
+    const usable = tf.sitesFit + tf.sitesTight;
+    if (usable <= 0) continue; // can't honestly recommend a park nothing fits
+    const rank = (c.rating || 0) * Math.log10((c.reviews || 0) + 1);
+    scored.push({ c, tf, usable, rank });
+  }
+  scored.sort((a, b) => {
+    // comfortable fits first, then rating, then how many sites actually fit
+    if (b.tf.sitesFit !== a.tf.sitesFit && (b.tf.sitesFit === 0 || a.tf.sitesFit === 0)) {
+      return b.tf.sitesFit - a.tf.sitesFit;
+    }
+    if (b.rank !== a.rank) return b.rank - a.rank;
+    return b.usable - a.usable;
+  });
+  return scored.slice(0, limit).map((s) => s.c);
 }
 
 /**
@@ -63,25 +119,33 @@ ${img}
 export function renderCampgroundFit(t, campgrounds) {
   const L = t.lengthFt;
   if (!(L > 0) || !campgrounds || !campgrounds.length) return '';
-  const sum = fitSummary(campgrounds, L);
-  const top = campgroundsForLength(campgrounds, L, { limit: 6, includeUnknown: false });
-  const pct = Math.round((sum.usable / sum.total) * 100);
-  const cards = top.map((c) => cgCard(c, '../')).join('\n');
+  const nf = nationalFit(campgrounds, L);
+  const top = topPicksForRig(campgrounds, L, 6);
+  const rigLen = formatLength(L);
+  const parkPct = nf.parksVerified ? Math.round((nf.parksFit / nf.parksVerified) * 100) : 0;
+  const sitePct = nf.sitesTotal ? Math.round((nf.sitesFit / nf.sitesTotal) * 100) : 0;
+
+  // National honest headline: parks where >=1 trailer SITE actually takes the
+  // rig, plus the raw count of trailer sites nationwide that fit. The legacy
+  // single-max headline is gone — this is per-site truth, with the unverified
+  // parks called out separately instead of folded into a fit.
+  const cards = top.length ? top.map((c) => cgCard(c, L, t)).join('\n')
+    : '<p class="cg-fit-empty">No campground in the dataset has per-site data confirming a fit for a rig this long. The honest answer: verify lengths directly on Recreation.gov before booking.</p>';
+
   return `<section class="cgfit" aria-label="Where this fits" data-length="${esc(L)}">
 <div class="cg-fit-head">
-<h2>Where the ${esc(t.model)} ${esc(t.floorplan)} fits</h2>
-<p class="cg-fit-sub">At ${esc(formatLength(L))} long, this rig can use <strong>${esc(sum.usable.toLocaleString('en-US'))}</strong> of ${esc(sum.total.toLocaleString('en-US'))} RV-friendly campgrounds on Recreation.gov (<strong>${esc(pct)}%</strong>) — ${esc(sum.fits.toLocaleString('en-US'))} with comfortable clearance, ${esc(sum.tight.toLocaleString('en-US'))} a tight squeeze, ${esc(sum.no.toLocaleString('en-US'))} too short to take it.</p>
+<h2>Where the ${esc(t.model)} ${esc(t.floorplan)} really fits</h2>
+<p class="cg-fit-sub">At ${esc(rigLen)} long (the rig's <em>real</em> trailer length, not a brochure max), this Airstream fits at least one trailer site at <strong>${esc(nf.parksFit.toLocaleString('en-US'))}</strong> of ${esc(nf.parksVerified.toLocaleString('en-US'))} parks with published per-site lengths (<strong>${esc(parkPct)}%</strong>). Counting actual sites: <strong>${esc(nf.sitesFit.toLocaleString('en-US'))}</strong> of ${esc(nf.sitesTotal.toLocaleString('en-US'))} trailer sites nationwide (<strong>${esc(sitePct)}%</strong>) can take it.</p>
 </div>
 <div class="cg-fit-bars">
-${fitBar('Fits comfortably', sum.fits, sum.total, 'fits')}
-${fitBar('Tight fit', sum.tight, sum.total, 'tight')}
-${fitBar('No posted limit', sum.unknown, sum.total, 'unknown')}
-${fitBar('Too long', sum.no, sum.total, 'no')}
+${fitBar('Parks that fit it', nf.parksFit, nf.parksVerified, 'fits')}
+${fitBar('Parks too short', nf.parksNo, nf.parksVerified, 'no')}
 </div>
-<h3 class="cg-fit-pick">Top-rated spots that fit it</h3>
+<p class="cg-fit-honesty"><span class="cg-fit-honesty-icon" aria-hidden="true">▲</span> We use each park's per-site trailer-length data, not a single posted maximum — that figure is the all-equipment (bus/motorhome) number and overstates trailer capacity. ${esc(nf.parksUnverified.toLocaleString('en-US'))} parks publish no per-site lengths and are left out of these counts rather than guessed.</p>
+<h3 class="cg-fit-pick">Top spots that genuinely fit your ${esc(rigLen)}</h3>
 <div class="cg-card-grid">${cards}</div>
-<p class="cg-fit-cta"><a class="cg-fit-link" href="../campgrounds.html?len=${esc(Math.round(L))}&from=${esc(t.slug)}">Open the full campground finder for this rig →</a></p>
-<p class="cg-fit-src muted">Campground data from Recreation.gov, ${esc(campgrounds.length.toLocaleString('en-US'))} RV-capable sites nationwide. Posted max-length limits where the agency lists them; “no posted limit” means none published, not unlimited — confirm before you book.</p>
+<p class="cg-fit-cta"><a class="cg-fit-link" href="../campgrounds.html?len=${esc(Math.round(L * 10) / 10)}&from=${esc(t.slug)}">Open the full campground finder for this rig →</a></p>
+<p class="cg-fit-src muted">Per-site data baked from Recreation.gov's public endpoints across ${esc(campgrounds.length.toLocaleString('en-US'))} RV-capable parks. "Fits" allows ~3′ maneuvering clearance beyond your rig; "tight" means a site takes your exact length but not the buffer. Always confirm the specific site before booking.</p>
 </section>`;
 }
 
@@ -148,6 +212,25 @@ export function renderCampgroundsPage(campgrounds, trailers) {
 <div class="cg-ctl cg-ctl-check">
 <label class="cg-check"><input type="checkbox" id="cg-hide-unknown"> Only posted limits</label>
 <label class="cg-check"><input type="checkbox" id="cg-fits-only"> Comfortable fits only</label>
+</div>
+<div class="cg-ctl">
+<label for="cg-hookup">Hookups</label>
+<select id="cg-hookup">
+<option value="">Any hookups</option>
+<option value="electric">Electric or better</option>
+<option value="full">Full hookups</option>
+<option value="none">Dry camping (no hookups)</option>
+</select>
+</div>
+<div class="cg-ctl">
+<label for="cg-elev">Elevation</label>
+<select id="cg-elev">
+<option value="">Any elevation</option>
+${ELEVATION_BANDS.map((b) => `<option value="${esc(b.key)}">${esc(b.label)}</option>`).join('')}
+</select>
+</div>
+<div class="cg-ctl cg-ctl-check">
+<label class="cg-check"><input type="checkbox" id="cg-pullthrough"> Pull-through sites</label>
 </div>
 <button type="button" class="cg-reset" id="cg-reset">Reset</button>
 <button type="button" class="cg-share" id="cg-share" title="Copy a link to this exact view">Share view</button>

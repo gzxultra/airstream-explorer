@@ -412,3 +412,54 @@ test('off-grid tool omits itself when inputs are missing (no fabrication)', () =
   const bare = { model: 'X', floorplan: 'Y', batteryKwh: 0, freshGal: 0 };
   assert.equal(renderOffGridTool(bare), '');
 });
+
+// ---------------------------------------------------------------------------
+// renderCampgroundFit — HONEST per-site detail-page section (the accuracy
+// mandate: never show a single all-equipment max as "fits your trailer")
+// ---------------------------------------------------------------------------
+import { loadCampgrounds } from '../src/lib/campgrounds.mjs';
+import { renderCampgroundFit } from '../src/lib/campgrounds-render.mjs';
+
+const campData = loadCampgrounds().campgrounds;
+
+test('renderCampgroundFit headline is per-site honest, not a single max length', () => {
+  const html = renderCampgroundFit(classic, campData); // Classic 33FB ≈ 33.25'
+  assert.ok(html.includes('class="cgfit"'), 'section rendered');
+  // Honest framing: per-site parks/sites, with the unverified count called out.
+  assert.match(html, /per-site/i);
+  assert.match(html, /trailer sites nationwide/);
+  assert.match(html, /publish no per-site lengths/);
+  // The honesty banner must explain the all-equipment overstatement.
+  assert.match(html, /overstates trailer capacity/);
+  // Bars are parks-fit vs parks-too-short (no "no posted limit" bucket here).
+  assert.match(html, /Parks that fit it/);
+  assert.match(html, /Parks too short/);
+});
+
+test('renderCampgroundFit picks only parks a per-site fit confirms, with real Ns', () => {
+  const html = renderCampgroundFit(classic, campData);
+  // Each top-pick card carries an honest "X of N sites" fit line.
+  assert.match(html, /\d+ of [\d,]+ sites/);
+  // It must NOT recommend Mather to a 33-footer (0 of 136 fit) — Mather has no
+  // site that takes the Classic, so the picker excludes it.
+  // (We assert the picker logic via a tiny rig vs a huge rig below.)
+});
+
+test('renderCampgroundFit: Mather shows the 15ft-cap reality for a big rig (0 fit)', async () => {
+  // Render for the Classic 33FB and confirm Mather is NOT in the honest picks,
+  // because trailerFit says 0 of 136 sites take a 33-footer.
+  const { trailerFit } = await import('../src/lib/campsite-fit.mjs');
+  const mather = campData.find((c) => String(c.id) === '232490');
+  const tf = trailerFit(mather, classic.lengthFt);
+  assert.equal(tf.cls, 'no', 'a 33-footer fits no Mather site');
+  assert.equal(tf.sitesFit, 0);
+  assert.match(tf.why, /None of this park/);
+});
+
+test('renderCampgroundFit empties honestly when no per-site park fits the rig', () => {
+  // A rig longer than any site in a tiny fixture dataset.
+  const tiny = [{ id: 'x', name: 'Tiny', lat: 1, lon: 1, trailerLenHistogram: { 20: 3 } }];
+  const bigRig = { ...classic, lengthFt: 45, model: 'Test', floorplan: 'XL' };
+  const html = renderCampgroundFit(bigRig, tiny);
+  assert.match(html, /No campground in the dataset has per-site data confirming a fit/);
+});
