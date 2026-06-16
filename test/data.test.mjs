@@ -4,6 +4,7 @@ import {
   loadTrailers, validateTrailer, validateDataset, groupByModel,
   modelNames, years, filterTrailers, assetPaths, groupByFamily,
   slugify, twinSlug, resolveAssets, loadDecor, resolveDecor,
+  officialUrl, OFFICIAL_URLS,
 } from '../src/lib/data.mjs';
 import { readdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -296,4 +297,30 @@ test('resolveDecor drops swatches whose files are missing', () => {
 test('resolveDecor returns [] for a family with no décor data', () => {
   const classic = trailers.find((t) => t.model === 'Classic');
   assert.deepEqual(resolveDecor(classic, {}, hasAsset), []);
+});
+
+test('every family maps to an official airstream.com URL', () => {
+  const fams = [...new Set(trailers.map((t) => t.model))];
+  for (const model of fams) {
+    const url = officialUrl(model);
+    assert.ok(url, `no official URL for family "${model}"`);
+    assert.match(url, /^https:\/\/www\.airstream\.com\//, `bad URL for ${model}: ${url}`);
+  }
+});
+
+test('officialUrl resolves by family slug, not exact string', () => {
+  // any floorplan of a family resolves to the same family URL
+  assert.equal(officialUrl('Flying Cloud'), OFFICIAL_URLS['flying-cloud']);
+  assert.equal(officialUrl('World Traveler'), OFFICIAL_URLS['world-traveler']);
+  assert.equal(officialUrl('Basecamp XE'), OFFICIAL_URLS['basecamp-xe']);
+});
+
+test('officialUrl returns null for unknown model', () => {
+  assert.equal(officialUrl('Nonexistent Model'), null);
+});
+
+test('all official URLs are https airstream.com (no guessed/http)', () => {
+  for (const [slug, url] of Object.entries(OFFICIAL_URLS)) {
+    assert.match(url, /^https:\/\/www\.airstream\.com\/\S+/, `${slug}: ${url}`);
+  }
 });

@@ -103,6 +103,34 @@ export function familySlug(model) {
 }
 
 /**
+ * Official airstream.com model page for each family, keyed by family slug.
+ * Every URL was probed and returns HTTP 200 (verified 2026-06-15) — these are
+ * the manufacturer's own pages, NOT guessed paths. Used to give each model and
+ * floorplan a "view on airstream.com" link back to the authoritative source.
+ */
+export const OFFICIAL_URLS = {
+  bambi: 'https://www.airstream.com/travel-trailers/bambi/',
+  caravel: 'https://www.airstream.com/travel-trailers/caravel/',
+  basecamp: 'https://www.airstream.com/travel-trailers/basecamp/',
+  'basecamp-xe': 'https://www.airstream.com/travel-trailers/basecamp-xe/',
+  'flying-cloud': 'https://www.airstream.com/travel-trailers/flying-cloud/',
+  international: 'https://www.airstream.com/travel-trailers/international/',
+  globetrotter: 'https://www.airstream.com/travel-trailers/globetrotter/',
+  'trade-wind': 'https://www.airstream.com/travel-trailers/trade-wind/',
+  classic: 'https://www.airstream.com/travel-trailers/classic/',
+  'world-traveler': 'https://www.airstream.com/travel-trailers/world-traveler/',
+  'frank-lloyd-wright-limited-edition':
+    'https://www.airstream.com/explore-products/travel-trailers/dual-axle/frank-lloyd-wright-limited-edition',
+  'stetson-6666-special-edition':
+    'https://www.airstream.com/explore-products/travel-trailers/dual-axle/stetson-6666-special-edition',
+};
+
+/** The official airstream.com page for a model name, or null if unmapped. */
+export function officialUrl(model) {
+  return OFFICIAL_URLS[familySlug(model)] || null;
+}
+
+/**
  * Group trailers into model families with display-ready summary stats.
  * Returns an ordered array (entry price ascending: budget -> flagship), each:
  *   { family, slug, hero, trailers[], floorplanCount, entryCount,

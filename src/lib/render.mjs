@@ -7,7 +7,7 @@ import {
   hitchPctOfGvwr,
   trailerTitle, trailerLabel,
 } from './format.mjs';
-import { assetPaths, familySlug } from './data.mjs';
+import { assetPaths, familySlug, officialUrl } from './data.mjs';
 import { SORT_KEYS, exploreTags, tagLabel } from './explore.mjs';
 import { renderCampgroundFit } from './campgrounds-render.mjs';
 import {
@@ -234,6 +234,7 @@ ${fam.years
   const range = formatPriceRange(fam.priceMin, fam.priceMax);
   const len = formatLengthRange(fam.lengthMin, fam.lengthMax);
   const limited = fam.limited ? '<span class="fam-flag fam-flag-inline">Limited edition</span>' : '';
+  const famOfficial = officialUrl(fam.family);
   // Initial visible count = floorplans shown on load. With the latest year
   // selected that's one card per distinct floorplan, matching the hero count.
   const shownCount = hasBothYears
@@ -246,6 +247,7 @@ ${fam.years
 <p class="eyebrow eyebrow-light">AIRSTREAM ${esc(fam.years.join(' + '))}</p>
 <h1>${esc(fam.family)} ${limited}</h1>
 <p class="fam-hero-meta">${esc(range)} · ${esc(len)} · ${esc(fam.floorplanCount)} floorplan${fam.floorplanCount === 1 ? '' : 's'} · sleeps up to ${esc(fam.sleepsMax)}</p>
+${famOfficial ? `<p class="fam-hero-official"><a class="official-link official-link-light" href="${esc(famOfficial)}" target="_blank" rel="noopener">View ${esc(fam.family)} on airstream.com ↗</a></p>` : ''}
 </div>
 </header>
 <section class="controls" aria-label="Filters">
@@ -514,6 +516,7 @@ ${desc}
 export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor = null) {
   const a = resolve(t);
   const fam = familySlug(t.model);
+  const official = officialUrl(t.model);
   const heroImg = a.hero
     ? `<img src="../${esc(a.hero)}" alt="${esc(trailerTitle(t))}" class="detail-hero-img" width="1280" height="720">`
     : '';
@@ -524,7 +527,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     )
     .join('\n');
   const floorplanSection = a.floorplan
-    ? `<section class="floorplan" aria-label="Floor plan"><h2>Floor plan</h2><figure class="floorplan-fig"><img src="../${esc(a.floorplan)}" alt="${esc(trailerLabel(t))} floor plan diagram" loading="lazy" class="floorplan-img" width="820" height="1332"><figcaption class="muted">Official Airstream ${esc(t.floorplan)} floor plan</figcaption></figure></section>`
+    ? `<section class="floorplan" aria-label="Floor plan"><h2>Floor plan</h2><figure class="floorplan-fig"><img src="../${esc(a.floorplan)}" alt="${esc(trailerLabel(t))} floor plan diagram" loading="lazy" class="floorplan-img" width="820" height="1332"><figcaption class="muted">Official Airstream ${esc(t.floorplan)} floor plan${official ? ` · <a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">View ${esc(t.model)} floor plans on airstream.com ↗</a>` : ''}</figcaption></figure></section>`
     : '';
   const decorSection = renderDecor(decor, t.model);
   const pros = (t.pros || []).map((p) => `<li>${esc(p)}</li>`).join('');
@@ -551,6 +554,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
 <p class="eyebrow">${esc(t.year)} MODEL YEAR</p>
 <h1>${esc(t.model)} <span>${esc(t.floorplan)}</span></h1>
 ${tagChips(t.tags)}
+${official ? `<p class="official-head"><a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">Official ${esc(t.model)} page on airstream.com ↗</a></p>` : ''}
 </header>
 <div class="detail-hero">${heroImg}</div>
 <p class="detail-desc">${esc(t.description)}</p>

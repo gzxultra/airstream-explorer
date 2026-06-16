@@ -1296,3 +1296,25 @@ body.cg-drawer-open { overflow: hidden; }
   .up-legend-blurb { grid-column: 1 / -1; }
   .up-lens-label { flex-basis: 100%; }
 }
+
+/* ── "View on airstream.com" official source links ─────────────────────── */
+.official-link {
+  color: var(--copper-deep);
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(176, 92, 50, .35);
+  transition: border-color .15s ease, color .15s ease;
+  white-space: nowrap;
+}
+.official-link:hover,
+.official-link:focus-visible { color: var(--copper); border-bottom-color: var(--copper); }
+.floorplan-fig figcaption .official-link { white-space: normal; }
+.official-head { margin: 14px 0 0; font-size: 13px; letter-spacing: .02em; }
+.fam-hero-official { margin: 12px 0 0; }
+.official-link-light {
+  color: #fff;
+  border-bottom-color: rgba(255, 255, 255, .5);
+  font-size: clamp(13px, 1.7vw, 15px);
+}
+.official-link-light:hover,
+.official-link-light:focus-visible { color: #fff; border-bottom-color: #fff; }
