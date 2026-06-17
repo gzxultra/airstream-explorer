@@ -216,22 +216,113 @@ const AGENCY_LABEL = {
   USFS: 'National Forest', BLM: 'BLM land', NPS: 'National Park Service', State: 'State land',
 };
 
-// A calm line-art landscape that fills the media slot where a photo would be —
-// so the card reads as "wild & unmapped", not "broken image". Uses the same
-// copper/ink palette as the rest of the site via currentColor.
-function boondockArt(seedName) {
-  // tiny deterministic variation so a wall of cards isn't identical
-  let h = 0; for (let i = 0; i < seedName.length; i++) h = (h * 31 + seedName.charCodeAt(i)) & 255;
-  const sun = 60 + (h % 30);
-  return `<svg class="bd-art" viewBox="0 0 700 466" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-<defs><linearGradient id="bdsky" x1="0" y1="0" x2="0" y2="1">
-<stop offset="0" stop-color="#f4ead9"/><stop offset="1" stop-color="#e7d7bf"/></linearGradient></defs>
-<rect width="700" height="466" fill="url(#bdsky)"/>
-<circle cx="${sun * 6}" cy="120" r="46" fill="#e9b878" opacity="0.55"/>
-<path d="M0 320 L150 200 L260 300 L360 180 L470 300 L590 210 L700 310 L700 466 L0 466 Z" fill="#b98a52" opacity="0.5"/>
-<path d="M0 370 L120 290 L230 360 L340 270 L460 360 L580 300 L700 360 L700 466 L0 466 Z" fill="#8a6638" opacity="0.6"/>
-<path d="M0 410 L700 410 L700 466 L0 466 Z" fill="#6f5230" opacity="0.7"/>
-</svg>`;
+// A region-aware editorial landscape that fills the media slot where a photo
+// would be. These OSM sites ship NO real photo, and faking one would break the
+// verified/community contract — so we draw an honest illustration keyed to the
+// site's real state + elevation: desert, red-rock, alpine, forest, or high
+// basin. Each card gets its OWN gradient ids (no cross-card bleed) plus small
+// hash-seeded variation, so a wall of cards never looks copy-pasted.
+function bdBiome(s) {
+  const el = s.elevationFt;
+  const st = s.state;
+  if (el != null && el >= 7000) return 'alpine';
+  if (st === 'Utah') return 'redrock';
+  if (st === 'Arizona' || st === 'Nevada') return (el != null && el >= 6000) ? 'redrock' : 'desert';
+  if (st === 'Colorado') return 'alpine';
+  if (st === 'Oregon' || st === 'Washington' || st === 'California') return 'forest';
+  return 'basin';
+}
+
+function bdHash(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+  return h;
+}
+
+// A saguaro silhouette (rounded strokes) — the recognisable Sonoran-desert tell.
+function bdSaguaro(cx, baseY, sc, fill) {
+  const w = Math.max(8, Math.round(15 * sc));
+  const r = (n) => Math.round(n * sc);
+  return `<g fill="none" stroke="${fill}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">`
+    + `<path d="M${cx} ${baseY}V${baseY - r(132)}"/>`
+    + `<path d="M${cx} ${baseY - r(76)}h${-r(36)}V${baseY - r(110)}"/>`
+    + `<path d="M${cx} ${baseY - r(94)}h${r(30)}V${baseY - r(122)}"/>`
+    + `</g>`;
+}
+
+// A single conifer triangle, for forest / alpine tree-lines.
+function bdConifer(cx, baseY, h, fill) {
+  const w = h * 0.4;
+  return `<path d="M${cx} ${baseY - h}L${(cx + w).toFixed(1)} ${baseY}L${(cx - w).toFixed(1)} ${baseY}Z" fill="${fill}"/>`;
+}
+
+function boondockArt(s) {
+  const site = s || {};
+  const seed = site.name || 'site';
+  const h = bdHash(seed);
+  const id = site.id ? String(site.id).replace(/[^a-z0-9]/gi, '') : ('h' + h);
+  const biome = bdBiome(site);
+  const sunx = 150 + (h % 5) * 88;
+  let sky0, sky1, body;
+
+  if (biome === 'desert') {
+    sky0 = '#f4cd9b'; sky1 = '#fcefda';
+    body = `<circle cx="${sunx}" cy="118" r="48" fill="#f0a85a" opacity="0.62"/>`
+      + `<path d="M0 300 L0 262 L150 262 L172 242 L300 242 L322 262 L700 262 L700 300 Z" fill="#d7a87c" opacity="0.55"/>`
+      + `<path d="M0 322 Q200 298 380 320 Q540 338 700 314 L700 466 L0 466 Z" fill="#cf9a64"/>`
+      + `<path d="M0 374 Q220 352 430 374 Q560 386 700 368 L700 466 L0 466 Z" fill="#bd8550"/>`
+      + bdSaguaro(140 + (h % 4) * 22, 414, 0.98, '#6e7d52')
+      + bdSaguaro(556 - (h % 3) * 26, 406, 0.72, '#62714a')
+      + bdSaguaro(322 + (h % 5) * 14, 452, 0.5, '#6e7d52');
+  } else if (biome === 'redrock') {
+    sky0 = '#f3d2b0'; sky1 = '#faecd8';
+    body = `<circle cx="${sunx}" cy="120" r="44" fill="#eda468" opacity="0.5"/>`
+      + `<path d="M0 286 L0 250 L120 250 L140 232 L250 232 L268 252 L700 252 L700 286 Z" fill="#d89a82" opacity="0.55"/>`
+      + `<path d="M0 322 L160 322 L182 286 L360 286 L380 322 L700 322 L700 466 L0 466 Z" fill="#c2744d"/>`
+      + `<path d="M${360 + (h % 3) * 30} 466 L${360 + (h % 3) * 30} 348 L520 348 L540 320 L640 320 L660 348 L700 348 L700 466 Z" fill="#a4502f"/>`
+      + `<path d="M0 408 L700 408 L700 466 L0 466 Z" fill="#8c4026" opacity="0.85"/>`;
+  } else if (biome === 'alpine') {
+    sky0 = '#cfe0e6'; sky1 = '#eff4f3';
+    const p2 = 214 + (h % 4) * 8;
+    body = `<circle cx="${sunx}" cy="114" r="42" fill="#fbfdfd" opacity="0.75"/>`
+      + `<path d="M0 300 L120 220 L210 286 L320 200 L440 290 L560 214 L700 300 L700 466 L0 466 Z" fill="#a6b8c2" opacity="0.6"/>`
+      + `<path d="M0 330 L150 226 L260 330 L380 ${p2} L500 330 L620 244 L700 320 L700 466 L0 466 Z" fill="#6f8794"/>`
+      + `<path d="M150 226 L176 264 L124 264 Z" fill="#f4f7f7"/>`
+      + `<path d="M380 ${p2} L408 ${p2 + 42} L352 ${p2 + 42} Z" fill="#eef4f4"/>`
+      + `<path d="M620 244 L642 278 L598 278 Z" fill="#f4f7f7"/>`
+      + `<path d="M0 392 L700 392 L700 466 L0 466 Z" fill="#3c5a45"/>`
+      + bdConifer(70, 404, 40, '#33503f') + bdConifer(250, 402, 34, '#2f4a3a')
+      + bdConifer(470, 404, 42, '#33503f') + bdConifer(640, 402, 36, '#2f4a3a');
+  } else if (biome === 'forest') {
+    sky0 = '#dce7de'; sky1 = '#f0f4ec';
+    body = `<circle cx="${sunx}" cy="116" r="46" fill="#eef3ec" opacity="0.7"/>`
+      + `<path d="M0 300 Q175 252 350 296 Q525 332 700 292 L700 466 L0 466 Z" fill="#aec0aa" opacity="0.65"/>`
+      + `<path d="M0 338 Q200 300 400 334 Q560 354 700 328 L700 466 L0 466 Z" fill="#7e9a7e"/>`
+      + `<path d="M0 384 Q220 356 440 384 Q580 400 700 378 L700 466 L0 466 Z" fill="#4f6b50"/>`;
+    const tx = [48, 132, 208, 288, 362, 442, 522, 606, 668];
+    for (let i = 0; i < tx.length; i++) {
+      const th = 30 + ((h >> i) % 4) * 7;
+      body += bdConifer(tx[i] + ((h >> (i + 1)) % 3) * 6, 392, th, i % 2 ? '#38523f' : '#324a39');
+    }
+  } else { // basin — sagebrush high desert
+    sky0 = '#d7e2e3'; sky1 = '#f3ede1';
+    body = `<circle cx="${sunx}" cy="118" r="44" fill="#f0d49a" opacity="0.5"/>`
+      + `<path d="M0 296 L130 256 L250 290 L380 252 L520 292 L660 258 L700 286 L700 466 L0 466 Z" fill="#9fb1b4" opacity="0.6"/>`
+      + `<path d="M0 340 Q220 300 430 338 Q560 360 700 330 L700 466 L0 466 Z" fill="#bcae78"/>`
+      + `<path d="M0 392 Q240 360 470 392 Q600 408 700 384 L700 466 L0 466 Z" fill="#8f9a5f"/>`;
+    const dx = [90, 210, 340, 470, 600];
+    for (let i = 0; i < dx.length; i++) {
+      const x = dx[i] + ((h >> i) % 3) * 10;
+      body += `<ellipse cx="${x}" cy="${430 - (i % 2) * 8}" rx="16" ry="9" fill="#6f7a45" opacity="0.85"/>`;
+    }
+  }
+
+  return `<svg class="bd-art" viewBox="0 0 700 466" preserveAspectRatio="xMidYMid slice" aria-hidden="true">`
+    + `<defs><linearGradient id="bdsky-${id}" x1="0" y1="0" x2="0" y2="1">`
+    + `<stop offset="0" stop-color="${sky0}"/><stop offset="1" stop-color="${sky1}"/></linearGradient></defs>`
+    + `<rect width="700" height="466" fill="url(#bdsky-${id})"/>`
+    + body
+    + `</svg>`;
 }
 
 function boondockCard(s) {
@@ -252,7 +343,7 @@ function boondockCard(s) {
 
   return `<article class="ov-card ov-card--boondock" data-lens="boondock" data-tier="community" data-name="${esc(name.toLowerCase())}" data-state="${esc((s.state || '').toLowerCase())}" data-rating="0" data-reviews="0" data-price="0">
 <div class="ov-media bd-media">
-${boondockArt(name)}
+${boondockArt(s)}
 ${lensBadge('boondock')}
 </div>
 <div class="ov-body">

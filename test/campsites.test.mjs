@@ -119,6 +119,29 @@ test('campsites render carries no raw recreation.gov CDN links', () => {
   assert.ok(!html.includes('cdn.recreation.gov'), 'gov photos must route through /cdn/ proxy');
 });
 
+// ---- Boondock illustration: varied, self-contained, no cross-card bleed ----
+test('every boondock card draws its own illustration with a unique gradient id', () => {
+  const html = renderCampsitesBody({ stays: [] }, boon, '');
+  const arts = (html.match(/class="bd-art"/g) || []).length;
+  assert.equal(arts, boon.sites.length, 'one illustration per boondock card');
+  // Each card must scope its own gradient id, or sky gradients bleed across cards.
+  const ids = html.match(/id="bdsky-[a-z0-9]+"/gi) || [];
+  assert.equal(ids.length, boon.sites.length, 'a gradient id per card');
+  assert.equal(new Set(ids).size, ids.length, 'gradient ids must be unique per card');
+  // The old single shared id must be gone.
+  assert.ok(!/id="bdsky"/.test(html), 'no shared bdsky id (caused cross-card render bleed)');
+});
+
+test('boondock illustrations vary by region, not one repeated placeholder', () => {
+  // Pull the per-card sky gradient stop colors; a desert AZ card and an alpine
+  // CO/high card must not paint the same sky, or the wall looks copy-pasted.
+  const html = renderCampsitesBody({ stays: [] }, boon, '');
+  const skies = [...html.matchAll(/<linearGradient id="bdsky-[^"]+"[^>]*>\s*<stop offset="0" stop-color="(#[0-9a-f]{6})"/gi)]
+    .map((m) => m[1].toLowerCase());
+  assert.equal(skies.length, boon.sites.length, 'a sky color per card');
+  assert.ok(new Set(skies).size >= 3, `expected several distinct biome skies, got ${new Set(skies).size}`);
+});
+
 // ---- All-lenses map ------------------------------------------------------
 test('buildCampsiteMapData returns one point per coord-bearing site', () => {
   const pts = buildCampsiteMapData(over, boon);
