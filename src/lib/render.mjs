@@ -44,6 +44,7 @@ export function esc(s) {
 const NAV_ITEMS = [
   ['index.html', 'Explore', 'index'],
   ['campgrounds.html', 'Campgrounds', 'campgrounds'],
+  ['stays.html', 'Unique Stays', 'stays'],
   ['upgrades.html', 'Upgrades', 'upgrades'],
 ];
 

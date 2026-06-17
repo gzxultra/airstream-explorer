@@ -10,6 +10,7 @@ import { loadTrailers, validateDataset, groupByFamily, resolveAssets, loadDecor,
 import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, page } from '../src/lib/render.mjs';
 import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
 import { loadUpgrades, validateUpgrades, renderUpgradesBody } from '../src/lib/upgrades.mjs';
+import { loadStays, validateStays, renderStaysBody } from '../src/lib/stays.mjs';
 import { loadCampgrounds, validateCampgrounds } from '../src/lib/campgrounds.mjs';
 import { renderCampgroundsPage } from '../src/lib/campgrounds-render.mjs';
 
@@ -56,6 +57,16 @@ if (upgradeProblems.length) {
 }
 const upgradeCount = upgrades.categories.reduce((n, c) => n + c.items.length, 0);
 log(`upgrades ok: ${upgradeCount} items in ${upgrades.categories.length} categories (all sourced)`);
+
+// 1f. Load + validate unique overnight stays (Recreation.gov fire lookouts,
+//     cabins, dispersed). Fail the build if any stay lacks a valid type, a
+//     real Recreation.gov url, a photo, or coordinates.
+const staysData = loadStays();
+const stayProblems = validateStays(staysData);
+if (stayProblems.length) {
+  throw new Error('Stays data invalid:\n' + stayProblems.join('\n'));
+}
+log(`stays ok: ${staysData.stays.length} unique stays (${Object.entries(staysData.byType).map(([k, v]) => `${v} ${k}`).join(', ')})`);
 
 // 2. Clean dist
 rmSync(DIST, { recursive: true, force: true });
@@ -147,6 +158,18 @@ writeFileSync(
 );
 log('wrote upgrades.html');
 
+// 4d. Unique overnight stays page (root-level, so relRoot = '')
+writeFileSync(
+  join(DIST, 'stays.html'),
+  page({
+    title: 'Unique overnight stays — fire lookouts, cabins & dispersed sites',
+    description: `${staysData.stays.length} once-in-a-lifetime places to stay on US public land — historic fire lookouts, backcountry cabins and guard stations, and a designated dispersed area — bookable through Recreation.gov, with photos, ratings, prices, and RV-length notes.`,
+    body: renderStaysBody(staysData, ''),
+    active: 'stays',
+  }),
+);
+log('wrote stays.html');
+
 // 5. Static assets: CSS/JS from src, images from public
 cpSync(join(ROOT, 'src', 'assets', 'css'), join(DIST, 'assets', 'css'), { recursive: true });
 cpSync(join(ROOT, 'src', 'assets', 'js'), join(DIST, 'assets', 'js'), { recursive: true });
@@ -235,6 +258,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     join(DIST, 'compare.html'),
     join(DIST, 'campgrounds.html'),
     join(DIST, 'upgrades.html'),
+    join(DIST, 'stays.html'),
     join(DIST, 'community.html'),
     join(DIST, 'credits.html'),
     ...families.map((f) => join(DIST, 'f', `${f.slug}.html`)),
@@ -267,6 +291,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     { file: join(DIST, 'compare.html'), base: DIST },
     { file: join(DIST, 'campgrounds.html'), base: DIST },
     { file: join(DIST, 'upgrades.html'), base: DIST },
+    { file: join(DIST, 'stays.html'), base: DIST },
     { file: join(DIST, 'community.html'), base: DIST },
     { file: join(DIST, 'credits.html'), base: DIST },
     ...families.map((f) => ({ file: join(DIST, 'f', `${f.slug}.html`), base: join(DIST, 'f') })),

@@ -465,6 +465,68 @@
   })();
 
   // =========================================================================
+  // 2b. UNIQUE STAYS PAGE — filter the stay cards by type (lookout / cabin /
+  //     dispersed). Single dimension, "All" resets. Server-rendered full;
+  //     this only enhances. Self-guards off every other page.
+  // =========================================================================
+  (function staysFilter() {
+    var lens = document.getElementById('stay-lens');
+    var main = document.getElementById('stay-main');
+    if (!lens || !main) return;
+
+    var cards = Array.prototype.slice.call(main.querySelectorAll('.stay-card'));
+    if (!cards.length) return;
+    var chips = Array.prototype.slice.call(lens.querySelectorAll('.stay-chip'));
+    var countEl = document.getElementById('stay-count');
+    var emptyEl = document.getElementById('stay-empty');
+    var emptyReset = document.getElementById('stay-empty-reset');
+
+    // Server-rendered hidden so it never flashes for no-JS readers.
+    lens.removeAttribute('hidden');
+
+    var STAY_PREFS = 'stays.type';
+    // Selected type, or 'all'. Restore last choice if it's still a real value.
+    var sel = 'all';
+    (function restore() {
+      var p = Store.get(STAY_PREFS, null);
+      if (typeof p === 'string' && p) sel = p;
+    })();
+
+    function apply() {
+      var shown = 0;
+      cards.forEach(function (card) {
+        var ok = (sel === 'all') || card.getAttribute('data-type') === sel;
+        if (ok) { card.removeAttribute('hidden'); shown++; }
+        else { card.setAttribute('hidden', ''); }
+      });
+      chips.forEach(function (b) {
+        var on = b.getAttribute('data-value') === sel;
+        b.classList.toggle('is-on', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      if (countEl) {
+        countEl.textContent = (sel === 'all')
+          ? (cards.length + ' stays')
+          : (shown + ' of ' + cards.length + ' stays');
+      }
+      if (emptyEl) { if (shown === 0) emptyEl.removeAttribute('hidden'); else emptyEl.setAttribute('hidden', ''); }
+    }
+
+    function choose(val) {
+      sel = val;
+      if (val === 'all') Store.del(STAY_PREFS); else Store.set(STAY_PREFS, val);
+      apply();
+    }
+
+    chips.forEach(function (btn) {
+      btn.addEventListener('click', function () { choose(btn.getAttribute('data-value')); });
+    });
+    if (emptyReset) emptyReset.addEventListener('click', function () { choose('all'); });
+
+    apply();
+  })();
+
+  // =========================================================================
   // 3. COMPARE PAGE — build the side-by-side table from selection + search
   // =========================================================================
   (function compare() {
