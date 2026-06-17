@@ -1305,12 +1305,12 @@
       editorial: { label: 'Map', kind: 'vector' },
       satellite: {
         label: 'Satellite', kind: 'raster',
-        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+        tiles: ['/tiles/sat/{z}/{y}/{x}'],
         attribution: ESRI_ATTR + ', Maxar, Earthstar Geographics', maxzoom: 19, labelColor: '#fff', haloColor: 'rgba(0,0,0,.55)',
       },
       terrain: {
         label: 'Terrain', kind: 'raster',
-        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'],
+        tiles: ['/tiles/topo/{z}/{y}/{x}'],
         attribution: ESRI_ATTR + ', USGS, NOAA', maxzoom: 19, labelColor: '#33312c', haloColor: 'rgba(255,255,255,.9)',
       },
     };
