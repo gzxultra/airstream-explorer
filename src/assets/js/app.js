@@ -501,9 +501,22 @@
 
     function num(card, k) { return parseFloat(card.getAttribute(k)) || 0; }
 
+    // Lens display order (Big Views → Full Hookups → Boondocking), so the "All"
+    // view stays grouped by intent instead of interleaving rating-less
+    // boondocking cards among the rated gov ones.
+    var LENS_ORDER = { view: 0, utility: 1, boondock: 2 };
+    function lensRank(card) {
+      var l = card.getAttribute('data-lens');
+      return (l in LENS_ORDER) ? LENS_ORDER[l] : 9;
+    }
+
     // Comparators. Ties fall back to rating then review count so the order is
-    // always stable and the best-reviewed places lead.
+    // always stable and the best-reviewed places lead. Within "All" we keep the
+    // lens grouping first; when a single lens is selected, rank is constant so
+    // it has no effect and the chosen sort fully governs.
     function cmp(a, b) {
+      var lr = lensRank(a) - lensRank(b);
+      if (lr) return lr;
       switch (sort) {
         case 'reviews':    return num(b, 'data-reviews') - num(a, 'data-reviews') || num(b, 'data-rating') - num(a, 'data-rating');
         case 'price-asc':  return num(a, 'data-price') - num(b, 'data-price') || num(b, 'data-rating') - num(a, 'data-rating');
@@ -532,8 +545,8 @@
       });
       if (countEl) {
         countEl.textContent = (sel === 'all')
-          ? (cards.length + ' stays')
-          : (shown + ' of ' + cards.length + ' stays');
+          ? (cards.length + ' sites')
+          : (shown + ' of ' + cards.length + ' sites');
       }
       if (emptyEl) { if (shown === 0) emptyEl.removeAttribute('hidden'); else emptyEl.setAttribute('hidden', ''); }
     }

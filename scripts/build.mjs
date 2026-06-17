@@ -11,6 +11,7 @@ import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, 
 import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
 import { loadUpgrades, validateUpgrades, renderUpgradesBody } from '../src/lib/upgrades.mjs';
 import { loadOvernight, validateOvernight, renderOvernightBody } from '../src/lib/overnight.mjs';
+import { loadBoondocking, validateBoondocking, renderCampsitesBody } from '../src/lib/campsites.mjs';
 import { loadCampgrounds, validateCampgrounds } from '../src/lib/campgrounds.mjs';
 import { renderCampgroundsPage } from '../src/lib/campgrounds-render.mjs';
 
@@ -69,6 +70,17 @@ if (overnightProblems.length) {
   throw new Error('Overnight stays data invalid:\n' + overnightProblems.join('\n'));
 }
 log(`overnight stays ok: ${overnightData.stays.length} curated picks (${Object.entries(overnightData.byLens).map(([k, v]) => `${v} ${k}`).join(', ')})`);
+
+// 1g. Load + validate boondocking dataset (OpenStreetMap / ODbL dispersed
+//     sites). Fail the build if any community site lacks real coordinates,
+//     OSM provenance, or — critically — carries a FABRICATED rating, photo, or
+//     price. Community data must stay visibly honest next to the gov data.
+const boondockingData = loadBoondocking();
+const boondockingProblems = validateBoondocking(boondockingData);
+if (boondockingProblems.length) {
+  throw new Error('Boondocking data invalid:\n' + boondockingProblems.join('\n'));
+}
+log(`boondocking ok: ${boondockingData.sites.length} OSM dispersed sites (unverified, first-come)`);
 
 // 2. Clean dist
 rmSync(DIST, { recursive: true, force: true });
@@ -160,17 +172,35 @@ writeFileSync(
 );
 log('wrote upgrades.html');
 
-// 4d. Overnight stays page (root-level, so relRoot = '')
+// 4d. Campsites hub (root-level, so relRoot = '') — the unified page that
+//     merges overnight stays (Big Views + Full Hookups, Recreation.gov) with
+//     boondocking (free dispersed, OpenStreetMap) under three filter lenses.
 writeFileSync(
-  join(DIST, 'stays.html'),
+  join(DIST, 'campsites.html'),
   page({
-    title: 'Overnight stays — where to park your Airstream tonight',
-    description: `${overnightData.stays.length} hand-picked places to park an Airstream overnight on US public land — ${overnightData.byLens.view || 0} off-grid sites with big views and ${overnightData.byLens.utility || 0} full-hookup sites with power, water and a dump on site. All rated 4.5★+, trailer-accessible, and bookable through Recreation.gov.`,
-    body: renderOvernightBody(overnightData, ''),
-    active: 'stays',
+    title: 'Campsites — where to park your Airstream tonight',
+    description: `${overnightData.stays.length + boondockingData.sites.length} places to park an Airstream on US public land, in one place — ${overnightData.byLens.view || 0} off-grid big-view sites and ${overnightData.byLens.utility || 0} full-hookup sites bookable on Recreation.gov, plus ${boondockingData.sites.length} free first-come boondocking spots mapped from OpenStreetMap. Filter by views, hookups, or free dispersed camping.`,
+    body: renderCampsitesBody(overnightData, boondockingData, ''),
+    active: 'campsites',
   }),
 );
-log('wrote stays.html (overnight stays)');
+log('wrote campsites.html (unified hub: stays + boondocking)');
+
+// 4d-ii. Legacy redirects: stays.html → campsites.html (the Overnight Stays
+//     page was absorbed into the hub). Keep the URL alive so old links/bookmarks
+//     and any external references don't 404; a meta-refresh + canonical + JS
+//     replace covers crawlers and humans.
+function redirectStub(to, title) {
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<title>${title}</title>
+<link rel="canonical" href="${to}">
+<meta http-equiv="refresh" content="0; url=${to}">
+<meta name="robots" content="noindex,follow">
+<script>location.replace('${to}');</script>
+</head><body><p>This page moved to <a href="${to}">Campsites</a>.</p></body></html>`;
+}
+writeFileSync(join(DIST, 'stays.html'), redirectStub('campsites.html', 'Overnight stays moved — Campsites'));
+log('wrote stays.html (redirect → campsites.html)');
 
 // 5. Static assets: CSS/JS from src, images from public
 cpSync(join(ROOT, 'src', 'assets', 'css'), join(DIST, 'assets', 'css'), { recursive: true });
@@ -260,6 +290,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     join(DIST, 'compare.html'),
     join(DIST, 'campgrounds.html'),
     join(DIST, 'upgrades.html'),
+    join(DIST, 'campsites.html'),
     join(DIST, 'stays.html'),
     join(DIST, 'community.html'),
     join(DIST, 'credits.html'),
@@ -293,7 +324,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     { file: join(DIST, 'compare.html'), base: DIST },
     { file: join(DIST, 'campgrounds.html'), base: DIST },
     { file: join(DIST, 'upgrades.html'), base: DIST },
-    { file: join(DIST, 'stays.html'), base: DIST },
+    { file: join(DIST, 'campsites.html'), base: DIST },
     { file: join(DIST, 'community.html'), base: DIST },
     { file: join(DIST, 'credits.html'), base: DIST },
     ...families.map((f) => ({ file: join(DIST, 'f', `${f.slug}.html`), base: join(DIST, 'f') })),

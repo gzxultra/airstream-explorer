@@ -43,8 +43,7 @@ export function esc(s) {
 // 3 items fit a single persistent bar on mobile (no hamburger needed).
 const NAV_ITEMS = [
   ['index.html', 'Explore', 'index'],
-  ['campgrounds.html', 'Campgrounds', 'campgrounds'],
-  ['stays.html', 'Overnight Stays', 'stays'],
+  ['campsites.html', 'Campsites', 'campsites'],
   ['upgrades.html', 'Upgrades', 'upgrades'],
 ];
 
@@ -75,7 +74,7 @@ ${navLinks}
 </header>
 ${body}
 <footer class="site-footer">
-<p>Airstream Explorer · enthusiast catalog · ${_stats.floorplanCount} floorplans across ${_stats.familyCount} families (2026 + 2025). · <a href="${relRoot}index.html#all">Explore &amp; match</a> · <a href="${relRoot}compare.html">Compare</a> · <a href="${relRoot}campgrounds.html">Campgrounds</a> · <a href="${relRoot}upgrades.html">Upgrades</a> · <a href="${relRoot}community.html">Community photos</a> · <a href="${relRoot}credits.html">Credits</a></p>
+<p>Airstream Explorer · enthusiast catalog · ${_stats.floorplanCount} floorplans across ${_stats.familyCount} families (2026 + 2025). · <a href="${relRoot}index.html#all">Explore &amp; match</a> · <a href="${relRoot}compare.html">Compare</a> · <a href="${relRoot}campsites.html">Campsites</a> · <a href="${relRoot}campgrounds.html">Campground map</a> · <a href="${relRoot}upgrades.html">Upgrades</a> · <a href="${relRoot}community.html">Community photos</a> · <a href="${relRoot}credits.html">Credits</a></p>
 <p class="muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Some imagery is AI-generated and labeled accordingly; community photographs are real and used under their stated Creative Commons / public-domain licenses (see credits).</p>
 </footer>
 <script src="${relRoot}assets/js/app.js" defer></script>

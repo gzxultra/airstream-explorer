@@ -1528,3 +1528,60 @@ body.cg-drawer-open { overflow: hidden; }
 @media (max-width: 560px) {
   .ov-grid { grid-template-columns: 1fr; }
 }
+
+/* ===========================================================================
+   CAMPSITES HUB — third lens (Boondocking) + 3-up legend.
+   Boondocking is COMMUNITY data (OpenStreetMap), so it gets a visually distinct
+   treatment from the verified Recreation.gov cards: a slate/indigo accent (vs
+   view-green and utility-copper), an illustrated media slot instead of a photo,
+   and an explicit "unverified" provenance line. The two data tiers must read
+   as different at a glance — that's the honesty contract.
+   =========================================================================== */
+
+/* 3-up legend on wide screens; the responsive block already collapses to 1col */
+.ov-legend--3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 1040px) { .ov-legend--3 { grid-template-columns: 1fr; } }
+
+/* Boondock lens accent (slate-indigo, distinct from view/utility) */
+.ov-badge--boondock { background: rgba(74,85,104,.66); }
+.ov-legend-card--boondock { border-top-color: #4a5568; }
+.ov-legend-card--boondock .ov-legend-ico { color: #3c4657; background: rgba(74,85,104,.10); }
+.ov-legend-card--boondock .ov-legend-n { color: #3c4657; background: rgba(74,85,104,.10); border-color: rgba(74,85,104,.24); }
+.ov-legend-card--boondock .ov-legend-tag { color: #3c4657; }
+
+/* Tier chip in the legend tagline — names the data source honestly */
+.ov-legend-tier {
+  display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; border-radius: 999px; padding: 1px 8px; margin-left: 6px;
+  vertical-align: 1px;
+}
+.ov-legend-tier--verified { color: #2f6b46; background: rgba(63,125,84,.10); border: 1px solid rgba(63,125,84,.24); }
+.ov-legend-tier--community { color: #3c4657; background: rgba(74,85,104,.12); border: 1px solid rgba(74,85,104,.26); }
+
+/* Boondock card: same shell, illustrated media, honest provenance */
+.ov-card--boondock { border-color: #d8d3c8; }
+.ov-card--boondock:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.bd-media {
+  position: relative; display: block; aspect-ratio: 3/2; overflow: hidden;
+  background: linear-gradient(135deg, #efe7d8 0%, #e2d6c0 100%);
+}
+.bd-art { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* "Unverified · OpenStreetMap" line — the visual tell that this isn't gov data */
+.bd-provenance {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11.5px; font-weight: 600; line-height: 1.35; color: #3c4657;
+  background: rgba(74,85,104,.07); border: 1px solid rgba(74,85,104,.18);
+  border-radius: 6px; padding: 6px 9px; margin: 10px 0 11px;
+}
+.bd-prov-ico { width: 14px; height: 14px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Free / first-come pills (boondock-specific) */
+.ov-pill--free { color: #2f6b46; background: rgba(63,125,84,.10); border-color: rgba(63,125,84,.26); }
+.ov-pill--fcfs { color: #3c4657; background: rgba(74,85,104,.09); border-color: rgba(74,85,104,.24); }
+
+.bd-coords { font-size: 12px; color: var(--muted); margin: 0 0 12px; font-variant-numeric: tabular-nums; }
+.bd-coord-label { font-weight: 700; color: var(--ink); letter-spacing: .02em; }
+.bd-links { margin-top: auto; display: flex; align-items: baseline; gap: 16px; }
+.bd-osm { font-size: 12px; font-weight: 600; color: var(--muted); }
+.bd-osm:hover { color: var(--copper-deep); }
