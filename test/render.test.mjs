@@ -331,10 +331,10 @@ test('top nav is exactly the 4 consolidated tabs — no Compare/Community/Explor
     assert.ok(nav, 'has a topnav-links nav');
     const links = nav[1].match(/<a /g) || [];
     assert.equal(links.length, 4, 'exactly 4 top tabs');
-    // the four tabs are Explore (index) / Campgrounds / Unique Stays / Upgrades
+    // the four tabs are Explore (index) / Campgrounds / Overnight Stays / Upgrades
     assert.match(nav[1], /href="index\.html"[^>]*>Explore</);
     assert.match(nav[1], /href="campgrounds\.html"[^>]*>Campgrounds</);
-    assert.match(nav[1], /href="stays\.html"[^>]*>Unique Stays</);
+    assert.match(nav[1], /href="stays\.html"[^>]*>Overnight Stays</);
     assert.match(nav[1], /href="upgrades\.html"[^>]*>Upgrades</);
     // Compare and Community are NOT top tabs anymore
     assert.doesNotMatch(nav[1], /compare\.html/);

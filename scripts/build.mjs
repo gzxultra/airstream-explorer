@@ -10,7 +10,7 @@ import { loadTrailers, validateDataset, groupByFamily, resolveAssets, loadDecor,
 import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, page } from '../src/lib/render.mjs';
 import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
 import { loadUpgrades, validateUpgrades, renderUpgradesBody } from '../src/lib/upgrades.mjs';
-import { loadStays, validateStays, renderStaysBody } from '../src/lib/stays.mjs';
+import { loadOvernight, validateOvernight, renderOvernightBody } from '../src/lib/overnight.mjs';
 import { loadCampgrounds, validateCampgrounds } from '../src/lib/campgrounds.mjs';
 import { renderCampgroundsPage } from '../src/lib/campgrounds-render.mjs';
 
@@ -58,15 +58,17 @@ if (upgradeProblems.length) {
 const upgradeCount = upgrades.categories.reduce((n, c) => n + c.items.length, 0);
 log(`upgrades ok: ${upgradeCount} items in ${upgrades.categories.length} categories (all sourced)`);
 
-// 1f. Load + validate unique overnight stays (Recreation.gov fire lookouts,
-//     cabins, dispersed). Fail the build if any stay lacks a valid type, a
-//     real Recreation.gov url, a photo, or coordinates.
-const staysData = loadStays();
-const stayProblems = validateStays(staysData);
-if (stayProblems.length) {
-  throw new Error('Stays data invalid:\n' + stayProblems.join('\n'));
+// 1f. Load + validate curated overnight stays (Recreation.gov campgrounds
+//     filtered into two intents: off-grid "Big Views" + serviced "Full
+//     Hookups"). Fail the build if any pick lacks a valid lens, a real
+//     Recreation.gov url, a photo, coordinates, or violates the hookups
+//     contract — every card must be a place you can actually tow into.
+const overnightData = loadOvernight();
+const overnightProblems = validateOvernight(overnightData);
+if (overnightProblems.length) {
+  throw new Error('Overnight stays data invalid:\n' + overnightProblems.join('\n'));
 }
-log(`stays ok: ${staysData.stays.length} unique stays (${Object.entries(staysData.byType).map(([k, v]) => `${v} ${k}`).join(', ')})`);
+log(`overnight stays ok: ${overnightData.stays.length} curated picks (${Object.entries(overnightData.byLens).map(([k, v]) => `${v} ${k}`).join(', ')})`);
 
 // 2. Clean dist
 rmSync(DIST, { recursive: true, force: true });
@@ -158,17 +160,17 @@ writeFileSync(
 );
 log('wrote upgrades.html');
 
-// 4d. Unique overnight stays page (root-level, so relRoot = '')
+// 4d. Overnight stays page (root-level, so relRoot = '')
 writeFileSync(
   join(DIST, 'stays.html'),
   page({
-    title: 'Unique overnight stays — fire lookouts, cabins & dispersed sites',
-    description: `${staysData.stays.length} once-in-a-lifetime places to stay on US public land — historic fire lookouts, backcountry cabins and guard stations, and a designated dispersed area — bookable through Recreation.gov, with photos, ratings, prices, and RV-length notes.`,
-    body: renderStaysBody(staysData, ''),
+    title: 'Overnight stays — where to park your Airstream tonight',
+    description: `${overnightData.stays.length} hand-picked places to park an Airstream overnight on US public land — ${overnightData.byLens.view || 0} off-grid sites with big views and ${overnightData.byLens.utility || 0} full-hookup sites with power, water and a dump on site. All rated 4.5★+, trailer-accessible, and bookable through Recreation.gov.`,
+    body: renderOvernightBody(overnightData, ''),
     active: 'stays',
   }),
 );
-log('wrote stays.html');
+log('wrote stays.html (overnight stays)');
 
 // 5. Static assets: CSS/JS from src, images from public
 cpSync(join(ROOT, 'src', 'assets', 'css'), join(DIST, 'assets', 'css'), { recursive: true });

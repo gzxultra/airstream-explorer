@@ -469,33 +469,59 @@
   //     dispersed). Single dimension, "All" resets. Server-rendered full;
   //     this only enhances. Self-guards off every other page.
   // =========================================================================
-  (function staysFilter() {
-    var lens = document.getElementById('stay-lens');
-    var main = document.getElementById('stay-main');
+  (function overnightFilter() {
+    var lens = document.getElementById('ov-lens');
+    var main = document.getElementById('ov-main');
     if (!lens || !main) return;
 
-    var cards = Array.prototype.slice.call(main.querySelectorAll('.stay-card'));
-    if (!cards.length) return;
-    var chips = Array.prototype.slice.call(lens.querySelectorAll('.stay-chip'));
-    var countEl = document.getElementById('stay-count');
-    var emptyEl = document.getElementById('stay-empty');
-    var emptyReset = document.getElementById('stay-empty-reset');
+    var grid = main.querySelector('.ov-grid');
+    var cards = Array.prototype.slice.call(main.querySelectorAll('.ov-card'));
+    if (!grid || !cards.length) return;
+    var chips = Array.prototype.slice.call(lens.querySelectorAll('.ov-chip'));
+    var sortEl = document.getElementById('ov-sort');
+    var countEl = document.getElementById('ov-count');
+    var emptyEl = document.getElementById('ov-empty');
+    var emptyReset = document.getElementById('ov-empty-reset');
 
-    // Server-rendered hidden so it never flashes for no-JS readers.
+    // Server-rendered hidden so it never flashes for no-JS readers (they get
+    // the full, already-sorted static list).
     lens.removeAttribute('hidden');
 
-    var STAY_PREFS = 'stays.type';
-    // Selected type, or 'all'. Restore last choice if it's still a real value.
-    var sel = 'all';
+    var OV_PREFS = 'overnight.prefs';
+    var sel = 'all';          // selected lens, or 'all'
+    var sort = 'rating';      // rating | reviews | price-asc | price-desc
     (function restore() {
-      var p = Store.get(STAY_PREFS, null);
-      if (typeof p === 'string' && p) sel = p;
+      var p = Store.get(OV_PREFS, null);
+      if (p && typeof p === 'object') {
+        if (typeof p.lens === 'string' && p.lens) sel = p.lens;
+        if (typeof p.sort === 'string' && p.sort) sort = p.sort;
+      }
     })();
+    if (sortEl) sortEl.value = sort;
+
+    function num(card, k) { return parseFloat(card.getAttribute(k)) || 0; }
+
+    // Comparators. Ties fall back to rating then review count so the order is
+    // always stable and the best-reviewed places lead.
+    function cmp(a, b) {
+      switch (sort) {
+        case 'reviews':    return num(b, 'data-reviews') - num(a, 'data-reviews') || num(b, 'data-rating') - num(a, 'data-rating');
+        case 'price-asc':  return num(a, 'data-price') - num(b, 'data-price') || num(b, 'data-rating') - num(a, 'data-rating');
+        case 'price-desc': return num(b, 'data-price') - num(a, 'data-price') || num(b, 'data-rating') - num(a, 'data-rating');
+        case 'rating':
+        default:           return num(b, 'data-rating') - num(a, 'data-rating') || num(b, 'data-reviews') - num(a, 'data-reviews');
+      }
+    }
 
     function apply() {
+      // Reorder the DOM to the chosen sort, then show/hide by lens. Reattaching
+      // nodes in sorted order is cheap at this scale (72 cards) and keeps the
+      // grid's source order correct for tabbing + no surprise on re-filter.
+      cards.slice().sort(cmp).forEach(function (card) { grid.appendChild(card); });
+
       var shown = 0;
       cards.forEach(function (card) {
-        var ok = (sel === 'all') || card.getAttribute('data-type') === sel;
+        var ok = (sel === 'all') || card.getAttribute('data-lens') === sel;
         if (ok) { card.removeAttribute('hidden'); shown++; }
         else { card.setAttribute('hidden', ''); }
       });
@@ -512,16 +538,15 @@
       if (emptyEl) { if (shown === 0) emptyEl.removeAttribute('hidden'); else emptyEl.setAttribute('hidden', ''); }
     }
 
-    function choose(val) {
-      sel = val;
-      if (val === 'all') Store.del(STAY_PREFS); else Store.set(STAY_PREFS, val);
-      apply();
-    }
+    function persist() { Store.set(OV_PREFS, { lens: sel, sort: sort }); }
+
+    function chooseLens(val) { sel = val; persist(); apply(); }
 
     chips.forEach(function (btn) {
-      btn.addEventListener('click', function () { choose(btn.getAttribute('data-value')); });
+      btn.addEventListener('click', function () { chooseLens(btn.getAttribute('data-value')); });
     });
-    if (emptyReset) emptyReset.addEventListener('click', function () { choose('all'); });
+    if (sortEl) sortEl.addEventListener('change', function () { sort = this.value; persist(); apply(); });
+    if (emptyReset) emptyReset.addEventListener('click', function () { chooseLens('all'); });
 
     apply();
   })();
