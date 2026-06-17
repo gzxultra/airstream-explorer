@@ -5,3 +5,4 @@ Thumbs.db
 *.log
 .community-src/
 scripts/campdata/.cache/
+audits/

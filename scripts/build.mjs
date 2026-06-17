@@ -175,16 +175,22 @@ log('wrote upgrades.html');
 // 4d. Campsites hub (root-level, so relRoot = '') — the unified page that
 //     merges overnight stays (Big Views + Full Hookups, Recreation.gov) with
 //     boondocking (free dispersed, OpenStreetMap) under three filter lenses.
+//     Ships the MapLibre CSS + a low-priority JS preload (same as the Finder)
+//     because the hub now carries its own all-lenses map; app.js lazy-loads the
+//     library when the map scrolls near the viewport, so the list never waits.
+const campsitesHead = '<link rel="stylesheet" href="assets/vendor/maplibre/maplibre-gl.css">\n'
+  + '<link rel="preload" href="assets/vendor/maplibre/maplibre-gl.js" as="script">\n';
 writeFileSync(
   join(DIST, 'campsites.html'),
   page({
     title: 'Campsites — where to park your Airstream tonight',
     description: `${overnightData.stays.length + boondockingData.sites.length} places to park an Airstream on US public land, in one place — ${overnightData.byLens.view || 0} off-grid big-view sites and ${overnightData.byLens.utility || 0} full-hookup sites bookable on Recreation.gov, plus ${boondockingData.sites.length} free first-come boondocking spots mapped from OpenStreetMap. Filter by views, hookups, or free dispersed camping.`,
     body: renderCampsitesBody(overnightData, boondockingData, ''),
+    head: campsitesHead,
     active: 'campsites',
   }),
 );
-log('wrote campsites.html (unified hub: stays + boondocking)');
+log('wrote campsites.html (unified hub: stays + boondocking + all-lenses map)');
 
 // 4d-ii. Legacy redirects: stays.html → campsites.html (the Overnight Stays
 //     page was absorbed into the hub). Keep the URL alive so old links/bookmarks

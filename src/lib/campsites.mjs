@@ -275,6 +275,65 @@ function card(item) {
   return item.lens === 'boondock' ? boondockCard(item) : govCard(item);
 }
 
+// ---- MAP: one dot per site, colored by lens, on a China-safe basemap -------
+// All three lenses share ONE interactive map above the grid, so the page
+// finally delivers the "one map and one list" the hero promises. The dataset
+// is tiny (~150 points), so it ships inline as a CSP-safe JSON island (no
+// fetch, no inline JS) that app.js (campsitesMap) reads by id; the client
+// lazy-loads MapLibre, plots the points, and keeps them in sync with the lens
+// filter chips. Dot colors mirror the per-lens accents used everywhere else
+// (view-green / utility-copper / boondock slate-indigo).
+function mapPoint(s) {
+  const name = titleCase(s.name);
+  const abbr = STATE_ABBR[s.state] || s.state || '';
+  if (s.lens === 'boondock') {
+    const agency = s.agency ? (AGENCY_LABEL[s.agency] || s.agency) : 'Public land';
+    return {
+      i: String(s.id), l: 'boondock', t: 'community',
+      n: name, s: abbr ? `${agency} · ${abbr}` : agency,
+      y: s.lat, x: s.lon,
+      u: `https://www.openstreetmap.org/?mlat=${s.lat}&mlon=${s.lon}#map=14/${s.lat}/${s.lon}`,
+    };
+  }
+  const loc = s.city ? `${titleCase(s.city)}, ${abbr}` : (abbr || s.state);
+  const pt = {
+    i: String(s.id), l: s.lens, t: 'verified',
+    n: name, s: loc,
+    y: s.lat, x: s.lon,
+    u: s.url,
+  };
+  if (typeof s.rating === 'number') pt.r = s.rating;
+  const p = priceText(s.price);
+  if (p) pt.p = p;
+  return pt;
+}
+
+/** The map payload: every campsite that has real coordinates, as a compact
+ *  point. Filters out anything missing lat/lon so the map never plots a
+ *  fabricated or null location. */
+export function buildCampsiteMapData(overnight, boondocking) {
+  const stays = (overnight.stays || []).map((s) => ({ ...s, lens: s.lens }));
+  const boon = (boondocking.sites || []).map((s) => ({ ...s, lens: 'boondock' }));
+  return stays.concat(boon)
+    .filter((s) => typeof s.lat === 'number' && typeof s.lon === 'number')
+    .map(mapPoint);
+}
+
+/** The map element + its CSP-safe JSON data island. Server-rendered hidden
+ *  scaffolding only — app.js upgrades it to a live MapLibre map, and the page
+ *  works fine (full list below) if the map never loads. */
+function mapBlock(points) {
+  // Only </ needs neutralizing inside <script type="application/json">.
+  const json = JSON.stringify(points).replace(/</g, '\\u003c');
+  return `<section class="cs-map-wrap" aria-label="Map of all campsites">
+<div id="cs-map" class="cs-map">
+<div class="cs-map-loading" aria-hidden="true"><span class="cs-map-loading-pin">▲</span><span class="cs-map-loading-txt">Loading map…</span></div>
+</div>
+<p class="cs-map-note muted">Every site below, plotted by type — <span class="cs-dot cs-dot--view"></span> Big Views, <span class="cs-dot cs-dot--utility"></span> Full Hookups, <span class="cs-dot cs-dot--boondock"></span> Boondocking. Filter with the chips above; the map follows. Boondocking pins are community-mapped and unverified.</p>
+</section>
+<script type="application/json" id="cs-map-data">${json}</script>`;
+}
+
 // ---- legend + filter (three lenses) ----
 function lensLegend(byLens) {
   const rows = Object.entries(LENS_META).map(([key, m]) => {
@@ -347,6 +406,7 @@ export function renderCampsitesBody(overnight, boondocking, relRoot = '') {
   const total = all.length;
   const states = new Set(all.map((s) => s.state).filter(Boolean)).size;
   const cards = all.map(card).join('\n');
+  const mapData = buildCampsiteMapData(overnight, boondocking);
 
   return `<nav class="detail-nav"><a href="${relRoot}index.html" class="back-link">← All families</a></nav>
 <header class="hero-head">
@@ -356,6 +416,7 @@ export function renderCampsitesBody(overnight, boondocking, relRoot = '') {
 </header>
 ${lensLegend(byLens)}
 ${filterLens(byLens, total)}
+${mapBlock(mapData)}
 <main class="ov-wrap" id="ov-main">
 <div class="ov-grid">${cards}</div>
 </main>

@@ -543,6 +543,10 @@
         b.classList.toggle('is-on', on);
         b.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
+      // Tell the map (campsitesMap, if present) which lens is showing so it can
+      // hide/show the matching pins. Decoupled via a DOM event so the list and
+      // map have no direct dependency and either can be absent.
+      try { document.dispatchEvent(new CustomEvent('ae:lens', { detail: { lens: sel } })); } catch (e) {}
       if (countEl) {
         countEl.textContent = (sel === 'all')
           ? (cards.length + ' sites')
@@ -563,6 +567,301 @@
 
     apply();
   })();
+
+  // =========================================================================
+  // 2b. CAMPSITES MAP — one interactive map for all three lenses on the
+  //     Campsites hub. Self-contained and independent of the campground
+  //     Finder map (that one is a much heavier live-fetch + clustering module
+  //     on its own page). Reuses the SAME China-safe basemap infrastructure:
+  //     a self-hosted vector basemap (assets/map/*, zero external CDN), the
+  //     same /tiles/ same-origin raster proxy for satellite/terrain, and the
+  //     same lazy-loaded vendored MapLibre. The LIST is the source of truth and
+  //     renders with zero dependency on this; the map upgrades in place when
+  //     (and only if) WebGL + the library are available, and degrades to an
+  //     honest notice otherwise. Listens for 'ae:lens' from overnightFilter so
+  //     the visible pins always match the chosen filter chip.
+  // =========================================================================
+  (function campsitesMap() {
+    var mapEl = document.getElementById('cs-map');
+    var dataEl = document.getElementById('cs-map-data');
+    if (!mapEl || !dataEl) return;
+
+    var POINTS = [];
+    try { POINTS = JSON.parse(dataEl.textContent) || []; } catch (e) { return; }
+    if (!POINTS.length) return;
+
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Per-lens dot colors — mirror the card/legend accents exactly:
+    // view-green, utility-copper, boondock slate-indigo.
+    var LENS_COLOR = { view: '#3f7d54', utility: '#b05c32', boondock: '#4a5568' };
+    var byId = {};
+    POINTS.forEach(function (p) { byId[p.i] = p; });
+
+    // ---- China-safe basemap config (same origin as the Finder map) ---------
+    var MAP_BASE = (window.__AE_MAP_BASE__ || 'assets/map/');
+    var GLYPHS = MAP_BASE + 'glyphs/{fontstack}/{range}.pbf';
+    var STATES_URL = MAP_BASE + 'us-states.json';
+    var MAP_FONT = ['Open Sans Regular'];
+    var ESRI_ATTR = 'Tiles \u00a9 Esri';
+    var BASEMAPS = {
+      editorial: { label: 'Map', kind: 'vector' },
+      satellite: { label: 'Satellite', kind: 'raster', tiles: ['/tiles/sat/{z}/{y}/{x}'], attribution: ESRI_ATTR + ', Maxar, Earthstar Geographics', maxzoom: 19 },
+      terrain: { label: 'Terrain', kind: 'raster', tiles: ['/tiles/topo/{z}/{y}/{x}'], attribution: ESRI_ATTR + ', USGS, NOAA', maxzoom: 19 },
+    };
+    var DEFAULT_BASEMAP = 'editorial';
+    function currentBasemap() {
+      var v = Store.get('cs.basemap', DEFAULT_BASEMAP);
+      return BASEMAPS[v] ? v : DEFAULT_BASEMAP;
+    }
+    function onDarkBasemap() {
+      var b = BASEMAPS[currentBasemap()];
+      return !!(b && b.kind === 'raster');
+    }
+    function localStyle() {
+      return {
+        version: 8, glyphs: GLYPHS,
+        sources: { states: { type: 'geojson', data: STATES_URL } },
+        layers: [
+          { id: 'bg', type: 'background', paint: { 'background-color': '#dbe3e7' } },
+          { id: 'state-fill', type: 'fill', source: 'states', paint: { 'fill-color': '#f0e9dc' } },
+          { id: 'state-line', type: 'line', source: 'states', paint: { 'line-color': '#d2c6b1', 'line-width': ['interpolate', ['linear'], ['zoom'], 2, 0.5, 5, 1, 8, 1.6] } },
+          { id: 'state-label', type: 'symbol', source: 'states', maxzoom: 7,
+            layout: { 'text-field': ['get', 'name'], 'text-font': MAP_FONT, 'text-size': ['interpolate', ['linear'], ['zoom'], 3, 9, 5, 12], 'text-transform': 'uppercase', 'text-letter-spacing': 0.08, 'text-max-width': 8 },
+            paint: { 'text-color': '#a99c86', 'text-halo-color': 'rgba(255,255,255,.85)', 'text-halo-width': 1.2 } },
+        ],
+      };
+    }
+    function rasterStyle(kind) {
+      var b = BASEMAPS[kind];
+      return {
+        version: 8, glyphs: GLYPHS,
+        sources: { base: { type: 'raster', tiles: b.tiles, tileSize: 256, minzoom: 0, maxzoom: b.maxzoom || 19, attribution: b.attribution, scheme: 'xyz' } },
+        layers: [
+          { id: 'bg', type: 'background', paint: { 'background-color': '#1a2730' } },
+          { id: 'base', type: 'raster', source: 'base', paint: { 'raster-fade-duration': 200 } },
+        ],
+      };
+    }
+    function bareStyle() {
+      return { version: 8, glyphs: GLYPHS, sources: {}, layers: [{ id: 'bg', type: 'background', paint: { 'background-color': '#dbe3e7' } }] };
+    }
+    function styleFor(name) {
+      return (BASEMAPS[name] && BASEMAPS[name].kind === 'raster') ? rasterStyle(name) : localStyle();
+    }
+
+    // ---- GeoJSON the pin layer reads. `sel` controls which lenses show. -----
+    var selLens = 'all';
+    function features() {
+      var feats = [];
+      for (var i = 0; i < POINTS.length; i++) {
+        var p = POINTS[i];
+        if (selLens !== 'all' && p.l !== selLens) continue;
+        feats.push({
+          type: 'Feature',
+          properties: { i: p.i, col: LENS_COLOR[p.l] || '#8a8f98' },
+          geometry: { type: 'Point', coordinates: [Number(p.x), Number(p.y)] },
+        });
+      }
+      return { type: 'FeatureCollection', features: feats };
+    }
+
+    function showUnavailable() {
+      var html = '<div class="cs-map-fallback" role="note">'
+        + '<span class="cs-map-fallback-pin" aria-hidden="true">\u25b2</span>'
+        + '<strong>Map unavailable</strong>'
+        + '<span>The interactive map couldn\u2019t load on this connection \u2014 but the full list below works fine.</span>'
+        + '</div>';
+      var p = mapEl.querySelector('.cs-map-loading');
+      if (p) p.outerHTML = html; else mapEl.innerHTML = html;
+    }
+
+    var map = null, mapReady = false, didFallback = false, popup = null, watchdog = null;
+
+    function addPins() {
+      if (!map || map.getSource('cs')) return;
+      map.addSource('cs', { type: 'geojson', data: features(), cluster: true, clusterRadius: 46, clusterMaxZoom: 9 });
+      map.addLayer({
+        id: 'cs-clusters', type: 'circle', source: 'cs', filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': ['step', ['get', 'point_count'], '#C2703F', 25, '#A6532C', 75, '#8A4524'],
+          'circle-opacity': 0.92,
+          'circle-radius': ['step', ['get', 'point_count'], 14, 25, 18, 75, 23],
+          'circle-stroke-width': 2, 'circle-stroke-color': 'rgba(255,255,255,.85)',
+        },
+      });
+      map.addLayer({
+        id: 'cs-cluster-count', type: 'symbol', source: 'cs', filter: ['has', 'point_count'],
+        layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-font': MAP_FONT, 'text-size': 12, 'text-allow-overlap': true },
+        paint: { 'text-color': '#fff' },
+      });
+      map.addLayer({
+        id: 'cs-pts', type: 'circle', source: 'cs', filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-color': ['get', 'col'],
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 4.5, 9, 7],
+          'circle-stroke-width': onDarkBasemap() ? 2 : 1.4, 'circle-stroke-color': '#fff', 'circle-opacity': 0.95,
+        },
+      });
+    }
+
+    function refreshPins() {
+      if (map && mapReady && map.getSource('cs')) map.getSource('cs').setData(features());
+    }
+
+    function popupHtml(p) {
+      var lensName = p.l === 'view' ? 'Big Views' : p.l === 'utility' ? 'Full Hookups' : 'Boondocking';
+      var meta = [];
+      if (typeof p.r === 'number') meta.push('\u2605 ' + p.r.toFixed(1));
+      if (p.p) meta.push(esc(p.p) + '/night');
+      var metaLine = meta.length ? '<span class="cs-pop-meta">' + meta.join(' \u00b7 ') + '</span>' : '';
+      var tier = p.t === 'community'
+        ? '<span class="cs-pop-tier cs-pop-tier--community">Unverified \u00b7 OpenStreetMap</span>'
+        : '';
+      var linkLabel = p.t === 'community' ? 'Open in map \u2192' : 'Recreation.gov \u2192';
+      return '<div class="cs-pop">'
+        + '<span class="cs-pop-lens cs-pop-lens--' + esc(p.l) + '">' + esc(lensName) + '</span>'
+        + '<strong>' + esc(p.n) + '</strong>'
+        + '<span class="cs-pop-loc">' + esc(p.s) + '</span>'
+        + metaLine + tier
+        + '<div class="cs-pop-actions"><a href="' + esc(p.u) + '" target="_blank" rel="noopener nofollow">' + linkLabel + '</a></div>'
+        + '</div>';
+    }
+
+    function wireInteractions() {
+      ['cs-pts', 'cs-clusters'].forEach(function (lyr) {
+        map.on('mouseenter', lyr, function () { map.getCanvas().style.cursor = 'pointer'; });
+        map.on('mouseleave', lyr, function () { map.getCanvas().style.cursor = ''; });
+      });
+      map.on('click', 'cs-pts', function (e) {
+        var f = e.features && e.features[0]; if (!f) return;
+        var rec = byId[f.properties.i]; if (!rec) return;
+        if (popup) popup.remove();
+        popup = new maplibregl.Popup({ closeButton: true, maxWidth: '260px', className: 'cs-ml-popup', offset: 10 })
+          .setLngLat(f.geometry.coordinates.slice())
+          .setHTML(popupHtml(rec))
+          .addTo(map);
+      });
+      map.on('click', 'cs-clusters', function (e) {
+        var f = map.queryRenderedFeatures(e.point, { layers: ['cs-clusters'] })[0]; if (!f) return;
+        map.getSource('cs').getClusterExpansionZoom(f.properties.cluster_id).then(function (z) {
+          map.easeTo({ center: f.geometry.coordinates, zoom: z + 0.3 });
+        });
+      });
+    }
+
+    function onReady() {
+      if (watchdog) { clearTimeout(watchdog); watchdog = null; }
+      mapReady = true;
+      var loadingEl = mapEl.querySelector('.cs-map-loading');
+      if (loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+      addPins();
+    }
+
+    // ---- basemap switcher (Map / Satellite / Terrain) ----------------------
+    function applyBasemap(name) {
+      if (!map || !BASEMAPS[name]) return;
+      Store.set('cs.basemap', name);
+      mapReady = false;
+      try {
+        map.setStyle(styleFor(name), { diff: false });
+        map.once('styledata', function () { mapReady = true; addPins(); });
+      } catch (e) {}
+    }
+    function addBasemapSwitcher() {
+      if (mapEl.querySelector('.cs-basemap')) return;
+      var cur = currentBasemap();
+      var wrap = document.createElement('div');
+      wrap.className = 'cs-basemap';
+      wrap.setAttribute('role', 'group');
+      wrap.setAttribute('aria-label', 'Basemap style');
+      Object.keys(BASEMAPS).forEach(function (key) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'cs-basemap-btn' + (key === cur ? ' is-on' : '');
+        b.setAttribute('data-basemap', key);
+        b.setAttribute('aria-pressed', key === cur ? 'true' : 'false');
+        b.textContent = BASEMAPS[key].label;
+        b.addEventListener('click', function () {
+          if (key === currentBasemap()) return;
+          applyBasemap(key);
+          wrap.querySelectorAll('.cs-basemap-btn').forEach(function (x) {
+            var on = x.getAttribute('data-basemap') === key;
+            x.classList.toggle('is-on', on);
+            x.setAttribute('aria-pressed', on ? 'true' : 'false');
+          });
+        });
+        wrap.appendChild(b);
+      });
+      mapEl.appendChild(wrap);
+    }
+
+    function initMap() {
+      if (typeof maplibregl === 'undefined') { showUnavailable(); return; }
+      try {
+        map = new maplibregl.Map({
+          container: mapEl, style: styleFor(currentBasemap()),
+          center: [-110, 39.5], zoom: 3.3, minZoom: 2, maxZoom: 19,
+          renderWorldCopies: false, attributionControl: false, dragRotate: false,
+        });
+        map.addControl(new maplibregl.AttributionControl({ compact: true }));
+        map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+        map.touchZoomRotate.disableRotation();
+      } catch (err) { showUnavailable(); return; }
+
+      map.on('load', function () { onReady(); wireInteractions(); addBasemapSwitcher(); });
+      map.on('error', function () {
+        if (didFallback || mapReady) return;
+        didFallback = true;
+        try { map.setStyle(bareStyle()); map.once('styledata', onReady); } catch (e) {}
+      });
+      watchdog = setTimeout(function () {
+        if (mapReady || didFallback) return;
+        didFallback = true;
+        try { map.setStyle(bareStyle()); map.once('styledata', onReady); } catch (e) {}
+      }, 8000);
+    }
+
+    // ---- lazy-load MapLibre (same vendored file as the Finder) -------------
+    function loadLibrary() {
+      if (typeof maplibregl !== 'undefined') { initMap(); return; }
+      var src = (window.__AE_MAPLIBRE_SRC__ || 'assets/vendor/maplibre/maplibre-gl.js');
+      var s = document.createElement('script');
+      s.src = src; s.async = true;
+      var done = false;
+      s.onload = function () { if (done) return; done = true; initMap(); };
+      s.onerror = function () { if (done) return; done = true; showUnavailable(); };
+      setTimeout(function () { if (done || typeof maplibregl !== 'undefined') return; done = true; showUnavailable(); }, 12000);
+      document.head.appendChild(s);
+    }
+
+    // Keep pins in sync with the lens filter chips (overnightFilter dispatches).
+    document.addEventListener('ae:lens', function (e) {
+      var l = e && e.detail && e.detail.lens;
+      if (!l || l === selLens) return;
+      selLens = l;
+      if (popup) { popup.remove(); popup = null; }
+      refreshPins();
+    });
+
+    // Only pull the heavy library when the map is near the viewport, so the
+    // list-first page stays fast. Falls back to immediate load without IO.
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        if (entries.some(function (en) { return en.isIntersecting; })) {
+          io.disconnect();
+          loadLibrary();
+        }
+      }, { rootMargin: '300px' });
+      io.observe(mapEl);
+    } else {
+      loadLibrary();
+    }
+  })();
+
 
   // =========================================================================
   // 3. COMPARE PAGE — build the side-by-side table from selection + search

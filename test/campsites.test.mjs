@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   loadBoondocking, validateBoondocking, renderCampsitesBody, LENS_META,
+  buildCampsiteMapData,
 } from '../src/lib/campsites.mjs';
 import { loadOvernight } from '../src/lib/overnight.mjs';
 
@@ -116,4 +117,76 @@ test('boondocking cards never emit a star rating or a photo img', () => {
 test('campsites render carries no raw recreation.gov CDN links', () => {
   const html = renderCampsitesBody(over, boon, '');
   assert.ok(!html.includes('cdn.recreation.gov'), 'gov photos must route through /cdn/ proxy');
+});
+
+// ---- All-lenses map ------------------------------------------------------
+test('buildCampsiteMapData returns one point per coord-bearing site', () => {
+  const pts = buildCampsiteMapData(over, boon);
+  const expected = over.stays.filter((s) => typeof s.lat === 'number' && typeof s.lon === 'number').length
+    + boon.sites.filter((s) => typeof s.lat === 'number' && typeof s.lon === 'number').length;
+  assert.equal(pts.length, expected, 'a map point per site that has coordinates');
+});
+
+test('every map point has finite US-range coords, an id, a name and a link', () => {
+  const pts = buildCampsiteMapData(over, boon);
+  for (const p of pts) {
+    assert.ok(Number.isFinite(p.y) && Number.isFinite(p.x), `${p.n}: finite coords`);
+    assert.ok(p.y >= 24 && p.y <= 50, `${p.n}: lat in US range`);
+    assert.ok(p.x >= -125 && p.x <= -66, `${p.n}: lon in US range`);
+    assert.ok(p.i && p.n && p.u, `${p.n}: id+name+url present`);
+    assert.ok(['view', 'utility', 'boondock'].includes(p.l), `${p.n}: valid lens`);
+  }
+});
+
+test('map points carry the lens split that matches the cards', () => {
+  const pts = buildCampsiteMapData(over, boon);
+  const byLens = pts.reduce((m, p) => { m[p.l] = (m[p.l] || 0) + 1; return m; }, {});
+  assert.equal(byLens.boondock, boon.sites.length, 'every boondock site maps');
+  assert.equal((byLens.view || 0) + (byLens.utility || 0), over.stays.length, 'every gov stay maps');
+});
+
+test('boondock map points stay honest: community tier, no rating, no price', () => {
+  const pts = buildCampsiteMapData({ stays: [] }, boon);
+  for (const p of pts) {
+    assert.equal(p.l, 'boondock');
+    assert.equal(p.t, 'community', `${p.n}: community tier`);
+    assert.equal(p.r, undefined, `${p.n}: no rating on a community point`);
+    assert.equal(p.p, undefined, `${p.n}: no price on a community point`);
+    assert.match(p.u, /openstreetmap\.org/, `${p.n}: OSM link`);
+  }
+});
+
+test('verified gov map points carry their rating and recreation.gov link', () => {
+  const pts = buildCampsiteMapData(over, { sites: [] });
+  for (const p of pts) {
+    assert.equal(p.t, 'verified');
+    assert.equal(typeof p.r, 'number', `${p.n}: rating present`);
+    assert.match(p.u, /recreation\.gov/, `${p.n}: recreation.gov link`);
+  }
+});
+
+test('renderCampsitesBody emits the map element and a CSP-safe data island', () => {
+  const html = renderCampsitesBody(over, boon, '');
+  assert.ok(html.includes('id="cs-map"'), 'map container present');
+  assert.ok(html.includes('id="cs-map-data"'), 'json data island present');
+  assert.ok(html.includes('type="application/json"'), 'island is a JSON script (no inline JS)');
+  // the island must parse and hold the full point set
+  const m = html.match(/<script type="application\/json" id="cs-map-data">([\s\S]*?)<\/script>/);
+  assert.ok(m, 'island matched');
+  const pts = JSON.parse(m[1].replace(/\\u003c/g, '<'));
+  assert.equal(pts.length, buildCampsiteMapData(over, boon).length, 'island holds every point');
+});
+
+test('the map JSON island neutralizes < so it cannot break out of the script', () => {
+  const html = renderCampsitesBody(over, boon, '');
+  const m = html.match(/<script type="application\/json" id="cs-map-data">([\s\S]*?)<\/script>/);
+  assert.ok(m, 'island matched');
+  assert.ok(!m[1].includes('</'), 'no raw </ inside the island');
+});
+
+test('the map legend names all three lenses by their dot', () => {
+  const html = renderCampsitesBody(over, boon, '');
+  assert.ok(html.includes('cs-dot--view'));
+  assert.ok(html.includes('cs-dot--utility'));
+  assert.ok(html.includes('cs-dot--boondock'));
 });
