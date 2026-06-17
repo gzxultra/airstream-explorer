@@ -1231,6 +1231,32 @@
     var GLYPHS = MAP_BASE + 'glyphs/{fontstack}/{range}.pbf';
     var STATES_URL = MAP_BASE + 'us-states.json';
     var MAP_FONT = ['Open Sans Regular'];
+    // Basemap registry. The default 'editorial' basemap is the self-hosted
+    // vector style (warm paper, hairline borders) — fast, on-brand, and the
+    // offline fallback. 'satellite' and 'terrain' are no-key raster basemaps
+    // (Esri World Imagery + Esri World Topo), which make a fire lookout on a
+    // ridgeline or a boat-in cove read instantly — you SEE the landscape the
+    // stay sits in. A small switcher (added in wireRealMap) lets the user flip
+    // between them; the choice persists in the Store.
+    var ESRI_ATTR = 'Tiles \u00a9 Esri';
+    var BASEMAPS = {
+      editorial: { label: 'Map', kind: 'vector' },
+      satellite: {
+        label: 'Satellite', kind: 'raster',
+        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+        attribution: ESRI_ATTR + ', Maxar, Earthstar Geographics', maxzoom: 19, labelColor: '#fff', haloColor: 'rgba(0,0,0,.55)',
+      },
+      terrain: {
+        label: 'Terrain', kind: 'raster',
+        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'],
+        attribution: ESRI_ATTR + ', USGS, NOAA', maxzoom: 19, labelColor: '#33312c', haloColor: 'rgba(255,255,255,.9)',
+      },
+    };
+    var DEFAULT_BASEMAP = 'editorial';
+    function currentBasemap() {
+      var v = Store.get('cg.basemap', DEFAULT_BASEMAP);
+      return BASEMAPS[v] ? v : DEFAULT_BASEMAP;
+    }
     // A compact, editorial light basemap drawn entirely from a local US-states
     // GeoJSON: warm-paper land, soft slate water, hairline state borders, quiet
     // collision-managed state labels. Zero network dependency beyond this origin.
@@ -1254,6 +1280,25 @@
         ],
       };
     }
+    // A no-key raster basemap (satellite or terrain) from the BASEMAPS registry.
+    // Still serves label glyphs from THIS origin so the cluster counts render.
+    function rasterStyle(kind) {
+      var b = BASEMAPS[kind];
+      return {
+        version: 8,
+        glyphs: GLYPHS,
+        sources: { base: { type: 'raster', tiles: b.tiles, tileSize: 256, minzoom: 0, maxzoom: b.maxzoom || 19, attribution: b.attribution, scheme: 'xyz' } },
+        layers: [
+          { id: 'bg', type: 'background', paint: { 'background-color': '#1a2730' } },
+          { id: 'base', type: 'raster', source: 'base', paint: { 'raster-fade-duration': 200 } },
+        ],
+      };
+    }
+    // The style for whichever basemap is active (used at init + on switch).
+    function styleFor(name) {
+      return (BASEMAPS[name] && BASEMAPS[name].kind === 'raster') ? rasterStyle(name) : localStyle();
+    }
+
     // No-op MapLibre stand-in, used ONLY when WebGL is unavailable so the dozens
     // of map.xxx() calls scattered through this module degrade to harmless no-ops
     // instead of throwing. Safe defaults for the few getters the list/share code
@@ -1305,8 +1350,8 @@
       var real;
       try {
         real = new maplibregl.Map({
-          container: mapEl, style: localStyle(),
-          center: [-98.35, 39.5], zoom: 3.4, minZoom: 2, maxZoom: 18,
+          container: mapEl, style: styleFor(currentBasemap()),
+          center: [-98.35, 39.5], zoom: 3.4, minZoom: 2, maxZoom: 19,
           renderWorldCopies: false,
           attributionControl: false, dragRotate: false,
         });
@@ -1368,9 +1413,14 @@
         paint: {
           'circle-color': ['get', 'col'],
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 4.5, 10, 7],
-          'circle-stroke-width': 1.4, 'circle-stroke-color': '#fff', 'circle-opacity': 0.95,
+          'circle-stroke-width': onDarkBasemap() ? 2 : 1.4, 'circle-stroke-color': '#fff', 'circle-opacity': 0.95,
         },
       });
+    }
+    // Satellite/terrain are dark/busy — points need a heavier white ring there.
+    function onDarkBasemap() {
+      var b = BASEMAPS[currentBasemap()];
+      return !!(b && b.kind === 'raster');
     }
     function wireMapInteractions() {
       ['cg-pts', 'cg-clusters'].forEach(function (lyr) {
@@ -1425,8 +1475,56 @@
         try { map.setStyle(bareStyle()); map.once('styledata', onMapReady); } catch (_) {}
       }, 8000);
       map.on('moveend', scheduleLive);
+      addBasemapSwitcher();
       // Honor a shared/deep-linked viewport now that the real map exists.
       if (pendingMapView) map.jumpTo({ center: [pendingMapView.lng, pendingMapView.lat], zoom: pendingMapView.z });
+    }
+
+    // ---- basemap switcher (Map / Satellite / Terrain) ----------------------
+    // A small segmented control overlaid on the map. Switching swaps the style;
+    // because setStyle wipes all sources+layers, we re-add the campground layers
+    // once the new style's glyphs are parsed (addCgLayers is guarded, so the
+    // re-add is safe). The cluster-count text color adapts to the basemap so
+    // labels stay legible over dark satellite imagery.
+    function applyBasemap(name) {
+      if (!mapAvailable || !BASEMAPS[name]) return;
+      Store.set('cg.basemap', name);
+      mapReady = false;
+      try {
+        // diff:false forces a clean style reload. A diffed swap between the
+        // vector and raster styles leaves the style stuck in a half-loaded
+        // state (isStyleLoaded never flips true), so no tiles are ever
+        // requested. A full reload makes the raster basemap request + paint.
+        map.setStyle(styleFor(name), { diff: false });
+        map.once('styledata', function () { mapReady = true; addCgLayers(); drawMarkers(lastList); });
+      } catch (_) {}
+    }
+    function addBasemapSwitcher() {
+      if (mapEl.querySelector('.cg-basemap')) return;
+      var cur = currentBasemap();
+      var wrap = document.createElement('div');
+      wrap.className = 'cg-basemap';
+      wrap.setAttribute('role', 'group');
+      wrap.setAttribute('aria-label', 'Basemap style');
+      Object.keys(BASEMAPS).forEach(function (key) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'cg-basemap-btn' + (key === cur ? ' is-on' : '');
+        b.setAttribute('data-basemap', key);
+        b.setAttribute('aria-pressed', key === cur ? 'true' : 'false');
+        b.textContent = BASEMAPS[key].label;
+        b.addEventListener('click', function () {
+          if (key === currentBasemap()) return;
+          applyBasemap(key);
+          wrap.querySelectorAll('.cg-basemap-btn').forEach(function (x) {
+            var on = x.getAttribute('data-basemap') === key;
+            x.classList.toggle('is-on', on);
+            x.setAttribute('aria-pressed', on ? 'true' : 'false');
+          });
+        });
+        wrap.appendChild(b);
+      });
+      mapEl.appendChild(wrap);
     }
 
     // Single source of truth for the fit verdict + confidence + plain-language
