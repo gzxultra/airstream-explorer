@@ -125,7 +125,15 @@ export function renderMotorhomeIndex(families, motorhomes = [], resolve = motorh
     (a, b) => a.msrp - b.msrp || `${a.model} ${a.floorplan}`.localeCompare(`${b.model} ${b.floorplan}`),
   );
   const exploreCards = ordered.map((m) => renderMotorhomeExploreCard(m, resolve)).join('\n');
-  const body = `${heroBand}
+  // motorhomes.html is now an entry point INTO the unified Explore hub: with JS
+  // it bounces to index.html#all&type=motorhome (Explore pre-filtered to
+  // motorhomes). Without JS the full motorhome catalog below still renders, so
+  // the nav link / old bookmarks never dead-end. Same shim mechanism as the
+  // legacy explore.html redirect.
+  const body = `<div class="explore-shim" data-redirect="index.html#all&type=motorhome">
+<p class="explore-shim-note"><a href="index.html#all&type=motorhome">Motorhomes now live in the unified Explore hub →</a></p>
+</div>
+${heroBand}
 <main class="fam-grid" id="families">
 ${cards}
 </main>
@@ -393,7 +401,7 @@ ${gallery ? `<section class="gallery" aria-label="Gallery"><h2>Gallery</h2><div 
 export function renderMotorhomeExploreCard(m, resolve = motorhomeAssetPaths, hidden = false) {
   const a = resolve(m);
   const tags = (m.tags || []).join(' ');
-  return `<article class="xcard" data-slug="${esc(m.slug)}" data-model="${esc(m.model)}" data-floorplan="${esc(m.floorplan)}" data-year="${esc(m.year)}" data-msrp="${esc(m.msrp)}" data-weight="${esc(m.weightLb)}" data-gvwr="${esc(m.gvwrLb)}" data-length="${esc(m.lengthFt)}" data-sleeps="${esc(m.sleeps)}" data-offgrid="${esc(m.offGridScore)}" data-tags="${esc(tags)}" data-name="${esc((m.model + ' ' + m.floorplan).toLowerCase())}"${hidden ? ' hidden' : ''}>
+  return `<article class="xcard" data-slug="${esc(m.slug)}" data-type="motorhome" data-model="${esc(m.model)}" data-floorplan="${esc(m.floorplan)}" data-year="${esc(m.year)}" data-msrp="${esc(m.msrp)}" data-weight="${esc(m.weightLb)}" data-gvwr="${esc(m.gvwrLb)}" data-length="${esc(m.lengthFt)}" data-sleeps="${esc(m.sleeps)}" data-offgrid="${esc(m.offGridScore)}" data-tags="${esc(tags)}" data-name="${esc((m.model + ' ' + m.floorplan).toLowerCase())}"${hidden ? ' hidden' : ''}>
 <a class="xcard-link" href="mm/${esc(m.slug)}.html">
 <div class="xcard-media">
 <img src="${esc(a.thumb)}" alt="${esc(trailerTitle(m))}" loading="lazy" width="400" height="260">
@@ -409,5 +417,9 @@ ${specRow('MSRP', formatMsrp(m.msrp))}
 </dl>
 </div>
 </a>
+<div class="xcard-foot">
+<span class="xcard-fit" data-fit hidden></span>
+<label class="xcard-compare"><input type="checkbox" class="cmp-box" data-slug="${esc(m.slug)}" data-type="motorhome" aria-label="Add ${esc(trailerLabel(m))} to compare"> Compare</label>
+</div>
 </article>`;
 }

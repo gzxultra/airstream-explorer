@@ -98,7 +98,7 @@ mkdirSync(join(DIST, 'mm'), { recursive: true });
 mkdirSync(join(DIST, 'mf'), { recursive: true });
 
 // 3. Explore hub (index.html) — family grid + all-floorplans, one page
-writeFileSync(join(DIST, 'index.html'), renderIndex(families, trailers, resolve));
+writeFileSync(join(DIST, 'index.html'), renderIndex(families, trailers, resolve, motorhomes, motorhomeFamilies));
 log('wrote index.html (Explore hub: family grid + all-floorplans)');
 
 // 3b. Family pages
@@ -115,7 +115,7 @@ log(`wrote ${trailers.length} detail pages`);
 
 // 4a. Explore & match + Compare (root-level, relRoot = '')
 writeFileSync(join(DIST, 'explore.html'), renderExplore(trailers, resolve));
-writeFileSync(join(DIST, 'compare.html'), renderCompare(trailers, resolve));
+writeFileSync(join(DIST, 'compare.html'), renderCompare(trailers, resolve, motorhomes));
 log('wrote explore.html + compare.html');
 
 // 4a-mh. Motorhome pages

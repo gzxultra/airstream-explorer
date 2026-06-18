@@ -13,6 +13,11 @@ export function loadTrailers(path) {
   if (!Array.isArray(data) || data.length === 0) {
     throw new Error('trailers.json is empty or not an array');
   }
+  // Tag every trailer record with its product type so the unified Explore grid,
+  // filters and compare can tell trailers and motorhomes apart. We add it at
+  // load time rather than editing the audited JSON. (motorhomes carry
+  // type:'motorhome' in their own dataset.)
+  for (const t of data) if (t.type == null) t.type = 'trailer';
   return data;
 }
 

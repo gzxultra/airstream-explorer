@@ -55,3 +55,34 @@ test('every hashed asset the homepage references exists on disk', () => {
     assert.ok(existsSync(join(DIST, rel)), `missing built asset: ${rel}`);
   }
 });
+
+// --- Unified Explore: built-output checks -----------------------------------
+test('index.html ships the unified grid (motorhome cards + type control + 16 families)', () => {
+  const home = readFileSync(join(DIST, 'index.html'), 'utf8');
+  assert.ok((home.match(/data-type="motorhome"/g) || []).length > 0, 'motorhome cards in grid');
+  assert.match(home, /href="mm\//, 'an mm/ detail link in the grid');
+  assert.match(home, /id="x-type"/, 'type segmented control present');
+  assert.equal((home.match(/class="fam"/g) || []).length, 16, '16 unified family cards');
+});
+
+test('motorhomes.html still resolves as a unified entry: redirect shim + no-JS fallback', () => {
+  const p = join(DIST, 'motorhomes.html');
+  assert.ok(existsSync(p), 'motorhomes.html exists');
+  const html = readFileSync(p, 'utf8');
+  // JS redirect into the unified hub, pre-filtered to motorhomes
+  assert.match(html, /data-redirect="index\.html#all&type=motorhome"/);
+  // no-JS fallback still renders the full motorhome catalog inline
+  assert.match(html, /id="xgrid"/);
+  assert.ok((html.match(/data-type="motorhome"/g) || []).length > 0, 'fallback motorhome cards');
+});
+
+test('built app.js hides the tow matcher for the motorhome type', () => {
+  // find the fingerprinted app.*.js the homepage references
+  const home = readFileSync(join(DIST, 'index.html'), 'utf8');
+  const m = home.match(/assets\/js\/(app\.[0-9a-f]{8}\.js)/);
+  assert.ok(m, 'homepage references a fingerprinted app.js');
+  const js = readFileSync(join(DIST, 'assets', 'js', m[1]), 'utf8');
+  // the type-conditional tow logic shipped (motorhomes are driven, not towed)
+  assert.match(js, /state\.type\s*!==\s*'motorhome'/);
+  assert.match(js, /towTool/);
+});

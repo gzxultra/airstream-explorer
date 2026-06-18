@@ -408,6 +408,28 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .explore-head h1 { font-size: clamp(34px, 6vw, 60px); margin: 0 0 10px; }
 .explore-head .lede { font-size: clamp(15px, 2vw, 19px); color: var(--muted); max-width: 64ch; margin: 0; }
 
+/* Vehicle-type segmented control (All / Travel trailers / Motorhomes).
+   Editorial, not a SaaS pill: letterspaced caps with a copper underline on the
+   active segment, echoing the .viewseg hub toggle but lighter-weight. */
+.xc-type {
+  display: inline-flex; gap: 28px; align-items: flex-end;
+  margin: 22px 0 0; border-bottom: 1px solid var(--line);
+}
+.xc-type-btn {
+  appearance: none; background: none; border: 0; cursor: pointer;
+  padding: 0 0 10px; margin-bottom: -1px;
+  font-family: 'Fraunces', Georgia, serif; font-weight: 600;
+  font-size: clamp(15px, 1.7vw, 19px); letter-spacing: .01em; line-height: 1.1;
+  color: var(--muted); border-bottom: 2px solid transparent;
+  transition: color .25s ease, border-color .25s ease;
+}
+.xc-type-btn:hover { color: var(--ink); border-bottom-color: var(--line); }
+.xc-type-btn.is-active { color: var(--copper-deep); border-bottom-color: var(--copper); }
+@media (max-width: 560px) {
+  .xc-type { gap: 18px; }
+  .xc-type-btn { font-size: 15px; padding-bottom: 8px; }
+}
+
 /* --- Tow-vehicle matcher --- */
 .tow-tool {
   max-width: var(--maxw); margin: 24px auto 0; padding: 0 20px;

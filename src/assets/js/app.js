@@ -75,7 +75,7 @@
     }
 
     function fromHash() {
-      return (location.hash.replace('#', '') === 'all') ? 'all' : 'families';
+      return (location.hash.replace('#', '').split('&')[0] === 'all') ? 'all' : 'families';
     }
 
     // Only the toggle buttons + the hero CTA drive the view switch.
@@ -164,12 +164,14 @@
     var elEmpty = document.getElementById('x-empty');
     var elReset = document.getElementById('x-reset');
     var tagBtns = Array.prototype.slice.call(document.querySelectorAll('.tagfilter'));
+    var typeBtns = Array.prototype.slice.call(document.querySelectorAll('#x-type .xc-type-btn'));
+    var towTool = document.querySelector('.tow-tool');
     var towInput = document.getElementById('tow-input');
     var towClear = document.getElementById('tow-clear');
     var towSummary = document.getElementById('tow-summary');
     var towPresets = Array.prototype.slice.call(document.querySelectorAll('.tow-preset'));
 
-    var state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0 };
+    var state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all' };
 
     // Restore saved explore preferences (sort, year, sleeps, use-case tags, tow
     // rating). Search text stays transient.
@@ -182,9 +184,10 @@
       if (typeof p.sleeps === 'number') state.sleeps = p.sleeps;
       if (Array.isArray(p.tags)) state.tags = p.tags.filter(function (t) { return typeof t === 'string'; });
       if (typeof p.tow === 'number' && p.tow > 0) state.tow = p.tow;
+      if (p.type === 'trailer' || p.type === 'motorhome' || p.type === 'all') state.type = p.type;
     })();
     function persistX() {
-      Store.set(X_PREFS, { sort: state.sort, year: state.year, sleeps: state.sleeps, tags: state.tags, tow: state.tow });
+      Store.set(X_PREFS, { sort: state.sort, year: state.year, sleeps: state.sleeps, tags: state.tags, tow: state.tow, type: state.type });
     }
 
     function num(card, k) { return parseFloat(card.getAttribute(k)); }
@@ -197,15 +200,22 @@
     }
 
     function apply() {
+      // Motorhomes are driven, not towed — the tow-vehicle matcher is
+      // meaningless for them, so hide the whole section when the active type is
+      // motorhomes (show it for All and Travel trailers).
+      var towApplies = state.type !== 'motorhome';
+      if (towTool) { if (towApplies) towTool.removeAttribute('hidden'); else towTool.setAttribute('hidden', ''); }
       var shown = 0, fit = 0;
       cards.forEach(function (card) {
         var name = card.getAttribute('data-name');
         var year = card.getAttribute('data-year');
+        var type = card.getAttribute('data-type');
         var sleeps = num(card, 'data-sleeps');
         var gvwr = num(card, 'data-gvwr');
         var tags = (card.getAttribute('data-tags') || '').split(' ');
         var ok = true;
-        if (state.q && name.indexOf(state.q) === -1) ok = false;
+        if (state.type !== 'all' && type !== state.type) ok = false;
+        if (ok && state.q && name.indexOf(state.q) === -1) ok = false;
         if (ok && state.year && year !== state.year) ok = false;
         if (ok && state.sleeps && sleeps < state.sleeps) ok = false;
         if (ok && state.tags.length) {
@@ -215,7 +225,8 @@
         }
         // Tow filter is non-destructive: when set, "over" trailers are dimmed,
         // not hidden — so buyers see what's just out of reach, not a blank grid.
-        var verdict = towVerdict(gvwr, state.tow);
+        // Only trailers get a tow verdict; motorhomes never do.
+        var verdict = (towApplies && type === 'trailer') ? towVerdict(gvwr, state.tow) : null;
         var fitEl = card.querySelector('[data-fit]');
         card.classList.remove('is-over', 'is-within', 'is-comfortable');
         if (verdict && fitEl) {
@@ -277,6 +288,32 @@
       });
     });
 
+    // Type segmented control: All / Travel trailers / Motorhomes. Reflects the
+    // active type on the buttons (aria-pressed + is-active) and re-applies the
+    // grid filter (which also shows/hides the tow matcher).
+    function setType(t, opts) {
+      if (t !== 'trailer' && t !== 'motorhome') t = 'all';
+      state.type = t;
+      // Most motorhomes are a later model year than the trailer default (2026),
+      // so a bare type switch to Motorhomes would show almost nothing. When the
+      // user narrows to a single type, widen the year to "all years" so the
+      // full lineup of that type is visible; they can re-narrow the year after.
+      if (t !== 'all' && state.year) {
+        state.year = '';
+        if (elYear) elYear.value = '';
+      }
+      typeBtns.forEach(function (b) {
+        var on = b.getAttribute('data-type') === t;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      if (!opts || opts.persist !== false) persistX();
+      apply();
+    }
+    typeBtns.forEach(function (b) {
+      b.addEventListener('click', function () { setType(b.getAttribute('data-type')); });
+    });
+
     function setTow(v, opts) {
       state.tow = v > 0 ? v : 0;
       if (towInput) towInput.value = v > 0 ? v : '';
@@ -294,13 +331,14 @@
     });
 
     function resetAll() {
-      state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0 };
+      state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all' };
       if (elSearch) elSearch.value = '';
       if (elSort) elSort.value = 'price-asc';
       if (elYear) elYear.value = '2026';
       if (elSleeps) elSleeps.value = '';
       tagBtns.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
       Store.del(X_PREFS);
+      setType('all', { persist: false });
       setTow(0, { persist: false });
     }
     if (elReset) elReset.addEventListener('click', resetAll);
@@ -314,15 +352,30 @@
     var cmpClear = document.getElementById('cmp-clear');
     function syncCompare() {
       var sel = cmpGet();
+      // Compare is single-type: trailers compare with trailers, motorhomes with
+      // motorhomes (their spec rows don't align). Lock the active type to the
+      // first selected card's type and disable the other type's checkboxes.
+      var lockType = null;
+      if (sel.length) {
+        for (var s = 0; s < boxes.length; s++) {
+          if (sel.indexOf(boxes[s].getAttribute('data-slug')) !== -1) {
+            lockType = boxes[s].getAttribute('data-type'); break;
+          }
+        }
+      }
       boxes.forEach(function (b) {
         var on = sel.indexOf(b.getAttribute('data-slug')) !== -1;
         b.checked = on;
-        b.disabled = !on && sel.length >= 3; // cap at 3
+        var wrongType = lockType && b.getAttribute('data-type') !== lockType;
+        b.disabled = (!on && sel.length >= 3) || (!on && wrongType); // cap at 3, same-type only
       });
       if (cmpCount) cmpCount.textContent = sel.length;
       if (cmpBar) { if (sel.length) cmpBar.removeAttribute('hidden'); else cmpBar.setAttribute('hidden', ''); }
     }
     boxes.forEach(function (b) {
+      // tag each box with its card's type so compare can stay single-type
+      var card = b.closest ? b.closest('.xcard') : null;
+      if (card) b.setAttribute('data-type', card.getAttribute('data-type'));
       b.addEventListener('change', function () {
         var sel = cmpGet();
         var slug = b.getAttribute('data-slug');
@@ -336,6 +389,20 @@
     if (cmpClear) cmpClear.addEventListener('click', function () { cmpSet([]); syncCompare(); });
 
     // ---- hydrate DOM controls from restored prefs ----
+    // Deep-link: motorhomes.html bounces here with #all&type=motorhome (or
+    // ?type=motorhome). When present it WINS over saved prefs so the nav link
+    // always lands on the motorhomes view.
+    (function readTypeDeepLink() {
+      var hash = location.hash || '';
+      var search = location.search || '';
+      var m = (hash + '&' + search).match(/type=(trailer|motorhome|all)/);
+      if (m) {
+        state.type = m[1];
+        // arriving pre-filtered to a single type: show its full lineup (years
+        // differ between trailers and motorhomes), not just the 2026 default.
+        if (state.type !== 'all') state.year = '';
+      }
+    })();
     (function hydrateXControls() {
       if (elSort && state.sort) elSort.value = state.sort;
       if (elYear) elYear.value = state.year;
@@ -345,6 +412,12 @@
           if (state.tags.indexOf(b.getAttribute('data-tag')) !== -1) b.setAttribute('aria-pressed', 'true');
         });
       }
+      // reflect the restored/deep-linked type on the segmented buttons
+      typeBtns.forEach(function (b) {
+        var on = b.getAttribute('data-type') === state.type;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
       if (state.tow > 0) setTow(state.tow, { persist: false });
     })();
 
@@ -893,18 +966,47 @@
     var ids = (params.get('ids') || '').split(',').filter(Boolean);
     if (!ids.length) ids = cmpGet();
     ids = ids.filter(function (s) { return bySlug[s]; }).slice(0, 3);
+    // Compare is single-type: keep only items matching the first item's type.
+    if (ids.length) {
+      var lockType = bySlug[ids[0]].type;
+      ids = ids.filter(function (s) { return bySlug[s].type === lockType; });
+    }
 
     function persist() { cmpSet(ids); }
 
-    // Rows: [label, accessor, formatter, betterDir] — betterDir highlights the
-    // best value in each numeric row (1=higher better, -1=lower better, 0=none).
-    var ROWS = [
+    // Rows depend on the compared set's type. Trailers show tow/cargo rows;
+    // motorhomes show chassis/engine/fuel/seats rows. Each row is
+    // [label, accessor, formatter, betterDir] — betterDir highlights the best
+    // value (1=higher better, -1=lower better, 0=none).
+    var ROWS_TRAILER = [
       ['Length', function (d) { return d.lengthFt; }, function (v) { return fmtLen2(v); }, -1],
       ['Dry weight', function (d) { return d.weightLb; }, fmtLb, -1],
       ['GVWR', function (d) { return d.gvwrLb; }, fmtLb, 0],
       ['Cargo capacity', function (d) { return d.cccLb; }, fmtLb, 1],
       ['Hitch weight', function (d) { return d.hitchWeightLb; }, fmtLb, 0],
       ['Sleeps', function (d) { return d.sleeps; }, function (v) { return String(v); }, 1],
+      ['Fresh water', function (d) { return d.freshGal; }, function (v) { return v == null ? '\u2014' : v + ' gal'; }, 1],
+      ['Gray / black', function (d) { return null; }, function (v, d) {
+        var g = (d.grayGal == null) ? '\u2014' : d.grayGal;
+        var b = (d.blackGal == null) ? '\u2014' : d.blackGal;
+        return g + ' / ' + b + ' gal';
+      }, 0],
+      ['Solar', function (d) { return d.solarW; }, function (v) { return v ? v + ' W' : '\u2014'; }, 1],
+      ['Battery', function (d) { return d.batteryKwh; }, function (v) { return v ? v + ' kWh' : '\u2014'; }, 1],
+      ['Off-grid score', function (d) { return d.offGridScore; }, function (v) { return v + ' / 100'; }, 1],
+      ['MSRP', function (d) { return d.msrp; }, fmtUsd, -1],
+    ];
+    var ROWS_MOTORHOME = [
+      ['Length', function (d) { return d.lengthFt; }, function (v) { return fmtLen2(v); }, 0],
+      ['Base weight', function (d) { return d.weightLb; }, fmtLb, -1],
+      ['GVWR', function (d) { return d.gvwrLb; }, fmtLb, 0],
+      ['Net carrying cap.', function (d) { return d.nccLb; }, fmtLb, 1],
+      ['Chassis', function (d) { return null; }, function (v, d) { return d.chassis || '\u2014'; }, 0],
+      ['Engine', function (d) { return null; }, function (v, d) { return d.engine || '\u2014'; }, 0],
+      ['Fuel', function (d) { return null; }, function (v, d) { return d.fuelType || '\u2014'; }, 0],
+      ['Fuel tank', function (d) { return d.fuelTankGal; }, function (v) { return v ? v + ' gal' : '\u2014'; }, 0],
+      ['Sleeps', function (d) { return d.sleeps; }, function (v) { return String(v); }, 1],
+      ['Seats', function (d) { return d.seats; }, function (v) { return v ? String(v) : '\u2014'; }, 0],
       ['Fresh water', function (d) { return d.freshGal; }, function (v) { return v == null ? '\u2014' : v + ' gal'; }, 1],
       ['Gray / black', function (d) { return null; }, function (v, d) {
         var g = (d.grayGal == null) ? '\u2014' : d.grayGal;
@@ -954,7 +1056,7 @@
       cols.forEach(function (d) {
         var th = document.createElement('th');
         var a = document.createElement('a');
-        a.href = 'm/' + d.slug + '.html'; a.className = 'cmp-col-head';
+        a.href = (d.linkDir || 'm') + '/' + d.slug + '.html'; a.className = 'cmp-col-head';
         var img = document.createElement('img');
         img.src = d.thumb; img.alt = d.model + ' ' + d.floorplan; img.loading = 'lazy';
         img.width = 200; img.height = 130;
@@ -973,6 +1075,7 @@
       table.appendChild(thead);
 
       var tbody = document.createElement('tbody');
+      var ROWS = (cols[0] && cols[0].type === 'motorhome') ? ROWS_MOTORHOME : ROWS_TRAILER;
       ROWS.forEach(function (row) {
         var tr = document.createElement('tr');
         var th = document.createElement('th');
@@ -1001,16 +1104,18 @@
         var q = this.value.trim().toLowerCase();
         clear(suggest);
         if (!q) { closeSuggest(); return; }
+        var lockType = ids.length ? bySlug[ids[0]].type : null;
         var hits = DATA.filter(function (d) {
           return (d.model + ' ' + d.floorplan + ' ' + d.year).toLowerCase().indexOf(q) !== -1 &&
-            ids.indexOf(d.slug) === -1;
+            ids.indexOf(d.slug) === -1 &&
+            (!lockType || d.type === lockType);
         }).slice(0, 8);
         if (!hits.length) { closeSuggest(); return; }
         hits.forEach(function (d) {
           var li = document.createElement('li');
           var b = document.createElement('button');
           b.type = 'button'; b.className = 'cmp-suggest-item';
-          b.textContent = d.model + ' ' + d.floorplan + ' (' + d.year + ')';
+          b.textContent = d.model + ' ' + d.floorplan + ' (' + d.year + ')' + (d.type === 'motorhome' ? ' · Motorhome' : '');
           b.addEventListener('click', function () {
             if (ids.length >= 3) return;
             if (ids.indexOf(d.slug) === -1) ids.push(d.slug);

@@ -8,6 +8,8 @@ import {
   trailerTitle, trailerLabel,
 } from './format.mjs';
 import { assetPaths, familySlug, officialUrl, catalogStats } from './data.mjs';
+import { motorhomeAssetPaths } from './motorhome-data.mjs';
+import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
 import { socialMeta, productJsonLd } from './seo.mjs';
 import { SORT_KEYS, exploreTags, tagLabel } from './explore.mjs';
 import { renderCampgroundFit } from './campgrounds-render.mjs';
@@ -146,9 +148,15 @@ ${specRow('Years', yrs)}
  * toggles between them and mirrors state in the URL hash (#families / #all)
  * for deep-linking + back-button. `trailers`/`resolve` power the all view.
  */
-export function renderIndex(families, trailers = [], resolve = assetPaths) {
-  const cards = families.map((f) => renderFamilyCard(f, '')).join('\n');
-  const totalPlans = families.reduce((n, f) => n + f.floorplanCount, 0);
+export function renderIndex(families, trailers = [], resolve = assetPaths, motorhomes = [], motorhomeFamilies = []) {
+  // Unified family grid: trailer families + motorhome families in one .fam-grid.
+  const cards = [
+    ...families.map((f) => renderFamilyCard(f, '')),
+    ...motorhomeFamilies.map((f) => renderMotorhomeFamilyCard(f, '')),
+  ].join('\n');
+  const allFamilies = families.length + motorhomeFamilies.length;
+  const totalPlans = families.reduce((n, f) => n + f.floorplanCount, 0)
+    + motorhomeFamilies.reduce((n, f) => n + f.floorplanCount, 0);
   // Cinematic full-bleed hero. Pick a deliberately *different* establishing
   // shot than the first card below it (which is the flagship Classic), so the
   // opening viewport has visual variety instead of the same image twice — the
@@ -165,14 +173,14 @@ export function renderIndex(families, trailers = [], resolve = assetPaths) {
 <div class="home-hero-inner">
 <p class="eyebrow eyebrow-light">AIRSTREAM · 2026 + 2025</p>
 <h1>Every Airstream, by family</h1>
-<p class="lede">A cinematic, spec-accurate field guide to the current Airstream travel-trailer lineup — ${families.length} families, ${totalPlans} floorplans.</p>
+<p class="lede">A cinematic, spec-accurate field guide to the current Airstream lineup — ${allFamilies} families, ${totalPlans} floorplans across travel trailers and motorhomes.</p>
 <p class="home-hero-cta"><a class="home-hero-btn" href="#all" data-view-go="all">Explore all floorplans</a><a class="home-hero-ghost" href="community.html">Real community photos →</a></p>
 </div>
 </header>`
     : `<header class="hero-head">
 <p class="eyebrow">AIRSTREAM · 2026 + 2025</p>
 <h1>Every Airstream, by family</h1>
-<p class="lede">A cinematic, spec-accurate field guide to the current Airstream travel-trailer lineup — ${families.length} families, ${totalPlans} floorplans. Start with a family, then dive into each floorplan’s full specs.</p>
+<p class="lede">A cinematic, spec-accurate field guide to the current Airstream lineup — ${allFamilies} families, ${totalPlans} floorplans across travel trailers and motorhomes. Start with a family, then dive into each floorplan’s full specs.</p>
 <p class="hero-cta"><a href="#all" data-view-go="all">Explore all floorplans →</a></p>
 </header>`;
   // Editorial segmented control — styled as a magazine section divider
@@ -180,8 +188,8 @@ export function renderIndex(families, trailers = [], resolve = assetPaths) {
   // class from the family-page year toggle (.seg-btn) so app.js modules don't
   // collide. aria-pressed conveys state to AT; hash deep-links each view.
   const viewToggle = `<nav class="viewseg" id="view-toggle" aria-label="Browse mode">
-<a class="viewseg-btn is-active" href="#families" data-view="families" aria-current="page"><span class="viewseg-label">By family</span><span class="viewseg-sub">${families.length} model lines</span></a>
-<a class="viewseg-btn" href="#all" data-view="all"><span class="viewseg-label">All floorplans</span><span class="viewseg-sub">${trailers.length} by the numbers</span></a>
+<a class="viewseg-btn is-active" href="#families" data-view="families" aria-current="page"><span class="viewseg-label">By family</span><span class="viewseg-sub">${allFamilies} model lines</span></a>
+<a class="viewseg-btn" href="#all" data-view="all"><span class="viewseg-label">All floorplans</span><span class="viewseg-sub">${trailers.length + motorhomes.length} by the numbers</span></a>
 </nav>`;
   const body = `${heroBand}
 ${viewToggle}
@@ -191,11 +199,11 @@ ${cards}
 </main>
 </section>
 <section class="hub-view" id="view-all" data-view="all">
-${renderExploreSections(trailers, resolve)}
+${renderExploreSections(trailers, resolve, motorhomes)}
 </section>`;
   return page({
-    title: 'Airstream Explorer — the full travel-trailer lineup by family',
-    description: `A spec-accurate, cinematic catalog of every current Airstream travel-trailer family (2026 + 2025): ${families.length} families, ${totalPlans} floorplans, with dimensions, weights, off-grid and pricing.`,
+    title: 'Airstream Explorer — the full lineup by family',
+    description: `A spec-accurate, cinematic catalog of every current Airstream travel trailer and motorhome family: ${allFamilies} families, ${totalPlans} floorplans, with dimensions, weights, off-grid and pricing.`,
     body,
     active: 'index',
     canonicalPath: 'index.html',
@@ -808,7 +816,7 @@ ${gallery ? `<section class="gallery" aria-label="Gallery"><h2>Gallery</h2><div 
 export function renderExploreCard(t, resolve = assetPaths, hidden = false) {
   const a = resolve(t);
   const tags = (t.tags || []).join(' ');
-  return `<article class="xcard" data-slug="${esc(t.slug)}" data-model="${esc(t.model)}" data-floorplan="${esc(t.floorplan)}" data-year="${esc(t.year)}" data-msrp="${esc(t.msrp)}" data-weight="${esc(t.weightLb)}" data-gvwr="${esc(t.gvwrLb)}" data-length="${esc(t.lengthFt)}" data-sleeps="${esc(t.sleeps)}" data-offgrid="${esc(t.offGridScore)}" data-tags="${esc(tags)}" data-name="${esc((t.model + ' ' + t.floorplan).toLowerCase())}"${hidden ? ' hidden' : ''}>
+  return `<article class="xcard" data-slug="${esc(t.slug)}" data-type="trailer" data-model="${esc(t.model)}" data-floorplan="${esc(t.floorplan)}" data-year="${esc(t.year)}" data-msrp="${esc(t.msrp)}" data-weight="${esc(t.weightLb)}" data-gvwr="${esc(t.gvwrLb)}" data-length="${esc(t.lengthFt)}" data-sleeps="${esc(t.sleeps)}" data-offgrid="${esc(t.offGridScore)}" data-tags="${esc(tags)}" data-name="${esc((t.model + ' ' + t.floorplan).toLowerCase())}"${hidden ? ' hidden' : ''}>
 <a class="xcard-link" href="m/${esc(t.slug)}.html">
 <div class="xcard-media">
 <img src="${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="400" height="260">
@@ -826,7 +834,7 @@ ${specRow('MSRP', formatMsrp(t.msrp))}
 </a>
 <div class="xcard-foot">
 <span class="xcard-fit" data-fit hidden></span>
-<label class="xcard-compare"><input type="checkbox" class="cmp-box" data-slug="${esc(t.slug)}" aria-label="Add ${esc(trailerLabel(t))} to compare"> Compare</label>
+<label class="xcard-compare"><input type="checkbox" class="cmp-box" data-slug="${esc(t.slug)}" data-type="trailer" aria-label="Add ${esc(trailerLabel(t))} to compare"> Compare</label>
 </div>
 </article>`;
 }
@@ -838,26 +846,49 @@ ${specRow('MSRP', formatMsrp(t.msrp))}
  * `trailers` is the full (unsorted) dataset. All links are root-relative
  * (m/…, compare.html) so it renders correctly at the site root either way.
  */
-export function renderExploreSections(trailers, resolve = assetPaths) {
+export function renderExploreSections(trailers, resolve = assetPaths, motorhomes = []) {
   const sortOpts = Object.entries(SORT_KEYS)
     .map(([k, def], i) => `<option value="${esc(k)}"${i === 0 ? ' selected' : ''}>${esc(def.label)}</option>`)
     .join('');
-  const tagChips = exploreTags(trailers)
+  // Use-case tags span BOTH datasets so the chips work whatever type is active.
+  const tagChips = exploreTags([...trailers, ...motorhomes])
     .map((tag) => `<button type="button" class="tagfilter" data-tag="${esc(tag)}" aria-pressed="false">${esc(tagLabel(tag))}</button>`)
     .join('');
   // Server-render the DEFAULT view correctly so the page is right without JS
   // and on first paint: latest model year (2026) visible, sorted cheapest-first;
-  // 2025 twins emitted but hidden (one tap to "Both"). The client then manages
-  // visibility/sort on interaction — same robust pattern as the family pages.
-  const ordered = [...trailers].sort(
-    (a, b) => a.msrp - b.msrp || `${a.model} ${a.floorplan}`.localeCompare(`${b.model} ${b.floorplan}`),
+  // off-year twins emitted but hidden (one tap to "All years"). The client then
+  // manages visibility/sort on interaction — same robust pattern as family pages.
+  // Trailers AND motorhomes share one grid; each card carries data-type so the
+  // client type filter can show All / Travel trailers / Motorhomes.
+  const merged = [
+    ...trailers.map((t) => ({ item: t, type: 'trailer' })),
+    ...motorhomes.map((m) => ({ item: m, type: 'motorhome' })),
+  ].sort(
+    (a, b) => a.item.msrp - b.item.msrp
+      || `${a.item.model} ${a.item.floorplan}`.localeCompare(`${b.item.model} ${b.item.floorplan}`),
   );
-  const cards = ordered.map((t) => renderExploreCard(t, resolve, t.year !== 2026)).join('\n');
-  const total = trailers.filter((t) => t.year === 2026).length;
+  const cards = merged
+    .map(({ item, type }) =>
+      type === 'motorhome'
+        ? renderMotorhomeExploreCard(item, motorhomeAssetPaths, item.year !== 2026)
+        : renderExploreCard(item, resolve, item.year !== 2026),
+    )
+    .join('\n');
+  const total = merged.filter(({ item }) => item.year === 2026).length;
+  const totalPlans = trailers.length + motorhomes.length;
+  const hasMotorhomes = motorhomes.length > 0;
+  const typeSeg = hasMotorhomes
+    ? `<nav class="xc-type" id="x-type" aria-label="Vehicle type">
+<button type="button" class="xc-type-btn is-active" data-type="all" aria-pressed="true">All</button>
+<button type="button" class="xc-type-btn" data-type="trailer" aria-pressed="false">Travel trailers</button>
+<button type="button" class="xc-type-btn" data-type="motorhome" aria-pressed="false">Motorhomes</button>
+</nav>`
+    : '';
   return `<header class="explore-head">
 <p class="eyebrow">FIND YOUR FLOORPLAN</p>
 <h1>Every floorplan, by the numbers</h1>
-<p class="lede">Search, sort and filter all ${trailers.length} floorplans — match them to your tow vehicle, by size, sleeping capacity or off-grid capability.</p>
+<p class="lede">Search, sort and filter all ${totalPlans} floorplans${hasMotorhomes ? ' — travel trailers and motorhomes' : ''} — match a trailer to your tow vehicle, or browse by size, sleeping capacity or off-grid capability.</p>
+${typeSeg}
 </header>
 <section class="tow-tool" aria-label="Tow vehicle matcher">
 <div class="tow-tool-inner">
@@ -891,7 +922,7 @@ export function renderExploreSections(trailers, resolve = assetPaths) {
 </div>
 <div class="xc-year">
 <label for="x-year">Year</label>
-<select id="x-year"><option value="2026" selected>2026</option><option value="2025">2025</option><option value="">Both</option></select>
+<select id="x-year"><option value="2026" selected>2026</option><option value="2025">2025</option><option value="2027">2027</option><option value="">All years</option></select>
 </div>
 </div>
 <div class="xc-row xc-row-2">
@@ -947,17 +978,32 @@ ${renderExploreSections(trailers, resolve)}
  * full dataset (compact) so the client can build the table from ?ids=… without
  * a network call. The JSON is escaped for safe embedding in a script tag.
  */
-export function renderCompare(trailers, resolve = assetPaths) {
-  const compact = trailers.map((t) => {
-    const a = resolve(t);
-    return {
-      slug: t.slug, model: t.model, floorplan: t.floorplan, year: t.year,
-      thumb: a.thumb, lengthFt: t.lengthFt, weightLb: t.weightLb, gvwrLb: t.gvwrLb,
-      cccLb: t.cccLb, hitchWeightLb: t.hitchWeightLb, sleeps: t.sleeps,
-      freshGal: t.freshGal, grayGal: t.grayGal, blackGal: t.blackGal,
-      solarW: t.solarW, batteryKwh: t.batteryKwh, offGridScore: t.offGridScore, msrp: t.msrp,
-    };
-  });
+export function renderCompare(trailers, resolve = assetPaths, motorhomes = []) {
+  const compact = [
+    ...trailers.map((t) => {
+      const a = resolve(t);
+      return {
+        type: 'trailer', linkDir: 'm',
+        slug: t.slug, model: t.model, floorplan: t.floorplan, year: t.year,
+        thumb: a.thumb, lengthFt: t.lengthFt, weightLb: t.weightLb, gvwrLb: t.gvwrLb,
+        cccLb: t.cccLb, hitchWeightLb: t.hitchWeightLb, sleeps: t.sleeps,
+        freshGal: t.freshGal, grayGal: t.grayGal, blackGal: t.blackGal,
+        solarW: t.solarW, batteryKwh: t.batteryKwh, offGridScore: t.offGridScore, msrp: t.msrp,
+      };
+    }),
+    ...motorhomes.map((m) => {
+      const a = motorhomeAssetPaths(m);
+      return {
+        type: 'motorhome', linkDir: 'mm',
+        slug: m.slug, model: m.model, floorplan: m.floorplan, year: m.year,
+        thumb: a.thumb, lengthFt: m.lengthFt, weightLb: m.weightLb, gvwrLb: m.gvwrLb,
+        nccLb: m.nccLb, towCapacityLb: m.towCapacityLb, sleeps: m.sleeps, seats: m.seats,
+        chassis: m.chassis, engine: m.engine, fuelType: m.fuelType, fuelTankGal: m.fuelTankGal,
+        freshGal: m.freshGal, grayGal: m.grayGal, blackGal: m.blackGal,
+        solarW: m.solarW, batteryKwh: m.batteryKwh, offGridScore: m.offGridScore, msrp: m.msrp,
+      };
+    }),
+  ];
   // Safe JSON for <script type="application/json">: only </ needs neutralizing.
   const json = JSON.stringify(compact).replace(/</g, '\\u003c');
   const body = `<header class="explore-head">
