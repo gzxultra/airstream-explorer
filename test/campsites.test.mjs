@@ -119,6 +119,19 @@ test('campsites render carries no raw recreation.gov CDN links', () => {
   assert.ok(!html.includes('cdn.recreation.gov'), 'gov photos must route through /cdn/ proxy');
 });
 
+// ---- Nearest-services distance formatting (honest sub-mile rendering) ----
+test('nearest water/dump never renders the misleading "0 mi" and emits no broken <1 tag', () => {
+  const html = renderCampsitesBody({ stays: [] }, boon, '');
+  // A real OSM node 0.27 mi away must not collapse to "0 mi" (reads as
+  // "no data" / "on-site water"). It must show the honest "<1 mi" instead.
+  assert.ok(!/bd-intel-val">0 mi</.test(html), 'no "0 mi" services — sub-mile must say <1 mi');
+  // The "<" must be HTML-escaped, or the browser parses "<1 mi" as a bogus tag
+  // and the value disappears. Assert the entity form is present and the raw
+  // angle-bracket form never reaches the markup.
+  assert.ok(!/bd-intel-val"><1 mi/.test(html), 'raw "<1 mi" would break as a pseudo-tag');
+  assert.ok(html.includes('&lt;1 mi'), 'sub-mile distances render as escaped &lt;1 mi');
+});
+
 // ---- Boondock illustration: varied, self-contained, no cross-card bleed ----
 test('every boondock card draws its own illustration with a unique gradient id', () => {
   const html = renderCampsitesBody({ stays: [] }, boon, '');

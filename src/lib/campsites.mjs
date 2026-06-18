@@ -362,11 +362,18 @@ function boondockCard(s) {
   const dsStars = ds.bortle <= 2 ? '★★★' : ds.bortle <= 4 ? '★★' : ds.bortle <= 6 ? '★' : '';
 
   // ---- Nearest services ----
+  // Render miles honestly: a real sub-mile OSM node must not collapse to the
+  // misleading "0 mi" (which reads as "no data" or "on-site"). Show "<1 mi".
+  const fmtMi = (km) => {
+    const mi = km * 0.621371;
+    if (mi < 1) return '&lt;1 mi';
+    return `${mi.toFixed(0)} mi`;
+  };
   const waterMi = enriched.nearestWater
-    ? `${(enriched.nearestWater.distanceKm * 0.621371).toFixed(0)} mi`
+    ? fmtMi(enriched.nearestWater.distanceKm)
     : '—';
   const dumpMi = enriched.nearestDump
-    ? `${(enriched.nearestDump.distanceKm * 0.621371).toFixed(0)} mi`
+    ? fmtMi(enriched.nearestDump.distanceKm)
     : '—';
 
   // ---- Best months (abbreviated) ----
