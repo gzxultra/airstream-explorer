@@ -37,6 +37,11 @@ export function validateMotorhome(m) {
   if (!m.chassis) problems.push(`${m.slug}: missing chassis`);
   if (!m.engine) problems.push(`${m.slug}: missing engine`);
   if (!m.fuelType) problems.push(`${m.slug}: missing fuelType`);
+  // When factory solar wattage is published, the standard/optional status must
+  // be declared (boolean), so the spec row never silently implies "standard".
+  if (m.solarW != null && m.solarW > 0 && typeof m.solarStandard !== 'boolean') {
+    problems.push(`${m.slug}: solarStandard must be boolean when solarW is set`);
+  }
   return problems;
 }
 

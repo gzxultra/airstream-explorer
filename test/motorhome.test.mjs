@@ -79,6 +79,24 @@ test('audited specs: Rangeline 21PS 2027', () => {
   assert.equal(m.chassis, 'RAM ProMaster 3500');
 });
 
+test('factory solar standard/optional matches official airstream.com', () => {
+  // Per airstream.com (Specifications → ENERGY & POWER → Solar Charging System),
+  // 10 of 11 touring coaches ship solar as standard; the ONLY optional one is
+  // the Atlas 25RT (400 W rooftop is a $3,500 add-on, tagged "(Optional)").
+  const standard = motorhomes.filter((x) => x.solarStandard === true);
+  const optional = motorhomes.filter((x) => x.solarStandard === false);
+  assert.equal(standard.length, 10, 'exactly 10 motorhomes have standard solar');
+  assert.equal(optional.length, 1, 'exactly 1 motorhome has optional solar');
+  assert.equal(optional[0].slug, 'atlas-25rt-2027', 'the optional-solar model is the Atlas 25RT');
+  // Every motorhome that publishes wattage must declare its status.
+  for (const m of motorhomes) {
+    if (m.solarW > 0) {
+      assert.equal(typeof m.solarStandard, 'boolean', `${m.slug} declares solarStandard`);
+    }
+  }
+});
+
+
 // ---------------------------------------------------------------------------
 // Validation logic
 // ---------------------------------------------------------------------------
@@ -104,6 +122,18 @@ test('validateMotorhome catches missing chassis', () => {
     sleeps: 2, engine: 'Test', fuelType: 'Gas',
   };
   assert.ok(validateMotorhome(bad).some((p) => p.includes('chassis')));
+});
+
+test('validateMotorhome requires boolean solarStandard when solar is published', () => {
+  const bad = {
+    slug: 'x-1y-2027', model: 'X', floorplan: '1Y', year: 2027,
+    type: 'motorhome', msrp: 1000, weightLb: 100, gvwrLb: 200, nccLb: 100,
+    sleeps: 2, chassis: 'Test', engine: 'Test', fuelType: 'Gas',
+    solarW: 400, // wattage published but no solarStandard
+  };
+  assert.ok(validateMotorhome(bad).some((p) => p.includes('solarStandard')));
+  // Adding the boolean clears the problem.
+  assert.ok(!validateMotorhome({ ...bad, solarStandard: true }).some((p) => p.includes('solarStandard')));
 });
 
 // ---------------------------------------------------------------------------
@@ -209,6 +239,18 @@ test('renderMotorhomeDetail shows MSRP and weight', () => {
   assert.match(html, /\$335,900/);
   assert.match(html, /12,125 lb/);   // GVWR
   assert.match(html, /10,227 lb/);   // base weight
+});
+
+test('renderMotorhomeDetail labels standard vs optional factory solar', () => {
+  // Standard-solar model (Atlas 25MS) shows "400 W (standard)".
+  const std = motorhomes.find((x) => x.slug === 'atlas-25ms-2027');
+  const stdHtml = renderMotorhomeDetail(std);
+  assert.match(stdHtml, /400 W \(standard\)/);
+  // Optional-solar model (Atlas 25RT) shows bare wattage, NOT "(standard)".
+  const opt = motorhomes.find((x) => x.slug === 'atlas-25rt-2027');
+  const optHtml = renderMotorhomeDetail(opt);
+  assert.match(optHtml, /400 W/);
+  assert.doesNotMatch(optHtml, /400 W \(standard\)/);
 });
 
 test('renderMotorhomeDetail has back link to motorhome family page', () => {
