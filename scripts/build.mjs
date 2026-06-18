@@ -8,6 +8,8 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
 import { loadTrailers, validateDataset, groupByFamily, resolveAssets, loadDecor, resolveDecor } from '../src/lib/data.mjs';
 import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, page } from '../src/lib/render.mjs';
+import { loadMotorhomes, validateMotorhomeDataset, groupMotorhomesByFamily, motorhomeAssetPaths } from '../src/lib/motorhome-data.mjs';
+import { renderMotorhomeIndex, renderMotorhomeFamily, renderMotorhomeDetail } from '../src/lib/motorhome-render.mjs';
 import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
 import { loadUpgrades, validateUpgrades, renderUpgradesBody } from '../src/lib/upgrades.mjs';
 import { loadOvernight, validateOvernight, renderOvernightBody } from '../src/lib/overnight.mjs';
@@ -82,10 +84,18 @@ if (boondockingProblems.length) {
 }
 log(`boondocking ok: ${boondockingData.sites.length} OSM dispersed sites (unverified, first-come)`);
 
+// 1h. Load + validate motorhome dataset
+const motorhomes = loadMotorhomes();
+validateMotorhomeDataset(motorhomes);
+const motorhomeFamilies = groupMotorhomesByFamily(motorhomes);
+log(`motorhomes ok: ${motorhomes.length} floorplans in ${motorhomeFamilies.length} families`);
+
 // 2. Clean dist
 rmSync(DIST, { recursive: true, force: true });
 mkdirSync(join(DIST, 'm'), { recursive: true });
 mkdirSync(join(DIST, 'f'), { recursive: true });
+mkdirSync(join(DIST, 'mm'), { recursive: true });
+mkdirSync(join(DIST, 'mf'), { recursive: true });
 
 // 3. Explore hub (index.html) — family grid + all-floorplans, one page
 writeFileSync(join(DIST, 'index.html'), renderIndex(families, trailers, resolve));
@@ -107,6 +117,16 @@ log(`wrote ${trailers.length} detail pages`);
 writeFileSync(join(DIST, 'explore.html'), renderExplore(trailers, resolve));
 writeFileSync(join(DIST, 'compare.html'), renderCompare(trailers, resolve));
 log('wrote explore.html + compare.html');
+
+// 4a-mh. Motorhome pages
+writeFileSync(join(DIST, 'motorhomes.html'), renderMotorhomeIndex(motorhomeFamilies, motorhomes, motorhomeAssetPaths));
+for (const fam of motorhomeFamilies) {
+  writeFileSync(join(DIST, 'mf', `${fam.slug}.html`), renderMotorhomeFamily(fam, motorhomeAssetPaths));
+}
+for (const mh of motorhomes) {
+  writeFileSync(join(DIST, 'mm', `${mh.slug}.html`), renderMotorhomeDetail(mh, motorhomeAssetPaths));
+}
+log(`wrote motorhomes.html + ${motorhomeFamilies.length} family pages + ${motorhomes.length} detail pages`);
 
 // 4a2. Campground Finder (national, map + list)
 {
@@ -300,8 +320,11 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     join(DIST, 'stays.html'),
     join(DIST, 'community.html'),
     join(DIST, 'credits.html'),
+    join(DIST, 'motorhomes.html'),
     ...families.map((f) => join(DIST, 'f', `${f.slug}.html`)),
     ...trailers.map((t) => join(DIST, 'm', `${t.slug}.html`)),
+    ...motorhomeFamilies.map((f) => join(DIST, 'mf', `${f.slug}.html`)),
+    ...motorhomes.map((mh) => join(DIST, 'mm', `${mh.slug}.html`)),
   ];
   let rewrites = 0;
   for (const file of htmlFiles) {
@@ -333,8 +356,11 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     { file: join(DIST, 'campsites.html'), base: DIST },
     { file: join(DIST, 'community.html'), base: DIST },
     { file: join(DIST, 'credits.html'), base: DIST },
+    { file: join(DIST, 'motorhomes.html'), base: DIST },
     ...families.map((f) => ({ file: join(DIST, 'f', `${f.slug}.html`), base: join(DIST, 'f') })),
     ...trailers.map((t) => ({ file: join(DIST, 'm', `${t.slug}.html`), base: join(DIST, 'm') })),
+    ...motorhomeFamilies.map((f) => ({ file: join(DIST, 'mf', `${f.slug}.html`), base: join(DIST, 'mf') })),
+    ...motorhomes.map((mh) => ({ file: join(DIST, 'mm', `${mh.slug}.html`), base: join(DIST, 'mm') })),
   ];
   const broken = [];
   let checked = 0;
