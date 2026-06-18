@@ -1,26 +1,27 @@
 // Dark Sky / Light Pollution Score for boondocking locations.
 //
-// Data model: A pre-computed grid of artificial sky brightness for the
-// continental US at ~1° resolution. Values are derived from NASA VIIRS
-// Day/Night Band (DNB) satellite data (2023 annual composite) as published
-// in the New World Atlas of Artificial Night Sky Brightness (Falchi et al.
-// 2016, updated with VIIRS 2023 data).
+// Data model: a coarse PLANNING-GRADE estimate of artificial sky brightness,
+// NOT a pixel-level satellite extraction. We model the continental US as a
+// natural-dark background (most remote public land where boondocking happens)
+// with a hand-built table of ~90 known metro/urban light domes layered on top.
+// Each location's radiance (mcd/m²) is mapped to the Bortle Dark-Sky Scale
+// (1-9) using the published thresholds from Falchi et al. (2016).
 //
-// The grid stores radiance values in mcd/m² (millicandelas per square meter),
-// which we convert to the Bortle Dark-Sky Scale (1-9) using the published
-// thresholds from Falchi et al.
+// What this IS: a quick "is this area generally dark, suburban, or city-bright?"
+// signal for trip planning. It correctly flags sites near major cities as
+// light-polluted and remote desert/mountain sites as dark.
 //
-// Reference:
+// What this is NOT: a substitute for a real measured light-pollution map. The
+// urban table is a representative approximation, the natural-dark default is a
+// floor (not a measurement), and resolution is ~1° (~80-110 km). For a precise
+// reading at an exact coordinate, consult lightpollutionmap.info (the real
+// VIIRS/World Atlas data product).
+//
+// Scale reference (for the Bortle thresholds only — the radiance VALUES here
+// are estimates, not from these sources):
 //  - Falchi, F. et al. (2016). "The New World Atlas of Artificial Night Sky
 //    Brightness." Science Advances, 2(6), e1600377.
-//  - NASA VIIRS DNB: https://eogdata.mines.edu/products/vnl/
 //  - Light Pollution Map: https://www.lightpollutionmap.info
-//
-// Grid construction: For each 1°×1° cell in the continental US (lat 25-49,
-// lon -125 to -67), we store a representative radiance value. These were
-// derived from the published VIIRS annual composite by averaging the DNB
-// radiance within each cell. Urban cells (cities) have high values; remote
-// public lands (where boondocking happens) have low values.
 
 /**
  * Bortle Dark-Sky Scale (1-9).
@@ -76,25 +77,24 @@ export function darkSkyScore(bortle) {
 }
 
 // ---------------------------------------------------------------------------
-// Pre-computed light pollution grid for the continental US.
+// Hand-built light pollution estimate table for the continental US.
 //
-// This is a simplified 1°×1° grid. Each cell stores the median VIIRS DNB
-// radiance for that area. The grid covers lat 25-49°N, lon -125 to -67°W.
+// This is a coarse model, NOT a satellite-data extraction. We treat most of
+// the continental US (esp. remote BLM/USFS land where boondocking happens) as
+// naturally dark, and layer a hand-built table of ~90 known metro/urban light
+// domes on top. Each entry is a representative radiance ESTIMATE in mcd/m²,
+// not a measured value. Resolution is ~1° (~80-110 km cells).
 //
-// Values are representative medians derived from the published VIIRS 2023
-// annual composite. Urban areas show high values; remote BLM/USFS lands show
-// very low values. This is NOT pixel-level precision — it's a planning-grade
-// estimate suitable for "is this area generally dark or light?"
+// This is a planning-grade signal — "is this area generally dark, suburban,
+// or city-bright?" — not pixel-level precision. For a precise reading at an
+// exact coordinate, use lightpollutionmap.info (the real VIIRS data product).
 //
-// Grid format: GRID[latIndex][lonIndex] = radiance in mcd/m²
-// latIndex = lat - 25 (0 = 25°N, 24 = 49°N)
-// lonIndex = lon + 125 (0 = -125°W, 58 = -67°W)
+// Format: lookup keyed by rounded (lat, lon) → radiance estimate in mcd/m²
 // ---------------------------------------------------------------------------
 
-// Compressed grid: we store only the non-zero (above natural background)
-// values. Most of the western US public land is very dark (< 0.2 mcd/m²).
-// We use a default of 0.12 (natural sky background) for cells not in the
-// override map, which maps to Bortle 1.
+// We store only cells meaningfully above natural background (the urban/suburban
+// light domes). Everything else falls back to NATURAL_BACKGROUND (a dark-sky
+// floor, not a measurement), which maps to Bortle 1.
 const NATURAL_BACKGROUND = 0.12; // mcd/m², natural airglow
 
 // City/urban radiance overrides. Format: [lat, lon, radiance]
@@ -179,6 +179,6 @@ export function estimateLightPollution(lat, lon) {
     color: meta.color,
     description: meta.description,
     radiance,
-    resolution: '~1° grid (~80-110 km cells)',
+    resolution: 'Planning estimate · ~1° (~80-110 km)',
   };
 }

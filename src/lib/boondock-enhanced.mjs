@@ -2,7 +2,7 @@
 //
 // Combines three data sources at build time:
 //  1. Solar harvest (NREL-based, solar-harvest.mjs)
-//  2. Dark sky score (NASA VIIRS-based, dark-sky.mjs)
+//  2. Dark sky score (modeled estimate, dark-sky.mjs)
 //  3. Nearest water/dump stations (OSM-based, boondock-resources.mjs)
 //
 // All enrichment is STATIC — computed at build time, no runtime API calls.
@@ -211,7 +211,7 @@ function renderDarkSkyBadge(darkSky) {
     Bortle ${darkSky.bortle}
   </span>
   <span class="bd-detail-value">${darkSky.label}</span>
-  <span class="bd-detail-note">NASA VIIRS · ${darkSky.resolution}</span>
+  <span class="bd-detail-note">${darkSky.resolution}</span>
 </div>`;
 }
 

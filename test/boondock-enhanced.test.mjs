@@ -13,7 +13,7 @@ import { loadBoondocking } from '../src/lib/campsites.mjs';
 //
 //  1. Solar harvest estimate (from solar-harvest.mjs, NREL-based)
 //  2. Nearest water/dump stations (from boondock-resources.mjs, OSM-based)
-//  3. Dark sky score (from dark-sky.mjs, NASA VIIRS-based)
+//  3. Dark sky score (from dark-sky.mjs, modeled estimate)
 //  4. Seasonal recommendation (best months to visit based on solar + weather)
 //
 // All enrichment is computed at BUILD TIME from static, pre-validated datasets.
@@ -59,14 +59,21 @@ test('enrichBoondockSite adds nearest resources', () => {
   const enriched = enrichBoondockSite(SAMPLE_SITE, { trailer: TRAILER });
   assert.ok('nearestWater' in enriched, 'enriched site has nearestWater');
   assert.ok('nearestDump' in enriched, 'enriched site has nearestDump');
-  // Each should be an object with distanceKm and name (or null if none found)
+  // Each should be an object with distanceKm and name (name may be null —
+  // real OSM water/dump nodes are frequently unnamed).
   if (enriched.nearestWater) {
     assert.equal(typeof enriched.nearestWater.distanceKm, 'number');
-    assert.equal(typeof enriched.nearestWater.name, 'string');
+    assert.ok(
+      typeof enriched.nearestWater.name === 'string' || enriched.nearestWater.name === null,
+      'nearestWater.name is a string or null',
+    );
   }
   if (enriched.nearestDump) {
     assert.equal(typeof enriched.nearestDump.distanceKm, 'number');
-    assert.equal(typeof enriched.nearestDump.name, 'string');
+    assert.ok(
+      typeof enriched.nearestDump.name === 'string' || enriched.nearestDump.name === null,
+      'nearestDump.name is a string or null',
+    );
   }
 });
 

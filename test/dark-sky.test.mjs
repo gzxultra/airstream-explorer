@@ -10,11 +10,11 @@ import {
 // ---------------------------------------------------------------------------
 // Dark Sky / Light Pollution Score for boondocking locations.
 //
-// Data source: NASA VIIRS Day/Night Band satellite data (2023 annual composite).
-// The model uses a pre-computed grid of artificial sky brightness values for the
-// continental US at ~0.5° resolution, derived from the published VIIRS DNB
-// radiance data. This is the same data underlying lightpollutionmap.info and
-// the New World Atlas of Artificial Night Sky Brightness (Falchi et al. 2016).
+// Data source: a coarse hand-built MODEL (not satellite extraction) — a
+// natural-dark background plus a table of ~90 known urban light domes, mapped
+// to the Bortle scale. Planning-grade estimate at ~1° resolution. For precise
+// measured values, lightpollutionmap.info / the New World Atlas of Artificial
+// Night Sky Brightness (Falchi et al. 2016) are the real data products.
 //
 // The Bortle scale (1-9) is the standard amateur-astronomy classification of
 // sky darkness. We map VIIRS radiance to Bortle class using the published

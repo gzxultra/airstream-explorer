@@ -413,7 +413,7 @@ ${lensBadge('boondock')}
 <span class="bd-intel-label">Best time</span>
 <span class="bd-intel-val">${esc(bestMonthStr)}</span>
 </div>
-<p class="bd-intel-note">Solar: NREL NSRDB · Dark sky: NASA VIIRS · Services: OSM · All estimates, verify before visit</p>
+<p class="bd-intel-note">Solar: NREL NSRDB · Dark sky: modeled estimate · Services: OSM · All estimates, verify before visit</p>
 </div>
 <p class="bd-coords"><span class="bd-coord-label">Approx.</span> ${esc(coords)}</p>
 <div class="bd-links">
