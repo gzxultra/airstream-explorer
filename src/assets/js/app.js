@@ -2848,4 +2848,146 @@
       if (e.key === 'Escape' || e.key === 'Esc') close();
     });
   })();
+
+  // =========================================================================
+  // 9. FUEL COST ESTIMATOR (detail pages)
+  //    Mirrors the server-side math in src/lib/fuel.mjs. Reads the vehicle
+  //    table from a CSP-safe JSON island (#fuel-data); no network, works offline.
+  // =========================================================================
+  (function fuelTool() {
+    var root = document.querySelector('.fuel-tool');
+    if (!root) return;
+    var dataEl = document.getElementById('fuel-data');
+    if (!dataEl) return;
+    var data;
+    try { data = JSON.parse(dataEl.textContent); } catch (e) { return; }
+    if (!data || !data.vehicles || !data.trailer) return;
+
+    var BASE_PENALTY = 0.20;
+    var WEIGHT_FACTOR = 0.25;
+    var MAX_PENALTY = 0.60;
+    var MIN_MPG = 5.0;
+    var DEFAULT_MPG = 18;
+
+    var byId = {};
+    data.vehicles.forEach(function (v) { byId[v.id] = v; });
+
+    var elVehicle = document.getElementById('fuel-vehicle');
+    var elDistance = document.getElementById('fuel-distance');
+    var elPrice = document.getElementById('fuel-price');
+    var elCost = document.getElementById('fuel-cost');
+    var elMpg = document.getElementById('fuel-mpg');
+    var elGallons = document.getElementById('fuel-gallons');
+    var elCpm = document.getElementById('fuel-cpm');
+
+    function compute() {
+      var v = byId[elVehicle.value] || data.vehicles[0];
+      var dist = parseFloat(elDistance.value) || data.defaults.distanceMi;
+      var price = parseFloat(elPrice.value) || data.defaults.fuelPriceGal;
+      var trailerWt = data.trailer.gvwrLb || data.trailer.weightLb || 0;
+      var vehicleCurb = v.curbWeightLb || 0;
+
+      var unladenMpg = (data.classmpg && data.classmpg[v.class]) || DEFAULT_MPG;
+      var ratio = (trailerWt > 0 && vehicleCurb > 0) ? trailerWt / vehicleCurb : 0;
+      var penalty = Math.min(BASE_PENALTY + WEIGHT_FACTOR * ratio, MAX_PENALTY);
+      var towMpg = Math.max(unladenMpg * (1 - penalty), MIN_MPG);
+      var gallons = dist / towMpg;
+      var cost = gallons * price;
+      var cpm = cost / dist;
+
+      elCost.textContent = '$' + cost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      elMpg.textContent = towMpg.toFixed(1) + ' MPG';
+      elGallons.textContent = gallons.toFixed(1) + ' gal';
+      elCpm.textContent = '$' + cpm.toFixed(2) + '/mi';
+    }
+
+    if (elVehicle) elVehicle.addEventListener('change', compute);
+    if (elDistance) elDistance.addEventListener('input', compute);
+    if (elPrice) elPrice.addEventListener('input', compute);
+    compute();
+  })();
+
+  // =========================================================================
+  // 10. PAYLOAD / PACKING CALCULATOR (detail pages)
+  //     Mirrors the server-side math in src/lib/payload.mjs. Reads config from
+  //     a CSP-safe JSON island (#payload-data); no network, works offline.
+  // =========================================================================
+  (function payloadTool() {
+    var root = document.querySelector('.payload-tool');
+    if (!root) return;
+    var dataEl = document.getElementById('payload-data');
+    if (!dataEl) return;
+    var data;
+    try { data = JSON.parse(dataEl.textContent); } catch (e) { return; }
+    if (!data) return;
+
+    var WATER_LB = data.waterLbPerGal || 8.34;
+    var ccc = data.cccLb || 0;
+    var freshGal = data.freshGal || 0;
+
+    var elWater = document.getElementById('payload-water');
+    var elPropane = document.getElementById('payload-propane');
+    var elRemaining = document.getElementById('payload-remaining');
+    var elStatus = document.getElementById('payload-status');
+    var elDetail = document.getElementById('payload-detail');
+    var elBars = document.getElementById('payload-bars');
+    var gearChecks = Array.prototype.slice.call(root.querySelectorAll('.payload-gear-check'));
+
+    var STATUS_META = {
+      ok: { label: 'Good capacity', cls: 'payload-ok' },
+      tight: { label: 'Getting tight', cls: 'payload-tight' },
+      over: { label: 'Over capacity', cls: 'payload-over' },
+    };
+
+    function fmtLb(n) { return Math.round(n).toLocaleString('en-US') + ' lb'; }
+
+    function compute() {
+      var waterFill = parseFloat(elWater.value) || 0;
+      var propaneKey = elPropane.value;
+      var propaneLb = (data.propanePresets[propaneKey] || {}).weightLb || 0;
+      var waterLb = Math.round(freshGal * waterFill * WATER_LB);
+
+      var gearLb = 0;
+      gearChecks.forEach(function (cb) {
+        if (cb.checked) gearLb += parseInt(cb.getAttribute('data-weight'), 10) || 0;
+      });
+
+      var totalUsed = waterLb + propaneLb + gearLb;
+      var remaining = ccc - totalUsed;
+      var usedPct = ccc > 0 ? totalUsed / ccc : 0;
+      var status = usedPct > 1.0 ? 'over' : (usedPct > 0.85 ? 'tight' : 'ok');
+      var meta = STATUS_META[status];
+
+      elRemaining.textContent = fmtLb(Math.abs(remaining)) + (remaining < 0 ? ' OVER' : '');
+      elStatus.className = 'est-number-cap ' + meta.cls;
+      elStatus.textContent = meta.label;
+      elDetail.textContent = 'Remaining for personal gear after consumables (' + Math.round(usedPct * 100) + '% of CCC used).';
+
+      // Rebuild bars
+      var barPct = function (lb) { return Math.max(2, Math.min(100, (lb / (ccc || 1)) * 100)); };
+      var rows = [
+        ['Fresh water', waterLb, fmtLb(waterLb) + ' (' + freshGal + ' gal \u00d7 ' + waterFill * 100 + '%)'  ],
+        ['Propane', propaneLb, fmtLb(propaneLb)],
+      ];
+      if (gearLb > 0) rows.push(['Gear', gearLb, fmtLb(gearLb)]);
+
+      while (elBars.firstChild) elBars.removeChild(elBars.firstChild);
+      rows.forEach(function (r) {
+        var bar = document.createElement('div'); bar.className = 'est-bar';
+        var lab = document.createElement('span'); lab.className = 'est-bar-label'; lab.textContent = r[0];
+        var track = document.createElement('span'); track.className = 'est-bar-track';
+        var fill = document.createElement('span'); fill.className = 'est-bar-fill'; fill.style.width = barPct(r[1]) + '%';
+        track.appendChild(fill);
+        var val = document.createElement('span'); val.className = 'est-bar-val'; val.textContent = r[2];
+        bar.appendChild(lab); bar.appendChild(track); bar.appendChild(val);
+        elBars.appendChild(bar);
+      });
+    }
+
+    if (elWater) elWater.addEventListener('change', compute);
+    if (elPropane) elPropane.addEventListener('change', compute);
+    gearChecks.forEach(function (cb) { cb.addEventListener('change', compute); });
+    compute();
+  })();
+
 })();

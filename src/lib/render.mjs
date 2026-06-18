@@ -19,6 +19,14 @@ import {
   loadVehicles, evaluateTow, pickDefaultVehicle, formatPct,
   TONGUE_PCT_LOADED, DEFAULT_TRUCK_OCCUPANT_LB,
 } from './tow.mjs';
+import {
+  estimateFuelCost, formatDollars, formatMpg,
+  VEHICLE_CLASS_MPG, DEFAULT_FUEL_PRICE, DEFAULT_DISTANCE_MI,
+} from './fuel.mjs';
+import {
+  calculatePayload, waterWeight, formatRemaining, formatLb,
+  WATER_LB_PER_GAL, PROPANE_PRESETS, DEFAULT_PROPANE, GEAR_PRESETS,
+} from './payload.mjs';
 
 // Tow-vehicle dataset is loaded once at module load (pure read) and reused for
 // every detail page's calculator. Each vehicle carries ONE coherent, sourced
@@ -477,6 +485,171 @@ export function renderTowTool(t) {
 }
 
 // ---------------------------------------------------------------------------
+// DETAIL: fuel cost estimator
+// ---------------------------------------------------------------------------
+
+/**
+ * Trip fuel cost estimator for one floorplan. Server-renders a default scenario
+ * (this trailer behind the default tow vehicle, 500 mi, $3.50/gal) so the page
+ * is useful with no JS; the client recomputes live when the user changes inputs.
+ * Uses the same tow-vehicle dataset as the tow-safety calculator.
+ */
+export function renderFuelTool(t) {
+  if (!(t.gvwrLb > 0) || !TOW_VEHICLES.length) return '';
+  const trailer = { gvwrLb: t.gvwrLb, weightLb: t.weightLb };
+  const def = pickDefaultVehicle(TOW_VEHICLES, trailer, { truckLoadLb: DEFAULT_TRUCK_OCCUPANT_LB });
+  if (!def) return '';
+  const defResult = estimateFuelCost(def, trailer);
+
+  const vehicleOpts = TOW_VEHICLES
+    .slice()
+    .sort((a, b) => b.maxTowLb - a.maxTowLb)
+    .map((v) => `<option value="${esc(v.id)}"${v.id === def.id ? ' selected' : ''}>${esc(v.name)} — ${esc(v.config)}</option>`)
+    .join('');
+
+  // Data island for client-side recomputation
+  const dataIsland = JSON.stringify({
+    trailer: { gvwrLb: t.gvwrLb, weightLb: t.weightLb || null },
+    vehicles: TOW_VEHICLES.map((v) => ({ id: v.id, name: v.name, class: v.class, curbWeightLb: v.curbWeightLb })),
+    defaultVehicleId: def.id,
+    defaults: { distanceMi: DEFAULT_DISTANCE_MI, fuelPriceGal: DEFAULT_FUEL_PRICE },
+    classmpg: VEHICLE_CLASS_MPG,
+  }).replace(/<\//g, '<\\/');
+
+  return `<section class="estimator fuel-tool" aria-label="Trip fuel cost estimator"
+ data-gvwr="${esc(t.gvwrLb)}"${t.weightLb ? ` data-weight="${esc(t.weightLb)}"` : ''}>
+<script type="application/json" id="fuel-data">${dataIsland}</script>
+<div class="est-head">
+<h2>Trip fuel cost</h2>
+<p class="est-sub">Estimate what it costs to tow this ${esc(t.model)} ${esc(t.floorplan)} (${esc(formatWeight(t.gvwrLb))} loaded) on a road trip. Fuel economy drops ${Math.round(defResult.penalty * 100)}% when towing — the heavier the trailer relative to the truck, the bigger the hit.</p>
+</div>
+<div class="est-controls">
+<div class="est-field est-field-wide">
+<label for="fuel-vehicle">Tow vehicle</label>
+<select id="fuel-vehicle">${vehicleOpts}</select>
+</div>
+<div class="est-field">
+<label for="fuel-distance">Trip distance</label>
+<div class="est-input-suffix"><input type="number" id="fuel-distance" value="${DEFAULT_DISTANCE_MI}" min="10" max="10000" step="10"><span>miles</span></div>
+</div>
+<div class="est-field">
+<label for="fuel-price">Fuel price</label>
+<div class="est-input-suffix"><input type="number" id="fuel-price" value="${DEFAULT_FUEL_PRICE.toFixed(2)}" min="1" max="10" step="0.10"><span>$/gal</span></div>
+</div>
+</div>
+<div class="est-result" id="fuel-result">
+<div class="est-big">
+<span class="est-number" id="fuel-cost">${esc(formatDollars(defResult.totalCost))}</span>
+<span class="est-per">estimated fuel</span>
+</div>
+<div class="fuel-stats" id="fuel-stats">
+<div class="fuel-stat"><span class="fuel-stat-value" id="fuel-mpg">${esc(formatMpg(defResult.towingMpg))}</span><span class="fuel-stat-label">Towing economy</span></div>
+<div class="fuel-stat"><span class="fuel-stat-value" id="fuel-gallons">${esc(defResult.gallonsUsed.toFixed(1))} gal</span><span class="fuel-stat-label">Fuel needed</span></div>
+<div class="fuel-stat"><span class="fuel-stat-value" id="fuel-cpm">${esc(formatDollars(defResult.costPerMile))}/mi</span><span class="fuel-stat-label">Cost per mile</span></div>
+</div>
+</div>
+<details class="est-method">
+<summary>How this is calculated</summary>
+<p>Towing reduces fuel economy by 30–60% vs. unladen driving. The penalty scales with the weight ratio (trailer GVWR ÷ vehicle curb weight): a 20% base drag from the hitch + aerodynamics, plus 25% per 1.0 weight ratio, capped at 60%. This model aligns with real-world Airstream towing reports (8–15 MPG range across the lineup). Fuel cost = distance ÷ towing MPG × price per gallon. These are planning estimates — your actual mileage depends on speed, terrain, wind, and driving style.</p>
+</details>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
+// DETAIL: payload / packing calculator
+// ---------------------------------------------------------------------------
+
+/**
+ * Payload (packing) calculator for one floorplan. Shows how much of the CCC
+ * is consumed by water and propane, and how much remains for personal cargo.
+ * Server-renders a default scenario (full water, dual 20 lb propane).
+ */
+export function renderPayloadTool(t) {
+  if (!(t.cccLb > 0)) return '';
+  const def = calculatePayload(t);
+
+  const propaneOpts = Object.entries(PROPANE_PRESETS)
+    .map(([k, v]) => `<option value="${esc(k)}"${k === DEFAULT_PROPANE ? ' selected' : ''}>${esc(v.label)}</option>`)
+    .join('');
+
+  const waterFillOpts = [
+    ['1.0', 'Full (100%)'],
+    ['0.75', 'Three-quarter (75%)'],
+    ['0.5', 'Half (50%)'],
+    ['0.25', 'Quarter (25%)'],
+    ['0', 'Empty (travel dry)'],
+  ].map(([v, l]) => `<option value="${v}"${v === '1.0' ? ' selected' : ''}>${esc(l)}</option>`).join('');
+
+  // Status badge
+  const STATUS_META = {
+    ok: { label: 'Good capacity', cls: 'payload-ok' },
+    tight: { label: 'Getting tight', cls: 'payload-tight' },
+    over: { label: 'Over capacity', cls: 'payload-over' },
+  };
+  const statusMeta = STATUS_META[def.status];
+
+  // Breakdown bars
+  const barPct = (lb) => Math.max(2, Math.min(100, (lb / (def.cccLb || 1)) * 100));
+  const bars = [
+    ['Fresh water', def.waterLb, `${esc(formatLb(def.waterLb))} (${t.freshGal || 0} gal × 8.34 lb/gal)`],
+    ['Propane', def.propaneLb, esc(formatLb(def.propaneLb))],
+  ];
+
+  const barsHtml = bars.map(([label, lb, detail]) =>
+    `<div class="est-bar"><span class="est-bar-label">${esc(label)}</span><span class="est-bar-track"><span class="est-bar-fill" style="width:${barPct(lb)}%"></span></span><span class="est-bar-val">${detail}</span></div>`,
+  ).join('');
+
+  // Gear presets as checkboxes for the client
+  const gearChecks = Object.entries(GEAR_PRESETS)
+    .map(([k, v]) => `<label class="payload-gear-item"><input type="checkbox" class="payload-gear-check" data-key="${esc(k)}" data-weight="${v.weightLb}"><span class="payload-gear-name">${esc(v.label)}</span><span class="payload-gear-wt">${esc(formatLb(v.weightLb))}</span></label>`)
+    .join('');
+
+  // Data island for client
+  const dataIsland = JSON.stringify({
+    cccLb: t.cccLb,
+    freshGal: t.freshGal || 0,
+    propanePresets: PROPANE_PRESETS,
+    gearPresets: GEAR_PRESETS,
+    waterLbPerGal: WATER_LB_PER_GAL,
+  }).replace(/<\//g, '<\\/');
+
+  return `<section class="estimator payload-tool" aria-label="Payload packing calculator"
+ data-ccc="${esc(t.cccLb)}" data-fresh="${esc(t.freshGal || 0)}">
+<script type="application/json" id="payload-data">${dataIsland}</script>
+<div class="est-head">
+<h2>How much can you pack?</h2>
+<p class="est-sub">This ${esc(t.model)} ${esc(t.floorplan)} has ${esc(formatWeight(t.cccLb))} of cargo carrying capacity (CCC). Water and propane eat into that before you load a single bag — here's what's left for your gear.</p>
+</div>
+<div class="est-controls">
+<div class="est-field">
+<label for="payload-water">Fresh water fill</label>
+<select id="payload-water">${waterFillOpts}</select>
+</div>
+<div class="est-field">
+<label for="payload-propane">Propane</label>
+<select id="payload-propane">${propaneOpts}</select>
+</div>
+</div>
+<div class="est-result" id="payload-result">
+<div class="est-big">
+<span class="est-number" id="payload-remaining">${esc(formatLb(def.remainingLb))}</span>
+<span class="est-number-cap ${esc(statusMeta.cls)}" id="payload-status">${esc(statusMeta.label)}</span>
+</div>
+<p class="est-detail" id="payload-detail">Remaining for personal gear after water and propane (${esc(Math.round(def.usedPct * 100))}% of CCC used by consumables).</p>
+<div class="est-bars" id="payload-bars">${barsHtml}</div>
+</div>
+<div class="payload-gear" id="payload-gear">
+<p class="payload-gear-title">Add common gear to see the impact:</p>
+<div class="payload-gear-grid">${gearChecks}</div>
+</div>
+<details class="est-method">
+<summary>How this is calculated</summary>
+<p>CCC (Cargo Carrying Capacity) is the maximum weight you can add to the trailer beyond its dry (empty) weight. Fresh water weighs 8.34 lb per gallon (USGS standard). Propane weight is the fuel itself — standard Airstream dual 20 lb tanks hold 40 lb of LP gas. After subtracting these consumables, the remainder is what you have for personal belongings, food, and gear. Exceeding CCC means exceeding the trailer's GVWR — an unsafe and often illegal condition. When in doubt, weigh your loaded trailer at a truck scale.</p>
+</details>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
 // DETAIL: one floorplan
 // ---------------------------------------------------------------------------
 
@@ -587,6 +760,8 @@ ${note}
 </section>
 ${towCallout}
 ${renderTowTool(t)}
+${renderFuelTool(t)}
+${renderPayloadTool(t)}
 ${renderOffGridTool(t)}
 ${floorplanSection}
 ${decorSection}

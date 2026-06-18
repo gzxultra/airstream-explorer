@@ -222,15 +222,18 @@ test('no detail page contains an unescaped data-driven angle bracket in body tex
   for (const t of trailers) {
     const html = renderDetail(t);
     const scripts = html.match(/<script/g) || [];
-    // Two legitimate scripts: the deferred app.js, and the tow-tool's
-    // application/json data island. No data-driven script should appear.
-    assert.equal(scripts.length, 2, `${t.slug} has unexpected <script> count`);
-    // The only non-app.js script is the JSON data island, and it must never
-    // contain a raw </script> breakout (we neutralize </ in the island).
-    assert.ok(!/<\/script>\s*<\/script>/.test(html), `${t.slug} double script close`);
+    // Legitimate scripts: the deferred app.js, plus up to 3 application/json
+    // data islands (tow-data, fuel-data, payload-data) depending on trailer specs.
+    // Minimum 2 (app.js + tow-data), maximum 4 (all tools present).
+    assert.ok(scripts.length >= 2 && scripts.length <= 4, `${t.slug} has unexpected <script> count: ${scripts.length}`);
+    // No data island should contain a raw </script> breakout.
+    const islands = html.match(/<script type="application\/json" id="[^"]+">([\s\S]*?)<\/script>/g) || [];
+    for (const m of islands) {
+      const content = m.replace(/<script[^>]*>/, '').replace(/<\/script>$/, '');
+      assert.ok(!content.includes('</'), `${t.slug} data island has an un-neutralized </`);
+    }
     const island = html.match(/<script type="application\/json" id="tow-data">([\s\S]*?)<\/script>/);
     assert.ok(island, `${t.slug} has the tow-data island`);
-    assert.ok(!island[1].includes('</'), `${t.slug} tow-data island has an un-neutralized </`);
   }
 });
 
