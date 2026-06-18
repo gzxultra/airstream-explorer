@@ -529,8 +529,8 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
         `<div class="gallery-img-wrap"><img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="lazy" class="gallery-img" width="920" height="600"></div>`,
     )
     .join('\n');
-  const fpZones = renderFloorplanZones(t.floorplan);
-  const fpLegend = renderFloorplanLegend(t.floorplan);
+  const fpZones = renderFloorplanZones(t.floorplan, t.slug);
+  const fpLegend = renderFloorplanLegend(t.floorplan, t.slug);
   const fpInteractive = fpZones ? ' floorplan--interactive' : '';
   const fpHint = fpZones
     ? `<p class="floorplan-hint" data-fp-hint>Tap a numbered point to see what's where. <span class="muted">Zones placed against the official ${esc(t.floorplan)} diagram.</span></p>`

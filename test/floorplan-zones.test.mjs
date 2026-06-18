@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  FLOORPLAN_ZONES, zonesFor, renderFloorplanZones, renderFloorplanLegend,
+  FLOORPLAN_ZONES, FLOORPLAN_ZONES_BY_SLUG, zonesFor, renderFloorplanZones, renderFloorplanLegend,
 } from '../src/lib/floorplan-zones.mjs';
 
 test('zonesFor returns null for unverified / missing floorplans (honest fallback)', () => {
@@ -17,7 +17,7 @@ test('zonesFor is case-insensitive on the floorplan code', () => {
 });
 
 test('every defined zone has in-range coordinates and real copy', () => {
-  for (const [code, zones] of Object.entries(FLOORPLAN_ZONES)) {
+  for (const [code, zones] of Object.entries({ ...FLOORPLAN_ZONES, ...FLOORPLAN_ZONES_BY_SLUG })) {
     assert.ok(zones.length >= 3, `${code} should have a few zones`);
     const ids = new Set();
     for (const z of zones) {
@@ -91,7 +91,7 @@ test('zone copy makes no fabricated hookup/price/spec claims', () => {
 // Trade Wind), so one verified zone set legitimately covers many trailers.
 
 test('newly verified codes are all present', () => {
-  for (const code of ['23FB', '27FB', '30RB', '16RB', '20FB', '22FB']) {
+  for (const code of ['23FB', '27FB', '30RB', '16RB', '20FB', '22FB', '28RB']) {
     assert.ok(zonesFor(code), `${code} should be verified and present`);
   }
 });
@@ -104,6 +104,7 @@ test('each new code labels its defining fixtures', () => {
     '16RB': ['frontseat', 'galley', 'bath', 'bed'],
     '20FB': ['bed', 'galley', 'shower', 'dinette'],
     '22FB': ['bed', 'galley', 'cooktop', 'shower'],
+    '28RB': ['frontlounge', 'galley', 'cooktop', 'fridge', 'settee', 'bath', 'bed'], // default single rear-bed (FC/Intl) layout
   };
   for (const [code, ids] of Object.entries(want)) {
     const have = zonesFor(code).map((z) => z.id);
@@ -111,11 +112,13 @@ test('each new code labels its defining fixtures', () => {
   }
 });
 
-test('rear-bed (30RB) puts the bed in the rear, front-bed (FB codes) put it forward', () => {
+test('rear-bed (30RB / 28RB) puts the bed in the rear, front-bed (FB codes) put it forward', () => {
   // The bed sits aft on a rear-bed plan and forward on a front-bed plan — a
   // cheap guard that we did not mix up the two opposite skeletons.
   const bed30 = zonesFor('30RB').find((z) => z.id === 'bed');
   assert.ok(bed30.y > 60, '30RB bed is in the rear half');
+  const bed28 = zonesFor('28RB').find((z) => z.id === 'bed');
+  assert.ok(bed28.y > 60, '28RB bed is in the rear half (RB = rear bed)');
   for (const code of ['23FB', '27FB', '20FB', '22FB']) {
     const bed = zonesFor(code).find((z) => z.id === 'bed');
     assert.ok(bed.y < 30, `${code} bed is up front`);
@@ -130,4 +133,73 @@ test('render + legend work for every verified code (not just 25FB)', () => {
     assert.equal((overlay.match(/class="fp-marker/g) || []).length, n, `${code} markers`);
     assert.equal((legend.match(/class="fp-leg-item"/g) || []).length, n, `${code} legend rows`);
   }
+});
+
+test('28RB resolves by slug: FLW is twin-bed, the others share the single-bed layout', () => {
+  // 28RB is the one code that hides two different physical layouts. The shared
+  // code table is the single-rear-bed skeleton (Classic / Flying Cloud /
+  // International); the Frank Lloyd Wright trim is a twin-bed override keyed by
+  // slug. Guard that each resolves to the right one.
+  const flwSlug = 'frank-lloyd-wright-limited-edition-28rb-2026';
+  const flw = zonesFor('28RB', flwSlug);
+  const ids = flw.map((z) => z.id);
+  assert.ok(ids.includes('bedLeft') && ids.includes('bedRight'), 'FLW 28RB has twin rear beds');
+  assert.ok(!ids.includes('bed'), 'FLW 28RB has no single bed zone');
+
+  for (const slug of ['classic-28rb-2026', 'flying-cloud-28rb-2026', 'international-28rb-2026', 'classic-28rb-2025']) {
+    const z = zonesFor('28RB', slug).map((x) => x.id);
+    assert.ok(z.includes('bed'), `${slug} uses the single-rear-bed layout`);
+    assert.ok(!z.includes('bedLeft'), `${slug} is not the twin-bed layout`);
+  }
+  // No slug → still a valid single-bed default (back-compat). The bare default
+  // is the Flying Cloud / International layout (curb-side single settee).
+  assert.deepEqual(
+    zonesFor('28RB').map((z) => z.id),
+    zonesFor('28RB', 'flying-cloud-28rb-2026').map((z) => z.id),
+  );
+});
+
+test('Classic 28RB curb-side is a facing-settee dinette; FC/International is a single settee', () => {
+  // Same code, same street-side galley + rear bed, but the curb side differs:
+  // Classic has two facing settees + a table (a dinette), while Flying Cloud
+  // and International have a single settee/credenza. The earlier build wrongly
+  // labelled this zone a "wardrobe" on all of them — guard against regressing.
+  const classic = zonesFor('28RB', 'classic-28rb-2026');
+  const classicIds = classic.map((z) => z.id);
+  assert.ok(classicIds.includes('dinette'), 'Classic 28RB curb-side is a dinette');
+  assert.ok(!classicIds.includes('settee'), 'Classic 28RB does not use the single-settee zone');
+  assert.ok(!classicIds.includes('wardrobe'), 'no stale "wardrobe" mislabel on Classic 28RB');
+
+  for (const slug of ['flying-cloud-28rb-2026', 'international-28rb-2026']) {
+    const ids = zonesFor('28RB', slug).map((z) => z.id);
+    assert.ok(ids.includes('settee'), `${slug} curb-side is a single settee`);
+    assert.ok(!ids.includes('dinette'), `${slug} is not the Classic dinette`);
+    assert.ok(!ids.includes('wardrobe'), `no stale "wardrobe" mislabel on ${slug}`);
+  }
+
+  // Street-side galley coords must stay in lockstep across Classic and FC.
+  const fc = zonesFor('28RB', 'flying-cloud-28rb-2026');
+  for (const id of ['frontlounge', 'galley', 'cooktop', 'fridge', 'bath', 'bed']) {
+    const a = classic.find((z) => z.id === id);
+    const b = fc.find((z) => z.id === id);
+    assert.deepEqual([a.x, a.y], [b.x, b.y], `${id} coords match across Classic and FC`);
+  }
+});
+
+test('FLW twin beds both sit in the rear half', () => {
+  const flw = zonesFor('28RB', 'frank-lloyd-wright-limited-edition-28rb-2026');
+  for (const id of ['bedLeft', 'bedRight']) {
+    const b = flw.find((z) => z.id === id);
+    assert.ok(b.y > 55, `${id} is a rear bed`);
+  }
+});
+
+test('slug override flows through render + legend (FLW gets twin-bed markers)', () => {
+  const flwSlug = 'frank-lloyd-wright-limited-edition-28rb-2026';
+  const overlay = renderFloorplanZones('28RB', flwSlug);
+  const legend = renderFloorplanLegend('28RB', flwSlug);
+  const n = zonesFor('28RB', flwSlug).length;
+  assert.equal((overlay.match(/class="fp-marker/g) || []).length, n, 'FLW overlay markers');
+  assert.equal((legend.match(/class="fp-leg-item"/g) || []).length, n, 'FLW legend rows');
+  assert.ok(overlay.includes('Twin bed'), 'FLW overlay names a twin bed');
 });

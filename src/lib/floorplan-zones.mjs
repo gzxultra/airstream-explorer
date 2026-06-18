@@ -155,10 +155,100 @@ export const FLOORPLAN_ZONES = {
     { id: 'shower', label: 'Rear bath', x: 52, y: 62,
       blurb: 'Full rear bath with toilet, vanity and shower across the back.' },
   ],
+
+  // 28RB (single rear bed) — the DEFAULT 28RB layout, used by Flying Cloud and
+  // International (2025 + 2026). Front convertible lounge at the nose → a
+  // street-side galley running sink → cooktop → fridge/storage down the column,
+  // a curb-side settee + storage credenza opposite the galley → curb-side bath
+  // (toilet, vanity, shower) → private walk-around bed across the rear.
+  // Every coordinate was read off a 10%-grid overlaid on the official Flying
+  // Cloud AND International diagrams, then dot-verified on both (all 7 land on
+  // their fixture). NOTE: the Classic 28RB shares this street-side galley but
+  // has a DIFFERENT curb-side — facing dinette settees + table instead of a
+  // single settee — so it gets its own slug override below. The Frank Lloyd
+  // Wright 28RB is a DIFFERENT (twin-bed) layout, also a slug override. Never
+  // let either fall through to this default. Verified 2026-06-17.
+  '28RB': [
+    { id: 'frontlounge', label: 'Front lounge', x: 49, y: 16,
+      blurb: 'Front convertible lounge / dinette at the nose — folds down for extra sleeping.' },
+    { id: 'galley', label: 'Galley & sink', x: 37, y: 30,
+      blurb: 'Stainless sink and counter at the head of the street-side galley run.' },
+    { id: 'cooktop', label: 'Cooktop', x: 37, y: 37,
+      blurb: 'Three-burner cooktop on the street-side galley.' },
+    { id: 'fridge', label: 'Refrigerator & storage', x: 37, y: 52,
+      blurb: 'Street-side refrigerator with pantry and cabinet storage at the foot of the galley.' },
+    { id: 'settee', label: 'Curb-side settee', x: 60, y: 37,
+      blurb: 'Curb-side settee and storage credenza across the aisle from the galley.' },
+    { id: 'bath', label: 'Bathroom', x: 58, y: 50,
+      blurb: 'Curb-side bath — toilet, vanity and shower — screening the bedroom from the living area.' },
+    { id: 'bed', label: 'Rear primary bed', x: 49, y: 66,
+      blurb: 'Private walk-around bed across the rear of the coach — the fixed primary sleeping zone (RB = rear bed).' },
+  ],
 };
 
-/** Zones for a floorplan code, or null if that plan isn't verified yet. */
-export function zonesFor(floorplanCode) {
+// Per-SLUG overrides: used when a single floorplan CODE hides more than one
+// physical layout, so keying by code alone would mislabel a trailer. Looked up
+// before the code table. Each key is the exact catalog slug.
+export const FLOORPLAN_ZONES_BY_SLUG = {
+  // Classic 28RB (2025 + 2026) — shares the default 28RB street-side galley and
+  // rear bed, but its CURB side is a facing-settee dinette (two cushioned
+  // benches with a marble table between them), not the single settee of the
+  // Flying Cloud / International. Street-side coords identical to the default;
+  // only the curb-side zone label/blurb differ. Grid-read + dot-verified on the
+  // official Classic 28RB diagram (all 7 land on their fixture). 2026-06-17.
+  'classic-28rb-2025': null, // filled by spread below
+  'classic-28rb-2026': null, // filled by spread below
+
+  // Frank Lloyd Wright Limited Edition 28RB — unlike the Classic/FC/International
+  // 28RB (a single rear bed), this trim lays out as TWIN rear beds: a unique
+  // front lounge/console, street-side galley, curb-side two-piece bath, and two
+  // teal twin beds split across the rear. Coords read off the official FLW 28RB
+  // diagram on a 10% grid and dot-verified. Verified 2026-06-17.
+  'frank-lloyd-wright-limited-edition-28rb-2026': [
+    { id: 'frontlounge', label: 'Front lounge', x: 49, y: 16,
+      blurb: 'Front lounge / console at the nose — the signature Frank Lloyd Wright living zone.' },
+    { id: 'fridge', label: 'Refrigerator', x: 62, y: 30,
+      blurb: 'Street-side refrigerator at the head of the galley run.' },
+    { id: 'cooktop', label: 'Cooktop', x: 62, y: 37,
+      blurb: 'Three-burner cooktop on the street-side galley.' },
+    { id: 'galley', label: 'Galley & storage', x: 62, y: 48,
+      blurb: 'Microwave, counter and pantry storage down the street-side galley run.' },
+    { id: 'toilet', label: 'Toilet & lav', x: 40, y: 42,
+      blurb: 'Curb-side toilet and vanity — the two-piece mid-ship bath.' },
+    { id: 'shower', label: 'Shower', x: 40, y: 53,
+      blurb: 'Curb-side shower stall, aft of the toilet in the mid-ship bath.' },
+    { id: 'bedLeft', label: 'Twin bed (curb)', x: 38, y: 67,
+      blurb: 'Curb-side twin bed — one of the two fixed rear beds (RB = rear bed).' },
+    { id: 'bedRight', label: 'Twin bed (street)', x: 61, y: 67,
+      blurb: 'Street-side twin bed — the second of the two fixed rear beds, with a gap aisle between.' },
+  ],
+};
+
+// Build the Classic 28RB override from the default 28RB street-side + rear,
+// swapping the curb-side single settee for the facing-settee dinette. Done as a
+// spread so the shared street-side coords stay in lockstep with the default.
+{
+  const base = FLOORPLAN_ZONES['28RB'];
+  const classic28rb = base.map((z) =>
+    z.id === 'settee'
+      ? { id: 'dinette', label: 'Curb-side dinette', x: 61, y: 37,
+          blurb: 'Curb-side dinette — two facing cushioned settees with a marble table between, opposite the galley.' }
+      : { ...z }
+  );
+  FLOORPLAN_ZONES_BY_SLUG['classic-28rb-2025'] = classic28rb;
+  FLOORPLAN_ZONES_BY_SLUG['classic-28rb-2026'] = classic28rb;
+}
+
+/** Zones for a floorplan code, or null if that plan isn't verified yet.
+ *  Pass the catalog `slug` too: when a code hides more than one physical
+ *  layout (e.g. 28RB single-bed vs the FLW twin-bed 28RB), a slug-specific
+ *  override wins over the shared code table. Slug is optional so existing
+ *  single-argument callers keep working. */
+export function zonesFor(floorplanCode, slug) {
+  if (slug) {
+    const bySlug = FLOORPLAN_ZONES_BY_SLUG[String(slug).toLowerCase()];
+    if (bySlug && bySlug.length) return bySlug;
+  }
   if (!floorplanCode) return null;
   const z = FLOORPLAN_ZONES[String(floorplanCode).toUpperCase()];
   return z && z.length ? z : null;
@@ -174,8 +264,8 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
  * percentage-positioned dots align to the image box only — never wrap the
  * legend in here, or the stage grows past the image and the dots drift.
  */
-export function renderFloorplanZones(floorplanCode) {
-  const zones = zonesFor(floorplanCode);
+export function renderFloorplanZones(floorplanCode, slug) {
+  const zones = zonesFor(floorplanCode, slug);
   if (!zones) return '';
   const markers = zones.map((z, i) => (
     `<span class="fp-marker${z.y < 28 ? ' fp-marker--below' : ''}" style="left:${z.x}%;top:${z.y}%">`
@@ -197,8 +287,8 @@ export function renderFloorplanZones(floorplanCode) {
  * fallback and the primary small-screen experience. Placed OUTSIDE the image
  * stage, as a sibling under the floorplan section.
  */
-export function renderFloorplanLegend(floorplanCode) {
-  const zones = zonesFor(floorplanCode);
+export function renderFloorplanLegend(floorplanCode, slug) {
+  const zones = zonesFor(floorplanCode, slug);
   if (!zones) return '';
   const legend = zones.map((z, i) => (
     `<li class="fp-leg-item" data-fp-leg="${esc(z.id)}">`
