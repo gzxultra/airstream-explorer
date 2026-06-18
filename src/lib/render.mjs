@@ -8,6 +8,7 @@ import {
   trailerTitle, trailerLabel,
 } from './format.mjs';
 import { assetPaths, familySlug, officialUrl, catalogStats } from './data.mjs';
+import { socialMeta, productJsonLd } from './seo.mjs';
 import { SORT_KEYS, exploreTags, tagLabel } from './explore.mjs';
 import { renderCampgroundFit } from './campgrounds-render.mjs';
 import { renderFloorplanZones, renderFloorplanLegend } from './floorplan-zones.mjs';
@@ -57,7 +58,7 @@ const NAV_ITEMS = [
   ['upgrades.html', 'Upgrades', 'upgrades'],
 ];
 
-export function page({ title, description, body, relRoot = '', head = '', scripts = '', active = '' }) {
+export function page({ title, description, body, relRoot = '', head = '', scripts = '', active = '', canonicalPath = '', ogImage = '', ogType = 'website' }) {
   const _stats = catalogStats();
   const navLinks = NAV_ITEMS.map(([href, label, key]) => {
     const on = key === active;
@@ -70,6 +71,7 @@ export function page({ title, description, body, relRoot = '', head = '', script
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
+${socialMeta({ title, description, canonicalPath, imagePath: ogImage, type: ogType })}
 <link rel="stylesheet" href="${relRoot}assets/css/fonts.css">
 <link rel="stylesheet" href="${relRoot}assets/css/site.css">
 <link rel="stylesheet" href="${relRoot}assets/css/controls.css">
@@ -196,6 +198,7 @@ ${renderExploreSections(trailers, resolve)}
     description: `A spec-accurate, cinematic catalog of every current Airstream travel-trailer family (2026 + 2025): ${families.length} families, ${totalPlans} floorplans, with dimensions, weights, off-grid and pricing.`,
     body,
     active: 'index',
+    canonicalPath: 'index.html',
   });
 }
 
@@ -275,6 +278,8 @@ ${cards}
     body,
     relRoot: '../',
     active: 'index',
+    canonicalPath: `f/${fam.slug}.html`,
+    ogImage: fam.hero || '',
   });
 }
 
@@ -778,6 +783,16 @@ ${gallery ? `<section class="gallery" aria-label="Gallery"><h2>Gallery</h2><div 
     body,
     relRoot: '../',
     active: 'index',
+    canonicalPath: `m/${t.slug}.html`,
+    ogImage: a.hero || '',
+    ogType: 'product',
+    head: productJsonLd({
+      name: trailerTitle(t),
+      description: `${trailerTitle(t)}: ${formatLength(t.lengthFt)}, ${formatWeight(t.weightLb)} dry, sleeps ${t.sleeps}, ${formatMsrp(t.msrp)}.`,
+      imagePath: a.hero || '',
+      canonicalPath: `m/${t.slug}.html`,
+      category: 'Travel Trailer',
+    }),
   });
 }
 
@@ -919,6 +934,7 @@ ${renderExploreSections(trailers, resolve)}
     description: `Search, sort and filter all ${trailers.length} Airstream floorplans by price, weight, sleeps and use. Enter your tow vehicle rating to see what you can safely tow.`,
     body,
     active: 'index',
+    canonicalPath: 'index.html',
   });
 }
 
@@ -984,5 +1000,6 @@ export function renderCompare(trailers, resolve = assetPaths) {
     description: 'Line up to three Airstream floorplans side by side: length, weight, GVWR, cargo, tanks, off-grid and price.',
     body,
     active: 'compare',
+    canonicalPath: 'compare.html',
   });
 }

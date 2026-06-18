@@ -154,6 +154,7 @@ log(`wrote motorhomes.html + ${motorhomeFamilies.length} family pages + ${motorh
       body,
       head,
       active: 'campgrounds',
+      canonicalPath: 'campgrounds.html',
     }),
   );
   log('wrote campgrounds.html (national finder)');
@@ -167,6 +168,7 @@ writeFileSync(
     description: 'Real, freely-licensed photographs of Airstream travel trailers from photographers via Wikimedia Commons, grouped by model and setting. Every photo credited.',
     body: renderCommunityBody(community, ''),
     active: 'community',
+    canonicalPath: 'community.html',
   }),
 );
 writeFileSync(
@@ -176,6 +178,7 @@ writeFileSync(
     description: 'Full attribution for every community photograph: photographer, license, and original source.',
     body: renderCreditsBody(community, ''),
     active: 'community',
+    canonicalPath: 'credits.html',
   }),
 );
 log('wrote community.html + credits.html');
@@ -188,6 +191,7 @@ writeFileSync(
     description: 'The most-recommended Airstream upgrades — lithium, solar, soft start, anti-sway hitch, TPMS and more — split into factory options and aftermarket mods, each with a price reference and sources.',
     body: renderUpgradesBody(upgrades, ''),
     active: 'upgrades',
+    canonicalPath: 'upgrades.html',
   }),
 );
 log('wrote upgrades.html');
@@ -208,6 +212,7 @@ writeFileSync(
     body: renderCampsitesBody(overnightData, boondockingData, ''),
     head: campsitesHead,
     active: 'campsites',
+    canonicalPath: 'campsites.html',
   }),
 );
 log('wrote campsites.html (unified hub: stays + boondocking + all-lenses map)');

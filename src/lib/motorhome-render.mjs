@@ -8,6 +8,7 @@ import {
 } from './format.mjs';
 import { motorhomeAssetPaths, motorhomeFamilySlug, motorhomeOfficialUrl } from './motorhome-data.mjs';
 import { catalogStats } from './data.mjs';
+import { socialMeta, productJsonLd } from './seo.mjs';
 import {
   estimateOffGrid, formatNights,
   LOAD_PRESETS,
@@ -31,7 +32,7 @@ const NAV_ITEMS = [
   ['upgrades.html', 'Upgrades', 'upgrades'],
 ];
 
-function page({ title, description, body, relRoot = '', head = '', scripts = '', active = '' }) {
+function page({ title, description, body, relRoot = '', head = '', scripts = '', active = '', canonicalPath = '', ogImage = '', ogType = 'website' }) {
   const _stats = catalogStats();
   const navLinks = NAV_ITEMS.map(([href, label, key]) => {
     const on = key === active;
@@ -44,6 +45,7 @@ function page({ title, description, body, relRoot = '', head = '', scripts = '',
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
+${socialMeta({ title, description, canonicalPath, imagePath: ogImage, type: ogType })}
 <link rel="stylesheet" href="${relRoot}assets/css/fonts.css">
 <link rel="stylesheet" href="${relRoot}assets/css/site.css">
 <link rel="stylesheet" href="${relRoot}assets/css/controls.css">
@@ -139,6 +141,7 @@ ${exploreCards}
     description: `A spec-accurate catalog of every current Airstream Class B motorhome (touring coach): ${families.length} families, ${totalPlans} floorplans, with dimensions, weights, off-grid and pricing.`,
     body,
     active: 'motorhomes',
+    canonicalPath: 'motorhomes.html',
   });
 }
 
@@ -212,6 +215,8 @@ ${cards}
     body,
     relRoot: '../',
     active: 'motorhomes',
+    canonicalPath: `mf/${fam.slug}.html`,
+    ogImage: fam.hero || '',
   });
 }
 
@@ -364,6 +369,16 @@ ${gallery ? `<section class="gallery" aria-label="Gallery"><h2>Gallery</h2><div 
     body,
     relRoot: '../',
     active: 'motorhomes',
+    canonicalPath: `mm/${m.slug}.html`,
+    ogImage: a.hero || '',
+    ogType: 'product',
+    head: productJsonLd({
+      name: trailerTitle(m),
+      description: `${trailerTitle(m)}: ${formatLength(m.lengthFt)}, ${formatWeight(m.weightLb)} base, sleeps ${m.sleeps}, ${formatMsrp(m.msrp)}.`,
+      imagePath: a.hero || '',
+      canonicalPath: `mm/${m.slug}.html`,
+      category: 'Class B Motorhome',
+    }),
   });
 }
 
