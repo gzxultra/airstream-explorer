@@ -57,6 +57,7 @@ export function loadUpgrades(path) {
 }
 
 const VALID_TYPES = new Set(['Factory', 'Aftermarket', 'Both']);
+const VALID_FITS = new Set(['trailer', 'motorhome', 'both']);
 
 /** Validate the dataset. Returns array of problem strings (empty = ok). */
 export function validateUpgrades(data) {
@@ -89,6 +90,7 @@ export function validateUpgrades(data) {
         problems.push(`${tag}: image must be assets/img/upgrades/<slug>.webp, got "${it.image}"`);
       }
       if (!VALID_TYPES.has(it.type)) problems.push(`${tag}: bad type "${it.type}"`);
+      if (!VALID_FITS.has(it.fits)) problems.push(`${tag}: bad fits "${it.fits}" (want trailer|motorhome|both)`);
       // Community-consensus contract.
       if (!VALID_TIERS.has(it.consensus)) {
         problems.push(`${tag}: bad consensus tier "${it.consensus}"`);
@@ -158,6 +160,20 @@ function typeBadge(type) {
   return `<span class="up-badge ${cls}">${esc(label)}</span>`;
 }
 
+/** Which rigs an upgrade fits: trailers, motorhomes, or both. */
+const FITS_META = {
+  trailer: { label: 'Travel trailers', short: 'Trailers', cls: 'is-trailer' },
+  motorhome: { label: 'Touring coaches', short: 'Coaches', cls: 'is-coach' },
+  both: { label: 'Trailers & coaches', short: 'Both', cls: 'is-allrigs' },
+};
+
+/** A pill marking the rig type an upgrade applies to. */
+function fitsBadge(fits) {
+  const meta = FITS_META[fits];
+  if (!meta) return '';
+  return `<span class="up-fits ${meta.cls}" title="Fits: ${esc(meta.label)}">${esc(meta.label)}</span>`;
+}
+
 /** The ●●●○ consensus meter + label, with the evidence note as a tooltip. */
 function consensusSignal(it) {
   const meta = TIER_META[it.consensus];
@@ -204,13 +220,14 @@ function upgradeCard(it, relRoot = '') {
   const media = it.image
     ? `<div class="up-media"><img src="${esc(relRoot + it.image)}" alt="${esc(it.name)}" loading="lazy" width="800" height="450"></div>`
     : '';
-  return `<article class="up-card" data-type="${esc(it.type)}" data-consensus="${esc(it.consensus)}" data-pips="${meta.pips}" data-uc="${esc(ucTokens)}" data-name="${esc((it.name || '').toLowerCase())}">
+  return `<article class="up-card" data-type="${esc(it.type)}" data-fits="${esc(it.fits || 'both')}" data-consensus="${esc(it.consensus)}" data-pips="${meta.pips}" data-uc="${esc(ucTokens)}" data-name="${esc((it.name || '').toLowerCase())}">
 ${media}
 <div class="up-card-body">
 <header class="up-card-head">
 <h3 class="up-name">${esc(it.name)}</h3>
 ${typeBadge(it.type)}
 </header>
+<div class="up-tags">${fitsBadge(it.fits)}</div>
 ${consensusSignal(it)}
 ${price}
 <p class="up-why">${esc(it.why)}</p>
@@ -295,6 +312,9 @@ function filterLens(data) {
   const tierBtns = Object.entries(TIER_META)
     .map(([key, m]) => `<button type="button" class="up-chip" data-filter="consensus" data-value="${esc(key)}" aria-pressed="false">${esc(m.short)}</button>`)
     .join('');
+  const fitsBtns = [['trailer', 'Travel trailers'], ['motorhome', 'Touring coaches']]
+    .map(([v, label]) => `<button type="button" class="up-chip" data-filter="fits" data-value="${esc(v)}" aria-pressed="false">${esc(label)}</button>`)
+    .join('');
   const typeBtns = ['Factory', 'Aftermarket']
     .map((t) => `<button type="button" class="up-chip" data-filter="type" data-value="${esc(t)}" aria-pressed="false">${esc(t)}</button>`)
     .join('');
@@ -302,6 +322,7 @@ function filterLens(data) {
     .map((u) => `<button type="button" class="up-chip" data-filter="uc" data-value="${esc(slug(u))}" aria-pressed="false">${esc(u)}</button>`)
     .join('');
   return `<div class="up-lens" id="up-lens" hidden>
+<div class="up-lens-row"><span class="up-lens-label">Rig</span><div class="up-lens-chips">${fitsBtns}</div></div>
 <div class="up-lens-row"><span class="up-lens-label">Signal</span><div class="up-lens-chips">${tierBtns}</div></div>
 <div class="up-lens-row"><span class="up-lens-label">Source</span><div class="up-lens-chips">${typeBtns}</div></div>
 <div class="up-lens-row"><span class="up-lens-label">Best for</span><div class="up-lens-chips">${ucBtns}</div></div>

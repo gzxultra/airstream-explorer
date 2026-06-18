@@ -451,19 +451,25 @@
     // state: each filter dimension is a Set of selected values. Within a
     // dimension values are OR'd; across dimensions they are AND'd. Use-case
     // chips selected together require ALL (a card must serve every chosen use).
-    var state = { consensus: [], type: [], uc: [] };
+    var state = { fits: [], consensus: [], type: [], uc: [] };
 
     var UP_PREFS = 'upgrades.prefs';
     (function restore() {
       var p = Store.get(UP_PREFS, null);
       if (!p || typeof p !== 'object') return;
-      ['consensus', 'type', 'uc'].forEach(function (k) {
+      ['fits', 'consensus', 'type', 'uc'].forEach(function (k) {
         if (Array.isArray(p[k])) state[k] = p[k].filter(function (v) { return typeof v === 'string'; });
       });
     })();
     function persist() { Store.set(UP_PREFS, state); }
 
     function matches(card) {
+      if (state.fits.length) {
+        // A "both" card fits whether you filter for trailers or coaches.
+        var f = card.getAttribute('data-fits');
+        var okf = state.fits.indexOf(f) !== -1 || (f === 'both');
+        if (!okf) return false;
+      }
       if (state.consensus.length && state.consensus.indexOf(card.getAttribute('data-consensus')) === -1) return false;
       if (state.type.length) {
         // "Both" cards satisfy either a Factory or an Aftermarket filter.
@@ -495,7 +501,7 @@
         if (vis === 0) sec.setAttribute('hidden', '');
         else sec.removeAttribute('hidden');
       });
-      var any = state.consensus.length || state.type.length || state.uc.length;
+      var any = state.fits.length || state.consensus.length || state.type.length || state.uc.length;
       if (countEl) {
         countEl.textContent = any
           ? (shown + ' of ' + cards.length + ' upgrades')
@@ -520,7 +526,7 @@
     });
 
     function resetAll() {
-      state = { consensus: [], type: [], uc: [] };
+      state = { fits: [], consensus: [], type: [], uc: [] };
       chips.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
       Store.del(UP_PREFS);
       apply();

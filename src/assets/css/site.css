@@ -1297,6 +1297,16 @@ body.cg-drawer-open { overflow: hidden; }
 .up-badge.is-factory { color: #2f6b46; background: rgba(63,125,84,.10); border-color: rgba(63,125,84,.28); }
 .up-badge.is-after { color: var(--copper-deep); background: rgba(176,92,50,.10); border-color: rgba(176,92,50,.26); }
 .up-badge.is-both { color: #6a5330; background: rgba(160,120,50,.12); border-color: rgba(160,120,50,.30); }
+.up-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+.up-fits {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px; border: 1px solid; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.up-fits::before { content: ""; width: 6px; height: 6px; border-radius: 999px; background: currentColor; opacity: .85; }
+.up-fits.is-trailer { color: #3a6ea5; background: rgba(58,110,165,.10); border-color: rgba(58,110,165,.28); }
+.up-fits.is-coach { color: #8a5a2b; background: rgba(138,90,43,.10); border-color: rgba(138,90,43,.28); }
+.up-fits.is-allrigs { color: #5a6a52; background: rgba(90,106,82,.10); border-color: rgba(90,106,82,.28); }
 .up-price { font-size: 14px; font-weight: 700; color: var(--copper-deep); margin: 0 0 10px; letter-spacing: .01em; }
 .up-why { font-size: 14px; line-height: 1.6; color: var(--ink); margin: 0 0 12px; }
 .up-popular { font-size: 13px; line-height: 1.55; color: var(--muted); margin: 0 0 12px; padding: 11px 13px; background: rgba(176,92,50,.05); border-left: 2px solid var(--copper); border-radius: 0 var(--radius) var(--radius) 0; }

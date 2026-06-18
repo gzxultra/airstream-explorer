@@ -16,6 +16,7 @@
         {
           "name": "Lithium (LiFePO4) house batteries",
           "type": "Both",
+          "fits": "both",
           "consensus": "Near-universal",
           "consensusNote": "Named by multiple owners in the top-mods thread, has its own dedicated multi-owner conversion thread, and led the Outside owner's build.",
           "useCases": [
@@ -48,6 +49,7 @@
         {
           "name": "Rooftop solar (factory 100–600W, or bigger aftermarket)",
           "type": "Both",
+          "fits": "both",
           "consensus": "Near-universal",
           "consensusNote": "Owners run 510–600W roof setups; the rooftop-vs-portable tradeoff is a genuine, unsettled debate in the threads, not a solved question.",
           "useCases": [
@@ -76,6 +78,7 @@
         {
           "name": "Inverter / inverter-charger (2000–3000W)",
           "type": "Both",
+          "fits": "both",
           "consensus": "Frequently recommended",
           "consensusNote": "Loved by the heavier-build crowd; the Outside owner deliberately skipped one in favor of a portable power station, so it's not universal for casual campers.",
           "useCases": [
@@ -100,6 +103,7 @@
         {
           "name": "DC-DC charger (alternator charging)",
           "type": "Aftermarket",
+          "fits": "both",
           "consensus": "Frequently recommended",
           "consensusNote": "Almost always discussed as a required companion to a lithium swap, not a standalone headline mod.",
           "useCases": [
@@ -123,6 +127,7 @@
         {
           "name": "Lithium-profile converter / charger",
           "type": "Aftermarket",
+          "fits": "trailer",
           "consensus": "Frequently recommended",
           "consensusNote": "Owners stress it constantly as part of any lithium swap — the stock converter won't fully charge LiFePO4.",
           "useCases": [
@@ -143,6 +148,7 @@
         {
           "name": "Battery monitor / shunt",
           "type": "Aftermarket",
+          "fits": "both",
           "consensus": "Frequently recommended",
           "consensusNote": "Repeatedly cited as part of any lithium/solar build so you can trust your state-of-charge.",
           "useCases": [
@@ -247,6 +253,7 @@
         {
           "name": "Soft start for the A/C",
           "type": "Aftermarket",
+          "fits": "both",
           "consensus": "Frequently recommended",
           "consensusNote": "Appears by name in owner top-mod lists; installers report thousands of installs.",
           "useCases": [
@@ -271,6 +278,7 @@
         {
           "name": "MaxxFan / MaxxAir powered roof vent",
           "type": "Aftermarket",
+          "fits": "both",
           "consensus": "Frequently recommended",
           "consensusNote": "Named by 3+ separate owners in the top-mods thread as a Fantastic/Magic-Fan replacement.",
           "useCases": [
@@ -296,6 +304,7 @@
         {
           "name": "Second A/C with heat pump",
           "type": "Factory",
+          "fits": "trailer",
           "consensus": "Niche",
           "consensusNote": "A factory-order spec rather than a community-driven mod — it didn't surface in the owner mod threads, so it's here as an option to know about, not a popular add.",
           "useCases": [
@@ -316,6 +325,137 @@
       ]
     },
     {
+      "id": "coach",
+      "title": "Touring-coach (Class B) upgrades",
+      "blurb": "Airstream’s Interstate, Atlas and Rangeline are self-propelled vans on the Mercedes Sprinter and Ram ProMaster — so the trailer kit above (brake controller, weight-distribution hitch, coupler locks) doesn’t apply. These are the upgrades van owners actually reach for instead.",
+      "items": [
+        {
+          "name": "Cab seat swivels (driver + passenger)",
+          "type": "Aftermarket",
+          "fits": "motorhome",
+          "image": "assets/img/upgrades/swivel.webp",
+          "priceText": "~$300–$660 per pair",
+          "why": "Turns the two cab seats around to face the living area, instantly adding two lounge seats and opening up a van’s tight floor plan. Scopema is the converter-standard brand; the US version is tested to FMVSS 207/210, raises the seat only ~7/8\", and the driver kit includes a park-brake-handle relocation so the seat clears the brake. A near-default first mod on Sprinter and ProMaster builds.",
+          "popular": "Scopema (a.k.a. RIB) for both Sprinter and ProMaster — owners specify the US FMVSS-tested version and note Sprinter seat bases can need the holes drilled out to sit square.",
+          "consensus": "Near-universal",
+          "consensusNote": "Carried by every major van-conversion outfitter (Nomadic Supply, Sprinter Upgrades, Campervan-HQ) and called a standard conversion part.",
+          "useCases": [
+            "Full-timing",
+            "Comfort"
+          ],
+          "sources": [
+            {
+              "label": "Nomadic Supply — Scopema Swivels for 2019+ Sprinter (FMVSS/CMVSS 207 & 210, 7/8\" rise)",
+              "url": "https://nomadicsupply.com/products/scopema-swivel-seats-for-2019-mercedes-sprinter-vans"
+            },
+            {
+              "label": "Sprinter Upgrades — Scopema VS30 swivel (US FMVSS 207/210, park-brake lowering kit)",
+              "url": "https://sprinterupgrades.com/products/scopema-sprinter-van-swivel-seat-base"
+            }
+          ]
+        },
+        {
+          "name": "Suspension upgrade (SumoSprings / helper springs)",
+          "type": "Aftermarket",
+          "fits": "motorhome",
+          "image": "assets/img/upgrades/sumosprings.webp",
+          "priceText": "~$230–$670",
+          "why": "A built-out van rides heavy and tall, so it sags, wallows and leans in corners. SumoSprings are maintenance-free progressive urethane bump-stops that bolt to the factory brackets (no drilling), level a sagging rear, cut body roll and damp the harsh rebound — the single most-recommended ride fix on Sprinter and ProMaster RVs. Never load past the chassis GVWR.",
+          "popular": "Front + rear SumoSprings kit. Owners on full-time builds step up to the firmer black/yellow density; weekend rigs stay on blue to keep the unloaded ride soft.",
+          "consensus": "Frequently recommended",
+          "consensusNote": "Recommended across van-life outfitters and Sprinter RV owner forums as the easiest, highest-value handling fix; some pair it with a rear sway bar.",
+          "useCases": [
+            "Towing & safety",
+            "Full-timing"
+          ],
+          "sources": [
+            {
+              "label": "Sprinter Upgrades — SumoSprings (bolt to factory bump-stop brackets, reduce sag & sway)",
+              "url": "https://sprinterupgrades.com/products/sprinter-sumo-springs-front-2wd-pr"
+            },
+            {
+              "label": "Nomadic Supply — SumoSprings for Sprinter (progressive load control, levels the rear)",
+              "url": "https://nomadicsupply.com/products/sumosprings-front-rear-air-helper-spring-kit-for-mercedes-sprinter-3500-2wd-vans-k-30-006"
+            }
+          ]
+        },
+        {
+          "name": "Rear anti-sway bar",
+          "type": "Aftermarket",
+          "fits": "motorhome",
+          "image": "assets/img/upgrades/swaybar.webp",
+          "priceText": "~$300–$500",
+          "why": "Mercedes ships the Sprinter with undersized sway bars, so an RV conversion — heavier and with a high center of gravity — rolls in corners and gets shoved around by crosswinds and passing trucks. A larger Hellwig chromoly rear bar bolts on in a couple of hours, reuses the factory end links, and noticeably steadies the coach in wind and cornering.",
+          "popular": "Hellwig rear bar for the VS30 Sprinter 3500. Owners chasing the last bit of high-wind stability add it on top of SumoSprings.",
+          "consensus": "Niche",
+          "consensusNote": "Well-regarded by Sprinter-coach owners and RV parts dealers; less universal than SumoSprings, and fitment depends on exhaust / leveling-jack clearance — inspect first.",
+          "useCases": [
+            "Towing & safety"
+          ],
+          "sources": [
+            {
+              "label": "Commercial Carrier Journal — Hellwig rear sway bar for 2019 Sprinter 3500 (factory bars undersized; cuts body roll on RV conversions)",
+              "url": "https://www.ccjdigital.com/equipment/article/15066857/hellwig-launches-rear-sway-bar-for-2019-mercedes-sprinter-3500"
+            },
+            {
+              "label": "Lichtsinn RV — Hellwig rear sway bar for Mercedes Sprinter motorhomes (View/Navion)",
+              "url": "https://www.lichtsinn.com/hellwig-rear-sway-bar-for-your-mercedes-benz-sprinter-rv/"
+            }
+          ]
+        },
+        {
+          "name": "Satellite internet (Starlink Mini / Roam)",
+          "type": "Aftermarket",
+          "fits": "both",
+          "image": "assets/img/upgrades/starlink.webp",
+          "priceText": "Mini $249–$349 hardware · Roam $50–$165/mo",
+          "why": "Genuine high-speed internet (65–260 Mbps, ~40 ms latency) anywhere you can see sky — the connectivity upgrade that changed remote work and boondocking. The laptop-sized Starlink Mini (~2.5 lb, built-in Wi-Fi 6) sips ~20–40W, easy to run off a van or trailer’s lithium-and-solar bank; the Roam plan adds in-motion and a cheap off-season standby. Obstruction-free placement matters more than anything.",
+          "popular": "Starlink Mini on the Roam plan, with a cellular hotspot kept as backup for congested or tree-covered sites.",
+          "consensus": "Frequently recommended",
+          "consensusNote": "The dominant mobile-internet choice for full-time RVers and remote workers as of 2026; widely reviewed and documented, though a cellular backup is still advised.",
+          "useCases": [
+            "Full-timing",
+            "Boondocking"
+          ],
+          "sources": [
+            {
+              "label": "Roadtrippers — Starlink for RVs 2026 (Roam plans, Mini $249, power draw, in-motion)",
+              "url": "https://roadtrippers.com/magazine/starlink-for-rvs/"
+            },
+            {
+              "label": "SatelliteInternet.com — Starlink Roam review (Mini specs, 65–260 Mbps, deprioritization)",
+              "url": "https://www.satelliteinternet.com/providers/starlink/roam-review/"
+            }
+          ]
+        },
+        {
+          "name": "Cell signal booster",
+          "type": "Aftermarket",
+          "fits": "both",
+          "image": "assets/img/upgrades/booster.webp",
+          "priceText": "~$500",
+          "why": "Pulls in a usable cellular signal where bars are thin — the cheaper, lower-power complement (or backup) to satellite for working on the road. A roof-mount weBoost Drive Reach amplifies weak tower signal for everyone’s phones and hotspots inside the rig; most useful at the fringe of coverage rather than true dead zones.",
+          "popular": "weBoost Drive Reach (or the RV-specific Destination kit), kept as the backup when Starlink is blocked by trees.",
+          "consensus": "Niche",
+          "consensusNote": "A long-standing road-warrior tool; increasingly a backup to Starlink rather than the primary link, so adoption is narrower than it once was.",
+          "useCases": [
+            "Full-timing",
+            "Boondocking"
+          ],
+          "sources": [
+            {
+              "label": "RV Outfitting — Starlink Roam for RV (cellular booster still recommended as backup in congested/fringe areas)",
+              "url": "https://rvoutfitting.com/starlink-roam-for-rv-review/"
+            },
+            {
+              "label": "Roadtrippers — Starlink for RVs (a cellular booster/hotspot is the recommended companion)",
+              "url": "https://roadtrippers.com/magazine/starlink-for-rvs/"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "towing",
       "title": "Towing & safety",
       "blurb": "The gear that keeps the trailer tracking straight and protects against the most common road and campground hazards. Forums and the Airstream Club treat the first items as non-negotiable.",
@@ -323,6 +463,7 @@
         {
           "name": "Brake controller",
           "type": "Both",
+          "fits": "trailer",
           "consensus": "Near-universal",
           "consensusNote": "The Airstream Club lists it first on its carry list and notes it's legally required for towing trailer brakes.",
           "useCases": [
@@ -342,6 +483,7 @@
         {
           "name": "Weight-distribution + anti-sway hitch",
           "type": "Aftermarket",
+          "fits": "trailer",
           "consensus": "Near-universal",
           "consensusNote": "Treated as a foundational safety given rather than an optional upgrade.",
           "useCases": [
@@ -365,6 +507,7 @@
         {
           "name": "Tire pressure monitoring system (TPMS)",
           "type": "Aftermarket",
+          "fits": "both",
           "consensus": "Near-universal",
           "consensusNote": "In the Airstream Club's 'Highly Recommended' tier, called out by the TST brand name.",
           "useCases": [
@@ -388,6 +531,7 @@
         {
           "name": "Surge protector / EMS",
           "type": "Aftermarket",
+          "fits": "both",
           "consensus": "Near-universal",
           "consensusNote": "Airstream Club 'Highly Recommended'; owners mention hardwired Progressive 50A EMS by name.",
           "useCases": [
@@ -412,6 +556,7 @@
         {
           "name": "Leveling blocks & wheel chocks",
           "type": "Aftermarket",
+          "fits": "both",
           "consensus": "Near-universal",
           "consensusNote": "Blocks/chocks are in the Airstream Club's Essential tier; among the most-named basics by owners.",
           "useCases": [
@@ -432,6 +577,7 @@
         {
           "name": "LevelMate Pro (Bluetooth leveling sensor)",
           "type": "Aftermarket",
+          "fits": "both",
           "consensus": "Frequently recommended",
           "consensusNote": "A community darling — one owner called it 'probably my most favorite improvement'; named repeatedly alongside levelers.",
           "useCases": [
@@ -452,6 +598,55 @@
             }
           ],
           "image": "assets/img/upgrades/levelmate.webp"
+        },
+        {
+          "name": "Upgraded tires (Goodyear Endurance / LT swap)",
+          "type": "Aftermarket",
+          "fits": "trailer",
+          "image": "assets/img/upgrades/tires.webp",
+          "priceText": "~$130–$250 per tire",
+          "why": "Trailer-tire blowouts are one of the most common ways an Airstream gets hurt, and many cheap ST tires are overseas-made with poor reputations. Airstream itself fits the US-made Goodyear Endurance ST (e.g. ST225/75R15 load range E, 2,830 lb at 80 psi). Some owners go further to 16\" wheels and light-truck (LT) tires for more load margin and a better ride — a bigger project that must clear the wheel well and keep the load rating. Replace ST tires by ~5 years regardless of tread.",
+          "popular": "Goodyear Endurance as the like-for-like upgrade; the 16\"-wheel + LT-tire swap for those who want maximum margin.",
+          "consensus": "Frequently recommended",
+          "consensusNote": "The Endurance is Airstream’s own factory tire and the owner-default replacement; the LT/16\" route is a well-documented but more involved choice.",
+          "useCases": [
+            "Towing & safety",
+            "Full-timing"
+          ],
+          "sources": [
+            {
+              "label": "Airstream 2019 International Owner’s Manual — tire & wheel replacement (Goodyear Endurance ST225/75R15, 2,830 lb @ 80 psi)",
+              "url": "https://www.manualslib.com/manual/1530353/Airstream-2019-International.html?page=73"
+            },
+            {
+              "label": "Woodland Airstream Parts — Airstream installed-tire chart (Marathon→Endurance since 2017; load ranges by size)",
+              "url": "https://woodlandairstreamparts.com/pages/airstream-tire-information-maintenance"
+            }
+          ]
+        },
+        {
+          "name": "Disc brake conversion",
+          "type": "Aftermarket",
+          "fits": "trailer",
+          "image": "assets/img/upgrades/discbrake.webp",
+          "priceText": "~$1,500–$3,200 installed",
+          "why": "Swaps the factory electric drum brakes for hydraulic disc brakes that stop shorter, fade far less on long mountain grades, and need no periodic adjustment. It’s not plug-and-play: disc brakes require an electric-over-hydraulic actuator that takes the signal from your brake controller and pressurizes the calipers, plus new lines run along the frame. A serious safety upgrade for heavy towing.",
+          "popular": "Kodiak disc kits (coated or stainless for corrosion resistance) paired with a HydraStar electric-over-hydraulic actuator.",
+          "consensus": "Niche",
+          "consensusNote": "Strongly praised by owners who tow heavy or in mountains, but the cost and install effort keep it from being a universal mod.",
+          "useCases": [
+            "Towing & safety"
+          ],
+          "sources": [
+            {
+              "label": "RV.com — Better Travel Trailer Braking (Kodiak disc kits; electric-over-hydraulic actuator required)",
+              "url": "https://www.rv.com/how-to/better-travel-trailer-braking/"
+            },
+            {
+              "label": "RV Trader — RV brake upgrades (Kodiak disc conversion: shorter stops, no fade, no adjustments; not plug-and-play)",
+              "url": "https://www.rvtrader.com/blog/2021/03/12/3-rv-brake-system-upgrades-for-safer-stopping-power/"
+            }
+          ]
         }
       ]
     },
@@ -463,6 +658,7 @@
         {
           "name": "Inline / upgraded water filter",
           "type": "Aftermarket",
+          "fits": "both",
           "consensus": "Frequently recommended",
           "consensusNote": "In the Airstream Club's Highly Recommended tier and named by owners (Blu Tech, Seagull, Acuva).",
           "useCases": [
@@ -487,6 +683,7 @@
         {
           "name": "Oxygenics shower head + full cutoff valve",
           "type": "Aftermarket",
+          "fits": "both",
           "consensus": "Frequently recommended",
           "consensusNote": "Owners specifically praise the Oxygenics head and a full-cutoff handle; the older 'recirc valve' framing was more creator-driven.",
           "useCases": [
@@ -507,6 +704,7 @@
         {
           "name": "Water pressure regulator",
           "type": "Aftermarket",
+          "fits": "both",
           "consensus": "Niche",
           "consensusNote": "Universally owned but assumed baseline gear — rarely celebrated as a 'mod', just expected.",
           "useCases": [
@@ -526,6 +724,7 @@
         {
           "name": "Composting toilet (OGO / Nature's Head)",
           "type": "Aftermarket",
+          "fits": "both",
           "consensus": "Enthusiast favorite",
           "consensusNote": "Polarizing — the Outside owner's single favorite upgrade, but a love-it-or-leave-it choice. Boondockers love it; many owners keep the standard black tank.",
           "useCases": [
@@ -557,6 +756,7 @@
         {
           "name": "Mattress upgrade or topper",
           "type": "Aftermarket",
+          "fits": "both",
           "consensus": "Frequently recommended",
           "consensusNote": "The factory mattress is a near-universal complaint; owners swap or top it early.",
           "useCases": [
@@ -581,6 +781,7 @@
         {
           "name": "LED lighting conversion",
           "type": "Aftermarket",
+          "fits": "trailer",
           "consensus": "Frequently recommended",
           "consensusNote": "Cheap, universal, repeatedly done — the Outside owner converted all lights to LED; older rigs especially.",
           "useCases": [
@@ -605,6 +806,7 @@
         {
           "name": "Window film / tint",
           "type": "Aftermarket",
+          "fits": "both",
           "consensus": "Frequently recommended",
           "consensusNote": "Owners list tinted front windows among top mods to 'stop the heat'.",
           "useCases": [
@@ -625,6 +827,7 @@
         {
           "name": "Glass skylight upgrade",
           "type": "Aftermarket",
+          "fits": "trailer",
           "consensus": "Frequently recommended",
           "consensusNote": "The 'Maxim' glass skylight is named by multiple owners in the top-mods thread.",
           "useCases": [
@@ -644,6 +847,7 @@
         {
           "name": "Anti-theft / hitch & coupler locks",
           "type": "Both",
+          "fits": "trailer",
           "consensus": "Frequently recommended",
           "consensusNote": "A steady security basic — owners mention coupler/chrome locks; not a hot debate, but widely owned.",
           "useCases": [
@@ -663,6 +867,7 @@
         {
           "name": "170° soft-close cabinet hinges",
           "type": "Aftermarket",
+          "fits": "both",
           "consensus": "Niche",
           "consensusNote": "A common DIY 'fix-it' rather than a headline passion mod — popular in owner fix lists, lower signal in the top-mods threads.",
           "useCases": [
@@ -682,6 +887,7 @@
         {
           "name": "Stainless exterior trim & rock/window guards",
           "type": "Both",
+          "fits": "trailer",
           "consensus": "Niche",
           "consensusNote": "Low community heat — one weak owner mention; mostly a cosmetic/protective preference.",
           "useCases": [],
@@ -699,6 +905,31 @@
             }
           ],
           "image": "assets/img/upgrades/trim.webp"
+        },
+        {
+          "name": "Reflective window covers / thermal shades",
+          "type": "Aftermarket",
+          "fits": "both",
+          "image": "assets/img/upgrades/windowcovers.webp",
+          "priceText": "~$20 DIY – $300 custom set",
+          "why": "Airstream’s wraparound windows (and a van’s big windshield) are huge thermal holes — blazing in summer, freezing in winter, and zero privacy at night. Reflective covers reflect up to ~96% of radiant heat and, installed with an air gap, cut window heat loss roughly 3x — plus they black out the cabin. DIY Reflectix panels (silver out in summer, in for winter) are the cheap classic; tailored magnetic or snap-in sets are the tidy upgrade, and the cab/windshield cover is a near-must on Class B vans.",
+          "popular": "DIY Reflectix panels cut from window templates; van owners step up to a fitted insulated cab/windshield cover for heat, cold and stealth.",
+          "consensus": "Frequently recommended",
+          "consensusNote": "A perennial “upgrades I’d do again” item for both trailers and vans; cheap, high-impact, and frequently DIY’d before buying a custom set.",
+          "useCases": [
+            "Four-season",
+            "Comfort"
+          ],
+          "sources": [
+            {
+              "label": "Roamly — How to Insulate RV Windows (independent testing: Reflectix cuts window heat loss ~3x, reflects up to 96% of radiant energy)",
+              "url": "https://www.roamly.com/post/how-to-insulate-rv-windows"
+            },
+            {
+              "label": "Outdoor Guide — DIY window insulation panels for van/car camping (Reflectix templates; silver-side orientation by season)",
+              "url": "https://www.outdoorguide.com/1755739/diy-window-insulation-car-camping-stay-warm/"
+            }
+          ]
         }
       ]
     }

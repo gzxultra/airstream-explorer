@@ -9,7 +9,7 @@ const data = loadUpgrades();
 // A minimal valid item factory, so each negative test changes exactly one thing.
 function okItem(over = {}) {
   return Object.assign({
-    name: 'Y', why: 'z', type: 'Factory',
+    name: 'Y', why: 'z', type: 'Factory', fits: 'both',
     image: 'assets/img/upgrades/lithium.webp',
     consensus: 'Near-universal', consensusNote: 'cited',
     useCases: ['Boondocking'],
@@ -216,4 +216,49 @@ test('cards expose the pip count matching their tier (render ↔ TIER_META)', ()
   const html = renderUpgradesBody(data, '');
   // Near-universal == PIP_MAX pips; the data-pips attr must reflect it.
   assert.ok(html.includes(`data-pips="${TIER_META['Near-universal'].pips}"`));
+});
+
+// --- Rig-fit contract (trailer vs touring coach) --------------------------
+
+test('every real item declares a valid rig fit', () => {
+  const valid = new Set(['trailer', 'motorhome', 'both']);
+  for (const c of data.categories) {
+    for (const it of c.items) {
+      assert.ok(valid.has(it.fits), `${c.id}/${it.name}: bad fits "${it.fits}"`);
+    }
+  }
+});
+
+test('validator catches a missing/bad rig fit', () => {
+  const problems = validateUpgrades(wrap(okItem({ fits: 'spaceship' })));
+  assert.ok(problems.some((p) => p.includes('bad fits')), problems.join('\n'));
+  const item = okItem(); delete item.fits;
+  const problems2 = validateUpgrades(wrap(item));
+  assert.ok(problems2.some((p) => p.includes('bad fits')), problems2.join('\n'));
+});
+
+test('the dataset covers both trailers and touring coaches', () => {
+  const fits = new Set();
+  for (const c of data.categories) for (const it of c.items) fits.add(it.fits);
+  assert.ok(fits.has('trailer'), 'should have trailer-only upgrades');
+  assert.ok(fits.has('motorhome'), 'should have coach-only upgrades');
+  assert.ok(fits.has('both'), 'should have upgrades that fit both');
+});
+
+test('there is a dedicated touring-coach (Class B) category with coach upgrades', () => {
+  const coach = data.categories.find((c) => c.id === 'coach');
+  assert.ok(coach, 'expected a coach category');
+  assert.ok(coach.items.length >= 3, `expected several coach items, got ${coach.items.length}`);
+  // The swivel seat is the signature van mod — it must be here and coach-only.
+  const swivel = coach.items.find((it) => /swivel/i.test(it.name));
+  assert.ok(swivel, 'coach category should include cab seat swivels');
+  assert.equal(swivel.fits, 'motorhome', 'swivels are coach-only');
+});
+
+test('renderUpgradesBody emits the rig-fit badge and rig filter dimension', () => {
+  const html = renderUpgradesBody(data, '');
+  assert.ok(html.includes('up-fits'), 'cards carry a rig-fit badge');
+  assert.ok(html.includes('data-fits='), 'cards carry a data-fits attr');
+  assert.ok(html.includes('data-filter="fits"'), 'lens has a rig filter dimension');
+  assert.ok(html.includes('Touring coaches'), 'rig filter offers the coach option');
 });
