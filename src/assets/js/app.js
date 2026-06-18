@@ -2773,4 +2773,79 @@
       if (rec) openDrawer(rec);
     });
   })();
+
+  /* Interactive floorplan zones — touch/click/keyboard, no hover dependency.
+     Tap a numbered dot to open its bubble and highlight the matching legend
+     row; tap again, tap elsewhere, or press Escape to close. With JS off the
+     dots are still focusable labels and the legend lists every zone. */
+  (function floorplanZones() {
+    var section = document.querySelector('.floorplan--interactive');
+    if (!section) return;
+    var overlay = section.querySelector('[data-fp-overlay]');
+    if (!overlay) return;
+    var dots = Array.prototype.slice.call(overlay.querySelectorAll('.fp-dot'));
+    if (!dots.length) return;
+    var legendItems = Array.prototype.slice.call(section.querySelectorAll('.fp-leg-item'));
+    var openId = null;
+
+    function popFor(id) { return section.querySelector('#fp-pop-' + cssEsc(id)); }
+    function legFor(id) {
+      for (var i = 0; i < legendItems.length; i++) {
+        if (legendItems[i].getAttribute('data-fp-leg') === id) return legendItems[i];
+      }
+      return null;
+    }
+    // Minimal id escaper for querySelector (ids here are simple slugs anyway).
+    function cssEsc(s) {
+      if (window.CSS && CSS.escape) return CSS.escape(s);
+      return String(s).replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+    }
+
+    function close() {
+      if (openId == null) return;
+      var d = overlay.querySelector('.fp-dot[data-fp-dot="' + cssEsc(openId) + '"]');
+      var p = popFor(openId);
+      var l = legFor(openId);
+      if (d) d.setAttribute('aria-expanded', 'false');
+      if (p) p.hidden = true;
+      if (l) l.classList.remove('is-active');
+      openId = null;
+    }
+    function open(id) {
+      if (openId === id) { close(); return; }
+      close();
+      var d = overlay.querySelector('.fp-dot[data-fp-dot="' + cssEsc(id) + '"]');
+      var p = popFor(id);
+      var l = legFor(id);
+      if (d) d.setAttribute('aria-expanded', 'true');
+      if (p) p.hidden = false;
+      if (l) l.classList.add('is-active');
+      openId = id;
+    }
+
+    dots.forEach(function (d) {
+      d.addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        open(d.getAttribute('data-fp-dot'));
+      });
+    });
+    // Tapping/clicking a legend row also opens its zone (and scrolls the dot
+    // into view on small screens where the diagram may be above the fold).
+    legendItems.forEach(function (l) {
+      l.addEventListener('click', function () {
+        open(l.getAttribute('data-fp-leg'));
+      });
+      l.style.cursor = 'pointer';
+    });
+    // Outside tap closes.
+    document.addEventListener('click', function (e) {
+      if (openId == null) return;
+      if (section.contains(e.target)) return;
+      close();
+    });
+    // Escape closes.
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' || e.key === 'Esc') close();
+    });
+  })();
 })();

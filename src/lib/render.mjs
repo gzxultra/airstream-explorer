@@ -10,6 +10,7 @@ import {
 import { assetPaths, familySlug, officialUrl, catalogStats } from './data.mjs';
 import { SORT_KEYS, exploreTags, tagLabel } from './explore.mjs';
 import { renderCampgroundFit } from './campgrounds-render.mjs';
+import { renderFloorplanZones, renderFloorplanLegend } from './floorplan-zones.mjs';
 import {
   estimateOffGrid, formatNights,
   LOAD_PRESETS,
@@ -528,8 +529,14 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
         `<div class="gallery-img-wrap"><img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="lazy" class="gallery-img" width="920" height="600"></div>`,
     )
     .join('\n');
+  const fpZones = renderFloorplanZones(t.floorplan);
+  const fpLegend = renderFloorplanLegend(t.floorplan);
+  const fpInteractive = fpZones ? ' floorplan--interactive' : '';
+  const fpHint = fpZones
+    ? `<p class="floorplan-hint" data-fp-hint>Tap a numbered point to see what's where. <span class="muted">Zones placed against the official ${esc(t.floorplan)} diagram.</span></p>`
+    : '';
   const floorplanSection = a.floorplan
-    ? `<section class="floorplan" aria-label="Floor plan"><h2>Floor plan</h2><figure class="floorplan-fig"><img src="../${esc(a.floorplan)}" alt="${esc(trailerLabel(t))} floor plan diagram" loading="lazy" class="floorplan-img" width="820" height="1332"><figcaption class="muted">Official Airstream ${esc(t.floorplan)} floor plan${official ? ` · <a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">View ${esc(t.model)} floor plans on airstream.com ↗</a>` : ''}</figcaption></figure></section>`
+    ? `<section class="floorplan${fpInteractive}" aria-label="Floor plan" data-floorplan-code="${esc(t.floorplan)}"><h2>Floor plan</h2>${fpHint}<figure class="floorplan-fig"><span class="floorplan-stage"><img src="../${esc(a.floorplan)}" alt="${esc(trailerLabel(t))} floor plan diagram" loading="lazy" class="floorplan-img" width="820" height="1332">${fpZones}</span>${fpLegend}<figcaption class="muted">Official Airstream ${esc(t.floorplan)} floor plan${official ? ` · <a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">View ${esc(t.model)} floor plans on airstream.com ↗</a>` : ''}</figcaption></figure></section>`
     : '';
   const decorSection = renderDecor(decor, t.model);
   const pros = (t.pros || []).map((p) => `<li>${esc(p)}</li>`).join('');

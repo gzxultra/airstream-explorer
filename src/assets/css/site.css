@@ -1367,6 +1367,80 @@ body.cg-drawer-open { overflow: hidden; }
 .official-link:hover,
 .official-link:focus-visible { color: var(--copper); border-bottom-color: var(--copper); }
 .floorplan-fig figcaption .official-link { white-space: normal; }
+
+/* ===========================================================================
+   INTERACTIVE FLOORPLAN ZONES — touch-friendly numbered points over the
+   official diagram (replaces the old hover-only hotspots that broke on mobile).
+   The .floorplan-stage is an inline-block sized EXACTLY to the image, so the
+   percentage-positioned dots land on the right spot at any width.
+   =========================================================================== */
+.floorplan-hint { font-size: 13px; color: var(--ink); margin: 0 0 14px; }
+.floorplan-hint .muted { color: var(--muted); }
+.floorplan-stage { position: relative; display: inline-block; line-height: 0; max-width: 460px; }
+.floorplan-stage .floorplan-img { max-width: 460px; }
+.fp-overlay { position: absolute; inset: 0; pointer-events: none; }
+
+/* Each marker is a zero-size anchor placed at the zone's % point. The dot is
+   centred on it and the popover is positioned relative to it — so the bubble
+   tracks its own dot instead of the whole image. */
+.fp-marker { position: absolute; width: 0; height: 0; }
+
+/* The numbered dot, centred on its marker. pointer-events re-enabled here so
+   the overlay stays click-through except on the actual targets. */
+.fp-dot {
+  position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); pointer-events: auto;
+  display: inline-flex; align-items: center; gap: 0; cursor: pointer;
+  background: none; border: 0; padding: 0; margin: 0; z-index: 2;
+}
+.fp-dot-num {
+  width: 26px; height: 26px; border-radius: 50%; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  font: 700 13px/1 var(--sans, system-ui); color: #fff;
+  background: var(--copper, #b05c32); border: 2px solid #fff;
+  box-shadow: 0 2px 7px rgba(60,40,20,.35); transition: transform .12s ease, background .12s ease;
+}
+.fp-dot:hover .fp-dot-num,
+.fp-dot:focus-visible .fp-dot-num { transform: scale(1.14); background: var(--copper-deep, #8c4626); }
+.fp-dot[aria-expanded="true"] .fp-dot-num { background: var(--copper-deep, #8c4626); transform: scale(1.14); }
+.fp-dot:focus-visible { outline: none; }
+.fp-dot:focus-visible .fp-dot-num { box-shadow: 0 0 0 3px rgba(176,92,50,.4), 0 2px 7px rgba(60,40,20,.35); }
+/* The inline label that the dot would carry is hidden on the diagram (the
+   legend below carries the words); it stays in the a11y tree via aria-label. */
+.fp-dot-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* The popover bubble shown when a dot is active. Anchored to the marker. */
+.fp-pop {
+  position: absolute; left: 0; bottom: 12px; transform: translateX(-50%);
+  width: max-content; max-width: 230px; z-index: 5; text-align: left; line-height: 1.4;
+  background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+  box-shadow: 0 8px 26px rgba(40,30,20,.22);
+}
+.fp-pop[hidden] { display: none; }
+.fp-pop::after {
+  content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  border: 7px solid transparent; border-top-color: #fff;
+}
+/* Markers high on the diagram flip their bubble below the dot so it can't clip
+   off the top of the figure. */
+.fp-marker--below .fp-pop { bottom: auto; top: 12px; }
+.fp-marker--below .fp-pop::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: #fff; }
+.fp-pop-title { display: block; font-size: 13px; color: var(--ink); margin: 0 0 3px; }
+.fp-pop-text { display: block; font-size: 12.5px; color: var(--muted); }
+
+/* The always-visible legend below the diagram — the no-JS fallback and the
+   primary small-screen experience. Highlights in sync with the active dot. */
+.fp-legend { list-style: none; margin: 18px auto 0; padding: 0; max-width: 460px; text-align: left; }
+.fp-leg-item { display: flex; gap: 11px; align-items: flex-start; padding: 8px 9px; border-radius: 9px; transition: background .12s ease; }
+.fp-leg-item + .fp-leg-item { margin-top: 2px; }
+.fp-leg-item.is-active { background: rgba(176,92,50,.09); }
+.fp-leg-num {
+  width: 22px; height: 22px; border-radius: 50%; flex: none; margin-top: 1px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font: 700 12px/1 var(--sans, system-ui); color: #fff; background: var(--copper, #b05c32);
+}
+.fp-leg-body { font-size: 13.5px; color: var(--muted); }
+.fp-leg-body strong { color: var(--ink); font-weight: 700; }
+
 .official-head { margin: 14px 0 0; font-size: 13px; letter-spacing: .02em; }
 .fam-hero-official { margin: 12px 0 0; }
 .official-link-light {
