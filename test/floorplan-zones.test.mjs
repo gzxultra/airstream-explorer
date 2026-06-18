@@ -83,3 +83,51 @@ test('zone copy makes no fabricated hookup/price/spec claims', () => {
     }
   }
 });
+
+// --- 2026-06-17: six additional verified floorplan codes ---------------------
+// Each code below was coord-read off its canonical official Airstream diagram
+// and dot-verified. Codes are shared identically across every trim that uses
+// them (e.g. 27FB = Flying Cloud / Globetrotter / International / Stetson /
+// Trade Wind), so one verified zone set legitimately covers many trailers.
+
+test('newly verified codes are all present', () => {
+  for (const code of ['23FB', '27FB', '30RB', '16RB', '20FB', '22FB']) {
+    assert.ok(zonesFor(code), `${code} should be verified and present`);
+  }
+});
+
+test('each new code labels its defining fixtures', () => {
+  const want = {
+    '27FB': ['bed', 'shower', 'lav', 'galley', 'lounge'],
+    '23FB': ['bed', 'galley', 'lounge', 'shower', 'toilet'],
+    '30RB': ['frontlounge', 'galley', 'shower', 'bed'], // rear-bed layout
+    '16RB': ['frontseat', 'galley', 'bath', 'bed'],
+    '20FB': ['bed', 'galley', 'shower', 'dinette'],
+    '22FB': ['bed', 'galley', 'cooktop', 'shower'],
+  };
+  for (const [code, ids] of Object.entries(want)) {
+    const have = zonesFor(code).map((z) => z.id);
+    for (const id of ids) assert.ok(have.includes(id), `${code} should label ${id}`);
+  }
+});
+
+test('rear-bed (30RB) puts the bed in the rear, front-bed (FB codes) put it forward', () => {
+  // The bed sits aft on a rear-bed plan and forward on a front-bed plan — a
+  // cheap guard that we did not mix up the two opposite skeletons.
+  const bed30 = zonesFor('30RB').find((z) => z.id === 'bed');
+  assert.ok(bed30.y > 60, '30RB bed is in the rear half');
+  for (const code of ['23FB', '27FB', '20FB', '22FB']) {
+    const bed = zonesFor(code).find((z) => z.id === 'bed');
+    assert.ok(bed.y < 30, `${code} bed is up front`);
+  }
+});
+
+test('render + legend work for every verified code (not just 25FB)', () => {
+  for (const code of Object.keys(FLOORPLAN_ZONES)) {
+    const overlay = renderFloorplanZones(code);
+    const legend = renderFloorplanLegend(code);
+    const n = zonesFor(code).length;
+    assert.equal((overlay.match(/class="fp-marker/g) || []).length, n, `${code} markers`);
+    assert.equal((legend.match(/class="fp-leg-item"/g) || []).length, n, `${code} legend rows`);
+  }
+});
