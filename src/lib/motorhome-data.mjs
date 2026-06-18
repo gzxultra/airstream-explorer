@@ -64,19 +64,53 @@ export function motorhomeFamilySlug(model) {
 }
 
 /**
- * Official airstream.com model page for each motorhome family, keyed by family slug.
- * Verified URLs (2026-06-18).
+ * Official airstream.com FAMILY landing page for each motorhome family, keyed by
+ * family slug. All return HTTP 200 — curl-verified 2026-06-18.
+ * NOTE: airstream.com has a single "interstate" landing page covering both the
+ * Interstate-19 and Interstate-24 lines (no per-size family page exists).
  */
 export const MOTORHOME_OFFICIAL_URLS = {
-  atlas: 'https://www.airstream.com/touring-coaches/atlas/',
-  'interstate-24': 'https://www.airstream.com/touring-coaches/interstate-24/',
-  'interstate-19': 'https://www.airstream.com/touring-coaches/interstate-19/',
-  rangeline: 'https://www.airstream.com/touring-coaches/rangeline/',
+  atlas: 'https://www.airstream.com/explore-products/touring-coaches/atlas/',
+  'interstate-24': 'https://www.airstream.com/explore-products/touring-coaches/interstate/',
+  'interstate-19': 'https://www.airstream.com/explore-products/touring-coaches/interstate/',
+  interstate: 'https://www.airstream.com/explore-products/touring-coaches/interstate/',
+  rangeline: 'https://www.airstream.com/explore-products/touring-coaches/rangeline/',
 };
 
-/** The official airstream.com page for a motorhome model name, or null if unmapped. */
+/**
+ * Official airstream.com PER-MODEL page, keyed by our data slug.
+ * The model-code casing on airstream.com is irregular (atlas-25MS upper,
+ * interstate-24gtx lower, interstate-24GLX upper, rangeline-21pl lower), so this
+ * is an explicit map — every URL curl-verified to return HTTP 200 on 2026-06-18.
+ * Do NOT regenerate these by rule; re-verify with curl if Airstream restructures.
+ */
+export const MOTORHOME_OFFICIAL_URLS_BY_SLUG = {
+  'atlas-25ms-2027': 'https://www.airstream.com/explore-products/touring-coaches/atlas/atlas-25MS',
+  'atlas-25rt-2027': 'https://www.airstream.com/explore-products/touring-coaches/atlas/atlas-25RT',
+  'interstate-24gtx-2026': 'https://www.airstream.com/explore-products/touring-coaches/interstate/interstate-24gtx',
+  'interstate-24glx-2027': 'https://www.airstream.com/explore-products/touring-coaches/interstate/interstate-24GLX',
+  'interstate-24gt-2027': 'https://www.airstream.com/explore-products/touring-coaches/interstate/interstate-24GT',
+  'interstate-24gl-2027': 'https://www.airstream.com/explore-products/touring-coaches/interstate/interstate-24GL',
+  'interstate-19gtx-2027': 'https://www.airstream.com/explore-products/touring-coaches/interstate/interstate-19GTX',
+  'interstate-19gt-2027': 'https://www.airstream.com/explore-products/touring-coaches/interstate/interstate-19GT',
+  'interstate-19x-2027': 'https://www.airstream.com/explore-products/touring-coaches/interstate/interstate-19X',
+  'rangeline-21pl-2027': 'https://www.airstream.com/explore-products/touring-coaches/rangeline/rangeline-21pl',
+  'rangeline-21ps-2027': 'https://www.airstream.com/explore-products/touring-coaches/rangeline/rangeline-21ps',
+};
+
+/** The official airstream.com FAMILY page for a motorhome model name, or null if unmapped. */
 export function motorhomeOfficialUrl(model) {
   return MOTORHOME_OFFICIAL_URLS[motorhomeFamilySlug(model)] || null;
+}
+
+/**
+ * The official airstream.com PER-MODEL page for a specific motorhome record (by slug).
+ * Falls back to the family landing page, then null.
+ */
+export function motorhomeOfficialUrlBySlug(slug, model) {
+  if (slug && MOTORHOME_OFFICIAL_URLS_BY_SLUG[slug]) return MOTORHOME_OFFICIAL_URLS_BY_SLUG[slug];
+  if (model) return motorhomeOfficialUrl(model);
+  return null;
 }
 
 /** Distinct sorted model names. */

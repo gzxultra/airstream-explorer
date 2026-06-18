@@ -6,7 +6,7 @@ import {
   formatPriceRange, formatLengthRange, formatMsrpShort,
   trailerTitle, trailerLabel,
 } from './format.mjs';
-import { motorhomeAssetPaths, motorhomeFamilySlug, motorhomeOfficialUrl } from './motorhome-data.mjs';
+import { motorhomeAssetPaths, motorhomeFamilySlug, motorhomeOfficialUrl, motorhomeOfficialUrlBySlug } from './motorhome-data.mjs';
 import { catalogStats } from './data.mjs';
 import { socialMeta, productJsonLd } from './seo.mjs';
 import {
@@ -24,10 +24,9 @@ function esc(s) {
     .replace(/'/g, '&#39;');
 }
 
-// Navigation items — same as trailer pages but with Motorhomes added.
+// Navigation items — unified Explore hub (motorhomes live inside Explore now).
 const NAV_ITEMS = [
   ['index.html', 'Explore', 'index'],
-  ['motorhomes.html', 'Motorhomes', 'motorhomes'],
   ['campsites.html', 'Campsites', 'campsites'],
   ['upgrades.html', 'Upgrades', 'upgrades'],
 ];
@@ -60,7 +59,7 @@ ${navLinks}
 </header>
 ${body}
 <footer class="site-footer">
-<p>Airstream Explorer · enthusiast catalog · ${_stats.floorplanCount} floorplans across ${_stats.familyCount} families (2026 + 2025). · <a href="${relRoot}index.html#all">Explore &amp; match</a> · <a href="${relRoot}motorhomes.html">Motorhomes</a> · <a href="${relRoot}compare.html">Compare</a> · <a href="${relRoot}campsites.html">Campsites</a> · <a href="${relRoot}upgrades.html">Upgrades</a> · <a href="${relRoot}community.html">Community photos</a> · <a href="${relRoot}credits.html">Credits</a></p>
+<p>Airstream Explorer · enthusiast catalog · ${_stats.floorplanCount} floorplans across ${_stats.familyCount} families (2026 + 2025). · <a href="${relRoot}index.html#all">Explore &amp; match</a> · <a href="${relRoot}index.html#all&type=motorhome">Motorhomes</a> · <a href="${relRoot}compare.html">Compare</a> · <a href="${relRoot}campsites.html">Campsites</a> · <a href="${relRoot}upgrades.html">Upgrades</a> · <a href="${relRoot}community.html">Community photos</a> · <a href="${relRoot}credits.html">Credits</a></p>
 <p class="muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Some imagery is AI-generated and labeled accordingly; community photographs are real and used under their stated Creative Commons / public-domain licenses (see credits).</p>
 </footer>
 <script src="${relRoot}assets/js/app.js" defer></script>
@@ -314,7 +313,7 @@ function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 export function renderMotorhomeDetail(m, resolve = motorhomeAssetPaths) {
   const a = resolve(m);
   const fam = motorhomeFamilySlug(m.model);
-  const official = motorhomeOfficialUrl(m.model);
+  const official = motorhomeOfficialUrlBySlug(m.slug, m.model);
   const heroImg = a.hero
     ? `<img src="../${esc(a.hero)}" alt="${esc(trailerTitle(m))}" class="detail-hero-img" width="1280" height="720">`
     : '';

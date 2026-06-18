@@ -341,20 +341,21 @@ test('detail page renders the towing callout from official GVWR (no derived rati
   assert.doesNotMatch(html, /Recommended minimum tow rating/);
 });
 
-test('top nav is exactly the 4 consolidated tabs — Explore / Motorhomes / Campsites / Upgrades', () => {
+test('top nav is exactly the 3 consolidated tabs — Explore / Campsites / Upgrades', () => {
   for (const html of [renderIndex(groupByFamily(trailers), trailers), renderExplore(trailers), renderCompare(trailers)]) {
     assert.match(html, /class="topnav-links"/);
     // exactly three top-level nav links (Campgrounds + Overnight Stays were
-    // merged into one Campsites hub)
+    // merged into one Campsites hub; Motorhomes now live inside the Explore grid)
     const nav = html.match(/<nav class="topnav-links"[^>]*>([\s\S]*?)<\/nav>/);
     assert.ok(nav, 'has a topnav-links nav');
     const links = nav[1].match(/<a /g) || [];
-    assert.equal(links.length, 4, 'exactly 4 top tabs');
-    // the four tabs are Explore (index) / Motorhomes / Campsites / Upgrades
+    assert.equal(links.length, 3, 'exactly 3 top tabs');
+    // the three tabs are Explore (index) / Campsites / Upgrades
     assert.match(nav[1], /href="index\.html"[^>]*>Explore</);
-    assert.match(nav[1], /href="motorhomes\.html"[^>]*>Motorhomes</);
     assert.match(nav[1], /href="campsites\.html"[^>]*>Campsites</);
     assert.match(nav[1], /href="upgrades\.html"[^>]*>Upgrades</);
+    // Motorhomes is no longer a top tab — it's a type filter inside Explore now
+    assert.doesNotMatch(nav[1], /href="motorhomes\.html"/);
     // the old separate Campgrounds + Overnight Stays tabs are gone from the nav
     assert.doesNotMatch(nav[1], /href="campgrounds\.html"/);
     assert.doesNotMatch(nav[1], /href="stays\.html"/);
@@ -368,7 +369,9 @@ test('top nav is exactly the 4 consolidated tabs — Explore / Motorhomes / Camp
 test('Compare + Community + Motorhomes survive as footer destinations (not top tabs)', () => {
   const home = renderIndex(groupByFamily(trailers), trailers);
   const footer = home.match(/<footer[\s\S]*?<\/footer>/)[0];
-  assert.match(footer, /motorhomes\.html/);
+  // Motorhomes is a footer entry that deep-links into the pre-filtered Explore grid
+  assert.match(footer, /index\.html#all&type=motorhome/);
+  assert.match(footer, />Motorhomes</);
   assert.match(footer, /compare\.html/);
   assert.match(footer, /community\.html/);
   assert.match(footer, /credits\.html/);

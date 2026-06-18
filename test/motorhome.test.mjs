@@ -4,6 +4,7 @@ import {
   loadMotorhomes, validateMotorhome, validateMotorhomeDataset,
   groupMotorhomesByFamily, motorhomeFamilyNames,
   MOTORHOME_OFFICIAL_URLS, motorhomeOfficialUrl,
+  MOTORHOME_OFFICIAL_URLS_BY_SLUG, motorhomeOfficialUrlBySlug,
 } from '../src/lib/motorhome-data.mjs';
 import {
   renderMotorhomeDetail, renderMotorhomeFamily, renderMotorhomeIndex,
@@ -187,6 +188,66 @@ test('all motorhome official URLs are https airstream.com', () => {
   }
 });
 
+// Regression guard for the broken-link bug (2026-06-18): a subagent had written
+// `/touring-coaches/{family}/` URLs that ALL 404'd, with a false "verified"
+// comment. The real pattern is `/explore-products/touring-coaches/...` and each
+// URL below was curl-verified HTTP 200. Casing on airstream.com is irregular
+// (atlas-25MS upper, interstate-24gtx lower, interstate-24GLX upper) — do NOT
+// "normalize" these; re-verify with curl if Airstream restructures.
+test('every motorhome has a per-slug official URL on the correct /explore-products/ path', () => {
+  for (const m of motorhomes) {
+    const url = motorhomeOfficialUrlBySlug(m.slug, m.model);
+    assert.ok(url, `no official URL for slug "${m.slug}"`);
+    assert.match(
+      url,
+      /^https:\/\/www\.airstream\.com\/explore-products\/touring-coaches\//,
+      `${m.slug} must use the /explore-products/touring-coaches/ pattern, got ${url}`,
+    );
+    // the old broken bare pattern must never come back
+    assert.doesNotMatch(
+      url,
+      /airstream\.com\/touring-coaches\//,
+      `${m.slug} regressed to the old 404 pattern: ${url}`,
+    );
+  }
+});
+
+test('per-slug official URLs exactly match the curl-verified (2026-06-18) targets', () => {
+  const EXPECTED = {
+    'atlas-25ms-2027': 'https://www.airstream.com/explore-products/touring-coaches/atlas/atlas-25MS',
+    'atlas-25rt-2027': 'https://www.airstream.com/explore-products/touring-coaches/atlas/atlas-25RT',
+    'interstate-24gtx-2026': 'https://www.airstream.com/explore-products/touring-coaches/interstate/interstate-24gtx',
+    'interstate-24glx-2027': 'https://www.airstream.com/explore-products/touring-coaches/interstate/interstate-24GLX',
+    'interstate-24gt-2027': 'https://www.airstream.com/explore-products/touring-coaches/interstate/interstate-24GT',
+    'interstate-24gl-2027': 'https://www.airstream.com/explore-products/touring-coaches/interstate/interstate-24GL',
+    'interstate-19gtx-2027': 'https://www.airstream.com/explore-products/touring-coaches/interstate/interstate-19GTX',
+    'interstate-19gt-2027': 'https://www.airstream.com/explore-products/touring-coaches/interstate/interstate-19GT',
+    'interstate-19x-2027': 'https://www.airstream.com/explore-products/touring-coaches/interstate/interstate-19X',
+    'rangeline-21pl-2027': 'https://www.airstream.com/explore-products/touring-coaches/rangeline/rangeline-21pl',
+    'rangeline-21ps-2027': 'https://www.airstream.com/explore-products/touring-coaches/rangeline/rangeline-21ps',
+  };
+  // every model in the dataset has an exact expected URL
+  for (const m of motorhomes) {
+    assert.equal(
+      MOTORHOME_OFFICIAL_URLS_BY_SLUG[m.slug],
+      EXPECTED[m.slug],
+      `official URL for ${m.slug} drifted from the verified target`,
+    );
+  }
+  // and the map has no stray/extra entries
+  assert.equal(Object.keys(MOTORHOME_OFFICIAL_URLS_BY_SLUG).length, Object.keys(EXPECTED).length);
+});
+
+test('family-landing official URLs also use the /explore-products/ path', () => {
+  for (const [slug, url] of Object.entries(MOTORHOME_OFFICIAL_URLS)) {
+    assert.match(
+      url,
+      /^https:\/\/www\.airstream\.com\/explore-products\/touring-coaches\//,
+      `family ${slug} must use /explore-products/ path, got ${url}`,
+    );
+  }
+});
+
 // ---------------------------------------------------------------------------
 // Off-grid estimator compatibility (motorhomes use the same estimator)
 // ---------------------------------------------------------------------------
@@ -320,9 +381,13 @@ test('renderMotorhomeExploreCard carries numeric data attributes', () => {
 // Navigation: Motorhome entry exists
 // ---------------------------------------------------------------------------
 
-test('motorhome index page nav includes Motorhomes link', () => {
+test('motorhome index (redirect shim) keeps the unified Explore nav — no Motorhomes top tab', () => {
   const fams = groupMotorhomesByFamily(motorhomes);
   const html = renderMotorhomeIndex(fams, motorhomes);
-  // The nav should have a Motorhomes tab
-  assert.match(html, /Motorhomes/);
+  // Motorhomes is no longer a top-nav tab — it's a type filter inside Explore.
+  const nav = html.match(/<nav class="topnav-links"[^>]*>([\s\S]*?)<\/nav>/);
+  assert.ok(nav, 'has a topnav-links nav');
+  assert.doesNotMatch(nav[1], /href="[^"]*motorhomes\.html"/);
+  // but the page still routes users into the unified Explore hub
+  assert.match(html, /index\.html#all&type=motorhome/);
 });
