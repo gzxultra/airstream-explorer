@@ -32,6 +32,12 @@ import { photoProxy, orgShort } from './campgrounds.mjs';
 import {
   LENS_META as STAY_LENS_META, loadOvernight, titleCase,
 } from './overnight.mjs';
+import {
+  enrichBoondockSite, seasonalRecommendation, renderBoondockDetail,
+} from './boondock-enhanced.mjs';
+import { SOLAR_CONSTANTS } from './solar-harvest.mjs';
+
+const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -341,22 +347,78 @@ function boondockCard(s) {
   const coords = `${s.lat.toFixed(4)}, ${s.lon.toFixed(4)}`;
   const geo = `https://www.openstreetmap.org/?mlat=${s.lat}&mlon=${s.lon}#map=14/${s.lat}/${s.lon}`;
 
+  // Enrich with computed intelligence (solar, dark sky, nearest resources, seasonal)
+  const enriched = enrichBoondockSite(s);
+  const seasonal = seasonalRecommendation(s);
+
+  // ---- Solar harvest mini-bar (summer vs winter) ----
+  const summerWh = enriched.solar.summerDailyWh;
+  const winterWh = enriched.solar.winterDailyWh;
+  const solarPct = Math.min(100, Math.max(0, Math.round((summerWh / (enriched.solar.panelWatts * 8)) * 100)));
+
+  // ---- Dark sky badge ----
+  const ds = enriched.darkSky;
+  const dsBadgeStyle = `background:${esc(ds.color)};color:${ds.bortle <= 4 ? '#fff' : '#111'}`;
+  const dsStars = ds.bortle <= 2 ? '★★★' : ds.bortle <= 4 ? '★★' : ds.bortle <= 6 ? '★' : '';
+
+  // ---- Nearest services ----
+  const waterMi = enriched.nearestWater
+    ? `${(enriched.nearestWater.distanceKm * 0.621371).toFixed(0)} mi`
+    : '—';
+  const dumpMi = enriched.nearestDump
+    ? `${(enriched.nearestDump.distanceKm * 0.621371).toFixed(0)} mi`
+    : '—';
+
+  // ---- Best months (abbreviated) ----
+  const bestMonthStr = seasonal.bestMonths.length >= 10
+    ? 'Year-round'
+    : seasonal.bestMonths.map((m) => MONTH_SHORT[m]).join(' · ');
+
+  const cardId = `bd-${String(s.id).replace(/[^a-z0-9]/gi, '')}`;  // unique per card for details toggle
+
   return `<article class="ov-card ov-card--boondock" data-lens="boondock" data-tier="community" data-name="${esc(name.toLowerCase())}" data-state="${esc((s.state || '').toLowerCase())}" data-rating="0" data-reviews="0" data-price="0">
 <div class="ov-media bd-media">
 ${boondockArt(s)}
 ${lensBadge('boondock')}
+<div class="bd-media-badges">
+<span class="bd-darksky-pin" style="${dsBadgeStyle}" title="${esc(ds.label)}">Bortle ${ds.bortle}${dsStars ? ' ' + dsStars : ''}</span>
+</div>
 </div>
 <div class="ov-body">
 <header class="ov-head">
 <h3 class="ov-name">${esc(name)}</h3>
 <p class="ov-loc">${esc(agency)}${abbr ? ` · ${loc}` : ''}</p>
 </header>
-<p class="bd-provenance"><svg class="bd-prov-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>Unverified · mapped by OpenStreetMap — confirm before you go</p>
+<p class="bd-provenance"><svg class="bd-prov-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>Unverified · OpenStreetMap — confirm before you go</p>
 <div class="ov-pills">${pills.join('')}</div>
+<div class="bd-intel">
+<div class="bd-intel-row">
+<span class="bd-intel-ico" aria-hidden="true">☀</span>
+<span class="bd-intel-label">Solar</span>
+<span class="bd-intel-val">${summerWh} Wh/day summer · ${winterWh} Wh/day winter</span>
+</div>
+<div class="bd-solar-bar-wrap" aria-label="Solar harvest ${solarPct}% of theoretical max">
+<div class="bd-solar-bar-track"><div class="bd-solar-bar-fill" style="width:${solarPct}%"></div></div>
+</div>
+<div class="bd-intel-row">
+<span class="bd-intel-ico" aria-hidden="true">💧</span>
+<span class="bd-intel-label">Water</span>
+<span class="bd-intel-val">${waterMi}</span>
+<span class="bd-intel-ico" aria-hidden="true" style="margin-left:10px">🚿</span>
+<span class="bd-intel-label">Dump</span>
+<span class="bd-intel-val">${dumpMi}</span>
+</div>
+<div class="bd-intel-row">
+<span class="bd-intel-ico" aria-hidden="true">📅</span>
+<span class="bd-intel-label">Best time</span>
+<span class="bd-intel-val">${esc(bestMonthStr)}</span>
+</div>
+<p class="bd-intel-note">Solar: NREL NSRDB · Dark sky: NASA VIIRS · Services: OSM · All estimates, verify before visit</p>
+</div>
 <p class="bd-coords"><span class="bd-coord-label">Approx.</span> ${esc(coords)}</p>
 <div class="bd-links">
-<a class="ov-link" href="${esc(geo)}" target="_blank" rel="noopener nofollow">Open map →</a>
-<a class="bd-osm" href="${esc(s.osmUrl)}" target="_blank" rel="noopener nofollow">Source</a>
+<a class="ov-link" href="${esc(geo)}" target="_blank" rel="noopener nofollow">Open in map →</a>
+<a class="bd-osm" href="${esc(s.osmUrl)}" target="_blank" rel="noopener nofollow">OSM source</a>
 </div>
 </div>
 </article>`;
