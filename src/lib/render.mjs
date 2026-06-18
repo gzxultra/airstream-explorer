@@ -751,7 +751,7 @@ ${specRow('Cargo capacity (CCC)', formatWeight(t.cccLb))}
 ${specRow('Hitch weight', formatWeight(t.hitchWeightLb))}
 ${specRow('Sleeps', String(t.sleeps))}
 ${specRow('Fresh / gray / black', formatTanks(t.freshGal, t.grayGal, t.blackGal))}
-${specRow('Solar', t.solarW ? `${t.solarW} W${t.solarStandard ? ' (standard)' : ''}` : '—')}
+${specRow('Solar', t.solarW ? `${t.solarW} W ${t.solarStandard ? '(standard)' : '(optional)'}` : '—')}
 ${specRow('Battery', t.batteryKwh ? `${t.batteryKwh} kWh` : '—')}
 ${specRow('Off-grid score', `${t.offGridScore} / 100`)}
 ${specRow('MSRP', formatMsrp(t.msrp))}

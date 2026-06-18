@@ -246,10 +246,12 @@ test('renderMotorhomeDetail labels standard vs optional factory solar', () => {
   const std = motorhomes.find((x) => x.slug === 'atlas-25ms-2027');
   const stdHtml = renderMotorhomeDetail(std);
   assert.match(stdHtml, /400 W \(standard\)/);
-  // Optional-solar model (Atlas 25RT) shows bare wattage, NOT "(standard)".
+  // Optional-solar model (Atlas 25RT) must be explicitly tagged "(optional)" —
+  // a bare "400 W" reads identical to the standard-equipped 25MS and hides the
+  // $3,500 upgrade. The factory solar is an add-on, so the spec must say so.
   const opt = motorhomes.find((x) => x.slug === 'atlas-25rt-2027');
   const optHtml = renderMotorhomeDetail(opt);
-  assert.match(optHtml, /400 W/);
+  assert.match(optHtml, /400 W \(optional\)/);
   assert.doesNotMatch(optHtml, /400 W \(standard\)/);
 });
 

@@ -135,6 +135,20 @@ test('renderDetail has full spec table with audited numbers', () => {
   assert.match(html, /\.\.\/assets\/img\/heroes\/classic\.webp/);
 });
 
+test('renderDetail labels standard vs optional factory solar (no bare wattage)', () => {
+  // Classic 33FB ships solar as standard equipment.
+  const stdHtml = renderDetail(classic);
+  assert.match(stdHtml, /300 W \(standard\)/);
+  // Bambi 16RB's 100 W solar is a factory OPTION, not standard. It must read
+  // "(optional)" — a bare "100 W" would look identical to standard-equipped
+  // models and hide that it's a paid add-on. (43 of 59 trailers are optional.)
+  const optional = trailers.find((t) => t.slug === 'bambi-16rb-2026');
+  assert.equal(optional.solarStandard, false, 'fixture precondition: Bambi 16RB solar is optional');
+  const optHtml = renderDetail(optional);
+  assert.match(optHtml, /100 W \(optional\)/);
+  assert.doesNotMatch(optHtml, /100 W \(standard\)/);
+});
+
 test('renderDetail renders an official floor-plan section when a diagram resolves', () => {
   const resolve = (t) => ({
     thumb: `assets/img/thumbs/${t.slug}.webp`,

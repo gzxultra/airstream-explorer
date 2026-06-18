@@ -343,7 +343,7 @@ ${specRow('Sleeps', String(m.sleeps))}
 ${m.seats ? specRow('Seats', String(m.seats)) : ''}
 ${specRow('Fresh / gray / black', formatTanks(m.freshGal, m.grayGal, m.blackGal))}
 ${m.fuelTankGal ? specRow('Fuel tank', `${m.fuelTankGal} gal`) : ''}
-${specRow('Solar', m.solarW ? `${m.solarW} W${m.solarStandard ? ' (standard)' : ''}` : '—')}
+${specRow('Solar', m.solarW ? `${m.solarW} W ${m.solarStandard ? '(standard)' : '(optional)'}` : '—')}
 ${specRow('Battery', m.batteryKwh ? `${m.batteryKwh} kWh` : '—')}
 ${m.inverterW ? specRow('Inverter', `${m.inverterW} W`) : ''}
 ${m.shorePowerAmp ? specRow('Shore power', `${m.shorePowerAmp} A`) : ''}
