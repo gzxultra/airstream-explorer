@@ -65,13 +65,13 @@
       "class": "Half-ton pickup",
       "config": "CrewMax 4\u00d74 \u00b7 3.4L i-FORCE twin-turbo V6",
       "maxTowLb": 11170,
-      "payloadLb": 1600,
-      "gvwrLb": 7390,
-      "curbWeightLb": 5790,
-      "gcwrLb": 17260,
+      "payloadLb": 1820,
+      "gvwrLb": 7210,
+      "curbWeightLb": 5390,
+      "gcwrLb": 17250,
       "sources": [
         "https://pickuptrucktalk.com/2022/02/2022-toyota-tundra-tow-gcwr-gvwr-tongue-weight-explained/",
-        "https://www.northgeorgiatoyota.com/2025-toyota-tundra-towing-guide.htm"
+        "https://www.edmunds.com/toyota/tundra/2025/crewmax/features-specs/"
       ]
     },
     {
