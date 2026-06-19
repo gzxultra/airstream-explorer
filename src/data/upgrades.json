@@ -346,11 +346,11 @@
           "sources": [
             {
               "label": "Nomadic Supply — Scopema Swivels for 2019+ Sprinter (FMVSS/CMVSS 207 & 210, 7/8\" rise)",
-              "url": "https://nomadicsupply.com/products/scopema-swivel-seats-for-2019-mercedes-sprinter-vans"
+              "url": "https://nomadicsupply.com/scopema-swivel-seats-for-2019-vs30-mercedes-sprinter-vans/"
             },
             {
               "label": "Sprinter Upgrades — Scopema VS30 swivel (US FMVSS 207/210, park-brake lowering kit)",
-              "url": "https://sprinterupgrades.com/products/scopema-sprinter-van-swivel-seat-base"
+              "url": "https://sprinterupgrades.com/products/scopema-sprinter-seat-swivel"
             }
           ]
         },
@@ -370,12 +370,12 @@
           ],
           "sources": [
             {
-              "label": "Sprinter Upgrades — SumoSprings (bolt to factory bump-stop brackets, reduce sag & sway)",
-              "url": "https://sprinterupgrades.com/products/sprinter-sumo-springs-front-2wd-pr"
+              "label": "Sprinter Upgrades — Rear SumoSprings for 3500/4500 (bolt to factory bump-stop brackets, reduce sag & sway)",
+              "url": "https://sprinterupgrades.com/products/sprinter-sumospring-rear-helper-spring"
             },
             {
-              "label": "Nomadic Supply — SumoSprings for Sprinter (progressive load control, levels the rear)",
-              "url": "https://nomadicsupply.com/products/sumosprings-front-rear-air-helper-spring-kit-for-mercedes-sprinter-3500-2wd-vans-k-30-006"
+              "label": "Sprinter Upgrades — front & rear SumoSprings combination kit (progressive load control, levels the rear)",
+              "url": "https://sprinterupgrades.com/products/sprinter-sumosprings-combination-package"
             }
           ]
         },
@@ -394,12 +394,12 @@
           ],
           "sources": [
             {
-              "label": "Commercial Carrier Journal — Hellwig rear sway bar for 2019 Sprinter 3500 (factory bars undersized; cuts body roll on RV conversions)",
-              "url": "https://www.ccjdigital.com/equipment/article/15066857/hellwig-launches-rear-sway-bar-for-2019-mercedes-sprinter-3500"
+              "label": "Agile Offroad — Hellwig rear sway bar for Sprinter 3500 VS30 (reduces body roll & sway on heavy, high-CG van conversions; 7777 for 2019+)",
+              "url": "https://agileoffroad.com/product/hellwig-rear-sway-bar-sprinter-3500-vs30/"
             },
             {
-              "label": "Lichtsinn RV — Hellwig rear sway bar for Mercedes Sprinter motorhomes (View/Navion)",
-              "url": "https://www.lichtsinn.com/hellwig-rear-sway-bar-for-your-mercedes-benz-sprinter-rv/"
+              "label": "Hellwig 7777 rear sway bar for 2019–23 Sprinter 3500/4500 — 1-1/2\" chromoly, bolt-on, factory end links (product listing)",
+              "url": "https://www.tractorsupply.com/tsc/product/hellwig-rear-sway-bar-2019-23-sprinter-3500-4500-7777"
             }
           ]
         },
@@ -409,7 +409,7 @@
           "fits": "both",
           "image": "assets/img/upgrades/starlink.webp",
           "priceText": "Mini $249–$349 hardware · Roam $50–$165/mo",
-          "why": "Genuine high-speed internet (65–260 Mbps, ~40 ms latency) anywhere you can see sky — the connectivity upgrade that changed remote work and boondocking. The laptop-sized Starlink Mini (~2.5 lb, built-in Wi-Fi 6) sips ~20–40W, easy to run off a van or trailer’s lithium-and-solar bank; the Roam plan adds in-motion and a cheap off-season standby. Obstruction-free placement matters more than anything.",
+          "why": "Genuine high-speed internet (50–200+ Mbps, ~40 ms latency) anywhere you can see sky — the connectivity upgrade that changed remote work and boondocking. The laptop-sized Starlink Mini (~2.5 lb, built-in Wi-Fi router) sips ~20–40W, easy to run off a van or trailer’s lithium-and-solar bank; the Roam plan adds in-motion and a cheap off-season standby. Obstruction-free placement matters more than anything.",
           "popular": "Starlink Mini on the Roam plan, with a cellular hotspot kept as backup for congested or tree-covered sites.",
           "consensus": "Frequently recommended",
           "consensusNote": "The dominant mobile-internet choice for full-time RVers and remote workers as of 2026; widely reviewed and documented, though a cellular backup is still advised.",
@@ -419,12 +419,12 @@
           ],
           "sources": [
             {
-              "label": "Roadtrippers — Starlink for RVs 2026 (Roam plans, Mini $249, power draw, in-motion)",
-              "url": "https://roadtrippers.com/magazine/starlink-for-rvs/"
+              "label": "Roadtrippers — Starlink for RVs (Roam plans, Mini weight/power draw, in-motion use)",
+              "url": "https://roadtrippers.com/magazine/what-rvers-need-to-know-about-starlink/"
             },
             {
-              "label": "SatelliteInternet.com — Starlink Roam review (Mini specs, 65–260 Mbps, deprioritization)",
-              "url": "https://www.satelliteinternet.com/providers/starlink/roam-review/"
+              "label": "RV Travel — Starlink Mini real-world setup, power draw (~20–25W) and cost",
+              "url": "https://www.rvtravel.com/video-perfect-starlink-mini-setup-drill-roof-mount-cost-speeds-2755/"
             }
           ]
         },
@@ -444,12 +444,12 @@
           ],
           "sources": [
             {
-              "label": "RV Outfitting — Starlink Roam for RV (cellular booster still recommended as backup in congested/fringe areas)",
-              "url": "https://rvoutfitting.com/starlink-roam-for-rv-review/"
+              "label": "WilsonAmplifiers — weBoost Drive Reach RV (50 dB gain, multi-user, official product detail)",
+              "url": "https://www.wilsonamplifiers.com/weboost-drive-reach-rv-cell-phone-signal-booster-470354/"
             },
             {
               "label": "Roadtrippers — Starlink for RVs (a cellular booster/hotspot is the recommended companion)",
-              "url": "https://roadtrippers.com/magazine/starlink-for-rvs/"
+              "url": "https://roadtrippers.com/magazine/what-rvers-need-to-know-about-starlink/"
             }
           ]
         }
@@ -615,12 +615,12 @@
           ],
           "sources": [
             {
-              "label": "Airstream 2019 International Owner’s Manual — tire & wheel replacement (Goodyear Endurance ST225/75R15, 2,830 lb @ 80 psi)",
-              "url": "https://www.manualslib.com/manual/1530353/Airstream-2019-International.html?page=73"
+              "label": "Airstream Support — Tire & Wheel Replacement (Goodyear Endurance ST225/75R15 @ 80 PSI = 2,830 lb load capacity; replace ST tires by 5 years)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360030539772-Tire-and-Wheel-Replacement"
             },
             {
-              "label": "Woodland Airstream Parts — Airstream installed-tire chart (Marathon→Endurance since 2017; load ranges by size)",
-              "url": "https://woodlandairstreamparts.com/pages/airstream-tire-information-maintenance"
+              "label": "Tire Rack — Goodyear Endurance ST trailer tire (official specs, sizes & load ranges)",
+              "url": "https://www.tirerack.com/tires/tires.jsp?tireMake=Goodyear&tireModel=Endurance&sidewall=Blackwall&partnum=075NR5END&tab=Specs"
             }
           ]
         },
@@ -923,11 +923,11 @@
           "sources": [
             {
               "label": "Roamly — How to Insulate RV Windows (independent testing: Reflectix cuts window heat loss ~3x, reflects up to 96% of radiant energy)",
-              "url": "https://www.roamly.com/post/how-to-insulate-rv-windows"
+              "url": "https://www.roamly.com/learning-center/how-to-insulate-rv-windows"
             },
             {
-              "label": "Outdoor Guide — DIY window insulation panels for van/car camping (Reflectix templates; silver-side orientation by season)",
-              "url": "https://www.outdoorguide.com/1755739/diy-window-insulation-car-camping-stay-warm/"
+              "label": "DoItYourselfRV — DIY Reflectix window insulation panels (radiant barrier + air gap, ~$5–10 each)",
+              "url": "https://www.doityourselfrv.com/mod-cold-weather-rv-window-insulation/"
             }
           ]
         }
