@@ -100,7 +100,7 @@ test('renderFamily defaults the toggle to the latest year, and the count matches
   assert.equal(visible, latestCount);
   // visible count equals the distinct floorplan count shown in the hero
   assert.equal(latestCount, bambiFam.floorplanCount);
-  assert.match(html, new RegExp(`id="result-count">${latestCount} floorplan`));
+  assert.match(html, new RegExp(`id="result-count"[^>]*>${latestCount} floorplan`));
 });
 
 test('single-year family shows all its cards with none hidden', () => {

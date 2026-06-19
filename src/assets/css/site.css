@@ -6,6 +6,13 @@
   --line: #E0D7C8;
   --copper: #B05C32;
   --copper-deep: #8A4524;
+  /* Accessible copper for small TEXT. Bare --copper (#B05C32) is only 4.15:1 on
+     --bg, which fails WCAG AA (4.5:1) for normal-size text. --copper-text is
+     5.25:1 on --bg / 5.68:1 on --surface — passes AA while staying brighter and
+     more copper than --copper-deep. Use --copper-text for small foreground text;
+     keep --copper for borders, fills, accent-colors, and large (≥24px) icons,
+     where the 3:1 non-text threshold applies and copper clears it. */
+  --copper-text: #9A4E25;
   --shadow: 0 1px 2px rgba(31,27,22,.05), 0 8px 24px rgba(31,27,22,.06);
   --radius: 2px;
   --maxw: 1120px;
@@ -26,7 +33,7 @@ a { color: var(--copper-deep); text-decoration: none; }
 a:hover { text-decoration: underline; }
 h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-spacing: -.01em; line-height: 1.1; }
 
-.eyebrow { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--copper); font-weight: 700; margin: 0 0 8px; }
+.eyebrow { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--copper-text); font-weight: 700; margin: 0 0 8px; }
 .muted { color: var(--muted); }
 
 /* ---------- Home header ---------- */
@@ -275,7 +282,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
   font-size: 16px; color: var(--ink); letter-spacing: -.01em;
 }
 .brandbar:hover { text-decoration: none; color: var(--copper-deep); }
-.brandbar-mark { color: var(--copper); font-size: 13px; transform: translateY(-1px); }
+.brandbar-mark { color: var(--copper-text); font-size: 13px; transform: translateY(-1px); }
 
 /* ---------- Family grid (home) ---------- */
 .fam-grid {
@@ -386,7 +393,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
   font-size: 11px; letter-spacing: .16em; text-transform: uppercase; font-weight: 600;
 }
 .viewseg-btn.is-active { color: var(--copper-deep); border-bottom-color: var(--copper); }
-.viewseg-btn.is-active .viewseg-sub { color: var(--copper); }
+.viewseg-btn.is-active .viewseg-sub { color: var(--copper-text); }
 @media (max-width: 560px) {
   .viewseg { gap: 22px; margin-top: 20px; }
   .viewseg-btn { padding-bottom: 10px; }
@@ -683,7 +690,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .est-per { font-family: 'DM Sans', sans-serif; font-size: 18px; color: var(--muted); font-weight: 500; margin-left: 2px; }
 .est-number-cap {
   font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700;
-  color: var(--copper); background: rgba(176,92,50,.1); padding: 5px 11px; border-radius: 100px;
+  color: var(--copper-text); background: rgba(176,92,50,.1); padding: 5px 11px; border-radius: 100px;
 }
 .est-detail { font-size: 14px; color: var(--muted); margin: 12px 0 0; }
 
@@ -695,7 +702,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .est-bar-val { font-size: 13px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
 
 .est-method { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 12px; }
-.est-method summary { font-size: 13px; font-weight: 600; color: var(--copper); cursor: pointer; list-style: none; }
+.est-method summary { font-size: 13px; font-weight: 600; color: var(--copper-text); cursor: pointer; list-style: none; }
 .est-method summary::-webkit-details-marker { display: none; }
 .est-method summary::before { content: '+ '; font-weight: 700; }
 .est-method[open] summary::before { content: '– '; }
@@ -765,10 +772,10 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 
 .tow-config { max-width: var(--maxw); margin: 16px 0 0; font-size: 13px; }
 .tow-config a { color: var(--copper-deep); font-weight: 600; }
-.tow-config a:hover { color: var(--copper); }
+.tow-config a:hover { color: var(--copper-text); }
 
 .tow-method { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; }
-.tow-method summary { font-size: 13px; font-weight: 600; color: var(--copper); cursor: pointer; list-style: none; }
+.tow-method summary { font-size: 13px; font-weight: 600; color: var(--copper-text); cursor: pointer; list-style: none; }
 .tow-method summary::-webkit-details-marker { display: none; }
 .tow-method summary::before { content: '+ '; font-weight: 700; }
 .tow-method[open] summary::before { content: '– '; }
@@ -785,7 +792,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 
 /* ===================== Campground Finder ===================== */
 .cg-hero { max-width: var(--maxw); margin: 0 auto; padding: 56px 24px 20px; }
-.cg-hero .eyebrow { font: 600 12px/1 "DM Sans", sans-serif; letter-spacing: .18em; color: var(--copper); margin: 0 0 14px; }
+.cg-hero .eyebrow { font: 600 12px/1 "DM Sans", sans-serif; letter-spacing: .18em; color: var(--copper-text); margin: 0 0 14px; }
 .cg-hero h1 { font: 600 clamp(34px, 6vw, 56px)/1.02 "Fraunces", serif; margin: 0 0 14px; letter-spacing: -.01em; }
 .cg-hero .lede { font-size: 18px; line-height: 1.5; color: var(--muted); max-width: 70ch; margin: 0; }
 .cg-hero .lede strong { color: var(--ink); }
@@ -808,7 +815,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 }
 .cg-col:hover { border-color: rgba(176,92,50,.45); transform: translateY(-1px); box-shadow: var(--shadow); text-decoration: none; }
 .cg-col:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
-.cg-col-eyebrow { font: 700 9.5px/1 "DM Sans", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--copper); }
+.cg-col-eyebrow { font: 700 9.5px/1 "DM Sans", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--copper-text); }
 .cg-col-label { font: 600 15px/1.15 "Fraunces", serif; letter-spacing: -.005em; }
 .cg-col-count { font: 600 11px/1 "DM Sans", sans-serif; color: var(--muted); letter-spacing: .02em; }
 .cg-col.is-on { background: var(--copper); border-color: var(--copper); color: #fff; box-shadow: var(--shadow); }
@@ -848,7 +855,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .cg-check { display: inline-flex; align-items: center; gap: 7px; text-transform: none; letter-spacing: 0; cursor: pointer; color: var(--ink); font-weight: 500; }
 .cg-check input { width: 16px; height: 16px; accent-color: var(--copper); }
 .cg-reset {
-  font: 600 13px "DM Sans", sans-serif; color: var(--copper); background: transparent;
+  font: 600 13px "DM Sans", sans-serif; color: var(--copper-text); background: transparent;
   border: 1px solid var(--line); border-radius: var(--radius); padding: 11px 16px; cursor: pointer; min-height: 42px;
 }
 .cg-reset:hover { border-color: var(--copper); background: var(--surface); }
@@ -948,7 +955,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 /* Popup inner content → editorial (.cg-pop is our markup inside the MapLibre popup) */
 .cg-pop { font: 500 13px/1.45 "DM Sans", sans-serif; color: var(--ink); min-width: 170px; }
 .cg-pop strong { font: 600 15px "Fraunces", serif; }
-.cg-pop a { color: var(--copper); font-weight: 600; text-decoration: none; }
+.cg-pop a { color: var(--copper-text); font-weight: 600; text-decoration: none; }
 .cg-pop-fit { display: inline-block; margin-top: 4px; padding: 2px 7px; border-radius: 999px; font-size: 11px; font-weight: 600; }
 /* MapLibre popup chrome → editorial (popup created with className 'cg-ml-popup') */
 .cg-ml-popup .maplibregl-popup-content {
@@ -1078,7 +1085,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
   border-radius: 8px;
   font: 500 12.5px/1.55 "DM Sans", sans-serif; color: var(--muted);
 }
-.cg-fit-honesty-icon { color: var(--copper); font-size: 11px; line-height: 1.5; flex: 0 0 auto; }
+.cg-fit-honesty-icon { color: var(--copper-text); font-size: 11px; line-height: 1.5; flex: 0 0 auto; }
 .cg-fit-empty {
   margin: 0 0 18px; padding: 16px; border: 1px dashed var(--line); border-radius: 10px;
   background: var(--surface); color: var(--muted);
@@ -1397,7 +1404,7 @@ body.cg-drawer-open { overflow: hidden; }
   white-space: nowrap;
 }
 .official-link:hover,
-.official-link:focus-visible { color: var(--copper); border-bottom-color: var(--copper); }
+.official-link:focus-visible { color: var(--copper-text); border-bottom-color: var(--copper); }
 .floorplan-fig figcaption .official-link { white-space: normal; }
 
 /* ===========================================================================
@@ -1623,7 +1630,7 @@ body.cg-drawer-open { overflow: hidden; }
 .ov-pill--len { color: var(--ink); }
 
 .ov-link { margin-top: auto; font-size: 13px; font-weight: 600; color: var(--copper-deep); letter-spacing: .01em; }
-.ov-link:hover { color: var(--copper); }
+.ov-link:hover { color: var(--copper-text); }
 .ov-foot { max-width: var(--maxw); margin: 0 auto; padding: 18px 20px 56px; font-size: 13px; line-height: 1.6; }
 
 @media (max-width: 900px) {

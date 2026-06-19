@@ -78,14 +78,17 @@ ${socialMeta({ title, description, canonicalPath, imagePath: ogImage, type: ogTy
 <link rel="stylesheet" href="${relRoot}assets/css/site.css">
 <link rel="stylesheet" href="${relRoot}assets/css/controls.css">
 <link rel="stylesheet" href="${relRoot}assets/css/premium.css">
+<meta name="view-transition" content="same-origin">
 ${head}</head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="topnav">
 <a class="brandbar" href="${relRoot}index.html"><span class="brandbar-mark">▲</span> Airstream Explorer</a>
 <nav class="topnav-links" aria-label="Primary">
 ${navLinks}
 </nav>
 </header>
+<a id="main-content" tabindex="-1"></a>
 ${body}
 <footer class="site-footer">
 <p>Airstream Explorer · enthusiast catalog · ${_stats.floorplanCount} floorplans across ${_stats.familyCount} families (2026 + 2025). · <a href="${relRoot}index.html#all">Explore &amp; match</a> · <a href="${relRoot}index.html#all&type=motorhome">Motorhomes</a> · <a href="${relRoot}compare.html">Compare</a> · <a href="${relRoot}campsites.html">Campsites</a> · <a href="${relRoot}campgrounds.html">Campground map</a> · <a href="${relRoot}upgrades.html">Upgrades</a> · <a href="${relRoot}maintenance.html">Maintenance</a> · <a href="${relRoot}community.html">Community photos</a> · <a href="${relRoot}credits.html">Credits</a></p>
@@ -123,7 +126,7 @@ export function renderFamilyCard(fam, linkPrefix = '') {
   const yrs = fam.years.join(' + ');
   return `<a class="fam" href="${linkPrefix}f/${esc(fam.slug)}.html" data-family="${esc(fam.family)}">
 <div class="fam-media">
-<img src="${linkPrefix}${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" loading="lazy" width="800" height="500">
+<img src="${linkPrefix}${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" loading="lazy" width="800" height="500" style="view-transition-name:vt-hero-${esc(fam.slug)}">
 ${limited}
 <span class="fam-plans">${esc(plans)}</span>
 </div>
@@ -265,7 +268,7 @@ ${fam.years
     : fam.trailers.length;
   const body = `<nav class="detail-nav"><a href="../index.html" class="back-link">← All families</a></nav>
 <header class="fam-hero">
-<img class="fam-hero-img" src="../${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" width="1280" height="720">
+<img class="fam-hero-img" src="../${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" width="1280" height="720" style="view-transition-name:vt-hero-${esc(fam.slug)}">
 <div class="fam-hero-overlay">
 <p class="eyebrow eyebrow-light">AIRSTREAM ${esc(fam.years.join(' + '))}</p>
 <h1>${esc(fam.family)} ${limited}</h1>
@@ -275,7 +278,7 @@ ${famOfficial ? `<p class="fam-hero-official"><a class="official-link official-l
 </header>
 <section class="controls" aria-label="Filters">
 ${yearSeg}
-<span class="count" id="result-count">${shownCount} floorplan${shownCount === 1 ? '' : 's'}</span>
+<span class="count" id="result-count" aria-live="polite" aria-atomic="true">${shownCount} floorplan${shownCount === 1 ? '' : 's'}</span>
 </section>
 <main class="cards" id="cards">
 ${cards}
@@ -342,7 +345,7 @@ export function renderOffGridTool(t) {
 <label class="est-check"><input type="checkbox" id="og-solar" checked> Count rooftop solar</label>
 </div>
 </div>
-<div class="est-result" id="og-result"
+<div class="est-result" id="og-result" aria-live="polite" aria-atomic="true"
  data-nights="${esc(formatNights(def.days))}"
  data-limiter="${esc(def.limiter === 'power' ? 'Battery-limited' : 'Water-limited')}"
  data-detail="${esc(cap(def.limiterDetail))}">
@@ -474,7 +477,7 @@ export function renderTowTool(t) {
 </select>
 </div>
 </div>
-<div class="tow-verdict ${esc(defMeta.cls)}" id="tow-verdict"
+<div class="tow-verdict ${esc(defMeta.cls)}" id="tow-verdict" aria-live="polite" aria-atomic="true"
  data-verdict="${esc(defResult.verdict)}">
 <div class="tow-verdict-badge">
 <span class="tow-verdict-label" id="tow-verdict-label">${esc(defMeta.label)}</span>
@@ -550,7 +553,7 @@ export function renderFuelTool(t) {
 <div class="est-input-suffix"><input type="number" id="fuel-price" value="${DEFAULT_FUEL_PRICE.toFixed(2)}" min="1" max="10" step="0.10"><span>$/gal</span></div>
 </div>
 </div>
-<div class="est-result" id="fuel-result">
+<div class="est-result" id="fuel-result" aria-live="polite" aria-atomic="true">
 <div class="est-big">
 <span class="est-number" id="fuel-cost">${esc(formatDollars(defResult.totalCost))}</span>
 <span class="est-per">estimated fuel</span>
@@ -643,7 +646,7 @@ export function renderPayloadTool(t) {
 <select id="payload-propane">${propaneOpts}</select>
 </div>
 </div>
-<div class="est-result" id="payload-result">
+<div class="est-result" id="payload-result" aria-live="polite" aria-atomic="true">
 <div class="est-big">
 <span class="est-number" id="payload-remaining">${esc(formatLb(def.remainingLb))}</span>
 <span class="est-number-cap ${esc(statusMeta.cls)}" id="payload-status">${esc(statusMeta.label)}</span>

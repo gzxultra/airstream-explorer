@@ -139,13 +139,16 @@
   // Shared helpers ----------------------------------------------------------
   function fmtLb(n) { return Math.round(n).toLocaleString('en-US') + ' lb'; }
   function fmtUsd(n) { return n > 0 ? '$' + Math.round(n).toLocaleString('en-US') : 'Price TBA'; }
-  // Compare selection is shared between Explore and Compare pages via storage.
-  var CMP_KEY = 'ax-compare';
+  // Compare selection is shared between Explore and Compare pages. Persist it in
+  // localStorage (via Store) so a shopper's shortlist survives across visits —
+  // matching the saved-campgrounds behavior, not the old per-session storage.
+  var CMP_KEY = 'compare';
   function cmpGet() {
-    try { return JSON.parse(sessionStorage.getItem(CMP_KEY) || '[]'); } catch (e) { return []; }
+    var v = Store.get(CMP_KEY, []);
+    return Array.isArray(v) ? v : [];
   }
   function cmpSet(list) {
-    try { sessionStorage.setItem(CMP_KEY, JSON.stringify(list.slice(0, 3))); } catch (e) {}
+    Store.set(CMP_KEY, (list || []).slice(0, 3));
   }
 
   // =========================================================================

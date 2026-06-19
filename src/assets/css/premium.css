@@ -176,3 +176,53 @@ input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
   }
   .card:hover, .fam:hover, .xcard:hover, .cg-card:hover { transform: none; }
 }
+
+/* ===========================================================================
+   ACCESSIBILITY — skip link (T-2)
+   A keyboard/screen-reader user shouldn't have to Tab through the whole nav on
+   every page. This link is the first focusable element; it's visually hidden
+   until focused, then slides into view and jumps to #main-content.
+   =========================================================================== */
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -48px;
+  z-index: 1000;
+  background: var(--copper-deep);
+  color: #fff;
+  font: 600 14px/1 "DM Sans", sans-serif;
+  padding: 10px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+  transition: top .18s ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  top: 12px;
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+/* The jump target carries no layout; just a focus anchor. */
+#main-content { scroll-margin-top: 72px; }
+
+/* ===========================================================================
+   VIEW TRANSITIONS — native MPA cross-fade between pages (QW-6)
+   Progressive enhancement: browsers without the API simply navigate normally.
+   The hero on a family/detail page shares a transition name with its card so
+   the image morphs across the navigation. Fully degraded under reduced motion.
+   =========================================================================== */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: .26s;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Kill the cross-fade entirely for motion-sensitive users. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  towFit, towFitLabel, sortTrailers, filterExplore, exploreTags, tagLabel, SORT_KEYS,
+  towFit, towFitLabel, sortTrailers, filterExplore, exploreTags, tagLabel, SORT_KEYS, CHIP_NOOP_RATE,
 } from '../src/lib/explore.mjs';
 import { loadTrailers } from '../src/lib/data.mjs';
 
@@ -112,12 +112,33 @@ test('filterExplore with no opts returns everything', () => {
 
 // ---- tags ------------------------------------------------------------------
 
-test('exploreTags returns curated order, only present tags', () => {
+test('exploreTags returns curated order, only useful filtering tags', () => {
   const tags = exploreTags(trailers);
-  assert.ok(tags.includes('off-grid'));
-  assert.ok(tags.includes('family'));
-  // curated order: couples/solo/family before luxury
-  assert.ok(tags.indexOf('family') < tags.indexOf('luxury'));
+  // 'family' still partitions the trailer set (97% but <100 leaves a remainder
+  // only when combined with motorhomes; on trailers alone it stays present).
+  assert.ok(tags.includes('full-time'));
+  assert.ok(tags.includes('luxury'));
+  // curated order: solo/family before luxury
+  assert.ok(tags.indexOf('solo') < tags.indexOf('luxury'));
+});
+
+test('exploreTags drops no-op chips carried by ~every model', () => {
+  // off-grid is on 100% of the catalog → tapping it filters out nothing, so it
+  // must NOT be offered as a chip. This is the QW-2 fix.
+  const all = exploreTags(trailers);
+  assert.ok(!all.includes('off-grid'), 'off-grid (100% of catalog) should be dropped');
+  // A synthetic tag on every item is likewise dropped; one on a subset stays.
+  const synthetic = trailers.map((t, i) => ({
+    ...t,
+    tags: i % 2 === 0 ? ['ubiquitous', 'rare-half'] : ['ubiquitous'],
+  }));
+  const tags = exploreTags(synthetic);
+  assert.ok(!tags.includes('ubiquitous'), 'tag on 100% of items is a no-op chip');
+  assert.ok(tags.includes('rare-half'), 'tag on 50% of items is a useful chip');
+});
+
+test('CHIP_NOOP_RATE is a sane high threshold', () => {
+  assert.ok(CHIP_NOOP_RATE > 0.5 && CHIP_NOOP_RATE <= 1);
 });
 
 test('tagLabel prettifies underscores and casing', () => {

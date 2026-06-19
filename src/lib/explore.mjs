@@ -91,16 +91,38 @@ export function filterExplore(list, opts = {}) {
 }
 
 /**
- * The distinct use-case tags present in the dataset, in a curated display
- * order (rarer/more-specific tags last). Tags not in the order list are
- * appended alphabetically so new tags still surface.
+ * A use-case chip is only worth showing if it actually PARTITIONS the catalog.
+ * A tag carried by (nearly) every model — e.g. `off-grid`, which sits on 100%
+ * of the lineup — can never narrow a search: tapping it filters out nothing, so
+ * it's visual noise masquerading as a control. Likewise a tag on zero models.
+ * Drop both. A tag on ≥90% of items is treated as a no-op chip.
+ */
+export const CHIP_NOOP_RATE = 0.9;
+
+/**
+ * The distinct use-case tags worth showing as filter chips, in a curated
+ * display order (rarer/more-specific tags last). Tags present but useless as a
+ * filter (on ≥90% of the catalog, or on none of it) are dropped — see
+ * CHIP_NOOP_RATE. Tags not in the order list are appended alphabetically so new
+ * tags still surface. Pass the FULL displayed set (trailers + motorhomes) so
+ * the hit-rate reflects what the chips actually filter.
  */
 export function exploreTags(trailers) {
   const order = ['couples', 'solo', 'family', 'full-time', 'off-grid', 'national_parks', 'luxury'];
-  const present = new Set();
-  for (const t of trailers) for (const tag of t.tags || []) present.add(tag);
-  const ordered = order.filter((t) => present.has(t));
-  const extra = [...present].filter((t) => !order.includes(t)).sort();
+  const total = trailers.length;
+  const counts = new Map();
+  for (const t of trailers) for (const tag of t.tags || []) counts.set(tag, (counts.get(tag) || 0) + 1);
+  // Keep only tags that meaningfully split the catalog.
+  const useful = (tag) => {
+    const n = counts.get(tag) || 0;
+    if (n === 0) return false;
+    if (total > 0 && n / total >= CHIP_NOOP_RATE) return false; // on ~everything → no-op
+    return true;
+  };
+  const present = [...counts.keys()].filter(useful);
+  const presentSet = new Set(present);
+  const ordered = order.filter((t) => presentSet.has(t));
+  const extra = present.filter((t) => !order.includes(t)).sort();
   return [...ordered, ...extra];
 }
 
