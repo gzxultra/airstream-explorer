@@ -341,19 +341,20 @@ test('detail page renders the towing callout from official GVWR (no derived rati
   assert.doesNotMatch(html, /Recommended minimum tow rating/);
 });
 
-test('top nav is exactly the 3 consolidated tabs — Explore / Campsites / Upgrades', () => {
+test('top nav is exactly the 4 consolidated tabs — Explore / Campsites / Upgrades / Maintenance', () => {
   for (const html of [renderIndex(groupByFamily(trailers), trailers), renderExplore(trailers), renderCompare(trailers)]) {
     assert.match(html, /class="topnav-links"/);
-    // exactly three top-level nav links (Campgrounds + Overnight Stays were
+    // exactly four top-level nav links (Campgrounds + Overnight Stays were
     // merged into one Campsites hub; Motorhomes now live inside the Explore grid)
     const nav = html.match(/<nav class="topnav-links"[^>]*>([\s\S]*?)<\/nav>/);
     assert.ok(nav, 'has a topnav-links nav');
     const links = nav[1].match(/<a /g) || [];
-    assert.equal(links.length, 3, 'exactly 3 top tabs');
-    // the three tabs are Explore (index) / Campsites / Upgrades
+    assert.equal(links.length, 4, 'exactly 4 top tabs');
+    // the four tabs are Explore (index) / Campsites / Upgrades / Maintenance
     assert.match(nav[1], /href="index\.html"[^>]*>Explore</);
     assert.match(nav[1], /href="campsites\.html"[^>]*>Campsites</);
     assert.match(nav[1], /href="upgrades\.html"[^>]*>Upgrades</);
+    assert.match(nav[1], /href="maintenance\.html"[^>]*>Maintenance</);
     // Motorhomes is no longer a top tab — it's a type filter inside Explore now
     assert.doesNotMatch(nav[1], /href="motorhomes\.html"/);
     // the old separate Campgrounds + Overnight Stays tabs are gone from the nav

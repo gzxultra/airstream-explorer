@@ -1885,3 +1885,141 @@ body.cg-drawer-open { overflow: hidden; }
   .payload-tool .est-number { font-size: 28px; }
   .payload-gear-grid { grid-template-columns: 1fr; }
 }
+
+/* ===========================================================================
+   MAINTENANCE PAGE — a sourced service calendar (class prefix: mt-).
+   Harmonized with the upgrades card language: editorial cards, copper accents,
+   a severity meter (●●○) and a two-dimension filter lens (cadence + severity).
+   =========================================================================== */
+.mt-jump {
+  max-width: var(--maxw); margin: 0 auto 8px; padding: 0 20px;
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.mt-jump a {
+  font-size: 12.5px; font-weight: 600; letter-spacing: .02em;
+  color: var(--copper-deep); background: rgba(176,92,50,.08);
+  border: 1px solid rgba(176,92,50,.20); border-radius: 999px;
+  padding: 6px 13px; white-space: nowrap;
+}
+.mt-jump a:hover { background: rgba(176,92,50,.16); text-decoration: none; }
+
+.maintenance { max-width: var(--maxw); margin: 0 auto; padding: 16px 20px 24px; }
+.mt-sec { margin: 0 0 52px; scroll-margin-top: 84px; }
+.mt-sec-head { display: flex; align-items: baseline; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 10px; margin-bottom: 10px; }
+.mt-sec-head h2 { font-size: clamp(22px, 3.2vw, 32px); margin: 0; }
+.mt-sec-count { font-size: 13px; color: var(--muted); font-weight: 700; letter-spacing: .06em; }
+.mt-sec-blurb { color: var(--muted); margin: 0 0 22px; max-width: 74ch; font-size: 15px; line-height: 1.6; }
+
+.mt-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+.mt-card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  display: flex; flex-direction: column; overflow: hidden;
+  border-left: 3px solid var(--line);
+}
+.mt-card[hidden] { display: none !important; }
+/* Severity sets the card's left accent — a glanceable triage stripe. */
+.mt-card.sev--safety { border-left-color: #b3402e; }
+.mt-card.sev--preventive { border-left-color: var(--copper); }
+.mt-card.sev--upkeep { border-left-color: #5a7350; }
+.mt-card-body { padding: 17px 20px 17px; display: flex; flex-direction: column; flex: 1; }
+.mt-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 11px; flex-wrap: wrap; }
+
+/* Interval pill — the "when" badge with its cadence icon, copper-tinted. */
+.mt-interval {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--copper-deep); background: rgba(176,92,50,.09);
+  border: 1px solid rgba(176,92,50,.22); border-radius: 999px;
+  padding: 4px 11px 4px 8px; white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.mt-ico { width: 15px; height: 15px; flex: none; }
+
+/* Severity meter (●●○) + label, color-coded by tier. */
+.mt-sev { display: inline-flex; align-items: center; gap: 7px; }
+.mt-pips { display: inline-flex; gap: 3px; align-items: center; }
+.mt-pip { width: 7px; height: 7px; border-radius: 999px; background: transparent; border: 1.5px solid var(--muted); opacity: .4; }
+.mt-pip.is-on { opacity: 1; }
+.mt-sev-label { font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+/* Tier colors: safety = red, preventive = copper, upkeep = muted green. */
+.mt-sev.is-safety .mt-pip.is-on { background: #b3402e; border-color: #b3402e; }
+.mt-sev.is-safety .mt-sev-label { color: #b3402e; }
+.mt-sev.is-preventive .mt-pip.is-on { background: var(--copper); border-color: var(--copper); }
+.mt-sev.is-preventive .mt-sev-label { color: var(--copper-deep); }
+.mt-sev.is-upkeep .mt-pip.is-on { background: #5a7350; border-color: #5a7350; }
+.mt-sev.is-upkeep .mt-sev-label { color: #4c6344; }
+
+.mt-name { font-family: 'Fraunces', Georgia, serif; font-size: 19px; font-weight: 600; color: var(--ink); margin: 0 0 9px; line-height: 1.2; }
+.mt-why { font-size: 13.5px; line-height: 1.6; color: var(--ink); margin: 0 0 12px; }
+
+/* The actionable "how to do it" block — set apart so it reads as the do-now. */
+.mt-do {
+  font-size: 13px; line-height: 1.55; color: var(--ink); margin: 0 0 11px;
+  padding: 11px 13px; background: rgba(176,92,50,.05);
+  border-left: 2px solid var(--copper); border-radius: 0 var(--radius) var(--radius) 0;
+}
+.mt-do p { margin: 0; }
+.mt-do-label { display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--copper-deep); margin-bottom: 3px; }
+
+/* Applies-to line — the conditional scoping (e.g. Suburban tanks only). */
+.mt-applies { font-size: 12.5px; line-height: 1.5; color: var(--muted); margin: 0 0 12px; }
+.mt-applies-label { font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-size: 10px; color: var(--copper-deep); margin-right: 4px; }
+
+.mt-sources { margin-top: auto; font-size: 13px; }
+.mt-sources summary { cursor: pointer; color: var(--muted); font-weight: 600; letter-spacing: .02em; padding: 4px 0; }
+.mt-sources summary:hover { color: var(--copper-deep); }
+.mt-sources ul { margin: 6px 0 2px; padding-left: 18px; }
+.mt-sources li { margin: 4px 0; line-height: 1.45; }
+
+.mt-foot { max-width: var(--maxw); margin: 0 auto; padding: 0 20px 56px; font-size: 13px; line-height: 1.6; }
+
+/* --- Legend: how to read the schedule ----------------------------------- */
+.mt-legend { max-width: var(--maxw); margin: 0 auto 6px; padding: 0 20px; }
+.mt-legend > summary {
+  cursor: pointer; font-size: 13px; font-weight: 700; letter-spacing: .02em;
+  color: var(--copper-deep); padding: 8px 0; list-style: none; display: inline-flex; align-items: center; gap: 7px;
+}
+.mt-legend > summary::-webkit-details-marker { display: none; }
+.mt-legend > summary::before { content: "▸"; font-size: 11px; transition: transform .15s ease; }
+.mt-legend[open] > summary::before { transform: rotate(90deg); }
+.mt-legend-body { padding: 6px 0 14px; max-width: 82ch; }
+.mt-legend-lede { font-size: 13.5px; line-height: 1.6; color: var(--ink); margin: 0 0 14px; }
+.mt-legend-h { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--copper-deep); margin: 16px 0 4px; }
+.mt-legend-row { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: baseline; padding: 7px 0; border-top: 1px solid var(--line); }
+.mt-legend-row .mt-legend-pips { grid-column: 1; }
+.mt-legend-name { font-size: 12px; font-weight: 700; letter-spacing: .03em; color: var(--ink); }
+.mt-legend-blurb { font-size: 13px; line-height: 1.5; color: var(--muted); }
+/* When a row leads with the severity pips, the name sits next to them. */
+.mt-legend-row .mt-legend-pips + .mt-legend-name { grid-column: 2; }
+.mt-legend-row .mt-legend-pips ~ .mt-legend-blurb { grid-column: 1 / -1; }
+
+/* --- Filter lens (revealed by JS) --------------------------------------- */
+.mt-lens { max-width: var(--maxw); margin: 8px auto 4px; padding: 16px 20px; }
+.mt-lens-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 12px; }
+.mt-lens-label {
+  flex: 0 0 70px; font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted);
+}
+.mt-lens-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.mt-chip {
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; min-height: 38px;
+  background: var(--surface); color: var(--muted); border: 1px solid var(--line);
+  border-radius: 999px; padding: 7px 14px;
+  transition: border-color .15s ease, color .15s ease, background-color .15s ease, box-shadow .15s ease, transform .12s ease;
+}
+.mt-chip:hover { border-color: var(--copper); color: var(--copper-deep); transform: translateY(-1px); }
+.mt-chip[aria-pressed="true"] { background: var(--copper); border-color: var(--copper); color: #fff; box-shadow: 0 2px 6px rgba(138,69,36,.22); }
+.mt-lens-foot { display: flex; align-items: center; gap: 16px; padding-top: 2px; border-top: 1px solid var(--line); margin-top: 4px; }
+.mt-lens-count { font-size: 14px; color: var(--muted); padding-top: 12px; font-variant-numeric: tabular-nums; }
+.mt-lens-reset {
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; min-height: 38px;
+  background: transparent; color: var(--muted); border: 1px solid var(--line);
+  border-radius: 999px; padding: 7px 16px; margin-top: 10px;
+}
+.mt-lens-reset:hover { color: var(--ink); border-color: var(--muted); }
+.mt-empty { max-width: var(--maxw); margin: 8px auto 0; padding: 0 20px 8px; font-size: 15px; color: var(--muted); }
+
+@media (max-width: 860px) {
+  .mt-grid { grid-template-columns: 1fr; }
+  .mt-lens-label { flex-basis: 100%; }
+}

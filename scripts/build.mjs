@@ -12,6 +12,7 @@ import { loadMotorhomes, validateMotorhomeDataset, groupMotorhomesByFamily, moto
 import { renderMotorhomeIndex, renderMotorhomeFamily, renderMotorhomeDetail } from '../src/lib/motorhome-render.mjs';
 import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
 import { loadUpgrades, validateUpgrades, renderUpgradesBody } from '../src/lib/upgrades.mjs';
+import { loadMaintenance, validateMaintenance, renderMaintenanceBody } from '../src/lib/maintenance.mjs';
 import { loadOvernight, validateOvernight, renderOvernightBody } from '../src/lib/overnight.mjs';
 import { loadBoondocking, validateBoondocking, renderCampsitesBody } from '../src/lib/campsites.mjs';
 import { loadCampgrounds, validateCampgrounds } from '../src/lib/campgrounds.mjs';
@@ -60,6 +61,19 @@ if (upgradeProblems.length) {
 }
 const upgradeCount = upgrades.categories.reduce((n, c) => n + c.items.length, 0);
 log(`upgrades ok: ${upgradeCount} items in ${upgrades.categories.length} categories (all sourced)`);
+
+// 1e-2. Load + validate maintenance schedule (fail the build if any task lacks
+//     a cadence, severity, actionable step, or a source link — every interval
+//     on this page must trace to a primary source: Airstream's own schedule,
+//     the axle/appliance/tire makers. Inventing a service interval is exactly
+//     the failure this page exists to avoid).
+const maintenance = loadMaintenance();
+const maintenanceProblems = validateMaintenance(maintenance);
+if (maintenanceProblems.length) {
+  throw new Error('Maintenance data invalid:\n' + maintenanceProblems.join('\n'));
+}
+const maintenanceCount = maintenance.categories.reduce((n, c) => n + c.items.length, 0);
+log(`maintenance ok: ${maintenanceCount} tasks in ${maintenance.categories.length} cadences (all sourced)`);
 
 // 1f. Load + validate curated overnight stays (Recreation.gov campgrounds
 //     filtered into two intents: off-grid "Big Views" + serviced "Full
@@ -196,6 +210,19 @@ writeFileSync(
 );
 log('wrote upgrades.html');
 
+// 4c-2. Maintenance schedule page (root-level, so relRoot = '')
+writeFileSync(
+  join(DIST, 'maintenance.html'),
+  page({
+    title: 'Airstream maintenance schedule — a sourced service calendar',
+    description: 'A real maintenance calendar for Airstream travel trailers, organized by cadence from before-every-trip to seasonal winterizing. Every interval is traced to a primary source — Airstream\u2019s own schedule, Dexter, Suburban/Dometic, and the tire industry — with the Airstream-specific gotchas (Nev-R-Lube sealed bearings, aluminum sealed seams, Suburban-only anode rods) called out.',
+    body: renderMaintenanceBody(maintenance, ''),
+    active: 'maintenance',
+    canonicalPath: 'maintenance.html',
+  }),
+);
+log('wrote maintenance.html');
+
 // 4d. Campsites hub (root-level, so relRoot = '') — the unified page that
 //     merges overnight stays (Big Views + Full Hookups, Recreation.gov) with
 //     boondocking (free dispersed, OpenStreetMap) under three filter lenses.
@@ -321,6 +348,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     join(DIST, 'compare.html'),
     join(DIST, 'campgrounds.html'),
     join(DIST, 'upgrades.html'),
+    join(DIST, 'maintenance.html'),
     join(DIST, 'campsites.html'),
     join(DIST, 'stays.html'),
     join(DIST, 'community.html'),
@@ -358,6 +386,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     { file: join(DIST, 'compare.html'), base: DIST },
     { file: join(DIST, 'campgrounds.html'), base: DIST },
     { file: join(DIST, 'upgrades.html'), base: DIST },
+    { file: join(DIST, 'maintenance.html'), base: DIST },
     { file: join(DIST, 'campsites.html'), base: DIST },
     { file: join(DIST, 'community.html'), base: DIST },
     { file: join(DIST, 'credits.html'), base: DIST },

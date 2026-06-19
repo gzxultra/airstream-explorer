@@ -544,6 +544,104 @@
   })();
 
   // =========================================================================
+  // 2a-2. MAINTENANCE PAGE — filter the service-task cards by cadence (when)
+  //     and severity. Two dimensions: within a dimension values are OR'd,
+  //     across dimensions they're AND'd. Progressive enhancement: the page is
+  //     fully readable with no JS; this only reveals the lens and wires it up.
+  //     Self-guards off every other page.
+  // =========================================================================
+  (function maintenanceFilter() {
+    var lens = document.getElementById('mt-lens');
+    var main = document.getElementById('mt-main');
+    if (!lens || !main) return;
+
+    var cards = Array.prototype.slice.call(main.querySelectorAll('.mt-card'));
+    if (!cards.length) return;
+    var sections = Array.prototype.slice.call(main.querySelectorAll('[data-sec]'));
+    var chips = Array.prototype.slice.call(lens.querySelectorAll('.mt-chip'));
+    var countEl = document.getElementById('mt-count');
+    var resetEl = document.getElementById('mt-reset');
+    var emptyEl = document.getElementById('mt-empty');
+    var emptyReset = document.getElementById('mt-empty-reset');
+
+    // Server-rendered hidden so it never flashes for no-JS readers.
+    lens.removeAttribute('hidden');
+
+    var state = { cadence: [], severity: [] };
+
+    var MT_PREFS = 'maintenance.prefs';
+    (function restore() {
+      var p = Store.get(MT_PREFS, null);
+      if (!p || typeof p !== 'object') return;
+      ['cadence', 'severity'].forEach(function (k) {
+        if (Array.isArray(p[k])) state[k] = p[k].filter(function (v) { return typeof v === 'string'; });
+      });
+    })();
+    function persist() { Store.set(MT_PREFS, state); }
+
+    function matches(card) {
+      if (state.cadence.length && state.cadence.indexOf(card.getAttribute('data-cadence')) === -1) return false;
+      if (state.severity.length && state.severity.indexOf(card.getAttribute('data-severity')) === -1) return false;
+      return true;
+    }
+
+    function apply() {
+      var shown = 0;
+      cards.forEach(function (card) {
+        if (matches(card)) { card.removeAttribute('hidden'); shown++; }
+        else { card.setAttribute('hidden', ''); }
+      });
+      sections.forEach(function (sec) {
+        var secCards = Array.prototype.slice.call(sec.querySelectorAll('.mt-card'));
+        var vis = secCards.filter(function (c) { return !c.hasAttribute('hidden'); }).length;
+        var c = sec.querySelector('[data-seccount]');
+        if (c) c.textContent = vis;
+        if (vis === 0) sec.setAttribute('hidden', '');
+        else sec.removeAttribute('hidden');
+      });
+      var any = state.cadence.length || state.severity.length;
+      if (countEl) {
+        countEl.textContent = any
+          ? (shown + ' of ' + cards.length + ' tasks')
+          : (cards.length + ' tasks');
+      }
+      if (resetEl) { if (any) resetEl.removeAttribute('hidden'); else resetEl.setAttribute('hidden', ''); }
+      if (emptyEl) { if (shown === 0) emptyEl.removeAttribute('hidden'); else emptyEl.setAttribute('hidden', ''); }
+    }
+
+    function toggle(dim, val, btn) {
+      var arr = state[dim];
+      if (!arr) return;
+      var i = arr.indexOf(val);
+      if (i === -1) { arr.push(val); btn.setAttribute('aria-pressed', 'true'); }
+      else { arr.splice(i, 1); btn.setAttribute('aria-pressed', 'false'); }
+      persist(); apply();
+    }
+
+    chips.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        toggle(btn.getAttribute('data-filter'), btn.getAttribute('data-value'), btn);
+      });
+    });
+
+    function resetAll() {
+      state = { cadence: [], severity: [] };
+      chips.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+      Store.del(MT_PREFS);
+      apply();
+    }
+    if (resetEl) resetEl.addEventListener('click', resetAll);
+    if (emptyReset) emptyReset.addEventListener('click', resetAll);
+
+    chips.forEach(function (btn) {
+      var dim = btn.getAttribute('data-filter');
+      var val = btn.getAttribute('data-value');
+      if (state[dim] && state[dim].indexOf(val) !== -1) btn.setAttribute('aria-pressed', 'true');
+    });
+    apply();
+  })();
+
+  // =========================================================================
   // 2b. UNIQUE STAYS PAGE — filter the stay cards by type (lookout / cabin /
   //     dispersed). Single dimension, "All" resets. Server-rendered full;
   //     this only enhances. Self-guards off every other page.

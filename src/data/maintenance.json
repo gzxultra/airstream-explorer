@@ -1,0 +1,385 @@
+{
+  "intro": "A real maintenance calendar for an Airstream travel trailer — not a generic RV checklist. Every interval below is traced to a primary source: Airstream's own published schedule, the appliance and axle makers (Dexter, Suburban, Dometic), or the tire industry. Where Airstream differs from a typical stick-and-tin RV — sealed Nev-R-Lube bearings instead of greaseable hubs, an aluminum monocoque with sealed seams instead of a rubber roof — we say so, because following the wrong schedule is how owners damage these trailers. Intervals are 'whichever comes first'. This is an independent reference; always defer to the manual for your specific model year and your appliance/axle data plates.",
+  "cadenceLegend": {
+    "trip": "Before every trip",
+    "monthly": "Monthly / ~1,000 mi",
+    "quarterly": "Quarterly / ~5,000 mi",
+    "semiannual": "Twice a year / ~10,000 mi",
+    "annual": "Once a year",
+    "multiyear": "Every few years",
+    "seasonal": "Seasonal (storage)"
+  },
+  "severityLegend": {
+    "safety": "Safety-critical — a failure here can cause loss of control, a wheel separation, fire, or CO exposure. Do not defer.",
+    "preventive": "Prevents expensive damage — water intrusion, corrosion, tank or appliance failure. Cheap now, costly if skipped.",
+    "upkeep": "Routine care — keeps things working smoothly and protects resale, but a missed cycle won't hurt the trailer."
+  },
+  "categories": [
+    {
+      "id": "before-every-trip",
+      "title": "Before every trip",
+      "blurb": "The five-minute walkaround that prevents the failures that strand people. Airstream's own guidance is to inspect tires and test every lug nut before each trip, and to re-check lugs after any wheel has been off. None of this needs tools beyond a pressure gauge and a torque wrench.",
+      "items": [
+        {
+          "name": "Check tire pressure (cold) on all tires + spare",
+          "cadence": "trip",
+          "severity": "safety",
+          "intervalText": "Before every trip · cold",
+          "why": "Under-inflation is the number-one cause of trailer-tire failure: a soft tire builds heat at highway speed until the casing lets go. Airstream's schedule lists a cold tire-pressure check at the most frequent interval (every 1,000 mi / 60 days) and tells you to check before every trip. Set to the pressure on the tire placard / data plate, not the number molded on the sidewall (that's the max). Don't forget the spare — it's no help at the right moment if it's flat.",
+          "doThis": "With tires cold (driven less than ~1 mi), set every tire including the spare to the placard PSI. A blowout-prevention TPMS that watches pressure and temperature while you tow is the most-recommended tire upgrade.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — regular maintenance schedule (tires: check pressure; inspect before every trip)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        },
+        {
+          "name": "Test every lug nut / torque to spec",
+          "cadence": "trip",
+          "severity": "safety",
+          "intervalText": "Before every trip · re-torque after any wheel removal",
+          "why": "Wheel separation is a real failure mode on trailers, which is why Airstream prints a WHEEL SEPARATION CAN OCCUR warning. Airstream's current published torque is 110 ft-lbs for aluminum wheels and 100 ft-lbs for steel wheels (older manuals listed 95–120 — always use the figure for your model year). After any wheel has been removed, re-torque at 10, 25 and 50 miles as the clamp load settles.",
+          "doThis": "Use a calibrated torque wrench, not an impact gun, in a star pattern. Current Airstream spec: aluminum 110 ft-lbs, steel 100 ft-lbs. Re-torque at 10/25/50 mi after any wheel service or winter storage.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (lug torque: aluminum 110, steel 100 ft-lbs; test lug nuts)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        },
+        {
+          "name": "Inspect tires for dry rot, uneven wear & age",
+          "cadence": "trip",
+          "severity": "safety",
+          "intervalText": "Before every trip · replace by age (see Annual)",
+          "why": "Airstream tells you to inspect for dry rot and uneven wear before every trip — sidewall crazing means the rubber is breaking down, and uneven wear points to an axle out of alignment. Trailer tires almost always age out before they wear out (see the tire-age item under Annual).",
+          "doThis": "Look for fine sidewall cracks (dry rot) and any wear that's heavier on one edge. Uneven wear → have the axle alignment checked at a dealer. Keep tires covered in storage to slow UV aging.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (inspect tires for dry rot and uneven wear before every trip)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        },
+        {
+          "name": "Test safety systems: brakes, breakaway, lights, hitch",
+          "cadence": "trip",
+          "severity": "safety",
+          "intervalText": "Before every trip",
+          "why": "A quick functional test of the things that keep the trailer attached and stoppable. The breakaway switch applies the trailer brakes if it ever separates from the tow vehicle — a dead breakaway battery makes it useless. Confirm the brake controller responds, all running/brake/turn lights work through the 7-way, and the coupler is latched and pinned.",
+          "doThis": "Tug-test the hitch coupler, confirm breakaway battery holds charge, cycle the brake controller, and have someone verify all 7-way lights. Check for loose hitch bolts or unusual wear.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (hitch: check for loose bolts/wear; breakaway switch)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "monthly",
+      "title": "Monthly · every ~1,000 miles or 60 days",
+      "blurb": "Airstream's most-frequent service block. Quick checks on the safety detectors, battery, and the things that shake loose on a trailer that endures, in Airstream's words, 'a sizable earthquake' every time you tow.",
+      "items": [
+        {
+          "name": "Test smoke, CO & LP detectors",
+          "cadence": "monthly",
+          "severity": "safety",
+          "intervalText": "Every 1,000 mi / 60 days",
+          "why": "A travel trailer combines a propane system, a combustion water heater and furnace, and people sleeping in a sealed aluminum tube — CO and smoke detection is non-negotiable. Airstream lists testing the smoke alarm and CO detector in the every-1,000-mi/60-day block, and detectors have a finite life (typically replace the whole unit every 5–7 years per the date on the back).",
+          "doThis": "Press-to-test each detector; replace backup batteries as needed. Check the manufacture date on each unit and replace the whole detector at its stated end-of-life.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (smoke alarm & CO detector: test and replace battery)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        },
+        {
+          "name": "Check battery & test the GFCI",
+          "cadence": "monthly",
+          "severity": "preventive",
+          "intervalText": "Every 1,000 mi / 60 days",
+          "why": "Airstream lists a battery check and a GFCI test-and-record in the 1,000-mi/60-day block. On a flooded lead-acid bank, check the electrolyte level and top up with distilled water only (this doesn't apply to AGM/glass-mat or lithium). Testing the GFCI confirms your shore-power protection is live.",
+          "doThis": "Lead-acid: check water level, top up with distilled water only. AGM/lithium: skip the water, just confirm state of charge. Press TEST then RESET on the GFCI outlet and confirm it trips.",
+          "appliesTo": "All Airstream travel trailers (water-level step applies to flooded lead-acid only)",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (battery water level, lead-acid only; GFI test and record)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        },
+        {
+          "name": "Check escape window & exterior latches",
+          "cadence": "monthly",
+          "severity": "upkeep",
+          "intervalText": "Every 1,000 mi / 60 days",
+          "why": "The emergency-escape window is a life-safety exit; Airstream lists checking its latch and upper hinge operation in the most-frequent block. While you're at it, confirm exterior compartment latches and the entry door are operating and not working loose from road vibration.",
+          "doThis": "Open and close the escape window, confirm latches and the upper hinge move freely and seal. Verify exterior latches secure.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (escape window: check latches and upper hinge)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "quarterly",
+      "title": "Quarterly · every ~5,000 miles or 90 days",
+      "blurb": "Lubrication and the moving hardware that keeps working only if it's cared for: locks, hinges, the propane hold-down and regulator vent, the breakaway switch, and the door step. Airstream specifies the exact lubricant for each so you don't gum up a lock with the wrong product.",
+      "items": [
+        {
+          "name": "Lubricate locks, hinges & latches (correct lube each)",
+          "cadence": "quarterly",
+          "severity": "upkeep",
+          "intervalText": "Every 5,000 mi / 90 days",
+          "why": "Road grit and salt seize up locks and hinges if they're never lubricated — and using the wrong product makes it worse (oil in a lock attracts grit). Airstream specifies dry graphite for the main door latch and exterior door locks, light household oil for exterior hinges, and the door striker pocket coated with paraffin.",
+          "doThis": "Dry graphite into the door locks and main latch; a drop of light household oil on exterior hinges and the LPG hold-down; paraffin on the door striker pocket. Avoid petroleum products on window gaskets.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (door locks: dry graphite; hinges: light oil; striker: paraffin)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        },
+        {
+          "name": "Service the breakaway switch & 7-way plug",
+          "cadence": "quarterly",
+          "severity": "safety",
+          "intervalText": "Every 5,000 mi / 90 days",
+          "why": "The breakaway switch is the last line of defense if the trailer ever separates — Airstream's procedure is to pull the pin and lubricate with household oil, and replace the pin immediately after. Spraying the 7-way plug with contact cleaner keeps brake-controller and lighting signals reliable through a corroded connector.",
+          "doThis": "Pull the breakaway pin, lubricate with household oil, reinsert (replace a worn pin). Spray the 7-way trailer plug contacts with electrical contact cleaner.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (breakaway switch: pull pin & lubricate; 7-way plug: contact cleaner)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        },
+        {
+          "name": "Lubricate hitch ball & check LPG regulator vent",
+          "cadence": "quarterly",
+          "severity": "preventive",
+          "intervalText": "Every 5,000 mi / 90 days",
+          "why": "A dry hitch ball wears the coupler and squeals; Airstream calls for hitch-ball lube or wheel-bearing grease. The LPG regulator's bottom vent must be clear of mud-dauber nests and debris so the regulator can breathe and deliver steady propane pressure — a blocked vent causes erratic appliance operation.",
+          "doThis": "Grease the hitch ball (skip this on friction anti-sway hitches — check your hitch maker's guidance). Inspect the LPG regulator's bottom vent for obstructions and clear gently.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (hitch ball lube; LPG regulator: check bottom vent)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "semiannual",
+      "title": "Twice a year · every ~10,000 miles or 6 months",
+      "blurb": "The big mechanical block: brakes, the sealed Nev-R-Lube bearings (which Airstream says to inspect, not repack — this is where Airstreams differ from greaseable-hub RVs), tire rotation, and a full wax. This is the work that protects the running gear and the famous aluminum shell.",
+      "items": [
+        {
+          "name": "Inspect Nev-R-Lube sealed bearings — do NOT repack",
+          "cadence": "semiannual",
+          "severity": "safety",
+          "intervalText": "At tire rotation / 6 mo — inspect only",
+          "why": "This is the single most-misapplied Airstream maintenance item. Modern Airstreams ride on Dexter Torflex axles with Nev-R-Lube sealed-cartridge bearings — pre-lubricated, sealed for life, carrying a 5-year / 100,000-mile limited warranty. Airstream's instruction is to visually inspect the bearings at tire rotation and defer to Dexter — NOT to repack them. The 'grease every 12,000 mi / 12 months' rule you'll read everywhere is for Dexter's E-Z Lube greaseable hubs, a different axle; pumping grease at a Nev-R-Lube cartridge does nothing useful. Replace the cartridge (a press job) if you find play, noise, roughness or heat.",
+          "doThis": "At each tire rotation, check each wheel for excessive end-play, listen/feel for roughness, and watch for heat or seal weeping after a drive. Any of those → have the sealed cartridge replaced per Dexter spec. Don't try to 'grease' a Nev-R-Lube hub. (E-Z Lube hubs, if your axle has them, do get repacked/greased per Dexter — know which axle you have from the data plate.)",
+          "appliesTo": "Airstreams with Dexter Nev-R-Lube axles (most modern models). E-Z Lube hubs follow Dexter's grease interval instead.",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (Nev-R-Lube: visually inspect at tire rotation; refer to Dexter)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            },
+            {
+              "label": "Dexter — Nev-R-Lube sealed cartridge bearing flyer (sealed for life, no bearing maintenance; 5-yr/100k warranty)",
+              "url": "https://blog.oemdtc.com/4637/lit-215-00-nev-r-lube-sealed-cartridge-bearing-system-e-z-lube-bearing-lubrication-system-dexter/"
+            }
+          ]
+        },
+        {
+          "name": "Inspect electric brakes",
+          "cadence": "semiannual",
+          "severity": "safety",
+          "intervalText": "Every 10,000 mi / 6 mo",
+          "why": "Airstream lists brake inspection (inspect or replace as necessary) in the 10,000-mi/6-month block. Worn magnets, thin shoes, or scored drums all lengthen stopping distance on a heavy trailer. Many Dexter brakes are now self-adjusting (Nev-R-Adjust); older or manually-adjusted brakes need their shoe-to-drum gap set.",
+          "doThis": "Pull a drum (or inspect through the access slot) to check shoe thickness, magnet wear and drum surface. Confirm the brake controller's gain is set so the trailer brakes firmly without locking. Set adjustment on non-self-adjusting brakes.",
+          "appliesTo": "All Airstream travel trailers with electric brakes",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (brakes: inspect or replace as necessary)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        },
+        {
+          "name": "Rotate tires & lubricate the spare carrier",
+          "cadence": "semiannual",
+          "severity": "preventive",
+          "intervalText": "Every 10,000 mi / 6 mo",
+          "why": "Airstream lists 'tires: inspect and rotate' and lubricating the spare-tire carrier's moving parts in the 10,000-mi/6-month block. Rotation evens out wear across positions; a seized spare carrier is a miserable surprise on the roadside.",
+          "doThis": "Rotate per your manual's pattern and re-torque lugs at 10/25/50 mi afterward. Lubricate the spare carrier's moving parts so it actually lowers when you need it.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (tires: inspect and rotate; spare tire carrier: lubricate)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        },
+        {
+          "name": "Clean & treat window and door seals; wax the shell",
+          "cadence": "semiannual",
+          "severity": "preventive",
+          "intervalText": "Every 10,000 mi / 6 mo · wax spring & fall",
+          "why": "Airstream calls for cleaning window and door seals with mild detergent and coating with a silicone seal treatment ('Slipicone') in the 10,000-mi block, and waxing the exterior. On the polished/clear-coated aluminum, Airstream recommends washing about every four weeks and waxing in spring and fall with a clear-coat-safe wax; in coastal or winter-salt conditions, more often. Always work the cloth with the grain (horizontal), never up-and-down, or you'll leave fine scratches that catch the sun.",
+          "doThis": "Clean seals with mild detergent, treat with a silicone seal conditioner (not petroleum). Wash with the grain; wax with a clear-coat-safe product spring and fall. Remove road salt immediately after winter travel.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (window/door seals: clean & coat; exterior: wax)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "annual",
+      "title": "Annual",
+      "blurb": "The once-a-year jobs that protect the structure and the systems: resealing the seams that keep water out of an aluminum monocoque, servicing the battery and propane, the water-heater anode (on Suburban tanks only), and the single most important number on your tires — their age.",
+      "items": [
+        {
+          "name": "Inspect & reseal exterior seams, windows, vents",
+          "cadence": "annual",
+          "severity": "preventive",
+          "intervalText": "Annually · time to fall & spring",
+          "why": "Water intrusion is the thing that quietly destroys a trailer, and an Airstream's defense is the sealant along its riveted aluminum seams, awning rail, windows, lights and roof penetrations — not a rubber roof membrane. Airstream's guidance: check and reseal exterior seams, windows, lights and vents as needed, and time the inspection to when you winterize and de-winterize (fall and spring). Because the shell is aluminum with sealed seams, this is NOT the 'recoat the rubber roof / Dicor lap sealant' job from typical RVs — use the sealant Airstream/your dealer specifies for the seam, and take it to a dealer if the original sealant is deteriorating.",
+          "doThis": "Twice a year (fall/spring), inspect the roof around vents, the awning rail, side-sheet seams, doors and windows for cracked or lifting sealant. Reseal as needed with the correct Airstream-spec sealant, or have the dealer do it. Don't apply rubber-roof lap sealant to an aluminum Airstream.",
+          "appliesTo": "All Airstream travel trailers (aluminum body, sealed seams)",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (seams: check & reseal; time sealant inspections to fall & spring)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        },
+        {
+          "name": "Replace tires by age — not by tread",
+          "cadence": "annual",
+          "severity": "safety",
+          "intervalText": "Check DOT date yearly · replace ~5–7 yrs",
+          "why": "Trailer ('ST') tires almost always time out before they wear out: the rubber oxidizes and the casing weakens from the inside even while the tread looks deep, because a parked trailer's tires don't flex enough to circulate their own anti-aging compounds. The industry guideline is to replace ST tires around 5–7 years from their build date regardless of tread, and the tire makers' hard ceiling is 10 years for any tire. Read the DOT date code on the sidewall (last four digits = week + year; e.g. 3523 = 35th week of 2023) on every tire, including the spare.",
+          "doThis": "Once a year, read the DOT date on every tire and the spare. Plan replacement at ~5–7 years from build date; never run any tire past 10 years. Keep tires covered in storage and off bare ground to slow UV and ozone aging.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "General Tire — service-life recommendation (replace tires over 10 years old regardless of appearance; reading the DOT date)",
+              "url": "https://generaltire.com/our-world/latest-news/what-is-the-service-life-of-a-passenger-or-light-truck-tire"
+            },
+            {
+              "label": "Girl Camper — tire age truths (NTSB & makers: replace tires older than ~6 years regardless of condition; reading the DOT code)",
+              "url": "https://girlcamper.com/are-your-tires-tired/"
+            }
+          ]
+        },
+        {
+          "name": "Service the water heater anode — Suburban steel tanks only",
+          "cadence": "annual",
+          "severity": "preventive",
+          "intervalText": "Annually (at winterize/de-winterize)",
+          "why": "Know your water heater before you touch it — this is the other big where-it-goes-wrong item. A Suburban heater uses a glass-lined STEEL tank with a replaceable sacrificial anode rod: inspect it yearly and replace once it's ~75% consumed (steel core showing). An Atwood/Dometic heater uses an ALUMINUM tank with the anode material fused into the lining — it has no rod, and you should NOT install an aftermarket one (the steel threads gall in the aluminum and it has built-in cathodic protection already). Many newer Airstreams also ship with a tankless on-demand heater, which has no anode at all and instead needs periodic descaling. Check your unit's data plate to know which you have.",
+          "doThis": "Suburban (steel): pull the anode at the annual flush, replace if ~75% gone or the steel core shows; flush sediment with a wand while it's open. Atwood/Dometic (aluminum): no anode — just drain/flush, leave the plastic drain plug, do not fit a rod. Tankless: descale per the maker's instructions.",
+          "appliesTo": "Anode applies to Suburban steel-tank heaters only. Atwood/Dometic aluminum tanks and tankless units have no anode rod.",
+          "sources": [
+            {
+              "label": "RVtravel / Ask the RV Engineer — Suburban (steel) uses a replaceable anode; Dometic (aluminum) has an integral anode, no aftermarket rod",
+              "url": "https://www.rvtravel.com/youve-told-rvs-anode-rod-wrong-1149/"
+            }
+          ]
+        },
+        {
+          "name": "Service battery terminals & purge LP tanks",
+          "cadence": "annual",
+          "severity": "preventive",
+          "intervalText": "Annually",
+          "why": "Airstream's annual block calls for cleaning, neutralizing and coating the battery terminals with petroleum jelly to stop corrosion creep, and having the LP (propane) tanks purged by your LP supplier. A freshly purged tank removes air and moisture so the regulator and appliances run cleanly.",
+          "doThis": "Clean battery terminals, neutralize any corrosion, coat with petroleum jelly. Have the propane supplier purge the LP tanks and confirm the regulator and OPD valves are sound.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (annual: battery terminals clean/neutralize/coat; LP tanks purged by supplier)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        },
+        {
+          "name": "Inspect hitch coupler, interior cabinetry & screws",
+          "cadence": "annual",
+          "severity": "upkeep",
+          "intervalText": "Annually",
+          "why": "Airstream's annual block calls for confirming the hitch coupler and ball operate freely (replace any worn component) and a visual inspection of interior cabinet latches, locks, hinges and slides, with silicone spray as needed. Towing shakes everything loose over a season — Airstream likens even 30 minutes at highway speed to a sustained earthquake — so a screw-tightening pass protects the interior.",
+          "doThis": "Work the coupler and ball through their full motion; replace anything worn. Walk the interior tightening loose screws and latches; silicone-spray sticky hinges and slides.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (annual: hitch coupler/ball; interior cabinetry latches, locks, hinges, slides)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seasonal",
+      "title": "Seasonal · winterize & de-winterize",
+      "blurb": "If you store where it freezes, this is the most important thing you do all year — water left in the lines expands and cracks pipes, valves, the pump and the water heater. These steps follow Airstream's own published winterization and de-winterization procedures.",
+      "items": [
+        {
+          "name": "Winterize the water system (drain or antifreeze)",
+          "cadence": "seasonal",
+          "severity": "preventive",
+          "intervalText": "Before first hard freeze",
+          "why": "Water expands as it freezes and will crack pipes, fittings, the pump and the water-heater tank. Airstream's procedure: level the trailer, open all faucets, run the pump to expel the fresh tank, open every drain (including the water-heater drain and the low-point drains), then blow the lines clear with about 50 psi at the city-water inlet. An optional added layer is to pump non-toxic RV antifreeze through the lines — with the water-heater bypass valve set to BYPASS so you don't waste six gallons filling the tank. Use only non-toxic RV antifreeze; automotive antifreeze is highly toxic.",
+          "doThis": "Drain fresh tank, water heater and low-point drains; blow out lines at ~50 psi. Optionally pump non-toxic RV antifreeze with the water heater BYPASSED. Dump and flush the holding tanks. Pour a cup of RV antifreeze in each drain trap and the toilet. Pull the batteries to a cool dry place; clear out food to deter pests.",
+          "appliesTo": "All Airstream travel trailers stored in freezing climates",
+          "sources": [
+            {
+              "label": "Airstream Support — Winterization Guide (drain + 50 psi blow-out; antifreeze method; bypass water heater; non-toxic RV antifreeze only)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360030870191-Winterization-Guide-How-to-Winterize-an-Airstream-Travel-Trailer"
+            }
+          ]
+        },
+        {
+          "name": "De-winterize: flush antifreeze & sanitize the fresh system",
+          "cadence": "seasonal",
+          "severity": "preventive",
+          "intervalText": "Spring, before first use",
+          "why": "In spring you reverse the process and, importantly, sanitize the fresh-water system before you drink from it. Airstream's de-winterization steps: close the low-point drains, set the water-heater bypass back to normal, connect fresh water and run every hot and cold tap (and the toilet/showers) until the antifreeze is fully flushed, then run a fresh-water-system cleaner/sanitizer through to disinfect and clear any lingering odor before filling the fresh tank. It's also the moment to lubricate the sticky dump-valve handles with penetrating oil.",
+          "doThis": "Close low-point drains, un-bypass the water heater, flush all lines of antifreeze (hot & cold, toilet, showers). Sanitize the fresh system with an approved cleaner (or a measured bleach-and-water dose), let it dwell, then flush. Lubricate dump-valve handles; inspect sewer hoses.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream — The Five Steps to De-Winterization (flush antifreeze; add fresh-water-system cleaner to disinfect before filling; lube dump handles)",
+              "url": "https://www.airstream.com/airstream-lifestyle/stories-hub/the-five-steps-to-dewinterization/"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "footnote": "Intervals are 'whichever comes first' and follow Airstream's published schedule plus the appliance, axle and tire makers' guidance. Your specific model year, axle type (Nev-R-Lube vs E-Z Lube), and water heater (Suburban steel vs Atwood/Dometic aluminum vs tankless) change some of these tasks — always confirm against your owner's manual and the data plates on your axle and water heater. Independent reference, not affiliated with Airstream, Inc."
+}
