@@ -77,6 +77,7 @@ export function validateMaintenance(data) {
   if (!data.intro) problems.push('maintenance: missing intro');
 
   const ids = new Set();
+  const cids = new Set();
   for (const cat of data.categories) {
     if (!cat.id) problems.push('category missing id');
     if (ids.has(cat.id)) problems.push(`duplicate category id: ${cat.id}`);
@@ -111,6 +112,77 @@ export function validateMaintenance(data) {
           else if (!/^https?:\/\//.test(s.url)) problems.push(`${tag}: source url not http(s): ${s.url}`);
         }
       }
+
+      // --- Optional cost block. Informational estimates only (HARD RULE 2:
+      // never a "buy here" price). A source is required only when a non-zero
+      // dollar figure is actually claimed — a $0 "your time only" task makes no
+      // monetary claim and needs nothing to cite. ---
+      if (it.cost) {
+        const okBand = (b) =>
+          !b ||
+          ((b.low == null || typeof b.low === 'number') &&
+            (b.high == null || typeof b.high === 'number'));
+        if (!okBand(it.cost.diy) || !okBand(it.cost.pro)) {
+          problems.push(`${tag}: cost band must be numeric (low/high)`);
+        }
+        const claimsMoney = ['diy', 'pro'].some((k) => {
+          const b = it.cost[k];
+          return b && (Number(b.low) > 0 || Number(b.high) > 0);
+        });
+        if (claimsMoney) {
+          if (!Array.isArray(it.cost.sources) || it.cost.sources.length === 0) {
+            problems.push(`${tag}: cost figure present but no cost.sources[] (every dollar figure must be sourced)`);
+          } else {
+            for (const s of it.cost.sources) {
+              if (!s.label || !/^https?:\/\//.test(s.url || '')) {
+                problems.push(`${tag}: bad cost source (needs label + http(s) url)`);
+              }
+            }
+          }
+        }
+      }
+
+      // --- Optional diagram. Hand-built inline SVG line-art ONLY. The
+      // no-raster / no-external-ref check is what enforces HARD RULE 1
+      // (no AI/photographic imagery) at build time. ---
+      if (it.diagram) {
+        const svg = (it.diagram.svg || '').trim();
+        if (!/^<svg[\s>]/.test(svg)) {
+          problems.push(`${tag}: diagram.svg must be inline <svg> markup`);
+        }
+        if (/<image\b|xlink:href|href\s*=|https?:/i.test(it.diagram.svg || '')) {
+          problems.push(`${tag}: diagram.svg must be self-contained line-art (no <image>, href, or external URL)`);
+        }
+      }
+
+      // --- Optional rig scoping. Powers the "My rig" filter. ---
+      if (it.rig) {
+        const enums = {
+          axle: ['nevrlube', 'ezlube', 'any'],
+          heater: ['suburban', 'atwood', 'tankless', 'any'],
+          battery: ['flooded', 'sealed', 'any'],
+        };
+        for (const k of Object.keys(enums)) {
+          if (it.rig[k] && enums[k].indexOf(it.rig[k]) === -1) {
+            problems.push(`${tag}: bad rig.${k} "${it.rig[k]}"`);
+          }
+        }
+      }
+
+      // --- Stable checklist key uniqueness. data-cid = slug(name); two tasks
+      // sharing a slug would share localStorage state, so fail the build. ---
+      const cid = slug(it.name || 'task');
+      if (cids.has(cid)) problems.push(`${tag}: duplicate task slug "${cid}" (checklist keys must be unique)`);
+      cids.add(cid);
+    }
+  }
+
+  // --- Optional top-level cadence timeline ribbon. Same SVG safety gate. ---
+  if (data.cadenceTimeline && data.cadenceTimeline.svg) {
+    const svg = data.cadenceTimeline.svg.trim();
+    if (!/^<svg[\s>]/.test(svg)) problems.push('cadenceTimeline.svg must be inline <svg> markup');
+    if (/<image\b|xlink:href|href\s*=|https?:/i.test(data.cadenceTimeline.svg)) {
+      problems.push('cadenceTimeline.svg must be self-contained line-art (no <image>, href, or external URL)');
     }
   }
   return problems;
@@ -154,6 +226,77 @@ function severitySignal(it) {
 </span>`;
 }
 
+/** Numeric data-attr helper: emits ` name="N"` only when N is a finite number. */
+function numAttr(name, n) {
+  return typeof n === 'number' && isFinite(n) ? ` ${name}="${n}"` : '';
+}
+
+/** Rig scoping → data attributes (default "any" so unset tasks always show). */
+function rigAttrs(it) {
+  const r = it.rig || {};
+  return ` data-rig-axle="${esc(r.axle || 'any')}" data-rig-heater="${esc(r.heater || 'any')}" data-rig-battery="${esc(r.battery || 'any')}"`;
+}
+
+/** Short money label for a band: "Free" / "$N" / "$lo–hi". */
+function bandLabel(band) {
+  if (!band) return null;
+  const lo = Number(band.low);
+  const hi = Number(band.high);
+  if (!isFinite(lo) && !isFinite(hi)) return null;
+  if ((isFinite(lo) ? lo : 0) === 0 && (isFinite(hi) ? hi : 0) === 0) return 'Free';
+  if (lo === hi) return '$' + lo;
+  return '$' + (isFinite(lo) ? lo : 0) + '\u2013' + (isFinite(hi) ? hi : '?');
+}
+
+/** Cost row: DIY vs Shop chips + a sourced note. Informational estimates only —
+ *  never a "buy here" price (HARD RULE 2). Renders nothing without a cost block. */
+function costRow(it) {
+  const c = it.cost;
+  if (!c || (!c.diy && !c.pro)) return '';
+  const diy = bandLabel(c.diy);
+  const pro = bandLabel(c.pro);
+  const chips = [];
+  if (diy) {
+    const t = c.diy && c.diy.text ? ` title="${esc(c.diy.text)}"` : '';
+    chips.push(`<span class="mt-cost-chip is-diy"${t}><span class="mt-cost-k">DIY</span><span class="mt-cost-v">${esc(diy)}</span></span>`);
+  }
+  if (pro) {
+    const t = c.pro && c.pro.text ? ` title="${esc(c.pro.text)}"` : '';
+    chips.push(`<span class="mt-cost-chip is-pro"${t}><span class="mt-cost-k">Shop</span><span class="mt-cost-v">${esc(pro)}</span></span>`);
+  }
+  if (!chips.length) return '';
+  const srcUrl = Array.isArray(c.sources) && c.sources.length ? c.sources[0] : null;
+  const srcLink = srcUrl
+    ? ` <a class="mt-cost-src" href="${esc(srcUrl.url)}" target="_blank" rel="noopener nofollow" aria-label="Cost source: ${esc(srcUrl.label)}">est. source</a>`
+    : '';
+  const note = c.note
+    ? `<p class="mt-cost-note">${esc(c.note)}${srcLink}</p>`
+    : srcLink
+      ? `<p class="mt-cost-note">${srcLink}</p>`
+      : '';
+  return `<div class="mt-cost" role="group" aria-label="Estimated cost">
+<span class="mt-cost-label">Est. cost <span class="mt-cost-est">· estimate, not a quote</span></span>
+<span class="mt-cost-chips">${chips.join('')}</span>
+${note}
+</div>`;
+}
+
+/** Inline SVG diagram, collapsed by default to keep the grid tidy. The SVG is
+ *  hand-built line-art (no raster, no external ref — enforced by the validator)
+ *  and emitted verbatim. */
+function diagramBlock(it) {
+  const d = it.diagram;
+  if (!d || !d.svg) return '';
+  const cap = d.caption ? `<figcaption class="mt-fig-cap">${esc(d.caption)}</figcaption>` : '';
+  return `<details class="mt-diagram">
+<summary><span class="mt-diagram-ico" aria-hidden="true">\u25C8</span> <span>Show diagram</span></summary>
+<figure class="mt-fig">
+<div class="mt-fig-art" role="img" aria-label="${esc((d.caption || 'Maintenance diagram').slice(0, 120))}">${d.svg}</div>
+${cap}
+</figure>
+</details>`;
+}
+
 /** One maintenance task card. Carries data-* attributes the filter lens reads. */
 function taskCard(it, relRoot = '') {
   const cadMeta = CADENCE_META[it.cadence] || { short: it.cadence };
@@ -170,16 +313,34 @@ function taskCard(it, relRoot = '') {
   const applies = it.appliesTo
     ? `<p class="mt-applies"><span class="mt-applies-label">Applies to</span> ${esc(it.appliesTo)}</p>`
     : '';
-  return `<article class="mt-card mt-card--${esc(it.cadence)} sev--${esc(it.severity)}" data-cadence="${esc(it.cadence)}" data-severity="${esc(it.severity)}" data-pips="${sevMeta.pips}" data-name="${esc((it.name || '').toLowerCase())}">
+
+  // Cost data attributes feed the budget rollup + DIY/Shop toggle re-totals. Only
+  // the recurring per-service band rides here; one-time tooling lives in the note.
+  const c = it.cost || {};
+  const costAttrs =
+    numAttr('data-diy-low', c.diy && Number(c.diy.low)) +
+    numAttr('data-diy-high', c.diy && Number(c.diy.high)) +
+    numAttr('data-pro-low', c.pro && Number(c.pro.low)) +
+    numAttr('data-pro-high', c.pro && Number(c.pro.high));
+
+  // Stable per-card id for the checklist (slug of name) so localStorage survives rebuilds.
+  const cid = slug(it.name || 'task');
+
+  return `<article class="mt-card mt-card--${esc(it.cadence)} sev--${esc(it.severity)}" data-cadence="${esc(it.cadence)}" data-severity="${esc(it.severity)}" data-pips="${sevMeta.pips}" data-name="${esc((it.name || '').toLowerCase())}" data-cid="${esc(cid)}"${rigAttrs(it)}${costAttrs}>
 <div class="mt-card-body">
 <div class="mt-card-top">
 <span class="mt-interval">${cadenceIcon(it.cadence)}<span>${esc(it.intervalText || cadMeta.short)}</span></span>
 ${severitySignal(it)}
 </div>
+<div class="mt-check" hidden>
+<label class="mt-check-lab"><input type="checkbox" class="mt-check-box" data-cid="${esc(cid)}"><span class="mt-check-txt">Done</span></label>
+</div>
 <h3 class="mt-name">${esc(it.name)}</h3>
 <p class="mt-why">${esc(it.why)}</p>
 ${doThis}
+${diagramBlock(it)}
 ${applies}
+${costRow(it)}
 <details class="mt-sources">
 <summary>Sources (${it.sources.length})</summary>
 <ul>${sources}</ul>
@@ -229,10 +390,73 @@ function filterLens(data) {
 <div class="mt-lens-row"><span class="mt-lens-label">Severity</span><div class="mt-lens-chips">${sevBtns}</div></div>
 <div class="mt-lens-foot">
 <span class="mt-lens-count" id="mt-count"></span>
+<span class="mt-progress" id="mt-progress" hidden></span>
 <button type="button" class="mt-lens-reset" id="mt-reset" hidden>Clear filters</button>
 </div>
 </div>
 <p class="mt-empty" id="mt-empty" hidden>No tasks match those filters. <button type="button" class="linkbtn" id="mt-empty-reset">Clear filters</button></p>`;
+}
+
+/** "My rig" selects + checklist/compact mode toggles. Server-rendered hidden;
+ *  app.js reveals it (progressive enhancement). */
+function controlBar() {
+  return `<div class="mt-tools" id="mt-tools" hidden>
+<div class="mt-tools-row">
+<div class="mt-rig" id="mt-rig">
+<span class="mt-tools-label">Tailor to my rig</span>
+<label class="mt-rig-sel"><span>Axle</span>
+<select id="mt-rig-axle" data-rig="axle">
+<option value="any">All / not sure</option>
+<option value="nevrlube">Nev-R-Lube (sealed)</option>
+<option value="ezlube">E-Z Lube (greaseable)</option>
+</select></label>
+<label class="mt-rig-sel"><span>Water heater</span>
+<select id="mt-rig-heater" data-rig="heater">
+<option value="any">All / not sure</option>
+<option value="suburban">Suburban (steel + anode)</option>
+<option value="atwood">Atwood / Dometic (aluminum)</option>
+<option value="tankless">Tankless</option>
+</select></label>
+<label class="mt-rig-sel"><span>Battery</span>
+<select id="mt-rig-battery" data-rig="battery">
+<option value="any">All / not sure</option>
+<option value="flooded">Flooded lead-acid</option>
+<option value="sealed">AGM / lithium</option>
+</select></label>
+</div>
+<div class="mt-modes">
+<button type="button" class="mt-mode-btn" id="mt-toggle-check" aria-pressed="false">\u2713 Checklist</button>
+<button type="button" class="mt-mode-btn" id="mt-toggle-print" aria-pressed="false">\u29C9 Compact</button>
+<button type="button" class="mt-mode-btn" id="mt-print" aria-pressed="false">\u2399 Print</button>
+</div>
+</div>
+</div>`;
+}
+
+/** The DIY-vs-Shop yearly budget rollup. Server-rendered hidden; app.js fills it. */
+function budgetBar() {
+  return `<div class="mt-budget" id="mt-budget" hidden aria-live="polite">
+<div class="mt-budget-main">
+<span class="mt-budget-label">Estimated yearly upkeep</span>
+<span class="mt-budget-figure" id="mt-budget-fig">\u2014</span>
+<div class="mt-budget-seg" role="group" aria-label="Cost basis">
+<button type="button" class="mt-seg-btn is-on" id="mt-basis-diy" aria-pressed="true">Do it myself</button>
+<button type="button" class="mt-seg-btn" id="mt-basis-pro" aria-pressed="false">Pay a shop</button>
+</div>
+</div>
+<p class="mt-budget-note" id="mt-budget-note"></p>
+</div>`;
+}
+
+/** The cadence timeline ribbon (hand-built inline SVG), shown under the hero. */
+function timelineRibbon(data) {
+  const t = data.cadenceTimeline;
+  if (!t || !t.svg) return '';
+  const cap = t.caption ? `<figcaption class="mt-timeline-cap">${esc(t.caption)}</figcaption>` : '';
+  return `<figure class="mt-timeline" role="img" aria-label="Maintenance cadence timeline from before-every-trip through seasonal">
+<div class="mt-timeline-art">${t.svg}</div>
+${cap}
+</figure>`;
 }
 
 /** The Maintenance page body. `relRoot` lets it live at site root (''). */
@@ -257,14 +481,22 @@ ${blurb}
     ? `<p class="mt-foot muted">${esc(data.footnote)}</p>`
     : '';
 
+  const taskCount = data.categories.reduce((n, c) => n + (c.items ? c.items.length : 0), 0);
+  const cadCount = data.categories.length;
+  const heroStat = `<p class="mt-hero-stat"><strong>${taskCount}</strong> sourced tasks <span>·</span> <strong>${cadCount}</strong> cadences <span>·</span> every interval &amp; cost cited</p>`;
+
   return `<nav class="detail-nav"><a href="${relRoot}index.html" class="back-link">\u2190 All families</a></nav>
 <header class="hero-head">
 <p class="eyebrow">CARE &amp; MAINTENANCE \u00B7 SOURCED SERVICE CALENDAR</p>
 <h1>Keep your Airstream road-ready</h1>
 <p class="lede">${esc(data.intro)}</p>
+${heroStat}
 </header>
+${timelineRibbon(data)}
 ${legend(data)}
 ${filterLens(data)}
+${controlBar()}
+${budgetBar()}
 <nav class="mt-jump" aria-label="Jump to cadence">${jump}</nav>
 <main class="maintenance" id="mt-main">
 ${sections}

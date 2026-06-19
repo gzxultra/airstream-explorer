@@ -1,24 +1,11 @@
 {
-  "intro": "A real maintenance calendar for an Airstream travel trailer — not a generic RV checklist. Every interval below is traced to a primary source: Airstream's own published schedule, the appliance and axle makers (Dexter, Suburban, Dometic), or the tire industry. Where Airstream differs from a typical stick-and-tin RV — sealed Nev-R-Lube bearings instead of greaseable hubs, an aluminum monocoque with sealed seams instead of a rubber roof — we say so, because following the wrong schedule is how owners damage these trailers. Intervals are 'whichever comes first'. This is an independent reference; always defer to the manual for your specific model year and your appliance/axle data plates.",
-  "cadenceLegend": {
-    "trip": "Before every trip",
-    "monthly": "Monthly / ~1,000 mi",
-    "quarterly": "Quarterly / ~5,000 mi",
-    "semiannual": "Twice a year / ~10,000 mi",
-    "annual": "Once a year",
-    "multiyear": "Every few years",
-    "seasonal": "Seasonal (storage)"
-  },
-  "severityLegend": {
-    "safety": "Safety-critical — a failure here can cause loss of control, a wheel separation, fire, or CO exposure. Do not defer.",
-    "preventive": "Prevents expensive damage — water intrusion, corrosion, tank or appliance failure. Cheap now, costly if skipped.",
-    "upkeep": "Routine care — keeps things working smoothly and protects resale, but a missed cycle won't hurt the trailer."
-  },
+  "intro": "A real maintenance calendar for an Airstream travel trailer — not a generic RV checklist. Every interval below is traced to a primary source: Airstream's own published schedule and support articles, the appliance and axle makers (Dexter, Suburban, Dometic), the propane and fire-safety authorities, or the tire industry. Where Airstream differs from a typical stick-and-tin RV — sealed Nev-R-Lube bearings instead of greaseable hubs, an aluminum monocoque with sealed seams instead of a rubber roof, a Zip Dee awning, no slide-outs — we say so, because following the wrong schedule is how owners damage these trailers. Intervals are 'whichever comes first'. This is an independent reference; always defer to the manual for your specific model year and your appliance, axle, and water-heater data plates.",
+  "footnote": "Intervals are 'whichever comes first' and follow Airstream's published schedule and support articles plus the appliance, axle, tire, propane, and fire-safety authorities. Your specific model year, axle type (Nev-R-Lube vs E-Z Lube), water heater (Suburban steel vs Atwood/Dometic aluminum vs tankless), and appliances (absorption vs compressor fridge, A/C brand) change some of these tasks — always confirm against your owner's manual and the data plates on your axle, water heater, and rooftop A/C. Airstream travel trailers have no slide-out rooms, so there is no slide maintenance. Independent reference, not affiliated with Airstream, Inc.",
   "categories": [
     {
       "id": "before-every-trip",
       "title": "Before every trip",
-      "blurb": "The five-minute walkaround that prevents the failures that strand people. Airstream's own guidance is to inspect tires and test every lug nut before each trip, and to re-check lugs after any wheel has been off. None of this needs tools beyond a pressure gauge and a torque wrench.",
+      "blurb": "The walkaround that prevents the failures that strand people. Airstream's own guidance is to inspect tires and test every lug nut before each trip, re-check lugs after any wheel has been off, and never tow with the propane on. None of this needs tools beyond a pressure gauge and a torque wrench.",
       "items": [
         {
           "name": "Check tire pressure (cold) on all tires + spare",
@@ -26,14 +13,37 @@
           "severity": "safety",
           "intervalText": "Before every trip · cold",
           "why": "Under-inflation is the number-one cause of trailer-tire failure: a soft tire builds heat at highway speed until the casing lets go. Airstream's schedule lists a cold tire-pressure check at the most frequent interval (every 1,000 mi / 60 days) and tells you to check before every trip. Set to the pressure on the tire placard / data plate, not the number molded on the sidewall (that's the max). Don't forget the spare — it's no help at the right moment if it's flat.",
-          "doThis": "With tires cold (driven less than ~1 mi), set every tire including the spare to the placard PSI. A blowout-prevention TPMS that watches pressure and temperature while you tow is the most-recommended tire upgrade.",
+          "doThis": "With tires cold (parked 3+ hours and driven less than ~1 mi), set every tire including the spare to the placard PSI; never bleed pressure from a hot tire. A blowout-prevention TPMS that watches pressure and temperature while you tow is the most-recommended tire upgrade.",
           "appliesTo": "All Airstream travel trailers",
           "sources": [
             {
               "label": "Airstream Support — regular maintenance schedule (tires: check pressure; inspect before every trip)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            },
+            {
+              "label": "Airstream Support — tire care tips (check pressure incl. spare monthly, tires cool, don't reduce when hot)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360030869231-What-are-some-tire-care-tips"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 — you already own a tire gauge"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (done as part of any service visit)"
+            },
+            "note": "Free to do yourself. The only outlay is a one-time quality tire gauge (~$10–30) and a 12V inflator if you don’t have one; a TPMS automates the check. No reason to pay a shop.",
+            "sources": [
+              {
+                "label": "JEGS — mount & balance / tire-service cost guide (gauge & basic tire service context)",
+                "url": "https://www.jegs.com/tech-articles/mount-and-balance-tires-everything-you-need-to-know"
+              }
+            ]
+          }
         },
         {
           "name": "Test every lug nut / torque to spec",
@@ -47,23 +57,73 @@
             {
               "label": "Airstream Support — maintenance schedule (lug torque: aluminum 110, steel 100 ft-lbs; test lug nuts)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            },
+            {
+              "label": "Airstream Support — Lug Nut Torquing (use a torque wrench, star pattern; re-torque at 10, 25, 50 mi after a wheel is replaced; aluminum 110 / steel 100 ft-lbs)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360030539892-Lug-Nut-Torquing"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 — uses a torque wrench you own"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (included in any wheel/tire service)"
+            },
+            "note": "Free to do yourself. The one-time cost is a calibrated torque wrench (~$30–110) — never an impact gun. Re-torque after a wheel service is normally free.",
+            "sources": [
+              {
+                "label": "Jerry — mount/balance guide (shops hand-torque lugs and offer a free re-torque after 50–100 mi)",
+                "url": "https://www.jegs.com/tech-articles/mount-and-balance-tires-everything-you-need-to-know"
+              }
+            ]
+          },
+          "diagram": {
+            "svg": "<svg viewBox=\"0 0 400 230\" role=\"img\" aria-label=\"Lug-nut tightening order: 5-lug star pattern 1-3-5-2-4 and 6-lug opposite-pairs pattern, torque to aluminum 110 or steel 100 foot-pounds in a star sequence, never an impact gun.\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n  <title>Lug-nut star torque sequence (5-lug and 6-lug)</title>\n  <!-- ===== 5-LUG (left) ===== -->\n  <g transform=\"translate(105,105)\">\n    <text x=\"0\" y=\"-86\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"600\" fill=\"currentColor\" stroke=\"none\">5-lug</text>\n    <!-- wheel + hub -->\n    <circle cx=\"0\" cy=\"0\" r=\"62\"/>\n    <circle cx=\"0\" cy=\"0\" r=\"14\"/>\n    <!-- faint star path: order 1-3-5-2-4 visiting positions 0,2,4,1,3 -->\n    <g opacity=\"0.35\">\n      <path d=\"M0 -44 L41.8 13.6 L-25.9 35.6 L25.9 35.6 L-41.8 13.6 Z\"/>\n    </g>\n    <!-- lug bolts with TIGHTENING ORDER numbers -->\n    <!-- pos0 top = order 1 -->\n    <g transform=\"translate(0,-44)\"><circle r=\"11\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\" stroke=\"none\">1</text></g>\n    <!-- pos1 (lower-right) = order 4 -->\n    <g transform=\"translate(41.8,13.6)\"><circle r=\"11\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\" stroke=\"none\">4</text></g>\n    <!-- pos2 (bottom-right) = order 2 -->\n    <g transform=\"translate(25.9,35.6)\"><circle r=\"11\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\" stroke=\"none\">2</text></g>\n    <!-- pos3 (bottom-left) = order 5 -->\n    <g transform=\"translate(-25.9,35.6)\"><circle r=\"11\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\" stroke=\"none\">5</text></g>\n    <!-- pos4 (lower-left) = order 3 -->\n    <g transform=\"translate(-41.8,13.6)\"><circle r=\"11\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\" stroke=\"none\">3</text></g>\n  </g>\n  <!-- ===== 6-LUG (right) ===== -->\n  <g transform=\"translate(295,105)\">\n    <text x=\"0\" y=\"-86\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"600\" fill=\"currentColor\" stroke=\"none\">6-lug</text>\n    <circle cx=\"0\" cy=\"0\" r=\"62\"/>\n    <circle cx=\"0\" cy=\"0\" r=\"14\"/>\n    <!-- faint criss-cross path: order 1-2-3-4-5-6 visiting positions 0,3,1,4,2,5 (opposite-pairs) -->\n    <g opacity=\"0.35\">\n      <path d=\"M0 -44 L0 44 M38.1 -22 L-38.1 22 M38.1 22 L-38.1 -22\"/>\n    </g>\n    <!-- pos0 top = order 1 -->\n    <g transform=\"translate(0,-44)\"><circle r=\"11\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\" stroke=\"none\">1</text></g>\n    <!-- pos1 (upper-right) = order 3 -->\n    <g transform=\"translate(38.1,-22)\"><circle r=\"11\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\" stroke=\"none\">3</text></g>\n    <!-- pos2 (lower-right) = order 5 -->\n    <g transform=\"translate(38.1,22)\"><circle r=\"11\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\" stroke=\"none\">5</text></g>\n    <!-- pos3 bottom = order 2 -->\n    <g transform=\"translate(0,44)\"><circle r=\"11\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\" stroke=\"none\">2</text></g>\n    <!-- pos4 (lower-left) = order 4 -->\n    <g transform=\"translate(-38.1,22)\"><circle r=\"11\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\" stroke=\"none\">4</text></g>\n    <!-- pos5 (upper-left) = order 6 -->\n    <g transform=\"translate(-38.1,-22)\"><circle r=\"11\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\" stroke=\"none\">6</text></g>\n  </g>\n  <!-- spec caption strip -->\n  <text x=\"200\" y=\"212\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10.5\" font-weight=\"600\" fill=\"currentColor\" stroke=\"none\">Aluminum 110 ft·lb &#183; Steel 100 ft·lb &#183; star pattern &#183; re-torque 10/25/50 mi</text>\n</svg>",
+            "caption": "Tighten in the numbered star/criss-cross order, never straight around. Use a calibrated torque wrench (not an impact gun): **aluminum wheels 110 ft-lbs, steel 100 ft-lbs**. After any wheel removal, re-torque at 10, 25 and 50 miles as the clamp load settles."
+          }
         },
         {
           "name": "Inspect tires for dry rot, uneven wear & age",
           "cadence": "trip",
           "severity": "safety",
           "intervalText": "Before every trip · replace by age (see Annual)",
-          "why": "Airstream tells you to inspect for dry rot and uneven wear before every trip — sidewall crazing means the rubber is breaking down, and uneven wear points to an axle out of alignment. Trailer tires almost always age out before they wear out (see the tire-age item under Annual).",
-          "doThis": "Look for fine sidewall cracks (dry rot) and any wear that's heavier on one edge. Uneven wear → have the axle alignment checked at a dealer. Keep tires covered in storage to slow UV aging.",
+          "why": "Airstream tells you to inspect for dry rot and uneven wear before every trip, and to inspect the whole tire — both inside and outside sidewalls, tread, valve stems and caps — before a trip and after storage. Sidewall crazing means the rubber is breaking down; uneven wear points to an axle out of alignment or worn suspension. Trailer tires almost always age out before they wear out (see the tire-age item under Annual).",
+          "doThis": "Look for fine sidewall cracks (dry rot), cuts or bulges, and any wear that's heavier on one edge. Uneven wear → have the axle alignment checked at a dealer. Replace if cracking or tread damage is deeper than 2/32 in. Keep tires covered in storage to slow UV aging.",
           "appliesTo": "All Airstream travel trailers",
           "sources": [
             {
               "label": "Airstream Support — maintenance schedule (inspect tires for dry rot and uneven wear before every trip)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            },
+            {
+              "label": "Airstream Support — Tire Inspection and Storage (inspect both sidewalls/tread/valve stems before trip & after storage; replace if cracks > 2/32 in.)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360030869371-Tire-Inspection-and-Storage"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (your time)"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (visual; usually free with any tire service)"
+            },
+            "note": "Pure visual check — no cost. Acting on what you find (replacement) is priced under replace-tires-by-age / tire-set-replacement; an axle-alignment check for uneven wear is a separate dealer charge.",
+            "sources": [
+              {
+                "label": "JEGS — tire service cost reference",
+                "url": "https://www.jegs.com/tech-articles/mount-and-balance-tires-everything-you-need-to-know"
+              }
+            ]
+          }
         },
         {
           "name": "Test safety systems: brakes, breakaway, lights, hitch",
@@ -78,81 +138,341 @@
               "label": "Airstream Support — maintenance schedule (hitch: check for loose bolts/wear; breakaway switch)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (your time)"
+            },
+            "pro": {
+              "low": 0,
+              "high": 130,
+              "text": "~$0–130 if you want a tech to verify (≈ a service-call/diagnostic)"
+            },
+            "note": "Functional test costs nothing to do yourself. If a breakaway battery, bulb, or 7-way connector needs replacing, those parts are a few dollars to ~$30; a mobile tech checking it would bill a service-call/diagnostic (~$50–130).",
+            "sources": [
+              {
+                "label": "49er Mobile RV Repair — service-call fee $80+ and $125/hr labor",
+                "url": "https://www.yelp.com/biz/49er-mobile-rv-repair-nevada-city-2"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Shut off propane & secure the trailer for travel",
+          "cadence": "trip",
+          "severity": "safety",
+          "intervalText": "Before every trip",
+          "why": "Airstream is explicit: don't travel with the LP tank valves on — an open propane system is a fire hazard in a collision or if a line chafes through. A propane (absorption) refrigerator must never run on gas while driving for the same reason; an electric/compressor fridge is fine in motion. Finish the walkaround by closing every roof vent and fan lid (highway wind can rip an open lid off the roof) and securing loose gear, since Airstream likens 30 minutes of towing to a sustained earthquake.",
+          "doThis": "Close both LP cylinder valves. If you have an absorption/propane fridge, switch it off gas (or to 12V/electric) before driving; an electric compressor fridge can stay on. Close and latch all roof vents and the Fantastic/MaxxAir fan lid. Stow and secure loose items, and confirm the entry door and compartment latches are shut.",
+          "appliesTo": "All Airstream travel trailers (propane-off applies to all; the fridge step applies to absorption/propane fridges — mostly pre-2022 models)",
+          "sources": [
+            {
+              "label": "Airstream Support — Access, Use, Remove & Refill propane tank (don't travel with LP valves on; fire hazard)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360046467432-How-to-Access-Use-Remove-and-Refill-an-Airstream-Propane-Tank"
+            },
+            {
+              "label": "Airstream Support — operating the electric or propane fridge (never leave a propane fridge running while traveling; electric is fine in motion)",
+              "url": "https://support.airstream.com/hc/en-us/articles/16140040473876-How-do-I-operate-my-Airstream-s-electric-or-propane-fridge"
+            },
+            {
+              "label": "Airstream Support — exhaust fan (always close the lid when in motion or wind can rip it off)",
+              "url": "https://support.airstream.com/hc/en-us/articles/15703909827988-How-Do-I-Troubleshoot-Issues-with-My-Exhaust-Fan"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (your time)"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "—"
+            },
+            "note": "No parts needed — just a few minutes of your time.",
+            "sources": []
+          }
         }
       ]
     },
     {
       "id": "monthly",
       "title": "Monthly · every ~1,000 miles or 60 days",
-      "blurb": "Airstream's most-frequent service block. Quick checks on the safety detectors, battery, and the things that shake loose on a trailer that endures, in Airstream's words, 'a sizable earthquake' every time you tow.",
+      "blurb": "Airstream's most-frequent service block, plus the light housekeeping that keeps the shell and air systems healthy. Quick checks on the safety detectors, battery, and escape window, and the wash-and-filter routine Airstream recommends about every four weeks.",
       "items": [
         {
           "name": "Test smoke, CO & LP detectors",
           "cadence": "monthly",
           "severity": "safety",
           "intervalText": "Every 1,000 mi / 60 days",
-          "why": "A travel trailer combines a propane system, a combustion water heater and furnace, and people sleeping in a sealed aluminum tube — CO and smoke detection is non-negotiable. Airstream lists testing the smoke alarm and CO detector in the every-1,000-mi/60-day block, and detectors have a finite life (typically replace the whole unit every 5–7 years per the date on the back).",
-          "doThis": "Press-to-test each detector; replace backup batteries as needed. Check the manufacture date on each unit and replace the whole detector at its stated end-of-life.",
+          "why": "A travel trailer combines a propane system, a combustion water heater and furnace, and people sleeping in a sealed aluminum tube — CO and smoke detection is non-negotiable. Airstream lists testing the smoke alarm and CO detector in the every-1,000-mi/60-day block. Detectors also have a finite life and must be replaced as whole units at end of life (see the multi-year block): Airstream says replace the smoke alarm at 10 years and the CO alarm by its 6-year “replace by” date, and the LP detector lasts about 7 years.",
+          "doThis": "Press-to-test each detector and replace backup batteries as needed (Airstream suggests fresh batteries at the start of each camping season). Check the date on each unit and plan whole-unit replacement at its stated end-of-life.",
           "appliesTo": "All Airstream travel trailers",
           "sources": [
             {
+              "label": "Airstream Support — smoke & CO alarms (replace smoke alarm 10 years from purchase; CO “Replace By Date” is 6 years from date of manufacture)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360030744192-What-do-I-need-to-know-about-the-use-of-and-maintaining-my-smoke-carbon-menoxide-alarms"
+            },
+            {
               "label": "Airstream Support — maintenance schedule (smoke alarm & CO detector: test and replace battery)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            },
+            {
+              "label": "First Alert / NFPA 72 — replace smoke alarms at 10 yr, CO and combo alarms at ~7 yr",
+              "url": "https://support.firstalert.com/s/article/smoke-alarm-replacement-10yr"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 — press-to-test, no parts"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (not a job you’d hire out)"
+            },
+            "note": "Monthly testing is free. Buying replacements at end-of-life is costed separately under “Replace smoke, CO & LP detectors.”",
+            "sources": [
+              {
+                "label": "RV Upgrade Store — RV Safe combo Propane/CO detector, $60.49",
+                "url": "https://www.rvupgradestore.com/RV-Safe-RVCOLP-2B-Propane-Gas-CO-Detector-Alarm-p/15-2155.htm"
+              },
+              {
+                "label": "49er Mobile RV Repair — labor/service-call basis",
+                "url": "https://www.yelp.com/biz/49er-mobile-rv-repair-nevada-city-2"
+              }
+            ]
+          }
         },
         {
           "name": "Check battery & test the GFCI",
           "cadence": "monthly",
           "severity": "preventive",
           "intervalText": "Every 1,000 mi / 60 days",
-          "why": "Airstream lists a battery check and a GFCI test-and-record in the 1,000-mi/60-day block. On a flooded lead-acid bank, check the electrolyte level and top up with distilled water only (this doesn't apply to AGM/glass-mat or lithium). Testing the GFCI confirms your shore-power protection is live.",
-          "doThis": "Lead-acid: check water level, top up with distilled water only. AGM/lithium: skip the water, just confirm state of charge. Press TEST then RESET on the GFCI outlet and confirm it trips.",
+          "why": "Airstream lists a battery check and a GFCI test-and-record in the 1,000-mi/60-day block. On a flooded lead-acid bank, check the electrolyte level and top up with distilled water only (this doesn't apply to AGM/glass-mat or lithium). Airstream's battery guidance is to check AGM connection points for corrosion every 30 days and keep state of charge up; don't let voltage sit below ~12.4 V (about 75–80%). Testing the GFCI confirms your shore-power protection is live.",
+          "doThis": "Lead-acid: check water level, top up with distilled water only. AGM/lithium: skip the water, check terminals for corrosion and confirm state of charge (keep above ~12.4 V). Press TEST then RESET on the GFCI outlet and confirm it trips.",
           "appliesTo": "All Airstream travel trailers (water-level step applies to flooded lead-acid only)",
           "sources": [
             {
               "label": "Airstream Support — maintenance schedule (battery water level, lead-acid only; GFI test and record)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            },
+            {
+              "label": "Airstream — Maintaining and Monitoring RV Batteries (AGM: check corrosion every 30 days; flooded need distilled water; keep charged)",
+              "url": "https://www.airstream.com/blog/maintaining-monitoring-batteries-airstream/"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 8,
+              "text": "$0 (your time) + ~$2–8 distilled water for flooded cells"
+            },
+            "pro": {
+              "low": 0,
+              "high": 130,
+              "text": "~$0–130 (a diagnostic visit if something fails)"
+            },
+            "note": "Checking state of charge, topping flooded cells with distilled water (~$2–8/gal), and pressing TEST/RESET on the GFCI all cost essentially nothing. Replacing the battery itself is priced under battery-replacement; a failed GFCI outlet is a ~$15–25 part.",
+            "sources": [
+              {
+                "label": "49er Mobile RV Repair — service-call/labor basis",
+                "url": "https://www.yelp.com/biz/49er-mobile-rv-repair-nevada-city-2"
+              }
+            ]
+          },
+          "rig": {
+            "battery": "flooded"
+          }
         },
         {
           "name": "Check escape window & exterior latches",
           "cadence": "monthly",
           "severity": "upkeep",
           "intervalText": "Every 1,000 mi / 60 days",
-          "why": "The emergency-escape window is a life-safety exit; Airstream lists checking its latch and upper hinge operation in the most-frequent block. While you're at it, confirm exterior compartment latches and the entry door are operating and not working loose from road vibration.",
-          "doThis": "Open and close the escape window, confirm latches and the upper hinge move freely and seal. Verify exterior latches secure.",
+          "why": "The emergency-escape window is a life-safety exit; Airstream lists checking its latch and upper-hinge operation in the most-frequent block, and lubricating those latches (with WD-40 or light household oil) in the 10,000-mi block. While you're at it, confirm exterior compartment latches and the entry door are operating and not working loose from road vibration.",
+          "doThis": "Open and close the escape window, confirm the latches and upper hinge move freely and seal; a shot of light oil on a stiff latch keeps it working. Verify exterior latches are secure.",
           "appliesTo": "All Airstream travel trailers",
           "sources": [
             {
-              "label": "Airstream Support — maintenance schedule (escape window: check latches and upper hinge)",
+              "label": "Airstream Support — maintenance schedule (escape window: check latches and upper hinge; lubricate latches)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (your time)"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "~$0 (not a job you'd normally hire out)"
+            },
+            "note": "Operating the escape window and checking latches is free. A drop of the lubricants you already buy for the quarterly lock/hinge task covers any stiffness.",
+            "sources": [
+              {
+                "label": "49er Mobile RV Repair — labor basis if a latch ever needs service",
+                "url": "https://www.yelp.com/biz/49er-mobile-rv-repair-nevada-city-2"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Clean the air-conditioner return-air filter",
+          "cadence": "monthly",
+          "severity": "preventive",
+          "intervalText": "Every ~1,000 mi / monthly in season",
+          "why": "A clogged A/C filter chokes airflow, makes the rooftop unit work harder, and pushes dust back into the cabin. Airstream's recommended routine is to pop off the interior vent cover, clean the filter, dry it, and reinstall — a five-minute job that protects the most expensive appliance on the roof. In dusty travel or heavy summer use, clean it every couple of weeks.",
+          "doThis": "Pop off the interior A/C vent cover, pull the foam/mesh return-air filter, blow it out with canned air or rinse with water, let it dry fully, then reinstall. Never run the A/C without the filter, and never reinstall it wet (mold).",
+          "appliesTo": "All Airstream travel trailers with a ducted or non-ducted rooftop A/C",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (clean your air conditioner's air filter: pop off vent cover, rinse/air-can, dry, replace)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 — wash the reusable filter"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (owner task; rolled into annual A/C service)"
+            },
+            "note": "The return-air filter is washable, so monthly cleaning is free. A replacement filter or coil service is costed under the annual “Deep-service the rooftop A/C.”",
+            "sources": [
+              {
+                "label": "A1 RV Repair (via Medium) — RV A/C tune-up $149–189; common repairs $165–485 installed",
+                "url": "https://medium.com/@cynderdmkl/a1-rv-repair-port-st-lucie-rv-air-conditioner-tune-ups-and-repair-72cde1ef16e4"
+              },
+              {
+                "label": "JBRV — RV A/C capacitor $100–250, fan motor $350–800 (repair context)",
+                "url": "https://jbrvmobilervrepair.com/how-much-does-rv-a-c-repair-cost-what-to-expect/"
+              },
+              {
+                "label": "Lazydays — roof A/C service menu (acid wash, coil clean, amp test, gaskets/filters)",
+                "url": "https://www.lazydays.com/rv-service/roof-ac-service"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Wash the exterior (with the grain) & rinse the awning",
+          "cadence": "monthly",
+          "severity": "upkeep",
+          "intervalText": "About every 4 weeks · more in coastal/winter conditions",
+          "why": "Airstream recommends washing the trailer about every four weeks, more often in coastal or industrial areas, and removing road-treatment chemicals immediately after winter travel. Use only clear-coat-safe automotive wash and always work with the grain — horizontal strokes, never up-and-down — or you'll leave fine scratches that catch the sun. Washing is also the best time to spot broken seals, missing rivets, and loose trim. Hose off the Zip Dee awning fabric with clear water (no soap) each month so dirt can't embed and grow mildew.",
+          "doThis": "Wash top-to-bottom in shade with a clear-coat-safe soap and a soft mitt, moving with the grain of the aluminum. Rinse the awning fabric with plain water and let it dry fully before rolling it up. Remove road salt/chemicals immediately after winter trips. (Never use an automatic drive-through car wash — the brushes scratch clear-coat aluminum.)",
+          "appliesTo": "All Airstream travel trailers (polished/clear-coated aluminum shell; Zip Dee awning)",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (wash ~every 4 weeks; clear-coat-safe wash only; work with the grain; remove road chemicals)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            },
+            {
+              "label": "Airstream Support — Zip Dee awning care (hose off fabric with clear water each month; air-dry before rolling up)",
+              "url": "https://support.airstream.com/hc/en-us/articles/17938934336020-How-To-Clean-and-Care-For-Your-Airstream-Zip-Dee-Awning"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 10,
+              "text": "$0–10 — soap & water"
+            },
+            "pro": {
+              "low": 40,
+              "high": 120,
+              "text": "~$40–120 for a basic wash"
+            },
+            "note": "A routine wash is just soap and water. The seal conditioner and clear-coat-safe wax/polish are a twice-a-year cost, tracked under “Clean & treat window/door seals; wax the shell.”",
+            "sources": [
+              {
+                "label": "Beckley's RVs — travel-trailer wash packages $79 (basic) to $339 (ultimate w/ wax)",
+                "url": "https://www.beckleysrvs.com/rv-service/detail-wash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Monitor interior humidity (keep it ≤ 60%)",
+          "cadence": "monthly",
+          "severity": "preventive",
+          "intervalText": "Ongoing · check with a hygrometer",
+          "why": "Airstream calls controlling interior relative humidity 'one of the most important steps' to prevent moisture damage in an aluminum trailer, where condensation can collect behind skins and in lockers. The target is 60% or less (35% or less in cold weather to avoid window condensation). A $30 hygrometer plus the exhaust fan, A/C, or a small dehumidifier keeps you in range.",
+          "doThis": "Keep a small hygrometer inside and aim for ≤60% relative humidity (≤35% in freezing weather). Run the vent fan while cooking and showering, use the A/C or a portable dehumidifier in humid climates, and empty the dehumidifier bucket regularly.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (control humidity ≤60%, ≤35% in cold; use a hygrometer, exhaust fan, A/C, or dehumidifier)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (your time)"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "—"
+            },
+            "note": "No parts needed — just a few minutes of your time.",
+            "sources": []
+          }
         }
       ]
     },
     {
       "id": "quarterly",
       "title": "Quarterly · every ~5,000 miles or 90 days",
-      "blurb": "Lubrication and the moving hardware that keeps working only if it's cared for: locks, hinges, the propane hold-down and regulator vent, the breakaway switch, and the door step. Airstream specifies the exact lubricant for each so you don't gum up a lock with the wrong product.",
+      "blurb": "Lubrication and the moving hardware that keeps working only if it's cared for: locks, hinges, the propane hold-down and regulator vent, the breakaway switch, the entry step, the range hood, and the window seals. Airstream specifies the exact lubricant for each so you don't gum up a lock with the wrong product.",
       "items": [
         {
           "name": "Lubricate locks, hinges & latches (correct lube each)",
           "cadence": "quarterly",
           "severity": "upkeep",
           "intervalText": "Every 5,000 mi / 90 days",
-          "why": "Road grit and salt seize up locks and hinges if they're never lubricated — and using the wrong product makes it worse (oil in a lock attracts grit). Airstream specifies dry graphite for the main door latch and exterior door locks, light household oil for exterior hinges, and the door striker pocket coated with paraffin.",
-          "doThis": "Dry graphite into the door locks and main latch; a drop of light household oil on exterior hinges and the LPG hold-down; paraffin on the door striker pocket. Avoid petroleum products on window gaskets.",
+          "why": "Road grit and salt seize up locks and hinges if they're never lubricated — and using the wrong product makes it worse (oil in a lock attracts grit). Airstream specifies dry graphite for the main door latch and exterior door locks, and light household oil for exterior hinges and the LPG hold-down.",
+          "doThis": "Dry graphite into the door locks and main latch; a drop of light household oil on exterior hinges and the LPG hold-down. Avoid petroleum products on window gaskets.",
           "appliesTo": "All Airstream travel trailers",
           "sources": [
             {
-              "label": "Airstream Support — maintenance schedule (door locks: dry graphite; hinges: light oil; striker: paraffin)",
+              "label": "Airstream Support — regular maintenance schedule (Main Door Latch & Exterior Door Locks: dry graphite; Exterior Hinges & LPG Hold-Down: light household oil)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 10,
+              "high": 25,
+              "text": "$10–25 (dry graphite, light oil, paraffin)"
+            },
+            "pro": {
+              "low": 60,
+              "high": 150,
+              "text": "~$60–150 (service call + ~0.5 hr) if hired out"
+            },
+            "note": "A DIY job: a tube of dry graphite, a small bottle of light household oil, and a block of paraffin total roughly $10–25 and last for years. Rarely worth hiring out.",
+            "sources": [
+              {
+                "label": "49er Mobile RV Repair — $125/hr + service call basis",
+                "url": "https://www.yelp.com/biz/49er-mobile-rv-repair-nevada-city-2"
+              }
+            ]
+          }
         },
         {
           "name": "Service the breakaway switch & 7-way plug",
@@ -160,14 +480,33 @@
           "severity": "safety",
           "intervalText": "Every 5,000 mi / 90 days",
           "why": "The breakaway switch is the last line of defense if the trailer ever separates — Airstream's procedure is to pull the pin and lubricate with household oil, and replace the pin immediately after. Spraying the 7-way plug with contact cleaner keeps brake-controller and lighting signals reliable through a corroded connector.",
-          "doThis": "Pull the breakaway pin, lubricate with household oil, reinsert (replace a worn pin). Spray the 7-way trailer plug contacts with electrical contact cleaner.",
+          "doThis": "Pull the breakaway pin, lubricate with household oil, reinsert (replace a worn pin). Spray the 7-way trailer plug contacts with electrical contact cleaner; a dab of dielectric grease slows corrosion.",
           "appliesTo": "All Airstream travel trailers",
           "sources": [
             {
               "label": "Airstream Support — maintenance schedule (breakaway switch: pull pin & lubricate; 7-way plug: contact cleaner)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 8,
+              "high": 20,
+              "text": "$8–20 (contact cleaner, household oil; new pin ~$5–10)"
+            },
+            "pro": {
+              "low": 60,
+              "high": 150,
+              "text": "~$60–150 (service call + ~0.5 hr)"
+            },
+            "note": "Electrical contact cleaner (~$8–12) and a drop of oil; a replacement breakaway pin/switch is only a few dollars to ~$15. DIY-friendly.",
+            "sources": [
+              {
+                "label": "49er Mobile RV Repair — labor/service-call basis",
+                "url": "https://www.yelp.com/biz/49er-mobile-rv-repair-nevada-city-2"
+              }
+            ]
+          }
         },
         {
           "name": "Lubricate hitch ball & check LPG regulator vent",
@@ -182,14 +521,124 @@
               "label": "Airstream Support — maintenance schedule (hitch ball lube; LPG regulator: check bottom vent)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 8,
+              "high": 15,
+              "text": "$8–15 (wheel-bearing grease / hitch lube)"
+            },
+            "pro": {
+              "low": 60,
+              "high": 150,
+              "text": "~$60–150 if combined with other service"
+            },
+            "note": "A tub of grease covers the hitch ball for years; clearing the regulator vent is free. Skip the grease on friction anti-sway hitches.",
+            "sources": [
+              {
+                "label": "49er Mobile RV Repair — labor/service-call basis",
+                "url": "https://www.yelp.com/biz/49er-mobile-rv-repair-nevada-city-2"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Lubricate & inspect the entry door step",
+          "cadence": "quarterly",
+          "severity": "upkeep",
+          "intervalText": "Every 5,000 mi / 90 days",
+          "why": "Airstream's 5,000-mi/90-day block specifically lists the main door step: lubricate and inspect its moving parts. A folding or powered entry step takes constant road grime and a hard daily duty cycle; a dry, gritty pivot binds, rattles, and eventually fails to deploy or retract.",
+          "doThis": "Wipe the step's pivots and slides clean, lubricate the moving parts (light oil or silicone on a manual step; follow the maker's spec on a powered step), and check for loose mounting bolts, bent arms, or a weak return spring.",
+          "appliesTo": "All Airstream travel trailers (manual folding or powered entry step)",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (Main Door Step: lubricate and inspect moving parts)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (your time)"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "—"
+            },
+            "note": "No parts needed — just a few minutes of your time.",
+            "sources": []
+          }
+        },
+        {
+          "name": "Clean the range-hood fan & filter",
+          "cadence": "quarterly",
+          "severity": "upkeep",
+          "intervalText": "Every 5,000 mi / 90 days",
+          "why": "Airstream's 5,000-mi/90-day block lists the range exhaust hood: clean the fan blades and wash the filter. Cooking grease loads the mesh filter and coats the blades, cutting airflow so moisture and odors linger inside — which works against the humidity control that protects an aluminum trailer.",
+          "doThis": "Pull the range-hood grease filter and wash it in warm soapy water (or run it through the dishwasher), let it dry, and wipe the fan blades and housing clean of grease before reinstalling.",
+          "appliesTo": "All Airstream travel trailers with a range/cooktop exhaust hood",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (Range Exhaust Hood: clean fan blades and wash filter)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (your time)"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "—"
+            },
+            "note": "No parts needed — just a few minutes of your time.",
+            "sources": []
+          }
+        },
+        {
+          "name": "Protect window seals so windows don't stick",
+          "cadence": "quarterly",
+          "severity": "upkeep",
+          "intervalText": "Every 3 months · more in hot climates",
+          "why": "Airstream's escape and lounge windows have rubber seals that, in hot or dusty conditions, get sticky and bond the glass to the frame — and forcing a stuck window can crack the glass. Airstream's fix is preventive: every three months, clean the seals and apply 303 Aerospace Protectant (or olive oil) where the window meets the body. Never use a petroleum-based product, which makes the sticking worse.",
+          "doThis": "Clean the window seals with soapy water, then wipe on 303 Aerospace Protectant (or olive oil in a pinch) every ~3 months — more often in hot climates. If a window does stick, gently work a credit card around the gasket to release it; lift both window handles evenly so you don't crack the glass. No petroleum products on the seals.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — maintenance schedule (apply 303 Protectant or olive oil every 3 months where window meets exterior; no petroleum)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            },
+            {
+              "label": "Airstream Support — sticking windows (clean seals with soapy water + 303 Aerospace Protectant; credit-card trick; lift both handles evenly)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360030539412-My-Airstream-s-windows-are-sticking-and-don-t-open-easily-what-is-wrong"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (your time)"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "—"
+            },
+            "note": "No parts needed — just a few minutes of your time.",
+            "sources": []
+          }
         }
       ]
     },
     {
       "id": "semiannual",
       "title": "Twice a year · every ~10,000 miles or 6 months",
-      "blurb": "The big mechanical block: brakes, the sealed Nev-R-Lube bearings (which Airstream says to inspect, not repack — this is where Airstreams differ from greaseable-hub RVs), tire rotation, and a full wax. This is the work that protects the running gear and the famous aluminum shell.",
+      "blurb": "The big mechanical block: brakes, the sealed Nev-R-Lube bearings (which Airstream says to inspect, not repack — this is where Airstreams differ from greaseable-hub RVs), tire rotation, a full wax, and the awning hardware. This is the work that protects the running gear and the famous aluminum shell.",
       "items": [
         {
           "name": "Inspect Nev-R-Lube sealed bearings — do NOT repack",
@@ -197,7 +646,7 @@
           "severity": "safety",
           "intervalText": "At tire rotation / 6 mo — inspect only",
           "why": "This is the single most-misapplied Airstream maintenance item. Modern Airstreams ride on Dexter Torflex axles with Nev-R-Lube sealed-cartridge bearings — pre-lubricated, sealed for life, carrying a 5-year / 100,000-mile limited warranty. Airstream's instruction is to visually inspect the bearings at tire rotation and defer to Dexter — NOT to repack them. The 'grease every 12,000 mi / 12 months' rule you'll read everywhere is for Dexter's E-Z Lube greaseable hubs, a different axle; pumping grease at a Nev-R-Lube cartridge does nothing useful. Replace the cartridge (a press job) if you find play, noise, roughness or heat.",
-          "doThis": "At each tire rotation, check each wheel for excessive end-play, listen/feel for roughness, and watch for heat or seal weeping after a drive. Any of those → have the sealed cartridge replaced per Dexter spec. Don't try to 'grease' a Nev-R-Lube hub. (E-Z Lube hubs, if your axle has them, do get repacked/greased per Dexter — know which axle you have from the data plate.)",
+          "doThis": "At each tire rotation, check each wheel for excessive end-play, listen/feel for roughness, and watch for heat or seal weeping after a drive. Any of those → have the sealed cartridge replaced per Dexter spec. Don't try to 'grease' a Nev-R-Lube hub. (E-Z Lube hubs, if your axle has them, do get repacked/greased per Dexter every ~12,000 mi / 12 mo — know which axle you have from the data plate.)",
           "appliesTo": "Airstreams with Dexter Nev-R-Lube axles (most modern models). E-Z Lube hubs follow Dexter's grease interval instead.",
           "sources": [
             {
@@ -208,7 +657,37 @@
               "label": "Dexter — Nev-R-Lube sealed cartridge bearing flyer (sealed for life, no bearing maintenance; 5-yr/100k warranty)",
               "url": "https://blog.oemdtc.com/4637/lit-215-00-nev-r-lube-sealed-cartridge-bearing-system-e-z-lube-bearing-lubrication-system-dexter/"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 — visual inspect only (cartridges are sealed, not serviceable)"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 — inspected free at any tire rotation"
+            },
+            "note": "Inspection is free — Nev-R-Lube cartridges are sealed and must never be repacked. Replacing a failed cartridge (~$150–400+ per hub) is a rare, condition-based repair, not a scheduled one.",
+            "sources": [
+              {
+                "label": "YourMechanic — clean & repack wheel bearing labor reference (~$150–210/job, labor-dominated)",
+                "url": "https://www.yourmechanic.com/estimates/dodge/d150/clean-and-repack-wheel-bearing"
+              },
+              {
+                "label": "My RV Works — $175/hr shop rate (press/replace labor basis)",
+                "url": "https://myrvworks.com/rates/"
+              }
+            ]
+          },
+          "diagram": {
+            "svg": "<svg viewBox=\"0 0 400 250\" role=\"img\" aria-label=\"Side-by-side hub comparison. Left: Dexter Nev-R-Lube sealed cartridge bearing used on most modern Airstreams, no grease zerk, inspect only, never repack, sealed for life with a 5 year 100,000 mile warranty. Right: Dexter E-Z Lube greaseable hub with a grease zerk fitting and a grease path through the spindle, repacked or greased on Dexter's interval.\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n  <title>Nev-R-Lube sealed cartridge vs E-Z Lube greaseable hub</title>\n  <!-- ===== LEFT: Nev-R-Lube sealed cartridge ===== -->\n  <g transform=\"translate(100,118)\">\n    <text x=\"0\" y=\"-92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12.5\" font-weight=\"700\" fill=\"currentColor\" stroke=\"none\">Nev-R-Lube (sealed)</text>\n    <!-- hub outer -->\n    <circle r=\"60\"/>\n    <!-- sealed cartridge: two concentric rings = the sealed shell -->\n    <circle r=\"40\"/>\n    <circle r=\"34\" opacity=\"0.6\"/>\n    <!-- inner race / spindle -->\n    <circle r=\"13\"/>\n    <!-- ball bearings ring (sealed inside) -->\n    <g opacity=\"0.7\">\n      <circle cx=\"0\" cy=\"-24\" r=\"3.2\" fill=\"currentColor\" stroke=\"none\"/>\n      <circle cx=\"17\" cy=\"-17\" r=\"3.2\" fill=\"currentColor\" stroke=\"none\"/>\n      <circle cx=\"24\" cy=\"0\" r=\"3.2\" fill=\"currentColor\" stroke=\"none\"/>\n      <circle cx=\"17\" cy=\"17\" r=\"3.2\" fill=\"currentColor\" stroke=\"none\"/>\n      <circle cx=\"0\" cy=\"24\" r=\"3.2\" fill=\"currentColor\" stroke=\"none\"/>\n      <circle cx=\"-17\" cy=\"17\" r=\"3.2\" fill=\"currentColor\" stroke=\"none\"/>\n      <circle cx=\"-24\" cy=\"0\" r=\"3.2\" fill=\"currentColor\" stroke=\"none\"/>\n      <circle cx=\"-17\" cy=\"-17\" r=\"3.2\" fill=\"currentColor\" stroke=\"none\"/>\n    </g>\n    <!-- NO zerk: a crossed-out grease-fitting symbol at top -->\n    <g transform=\"translate(0,-60)\">\n      <circle r=\"9\" opacity=\"0.8\"/>\n      <path d=\"M-6 -6 L6 6\" stroke-width=\"2\"/>\n    </g>\n    <text x=\"0\" y=\"86\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11\" font-weight=\"600\" fill=\"currentColor\" stroke=\"none\">no zerk &#183; inspect only</text>\n  </g>\n  <!-- divider -->\n  <line x1=\"200\" y1=\"34\" x2=\"200\" y2=\"206\" opacity=\"0.3\"/>\n  <!-- ===== RIGHT: E-Z Lube greaseable ===== -->\n  <g transform=\"translate(300,118)\">\n    <text x=\"0\" y=\"-92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12.5\" font-weight=\"700\" fill=\"currentColor\" stroke=\"none\">E-Z Lube (greaseable)</text>\n    <circle r=\"60\"/>\n    <circle r=\"40\"/>\n    <!-- inner spindle with axial grease path (dashed channel from zerk to bearings) -->\n    <circle r=\"13\"/>\n    <!-- grease zerk at the spindle tip (center) -->\n    <circle r=\"5\" fill=\"currentColor\" stroke=\"none\"/>\n    <!-- grease path arrows from center out to the bearing ring -->\n    <g opacity=\"0.7\" stroke-dasharray=\"3 3\">\n      <path d=\"M0 -7 L0 -22\"/>\n      <path d=\"M0 7 L0 22\"/>\n      <path d=\"M-7 0 L-22 0\"/>\n      <path d=\"M7 0 L22 0\"/>\n    </g>\n    <!-- two tapered bearing sets -->\n    <g opacity=\"0.8\">\n      <circle cx=\"0\" cy=\"-26\" r=\"3.4\" fill=\"currentColor\" stroke=\"none\"/>\n      <circle cx=\"22\" cy=\"-14\" r=\"3.4\" fill=\"currentColor\" stroke=\"none\"/>\n      <circle cx=\"26\" cy=\"0\" r=\"3.4\" fill=\"currentColor\" stroke=\"none\"/>\n      <circle cx=\"22\" cy=\"14\" r=\"3.4\" fill=\"currentColor\" stroke=\"none\"/>\n      <circle cx=\"0\" cy=\"26\" r=\"3.4\" fill=\"currentColor\" stroke=\"none\"/>\n      <circle cx=\"-22\" cy=\"14\" r=\"3.4\" fill=\"currentColor\" stroke=\"none\"/>\n      <circle cx=\"-26\" cy=\"0\" r=\"3.4\" fill=\"currentColor\" stroke=\"none\"/>\n      <circle cx=\"-22\" cy=\"-14\" r=\"3.4\" fill=\"currentColor\" stroke=\"none\"/>\n    </g>\n    <!-- zerk callout -->\n    <path d=\"M30 0 L52 0\" opacity=\"0.6\"/>\n    <text x=\"0\" y=\"86\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11\" font-weight=\"600\" fill=\"currentColor\" stroke=\"none\">grease zerk &#183; repack per Dexter</text>\n  </g>\n  <!-- bottom note -->\n  <text x=\"200\" y=\"232\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" font-weight=\"600\" fill=\"currentColor\" stroke=\"none\">Most modern Airstreams = Nev-R-Lube. Never &#8220;grease&#8221; a sealed hub.</text>\n</svg>",
+            "caption": "Two different axles, two different jobs. **Nev-R-Lube** (most modern Airstreams) is a sealed cartridge — no grease fitting, sealed for life (5-yr/100k warranty); you **inspect only** and replace the cartridge if you find play, noise, roughness or heat. **E-Z Lube** has a grease zerk feeding a channel out to the bearings and gets repacked/greased on Dexter's interval. Know which you have from the data plate — pumping grease at a Nev-R-Lube does nothing."
+          },
+          "rig": {
+            "axle": "nevrlube"
+          }
         },
         {
           "name": "Inspect electric brakes",
@@ -223,7 +702,30 @@
               "label": "Airstream Support — maintenance schedule (brakes: inspect or replace as necessary)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 — visual/adjustment inspection"
+            },
+            "pro": {
+              "low": 0,
+              "high": 60,
+              "text": "~$0–60 to inspect/adjust, often bundled with a rotation"
+            },
+            "note": "The twice-a-year task is an inspection. A full brake service when shoes/magnets actually wear (~$60–115/axle in parts DIY, ~$150–400/axle at a shop) is occasional and condition-based — not every six months.",
+            "sources": [
+              {
+                "label": "CURT — 10\" x 2-1/4\" electric brake assembly, $65.95 each",
+                "url": "https://www.curtmfg.com/part/298274"
+              },
+              {
+                "label": "My RV Works — $175/hr shop rate",
+                "url": "https://myrvworks.com/rates/"
+              }
+            ]
+          }
         },
         {
           "name": "Rotate tires & lubricate the spare carrier",
@@ -238,51 +740,158 @@
               "label": "Airstream Support — maintenance schedule (tires: inspect and rotate; spare tire carrier: lubricate)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 10,
+              "text": "$0 (your time) + a little grease for the carrier"
+            },
+            "pro": {
+              "low": 0,
+              "high": 60,
+              "text": "~$0–60 (rotation is often free or low-cost)"
+            },
+            "note": "DIY if you can safely jack and support the trailer. Shops charge little or nothing for a rotation (often free with tires bought there); a few dollars of grease keeps the spare carrier working.",
+            "sources": [
+              {
+                "label": "Jerry/JEGS — rotation often free with purchase; low-cost otherwise",
+                "url": "https://www.jegs.com/tech-articles/mount-and-balance-tires-everything-you-need-to-know"
+              }
+            ]
+          }
         },
         {
-          "name": "Clean & treat window and door seals; wax the shell",
+          "name": "Clean & treat window/door seals; wax the shell",
           "cadence": "semiannual",
           "severity": "preventive",
           "intervalText": "Every 10,000 mi / 6 mo · wax spring & fall",
-          "why": "Airstream calls for cleaning window and door seals with mild detergent and coating with a silicone seal treatment ('Slipicone') in the 10,000-mi block, and waxing the exterior. On the polished/clear-coated aluminum, Airstream recommends washing about every four weeks and waxing in spring and fall with a clear-coat-safe wax; in coastal or winter-salt conditions, more often. Always work the cloth with the grain (horizontal), never up-and-down, or you'll leave fine scratches that catch the sun.",
-          "doThis": "Clean seals with mild detergent, treat with a silicone seal conditioner (not petroleum). Wash with the grain; wax with a clear-coat-safe product spring and fall. Remove road salt immediately after winter travel.",
+          "why": "Airstream calls for cleaning window and door seals with mild detergent and coating them with a silicone seal treatment ('Slipicone') in the 10,000-mi block, and waxing the exterior. On the polished/clear-coated aluminum, Airstream recommends waxing in spring and fall with Walbernize Super Seal or another clear-coat-safe wax; in coastal or winter-salt conditions, more often. (Routine washing is its own monthly item.) Always work with the grain — horizontal strokes — or you'll leave fine scratches that catch the sun.",
+          "doThis": "Clean seals with mild detergent, treat with a silicone seal conditioner (not petroleum). Wax with a clear-coat-safe product in spring and fall, working with the grain. Remove road salt immediately after winter travel.",
           "appliesTo": "All Airstream travel trailers",
           "sources": [
             {
-              "label": "Airstream Support — maintenance schedule (window/door seals: clean & coat; exterior: wax)",
+              "label": "Airstream Support — maintenance schedule (window/door seals: clean & coat with 'Slipicone'; exterior: wax spring & fall with clear-coat-safe wax)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 20,
+              "high": 70,
+              "text": "$20–70 (seal conditioner + clear-coat-safe wax/polish)"
+            },
+            "pro": {
+              "low": 80,
+              "high": 340,
+              "text": "~$80–340 for a pro wash & wax (travel trailer, by tier)"
+            },
+            "note": "DIY: a silicone seal conditioner plus a clear-coat-safe wax or aluminum polish runs ~$20–70 and does several applications. A professional travel-trailer wash & wax runs from ~$79 (basic) up to ~$229–339 (premium/with wax), or ~$7–13/ft mobile; heavy oxidation polishing costs much more.",
+            "sources": [
+              {
+                "label": "Beckley's RVs — travel-trailer wash packages $79 (basic) to $339 (ultimate w/ wax)",
+                "url": "https://www.beckleysrvs.com/rv-service/detail-wash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Inspect & lubricate the Zip Dee awning",
+          "cadence": "semiannual",
+          "severity": "preventive",
+          "intervalText": "Twice a year · plus a deep fabric clean every 2–3 yr",
+          "why": "Airstream's awnings are Zip Dee units with Sunbrella fabric, stainless hardware, and aluminum struts, and they last for years only if the hardware is maintained. Airstream's routine: confirm all mounting brackets are tight, check pivot points for enlarged holes or broken rivets, check end caps for cracks, confirm the awning rail is tight to the body with all screws snug, and check the canopy for loose stitching or shrinkage. Clean and lubricate the tension knobs and pivots with aerosol silicone — not WD-40 or grease, which attract dirt and don't leave a lasting film.",
+          "doThis": "Twice a year, tighten mounting brackets and rail screws, inspect pivots/rivets/end caps and the stitching, and lubricate tension knobs and pivot points with aerosol silicone lubricant. Every 2–3 years give the Sunbrella fabric a deep clean (Zip Dee WashOut or ¼ cup mild natural soap per gallon — no detergents or commercial awning cleaners), then rinse thoroughly and air-dry. Always retract the awning in wind or when you leave camp.",
+          "appliesTo": "Airstream travel trailers with a Zip Dee patio/window awning",
+          "sources": [
+            {
+              "label": "Airstream Support — Zip Dee awning care (tighten brackets/rail, check pivots/rivets/end caps/stitching; silicone lube, not WD-40/grease; deep-clean fabric every 2–3 yr)",
+              "url": "https://support.airstream.com/hc/en-us/articles/17938934336020-How-To-Clean-and-Care-For-Your-Airstream-Zip-Dee-Awning"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 10,
+              "text": "$0–10 — clean + a little lube"
+            },
+            "pro": {
+              "low": 0,
+              "high": 40,
+              "text": "~$0–40 if added to other service"
+            },
+            "note": "Cleaning and lubricating is essentially free. Replacing worn Zip Dee fabric (~$80–180 DIY fabric, ~$180–400 installed) is an occasional, condition-based expense — not a semiannual one.",
+            "sources": [
+              {
+                "label": "Walmart — Shadepro 20' RV awning replacement fabric, $179.99 (representative fabric price)",
+                "url": "https://www.walmart.com/ip/Shadepro-RV-Awning-Fabric-Replacement-Premium-Grade-Vinyl-20-Dune-Fade-Length-19-2/431203511"
+              },
+              {
+                "label": "My RV Works — $175/hr shop rate (install-labor basis)",
+                "url": "https://myrvworks.com/rates/"
+              }
+            ]
+          }
         }
       ]
     },
     {
       "id": "annual",
       "title": "Annual",
-      "blurb": "The once-a-year jobs that protect the structure and the systems: resealing the seams that keep water out of an aluminum monocoque, servicing the battery and propane, the water-heater anode (on Suburban tanks only), and the single most important number on your tires — their age.",
+      "blurb": "The once-a-year jobs that protect the structure and the systems: resealing the seams that keep water out of an aluminum monocoque, the propane leak-down test, the combustion appliances (furnace, fridge, A/C), the water-heater anode (on Suburban tanks only), the running gear underneath, and the single most important number on your tires — their age.",
       "items": [
         {
           "name": "Inspect & reseal exterior seams, windows, vents",
           "cadence": "annual",
           "severity": "preventive",
           "intervalText": "Annually · time to fall & spring",
-          "why": "Water intrusion is the thing that quietly destroys a trailer, and an Airstream's defense is the sealant along its riveted aluminum seams, awning rail, windows, lights and roof penetrations — not a rubber roof membrane. Airstream's guidance: check and reseal exterior seams, windows, lights and vents as needed, and time the inspection to when you winterize and de-winterize (fall and spring). Because the shell is aluminum with sealed seams, this is NOT the 'recoat the rubber roof / Dicor lap sealant' job from typical RVs — use the sealant Airstream/your dealer specifies for the seam, and take it to a dealer if the original sealant is deteriorating.",
-          "doThis": "Twice a year (fall/spring), inspect the roof around vents, the awning rail, side-sheet seams, doors and windows for cracked or lifting sealant. Reseal as needed with the correct Airstream-spec sealant, or have the dealer do it. Don't apply rubber-roof lap sealant to an aluminum Airstream.",
+          "why": "Water intrusion is the thing that quietly destroys a trailer, and an Airstream's defense is the sealant along its riveted aluminum seams, awning rail, windows, lights and roof penetrations — not a rubber roof membrane. Airstream's guidance: twice a year (spring and fall, timed to winterize/de-winterize) inspect all sealant for discoloration, cracking, gaping or dryness and reseal as needed. Because the shell is aluminum with sealed seams, this is NOT the 'recoat the rubber roof / Dicor lap sealant' job from typical RVs — Airstream uses specific sealants per joint: Acryl-R Seam Sealer for segment seams, windows, beltline, rub rail and lights; AdSeal (gray on trim/windows/doors, white on rooftop components); and black AdSeal or Sikaflex 221 on wheel wells and the underbelly.",
+          "doThis": "Twice a year (fall/spring), inspect the roof around vents, the awning rail, side-sheet seams, doors and windows for cracked or lifting sealant. Reseal with the correct Airstream-spec sealant for that location (Acryl-R / AdSeal gray/white / Sikaflex black), or have the dealer do it. Don't apply rubber-roof lap sealant to an aluminum Airstream.",
           "appliesTo": "All Airstream travel trailers (aluminum body, sealed seams)",
           "sources": [
             {
               "label": "Airstream Support — maintenance schedule (seams: check & reseal; time sealant inspections to fall & spring)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            },
+            {
+              "label": "Airstream Support — inspect, repair & reapply sealants (spring/fall; Acryl-R for seams/windows/lights; AdSeal gray/white; Sikaflex black for wheel wells/underbelly)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360046907571-How-do-I-inspect-repair-and-reapply-sealants-on-an-Airstream-travel-trailer"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 15,
+              "high": 60,
+              "text": "$15–60 — a tube or two of the correct sealant"
+            },
+            "pro": {
+              "low": 150,
+              "high": 500,
+              "text": "~$150–500 for a shop inspect + spot reseal"
+            },
+            "note": "A yearly DIY inspect-and-spot-reseal is a tube or two of the correct Airstream-spec sealant. A full professional exterior reseal (~$2,350–3,050) is a periodic every-few-years job, not annual.",
+            "sources": [
+              {
+                "label": "Woodland Airstream Parts — Airstream TremPro 635/Vulkem sealant, $14.72/tube",
+                "url": "https://woodlandairstreamparts.com/products/gray-trempro-635-sealant"
+              },
+              {
+                "label": "Cal RV Specialists — full exterior body reseal pricing $2,350–$3,050 by length",
+                "url": "https://calrvspecialists.com/rv-exterior-body-maintenance-resealing-moldings-sealants/"
+              }
+            ]
+          },
+          "diagram": {
+            "svg": "<svg viewBox=\"0 0 400 230\" role=\"img\" aria-label=\"Simplified Airstream side silhouette with the main sealed joints marked: roof seams and the awning rail along the top, roof vents and fans, the end-cap seams front and rear, window and door frames, and the belt-line rock-guard seam low on the body. Inspect and reseal with the correct Airstream sealant per joint. This is an aluminum monocoque shell, not a rubber roof, so it is not a Dicor lap-sealant recoat.\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n  <title>Airstream sealed-seam / sealant map</title>\n  <!-- rounded aluminum shell silhouette -->\n  <path d=\"M40 150 Q40 70 120 58 Q200 48 280 58 Q360 70 360 150 L360 168 Q360 176 352 176 L48 176 Q40 176 40 168 Z\"/>\n  <!-- ground / wheel -->\n  <circle cx=\"135\" cy=\"176\" r=\"20\"/>\n  <circle cx=\"135\" cy=\"176\" r=\"6\"/>\n  <!-- belt-line / rock-guard seam (horizontal lower body line) -->\n  <path d=\"M48 150 H352\" opacity=\"0.55\" stroke-dasharray=\"5 4\"/>\n  <!-- roof seam (top run) -->\n  <path d=\"M120 60 Q200 50 280 60\" opacity=\"0.55\" stroke-dasharray=\"5 4\"/>\n  <!-- end-cap seams (front + rear vertical curves) -->\n  <path d=\"M70 150 Q62 96 120 64\" opacity=\"0.55\" stroke-dasharray=\"5 4\"/>\n  <path d=\"M330 150 Q338 96 280 64\" opacity=\"0.55\" stroke-dasharray=\"5 4\"/>\n  <!-- roof vent / fan -->\n  <rect x=\"186\" y=\"50\" width=\"28\" height=\"12\" rx=\"2\"/>\n  <!-- windows -->\n  <rect x=\"150\" y=\"95\" width=\"38\" height=\"26\" rx=\"4\"/>\n  <rect x=\"212\" y=\"95\" width=\"38\" height=\"26\" rx=\"4\"/>\n  <!-- entry door -->\n  <rect x=\"272\" y=\"98\" width=\"30\" height=\"52\" rx=\"3\"/>\n  <circle cx=\"277\" cy=\"124\" r=\"1.6\" fill=\"currentColor\" stroke=\"none\"/>\n  <!-- numbered callout bullets -->\n  <g font-family=\"system-ui,sans-serif\" font-size=\"11\" font-weight=\"700\">\n    <g transform=\"translate(200,40)\"><circle r=\"9\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" fill=\"#fff\" stroke=\"none\">1</text></g>\n    <g transform=\"translate(200,68)\"><circle r=\"9\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" fill=\"#fff\" stroke=\"none\">2</text></g>\n    <g transform=\"translate(169,108)\"><circle r=\"9\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" fill=\"#fff\" stroke=\"none\">3</text></g>\n    <g transform=\"translate(287,86)\"><circle r=\"9\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" fill=\"#fff\" stroke=\"none\">4</text></g>\n    <g transform=\"translate(60,150)\"><circle r=\"9\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" fill=\"#fff\" stroke=\"none\">5</text></g>\n    <g transform=\"translate(200,150)\"><circle r=\"9\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"4\" text-anchor=\"middle\" fill=\"#fff\" stroke=\"none\">6</text></g>\n  </g>\n  <!-- legend -->\n  <g font-family=\"system-ui,sans-serif\" font-size=\"10\" fill=\"currentColor\" stroke=\"none\">\n    <text x=\"20\" y=\"198\">1 roof seam / awning rail&#160;&#160;&#160;2 roof vents &amp; fans&#160;&#160;&#160;3 window &amp; door frames</text>\n    <text x=\"20\" y=\"212\">4 entry door&#160;&#160;&#160;5 end-cap seams (front/rear)&#160;&#160;&#160;6 belt-line / rock-guard</text>\n  </g>\n  <text x=\"200\" y=\"227\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10.5\" font-weight=\"600\" fill=\"currentColor\" stroke=\"none\">Aluminum monocoque &#8212; correct sealant per joint, NOT a Dicor roof recoat</text>\n</svg>",
+            "caption": "An Airstream's water defense is the **sealant along its riveted aluminum seams**, not a rubber roof. Twice a year inspect the marked joints — roof seams & awning rail, vents/fans, window and door frames, the end-cap seams, and the belt-line/rock-guard — and reseal with the **correct Airstream-spec sealant for each location**. This is a sealed aluminum monocoque, so it is **not** the 'recoat the rubber roof with Dicor lap sealant' job from a typical RV."
+          }
         },
         {
           "name": "Replace tires by age — not by tread",
           "cadence": "annual",
           "severity": "safety",
           "intervalText": "Check DOT date yearly · replace ~5–7 yrs",
-          "why": "Trailer ('ST') tires almost always time out before they wear out: the rubber oxidizes and the casing weakens from the inside even while the tread looks deep, because a parked trailer's tires don't flex enough to circulate their own anti-aging compounds. The industry guideline is to replace ST tires around 5–7 years from their build date regardless of tread, and the tire makers' hard ceiling is 10 years for any tire. Read the DOT date code on the sidewall (last four digits = week + year; e.g. 3523 = 35th week of 2023) on every tire, including the spare.",
+          "why": "Trailer ('ST') tires almost always time out before they wear out: the rubber oxidizes and the casing weakens from the inside even while the tread looks deep, because a parked trailer's tires don't flex enough to circulate their own anti-aging compounds. Airstream's own literature says trailer tires over five years old should be inspected by a tire expert and replaced even with no apparent tread wear; the industry guideline is to replace ST tires around 5–7 years from their build date, and the makers' hard ceiling is 10 years for any tire. Read the DOT date code (last four digits = week + year; e.g. 3523 = 35th week of 2023) on every tire, including the spare.",
           "doThis": "Once a year, read the DOT date on every tire and the spare. Plan replacement at ~5–7 years from build date; never run any tire past 10 years. Keep tires covered in storage and off bare ground to slow UV and ozone aging.",
           "appliesTo": "All Airstream travel trailers",
           "sources": [
@@ -294,22 +903,75 @@
               "label": "Girl Camper — tire age truths (NTSB & makers: replace tires older than ~6 years regardless of condition; reading the DOT code)",
               "url": "https://girlcamper.com/are-your-tires-tired/"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 to check the DOT date; replacement priced under tire-set-replacement"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "See tire-set-replacement for the actual replacement cost"
+            },
+            "note": "Reading the DOT date code is free. The cost is the replacement itself when tires hit ~5–7 years — see the tire-set-replacement item for tire and mounting prices.",
+            "sources": [
+              {
+                "label": "JEGS — tire service cost context",
+                "url": "https://www.jegs.com/tech-articles/mount-and-balance-tires-everything-you-need-to-know"
+              }
+            ]
+          },
+          "diagram": {
+            "svg": "<svg viewBox=\"0 0 400 215\" role=\"img\" aria-label=\"Reading a tire DOT date code: the last four digits are the build date, where the first two are the week and the last two are the year. Example 3523 means the 35th week of 2023. Replace ST trailer tires about every 5 to 7 years by age, never run past 10 years.\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n  <title>Reading the tire DOT date code</title>\n  <!-- curved sidewall -->\n  <path d=\"M18 150 Q200 96 382 150\" opacity=\"0.5\"/>\n  <path d=\"M18 162 Q200 108 382 162\" opacity=\"0.5\"/>\n  <!-- embossed DOT code on the sidewall -->\n  <text x=\"200\" y=\"140\" text-anchor=\"middle\" font-family=\"ui-monospace,Menlo,monospace\" font-size=\"20\" font-weight=\"700\" letter-spacing=\"1.5\" fill=\"currentColor\" stroke=\"none\">DOT&#160;&#160;B3&#160;&#160;7XYZ&#160;&#160;<tspan font-size=\"22\">3523</tspan></text>\n  <!-- highlight box around the date 4 digits -->\n  <rect x=\"291\" y=\"116\" width=\"62\" height=\"32\" rx=\"4\" stroke-width=\"2\"/>\n  <!-- callout leader -->\n  <path d=\"M322 116 L322 86 L322 86\" />\n  <path d=\"M270 86 H374\" opacity=\"0.5\"/>\n  <!-- decoded -->\n  <text x=\"200\" y=\"34\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"600\" fill=\"currentColor\" stroke=\"none\">Last 4 digits = build date</text>\n  <text x=\"200\" y=\"58\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"currentColor\" stroke=\"none\">&#8220;35&#8221; = 35th week &#160;&#183;&#160; &#8220;23&#8221; = year 2023</text>\n  <!-- age rule strip -->\n  <line x1=\"40\" y1=\"182\" x2=\"360\" y2=\"182\" opacity=\"0.35\"/>\n  <text x=\"200\" y=\"202\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10.5\" font-weight=\"600\" fill=\"currentColor\" stroke=\"none\">Replace ST tires ~5&#8211;7 yrs by AGE &#183; hard ceiling 10 yrs &#183; check the spare</text>\n</svg>",
+            "caption": "On the sidewall, the **last four digits of the DOT code are the build date**: first two = week, last two = year — so **3523 = 35th week of 2023**. Trailer (ST) tires age out before they wear out, so replace by date (~5–7 years), never run any tire past 10 years, and read the code on the spare too."
+          }
         },
         {
           "name": "Service the water heater anode — Suburban steel tanks only",
           "cadence": "annual",
           "severity": "preventive",
           "intervalText": "Annually (at winterize/de-winterize)",
-          "why": "Know your water heater before you touch it — this is the other big where-it-goes-wrong item. A Suburban heater uses a glass-lined STEEL tank with a replaceable sacrificial anode rod: inspect it yearly and replace once it's ~75% consumed (steel core showing). An Atwood/Dometic heater uses an ALUMINUM tank with the anode material fused into the lining — it has no rod, and you should NOT install an aftermarket one (the steel threads gall in the aluminum and it has built-in cathodic protection already). Many newer Airstreams also ship with a tankless on-demand heater, which has no anode at all and instead needs periodic descaling. Check your unit's data plate to know which you have.",
+          "why": "Know your water heater before you touch it — this is a big where-it-goes-wrong item. A Suburban heater uses a glass-lined STEEL tank with a replaceable sacrificial anode rod: inspect it yearly and replace once it's ~75% consumed (about 25% life left). An Atwood/Dometic heater uses an ALUMINUM tank with a 7072 aluminum/zinc anode layer fused into the lining — it has no rod, and you should NOT install an aftermarket one (the steel threads gall in the aluminum and it has built-in cathodic protection already). Many newer Airstreams ship with a tankless on-demand heater, which has no anode at all and instead needs periodic descaling. Check your unit's data plate to know which you have.",
           "doThis": "Suburban (steel): pull the anode at the annual flush, replace if ~75% gone or the steel core shows; flush sediment with a wand while it's open. Atwood/Dometic (aluminum): no anode — just drain/flush, leave the plastic drain plug, do not fit a rod. Tankless: descale per the maker's instructions.",
           "appliesTo": "Anode applies to Suburban steel-tank heaters only. Atwood/Dometic aluminum tanks and tankless units have no anode rod.",
           "sources": [
             {
-              "label": "RVtravel / Ask the RV Engineer — Suburban (steel) uses a replaceable anode; Dometic (aluminum) has an integral anode, no aftermarket rod",
+              "label": "RVtravel / Ask the RV Engineer — Suburban (steel) uses a replaceable anode (replace at ~25% life); Dometic (aluminum) has an integral 7072 anode, no aftermarket rod",
               "url": "https://www.rvtravel.com/youve-told-rvs-anode-rod-wrong-1149/"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 15,
+              "high": 35,
+              "text": "$15–25 for an anode rod (Suburban steel tanks) + ~$10 flush wand"
+            },
+            "pro": {
+              "low": 75,
+              "high": 150,
+              "text": "~$75–150 (anode + flush, parts + ~0.5–1 hr labor)"
+            },
+            "note": "DIY is easy and cheap: a magnesium/aluminum-zinc anode rod for Suburban (steel) heaters runs ~$13–25 (often a 2-pack ~$17), plus a ~$10 flush wand. IMPORTANT: Atwood/Dometic ALUMINUM tanks have no rod — do not buy one; tankless units descale instead. A shop adds a service call + labor.",
+            "sources": [
+              {
+                "label": "Walmart — 2-pack magnesium anode rods for Suburban steel tanks, $16.97",
+                "url": "https://www.walmart.com/ip/ONENESS-369-RV-Water-Heater-Anode-Rod-2-Pack-Magnesium-9-25-x-0-75-with-Teflon-Tape/467616526"
+              },
+              {
+                "label": "49er Mobile RV Repair — labor/service-call basis",
+                "url": "https://www.yelp.com/biz/49er-mobile-rv-repair-nevada-city-2"
+              }
+            ]
+          },
+          "diagram": {
+            "svg": "<svg viewBox=\"0 0 400 270\" role=\"img\" aria-label=\"Water-heater service decision tree. Identify your tank from the data plate. Suburban steel tank: has a replaceable sacrificial anode rod, inspect yearly and replace when about 75 percent consumed. Atwood or Dometic aluminum tank: integral anode in the lining, no rod, do not fit an aftermarket rod, just drain and flush. Tankless on-demand: no anode, descale per the maker.\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n  <title>Water-heater anode decision: Suburban vs Atwood/Dometic vs tankless</title>\n  <!-- top: identify -->\n  <rect x=\"120\" y=\"12\" width=\"160\" height=\"34\" rx=\"6\"/>\n  <text x=\"200\" y=\"33\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12.5\" font-weight=\"700\" fill=\"currentColor\" stroke=\"none\">Read the data plate</text>\n  <!-- branch lines -->\n  <path d=\"M200 46 L200 58 M70 58 H330 M70 58 V72 M200 58 V72 M330 58 V72\" opacity=\"0.5\"/>\n  <!-- ===== branch 1: Suburban steel ===== -->\n  <g transform=\"translate(70,72)\">\n    <text x=\"0\" y=\"12\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" font-weight=\"700\" fill=\"currentColor\" stroke=\"none\">Suburban</text>\n    <text x=\"0\" y=\"26\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10\" fill=\"currentColor\" stroke=\"none\">STEEL tank</text>\n    <!-- tank with a rod hanging in -->\n    <rect x=\"-26\" y=\"34\" width=\"52\" height=\"64\" rx=\"8\"/>\n    <!-- anode rod -->\n    <path d=\"M0 34 L0 90\"/>\n    <circle cx=\"0\" cy=\"90\" r=\"4\"/>\n    <!-- partially consumed marks -->\n    <path d=\"M-4 60 L4 60 M-4 70 L4 70 M-4 80 L4 80\" opacity=\"0.5\"/>\n    <text x=\"0\" y=\"116\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10.5\" font-weight=\"600\" fill=\"currentColor\" stroke=\"none\">Has anode ROD</text>\n    <text x=\"0\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10\" fill=\"currentColor\" stroke=\"none\">Replace at ~75% gone</text>\n    <text x=\"0\" y=\"143\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10\" fill=\"currentColor\" stroke=\"none\">+ flush sediment</text>\n  </g>\n  <!-- ===== branch 2: Atwood/Dometic aluminum ===== -->\n  <g transform=\"translate(200,72)\">\n    <text x=\"0\" y=\"12\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" font-weight=\"700\" fill=\"currentColor\" stroke=\"none\">Atwood / Dometic</text>\n    <text x=\"0\" y=\"26\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10\" fill=\"currentColor\" stroke=\"none\">ALUMINUM tank</text>\n    <!-- tank with NO rod (plug only) -->\n    <rect x=\"-26\" y=\"34\" width=\"52\" height=\"64\" rx=\"8\"/>\n    <!-- integral anode = hatched lining -->\n    <path d=\"M-20 40 L-20 92 M-13 40 L-13 92\" opacity=\"0.4\"/>\n    <!-- plastic drain plug, crossed-out rod symbol -->\n    <rect x=\"-5\" y=\"92\" width=\"10\" height=\"8\" rx=\"2\"/>\n    <g transform=\"translate(0,72)\">\n      <circle r=\"9\" opacity=\"0.8\"/>\n      <path d=\"M-6 -6 L6 6\" stroke-width=\"2\"/>\n    </g>\n    <text x=\"0\" y=\"116\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10.5\" font-weight=\"600\" fill=\"currentColor\" stroke=\"none\">Integral anode &#8212; NO rod</text>\n    <text x=\"0\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10\" fill=\"currentColor\" stroke=\"none\">Drain/flush, plastic plug</text>\n    <text x=\"0\" y=\"143\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10\" fill=\"currentColor\" stroke=\"none\">do NOT fit a rod</text>\n  </g>\n  <!-- ===== branch 3: tankless ===== -->\n  <g transform=\"translate(330,72)\">\n    <text x=\"0\" y=\"12\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" font-weight=\"700\" fill=\"currentColor\" stroke=\"none\">Tankless</text>\n    <text x=\"0\" y=\"26\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10\" fill=\"currentColor\" stroke=\"none\">on-demand</text>\n    <!-- heat-exchanger coil box -->\n    <rect x=\"-24\" y=\"34\" width=\"48\" height=\"64\" rx=\"8\"/>\n    <path d=\"M-16 46 H16 M-16 58 H16 M-16 70 H16 M-16 82 H16\" opacity=\"0.6\"/>\n    <text x=\"0\" y=\"116\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10.5\" font-weight=\"600\" fill=\"currentColor\" stroke=\"none\">No anode</text>\n    <text x=\"0\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10\" fill=\"currentColor\" stroke=\"none\">DESCALE per</text>\n    <text x=\"0\" y=\"143\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10\" fill=\"currentColor\" stroke=\"none\">the maker</text>\n  </g>\n  <!-- bottom rule -->\n  <line x1=\"30\" y1=\"226\" x2=\"370\" y2=\"226\" opacity=\"0.35\"/>\n  <text x=\"200\" y=\"248\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" font-weight=\"600\" fill=\"currentColor\" stroke=\"none\">Wrong rod in an aluminum tank galls the threads &#8212; identify FIRST.</text>\n</svg>",
+            "caption": "Identify the heater before you touch it. **Suburban (steel)** has a replaceable sacrificial **anode rod** — inspect yearly, replace at ~75% consumed, flush sediment. **Atwood/Dometic (aluminum)** has the anode fused into the lining — **no rod; never fit an aftermarket one** (it galls the threads), just drain and flush with the plastic plug. **Tankless** has no anode and needs periodic **descaling** instead."
+          },
+          "rig": {
+            "heater": "suburban"
+          }
         },
         {
           "name": "Service battery terminals & purge LP tanks",
@@ -324,29 +986,256 @@
               "label": "Airstream Support — maintenance schedule (annual: battery terminals clean/neutralize/coat; LP tanks purged by supplier)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 5,
+              "high": 15,
+              "text": "$5–15 (terminal cleaner/brush + petroleum jelly); LP purge done by supplier"
+            },
+            "pro": {
+              "low": 0,
+              "high": 25,
+              "text": "LP purge ~$0–25 at the propane supplier (often free/nominal with a fill)"
+            },
+            "note": "Cleaning and coating battery terminals is a few dollars of brush, baking soda, and petroleum jelly. Purging LP tanks is done by your propane supplier — usually nominal or bundled with the first fill (a fill itself is ~$3–5/gal). Replacing the battery is priced under battery-replacement. NOTE: the LP-purge charge is a soft figure — suppliers vary and many fold it into a fill.",
+            "sources": [
+              {
+                "label": "Thumbtack — propane refill ~$3–4/gal; exchange $20–25 (purge typically bundled with service)",
+                "url": "https://www.thumbtack.com/p/propane-prices"
+              }
+            ]
+          }
         },
         {
           "name": "Inspect hitch coupler, interior cabinetry & screws",
           "cadence": "annual",
           "severity": "upkeep",
           "intervalText": "Annually",
-          "why": "Airstream's annual block calls for confirming the hitch coupler and ball operate freely (replace any worn component) and a visual inspection of interior cabinet latches, locks, hinges and slides, with silicone spray as needed. Towing shakes everything loose over a season — Airstream likens even 30 minutes at highway speed to a sustained earthquake — so a screw-tightening pass protects the interior.",
-          "doThis": "Work the coupler and ball through their full motion; replace anything worn. Walk the interior tightening loose screws and latches; silicone-spray sticky hinges and slides.",
+          "why": "Airstream's annual block calls for confirming the hitch coupler and ball operate freely (replace any worn component) and a visual inspection of interior cabinet latches, locks, hinges and drawer slides, with silicone spray as needed. (These are drawer/cabinet slides — Airstream travel trailers have no slide-out rooms.) Towing shakes everything loose over a season — Airstream likens even 30 minutes at highway speed to a sustained earthquake — so a screw-tightening pass protects the interior.",
+          "doThis": "Work the coupler and ball through their full motion; replace anything worn. Walk the interior tightening loose screws and latches; silicone-spray sticky hinges and drawer slides.",
           "appliesTo": "All Airstream travel trailers",
           "sources": [
             {
               "label": "Airstream Support — maintenance schedule (annual: hitch coupler/ball; interior cabinetry latches, locks, hinges, slides)",
               "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 10,
+              "text": "$0 (your time) + silicone spray you already have"
+            },
+            "pro": {
+              "low": 60,
+              "high": 175,
+              "text": "~$60–175 (≈1 hr) if hired out"
+            },
+            "note": "A screwdriver pass and silicone spray cost essentially nothing. Replacing a worn coupler component is a separate part (~$30–150).",
+            "sources": [
+              {
+                "label": "My RV Works — $175/hr shop rate",
+                "url": "https://myrvworks.com/rates/"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get a professional propane leak-down test",
+          "cadence": "annual",
+          "severity": "safety",
+          "intervalText": "Annually · before the season",
+          "why": "A propane leak in a sealed aluminum trailer is a fire and asphyxiation risk, and small leaks don't announce themselves. The accepted standard across the RV trade is a professional leak-down (manometer) test of the whole system once a year, plus a regulator check — a 15–20 minute job for a certified tech. Between pro tests, Airstream tells you to visually inspect the entire propane system at least twice a year for worn hoses, loose connections and spider webs/nests, and to swab fittings with soapy water (bubbles = leak) whenever you change a cylinder or smell gas.",
+          "doThis": "Once a year, have a certified RV/LP technician perform a manometer leak-down and regulator test. Yourself: twice a year inspect all hoses, pigtails and connections, clear insect nests, and soapy-water-test fittings after any cylinder change. Any leak → shut off propane, kill ignition sources, and get it serviced before use.",
+          "appliesTo": "All Airstream travel trailers (LP system)",
+          "sources": [
+            {
+              "label": "Girl Camper — RV propane safety (annual professional leak test ~15–20 min; soapy-water leak check)",
+              "url": "https://girlcamper.com/rv-pro-tip-propane-maintenance-and-safety-tips/"
+            },
+            {
+              "label": "Airstream Support — propane tank article (visually check entire LP system at least twice a year; remove spider webs/nests; leaks = dealer)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360046467432-How-to-Access-Use-Remove-and-Refill-an-Airstream-Propane-Tank"
+            },
+            {
+              "label": "RV.com — Cooking with Gas (take the RV in once a year for a propane leak-down test)",
+              "url": "https://www.rv.com/how-to/rigs-gear-cooking-with-gas"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 10,
+              "text": "$0–10 (soapy water / leak-detect spray for a quick check)"
+            },
+            "pro": {
+              "low": 50,
+              "high": 150,
+              "text": "~$50–150 for a proper manometer/timed-pressure-drop test"
+            },
+            "note": "A quick bubble check at fittings with soapy water or leak-detect spray (~$5–10) is free-ish. A proper LP system test — a manometer timed-pressure-drop test and regulator-output check — is a service-call + short labor at a shop (~$50–150). Worth paying a pro if you ever smell gas.",
+            "sources": [
+              {
+                "label": "49er Mobile RV Repair — $125/hr labor + $80–125 service call basis",
+                "url": "https://www.yelp.com/biz/49er-mobile-rv-repair-nevada-city-2"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Service the furnace (clear exhaust/intake & burner)",
+          "cadence": "annual",
+          "severity": "safety",
+          "intervalText": "Annually · before heating season",
+          "why": "The RV furnace is the appliance used least and trusted most on a cold night, and it has no air filter — so dust, rust flakes, and mud-dauber/spider nests collect in the burner tube and in the exterior intake/exhaust. A blocked exhaust or sooted burner means poor combustion, which can push carbon monoxide into the cabin. An annual visual inspection keeps the heat (and the CO detector) honest.",
+          "doThis": "With propane and the thermostat off, use a flashlight to check the exterior furnace intake/exhaust for nests, soot, or debris and clear gently. Look for soot trails (a sign of poor combustion) and have a tech clean the burner/orifice and check the sail and limit switches if you see them. Never fit an aftermarket screen fine enough to choke airflow.",
+          "appliesTo": "All Airstream travel trailers with a forced-air propane furnace",
+          "sources": [
+            {
+              "label": "RV.com — How to inspect and service a motorhome's heating unit (annual inspection; flashlight-check intake/exhaust for nests; soot = poor combustion; no intake filter)",
+              "url": "https://www.rv.com/archive/the-heat-is-on/"
+            },
+            {
+              "label": "Airstream Support — propane tank article (remove spider webs and nests around appliances and the water heater)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360046467432-How-to-Access-Use-Remove-and-Refill-an-Airstream-Propane-Tank"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (your time)"
+            },
+            "pro": {
+              "low": 50,
+              "high": 150,
+              "text": "~$50–150 for a tech inspection"
+            },
+            "note": "A flashlight check of the intake/exhaust and clearing insect nests costs nothing. If you want the burner, orifice, sail and limit switches inspected, a tech bills a service-call plus short labor (~$50–150). A failed control board or gas valve is a larger repair.",
+            "sources": [
+              {
+                "label": "My RV Works — published RV labor rate ($175/hr shop)",
+                "url": "https://myrvworks.com/rates/"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Clean the refrigerator burner, flue & vent (absorption fridges)",
+          "cadence": "annual",
+          "severity": "safety",
+          "intervalText": "Annually · before the season",
+          "why": "Pre-2022 Airstreams (and any model with a propane/absorption fridge) cool by burning LP, and that burner, flue, and the exterior roof/side vent are a favorite home for spiders and wasps — the insects are drawn to the smell of burned propane. A clogged flue or burner gives a weak yellow flame, poor cooling, and a CO/soot risk. Compressor (12V electric) fridges don't have a burner and skip this, but still benefit from clear rear ventilation.",
+          "doThis": "Absorption/propane fridge: once a year clear the exterior fridge vent of nests and debris, and have the burner/flue cleaned so the flame burns blue and steady; confirm the trailer is level when running on gas. Compressor fridge: just keep the rear vents and coils clear of dust and debris.",
+          "appliesTo": "Absorption/propane refrigerators (mostly pre-2022 Airstreams); compressor (12V) fridges need only clear ventilation",
+          "sources": [
+            {
+              "label": "RV.com — Cooking with Gas (inspect/clean propane appliances; wasps in the refrigerator, spiders in the water heater; clear debris)",
+              "url": "https://www.rv.com/how-to/rigs-gear-cooking-with-gas"
+            },
+            {
+              "label": "Airstream Support — operating the fridge (level the trailer for propane/absorption operation; consult manual for your model)",
+              "url": "https://support.airstream.com/hc/en-us/articles/16140040473876-How-do-I-operate-my-Airstream-s-electric-or-propane-fridge"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 — clean coils, vents & flue yourself"
+            },
+            "pro": {
+              "low": 50,
+              "high": 150,
+              "text": "~$50–150 for a tech to clean & check the boiler/flue"
+            },
+            "note": "Annual cleaning is free to DIY. Replacing a failed absorption cooling unit (~$1,550–1,800) is a rare, condition-based repair — not part of routine annual service.",
+            "sources": [
+              {
+                "label": "JC Refrigeration — replacement cooling unit ~$1,550, +$100 factory install",
+                "url": "https://jc-refrigeration.com/product/norcold-1200-1201-hvac-12v-dc-replacement-unit/"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Deep-service the rooftop A/C (coil + gasket torque)",
+          "cadence": "annual",
+          "severity": "preventive",
+          "intervalText": "Annually · before cooling season",
+          "why": "Beyond the monthly filter, the rooftop A/C needs a yearly once-over: clear leaves and debris off the condenser coil/fins under the shroud so it can shed heat, and — critically for keeping water out — check the four hold-down bolts that compress the roof gasket. Dometic's factory spec for those mounting nuts is 40–50 inch-pounds (not foot-pounds), which compresses the foam gasket to about half its thickness; left loose they leak, over-tightened they crush the gasket and the base.",
+          "doThis": "With power off, remove the shroud and gently clear/clean the condenser fins (straighten bent fins, don't gouge them). Check the rooftop A/C hold-down bolts and snug to the maker's spec — 40–50 in-lbs for Dometic/Duo-Therm, or until the foam gasket is compressed ~50%. Confirm your unit's own manual, as other brands (Coleman-Mach, etc.) may differ.",
+          "appliesTo": "All Airstream travel trailers with a rooftop A/C (torque figure is Dometic/Duo-Therm spec)",
+          "sources": [
+            {
+              "label": "Forest River Forums — Dometic factory spec confirmed: 40–50 in-lbs on the four A/C mounting nuts, gasket compressed ~50%",
+              "url": "https://www.forestriverforums.com/threads/proper-torques-specs-for-dometic-579-series-rooftop-ac-units.370638/"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 25,
+              "text": "$0–25 (wash coils + a replacement A/C filter)"
+            },
+            "pro": {
+              "low": 149,
+              "high": 189,
+              "text": "~$149–189 for a professional roof A/C tune-up"
+            },
+            "note": "DIY cleaning of the coils and a new foam/return-air filter costs little. A professional RV roof-A/C tune-up (deep coil clean, amp-draw test, gasket/filter) runs ~$149–189 per unit. RV A/C units are sealed and generally not recharged; a failed capacitor (~$100–250) or fan motor (~$350–800) is a repair, not maintenance. (Home-AC tune-up guides put general A/C tune-ups at $65–200 for context.)",
+            "sources": [
+              {
+                "label": "A1 RV Repair (via Medium) — RV A/C tune-up $149–189; common repairs $165–485 installed",
+                "url": "https://medium.com/@cynderdmkl/a1-rv-repair-port-st-lucie-rv-air-conditioner-tune-ups-and-repair-72cde1ef16e4"
+              },
+              {
+                "label": "JBRV — RV A/C capacitor $100–250, fan motor $350–800 (repair context)",
+                "url": "https://jbrvmobilervrepair.com/how-much-does-rv-a-c-repair-cost-what-to-expect/"
+              },
+              {
+                "label": "Lazydays — roof A/C service menu (acid wash, coil clean, amp test, gaskets/filters)",
+                "url": "https://www.lazydays.com/rv-service/roof-ac-service"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Inspect the undercarriage, belly pan & wheel-well seals",
+          "cadence": "annual",
+          "severity": "preventive",
+          "intervalText": "Annually",
+          "why": "The belly pan and wheel wells take the worst of the road — gravel, water spray, and winter salt — and are sealed with black AdSeal or Sikaflex 221 rather than the seam sealants used up top. A torn belly pan or failed wheel-well seal lets road spray and moisture into the floor and insulation, exactly where you can't see it rotting. Checking it once a year (easy to fold into the brake/bearing service when the trailer is up) catches problems early.",
+          "doThis": "With the trailer safely supported, look over the belly pan for tears, sagging, or missing fasteners, and check the wheel-well and underbody seams for cracked or missing black sealant. Reseal wheel wells/underbelly with black AdSeal or Sikaflex 221; rinse off road salt after winter travel.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — sealants (use black AdSeal / Sikaflex 221 on wheel wells and the underbelly)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360046907571-How-do-I-inspect-repair-and-reapply-sealants-on-an-Airstream-travel-trailer"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (your time)"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "—"
+            },
+            "note": "No parts needed — just a few minutes of your time.",
+            "sources": []
+          }
         }
       ]
     },
     {
       "id": "seasonal",
-      "title": "Seasonal · winterize & de-winterize",
-      "blurb": "If you store where it freezes, this is the most important thing you do all year — water left in the lines expands and cracks pipes, valves, the pump and the water heater. These steps follow Airstream's own published winterization and de-winterization procedures.",
+      "title": "Seasonal · winterize, de-winterize & storage",
+      "blurb": "If you store where it freezes, this is the most important thing you do all year — water left in the lines expands and cracks pipes, valves, the pump and the water heater. These steps follow Airstream's own published winterization and de-winterization procedures, plus the storage prep that protects tires, batteries, and the shell over a long layup.",
       "items": [
         {
           "name": "Winterize the water system (drain or antifreeze)",
@@ -361,25 +1250,269 @@
               "label": "Airstream Support — Winterization Guide (drain + 50 psi blow-out; antifreeze method; bypass water heater; non-toxic RV antifreeze only)",
               "url": "https://support.airstream.com/hc/en-us/articles/360030870191-Winterization-Guide-How-to-Winterize-an-Airstream-Travel-Trailer"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 8,
+              "high": 40,
+              "text": "$8–40 (2–3 gal RV antifreeze; ~$8–12/gal, or air-blowout for ~$0)"
+            },
+            "pro": {
+              "low": 100,
+              "high": 200,
+              "text": "$100–200 at a dealer (travel trailer)"
+            },
+            "note": "DIY: non-toxic pink RV antifreeze is ~$4–8/gal and a travel trailer uses 2–3 gal; the air-blowout method uses almost no consumables if you own a compressor. A water-pump converter kit is a ~$10–20 one-time buy. Dealers charge ~$100–200 for a basic winterize (often ~$149), plus ~$20–35 per extra appliance.",
+            "sources": [
+              {
+                "label": "Walmart — Super Tech RV/Marine antifreeze, 1 gal $3.98",
+                "url": "https://www.walmart.com/ip/Super-Tech-RV-and-Marine-Antifreeze-1-Gallon/17179674"
+              },
+              {
+                "label": "Buckeye RV — DIY supplies $20–100; professional winterization $100–200",
+                "url": "https://www.buckeyerv.com/blog/how-to-winterize-an-rv/"
+              }
+            ]
+          },
+          "diagram": {
+            "svg": "<svg viewBox=\"0 0 400 300\" role=\"img\" aria-label=\"Winterize and de-winterize flow. Winterize: level and open faucets, drain the fresh tank, water heater and low-point drains, set the water-heater bypass to bypass, then either blow the lines clear at 50 psi or less, or pump non-toxic RV antifreeze through the lines, then dump and flush the holding tanks. De-winterize in spring: close the low-point drains and un-bypass the water heater, flush all antifreeze from hot and cold lines, then sanitize the fresh-water system before filling.\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n  <title>Winterize / de-winterize flow</title>\n  <!-- ===== WINTERIZE column ===== -->\n  <text x=\"120\" y=\"20\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"currentColor\" stroke=\"none\">WINTERIZE (fall)</text>\n  <!-- step boxes -->\n  <g font-family=\"system-ui,sans-serif\" font-size=\"10.5\" fill=\"currentColor\">\n    <rect x=\"40\" y=\"30\" width=\"160\" height=\"30\" rx=\"6\" fill=\"none\" stroke=\"currentColor\"/>\n    <text x=\"120\" y=\"49\" text-anchor=\"middle\" stroke=\"none\">Level &#183; open all faucets</text>\n    <rect x=\"40\" y=\"72\" width=\"160\" height=\"30\" rx=\"6\" fill=\"none\" stroke=\"currentColor\"/>\n    <text x=\"120\" y=\"91\" text-anchor=\"middle\" stroke=\"none\">Drain fresh tank, WH, low-points</text>\n    <rect x=\"40\" y=\"114\" width=\"160\" height=\"30\" rx=\"6\" fill=\"none\" stroke=\"currentColor\"/>\n    <text x=\"120\" y=\"133\" text-anchor=\"middle\" stroke=\"none\">Set WH valve to BYPASS</text>\n  </g>\n  <!-- fork: two methods -->\n  <g font-family=\"system-ui,sans-serif\" font-size=\"9.5\" fill=\"currentColor\">\n    <rect x=\"32\" y=\"158\" width=\"80\" height=\"40\" rx=\"6\" fill=\"none\" stroke=\"currentColor\"/>\n    <text x=\"72\" y=\"176\" text-anchor=\"middle\" stroke=\"none\">Blow lines</text>\n    <text x=\"72\" y=\"190\" text-anchor=\"middle\" stroke=\"none\">&#8804; 50 psi</text>\n    <text x=\"120\" y=\"182\" text-anchor=\"middle\" font-weight=\"700\" stroke=\"none\">OR</text>\n    <rect x=\"128\" y=\"158\" width=\"80\" height=\"40\" rx=\"6\" fill=\"none\" stroke=\"currentColor\"/>\n    <text x=\"168\" y=\"176\" text-anchor=\"middle\" stroke=\"none\">Pump RV</text>\n    <text x=\"168\" y=\"190\" text-anchor=\"middle\" stroke=\"none\">antifreeze*</text>\n  </g>\n  <g font-family=\"system-ui,sans-serif\" font-size=\"10.5\" fill=\"currentColor\">\n    <rect x=\"40\" y=\"210\" width=\"160\" height=\"30\" rx=\"6\" fill=\"none\" stroke=\"currentColor\"/>\n    <text x=\"120\" y=\"229\" text-anchor=\"middle\" stroke=\"none\">Dump &amp; flush holding tanks</text>\n  </g>\n  <!-- connectors (winterize) -->\n  <g opacity=\"0.6\">\n    <path d=\"M120 60 V72 M120 102 V114 M120 144 V152 M72 152 V158 M168 152 V158 M120 152 H72 M120 152 H168 M72 198 V206 M168 198 V206 M72 206 H168 M120 206 V210\"/>\n    <!-- arrowheads -->\n    <path d=\"M116 70 l4 4 l4 -4 M116 112 l4 4 l4 -4 M116 208 l4 4 l4 -4\"/>\n  </g>\n  <!-- divider -->\n  <line x1=\"232\" y1=\"30\" x2=\"232\" y2=\"252\" opacity=\"0.3\"/>\n  <!-- ===== DE-WINTERIZE column ===== -->\n  <text x=\"316\" y=\"20\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"currentColor\" stroke=\"none\">DE-WINTERIZE (spring)</text>\n  <g font-family=\"system-ui,sans-serif\" font-size=\"10.5\" fill=\"currentColor\">\n    <rect x=\"252\" y=\"50\" width=\"128\" height=\"34\" rx=\"6\" fill=\"none\" stroke=\"currentColor\"/>\n    <text x=\"316\" y=\"65\" text-anchor=\"middle\" stroke=\"none\">Close low-point drains</text>\n    <text x=\"316\" y=\"78\" text-anchor=\"middle\" stroke=\"none\">&amp; un-bypass WH</text>\n    <rect x=\"252\" y=\"100\" width=\"128\" height=\"34\" rx=\"6\" fill=\"none\" stroke=\"currentColor\"/>\n    <text x=\"316\" y=\"115\" text-anchor=\"middle\" stroke=\"none\">Flush ALL antifreeze</text>\n    <text x=\"316\" y=\"128\" text-anchor=\"middle\" stroke=\"none\">(hot &amp; cold, toilet)</text>\n    <rect x=\"252\" y=\"150\" width=\"128\" height=\"34\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/>\n    <text x=\"316\" y=\"165\" text-anchor=\"middle\" font-weight=\"700\" stroke=\"none\">SANITIZE fresh</text>\n    <text x=\"316\" y=\"178\" text-anchor=\"middle\" stroke=\"none\">system before filling</text>\n  </g>\n  <g opacity=\"0.6\">\n    <path d=\"M316 84 V100 M316 134 V150\"/>\n    <path d=\"M312 98 l4 4 l4 -4 M312 148 l4 4 l4 -4\"/>\n  </g>\n  <!-- footnote -->\n  <text x=\"316\" y=\"208\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"9.5\" fill=\"currentColor\" stroke=\"none\">Then lube dump-valve handles</text>\n  <!-- antifreeze note -->\n  <text x=\"200\" y=\"270\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"10\" font-weight=\"600\" fill=\"currentColor\" stroke=\"none\">* non-toxic RV antifreeze ONLY &#8212; never automotive antifreeze</text>\n  <text x=\"200\" y=\"286\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"9.5\" fill=\"currentColor\" stroke=\"none\">Pour RV antifreeze in each drain trap &amp; the toilet &#183; pull batteries &#183; clear food</text>\n</svg>",
+            "caption": "**Winterize:** level and open the faucets, drain the fresh tank / water heater / low-point drains, set the water-heater valve to **BYPASS**, then either blow the lines clear at **≤50 psi** *or* pump **non-toxic RV antifreeze** through, and dump/flush the holding tanks. **De-winterize in spring:** close the drains, un-bypass the heater, flush every line of antifreeze, then **sanitize the fresh-water system before you fill and drink.** Never use automotive antifreeze."
+          }
         },
         {
-          "name": "De-winterize: flush antifreeze & sanitize the fresh system",
+          "name": "De-winterize & sanitize the fresh-water system",
           "cadence": "seasonal",
           "severity": "preventive",
           "intervalText": "Spring, before first use",
-          "why": "In spring you reverse the process and, importantly, sanitize the fresh-water system before you drink from it. Airstream's de-winterization steps: close the low-point drains, set the water-heater bypass back to normal, connect fresh water and run every hot and cold tap (and the toilet/showers) until the antifreeze is fully flushed, then run a fresh-water-system cleaner/sanitizer through to disinfect and clear any lingering odor before filling the fresh tank. It's also the moment to lubricate the sticky dump-valve handles with penetrating oil.",
-          "doThis": "Close low-point drains, un-bypass the water heater, flush all lines of antifreeze (hot & cold, toilet, showers). Sanitize the fresh system with an approved cleaner (or a measured bleach-and-water dose), let it dwell, then flush. Lubricate dump-valve handles; inspect sewer hoses.",
+          "why": "In spring you reverse the process and, importantly, sanitize the fresh-water system before you drink from it. Airstream's de-winterization is the winterizing steps in reverse: close the low-point drains, set the water-heater bypass back to normal, connect fresh water and run every hot and cold tap (and the toilet/showers) until the antifreeze is fully flushed, then run a fresh-water-system cleaner/sanitizer through to disinfect and clear any lingering odor before filling the fresh tank. It's also the moment to lubricate the sticky dump-valve handles.",
+          "doThis": "Close low-point drains, un-bypass the water heater, flush all lines of antifreeze (hot & cold, toilet, showers). Sanitize the fresh system with an approved cleaner or a measured bleach dose, let it dwell, then flush until the chlorine smell is gone. Lubricate dump-valve handles; inspect sewer hoses.",
           "appliesTo": "All Airstream travel trailers",
           "sources": [
             {
               "label": "Airstream — The Five Steps to De-Winterization (flush antifreeze; add fresh-water-system cleaner to disinfect before filling; lube dump handles)",
               "url": "https://www.airstream.com/airstream-lifestyle/stories-hub/the-five-steps-to-dewinterization/"
+            },
+            {
+              "label": "Airstream Support — How to de-winterize (reverse of winterizing; flush RV antifreeze from the plumbing with clean water)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360042963292-How-to-de-winterize-Airstream"
             }
-          ]
+          ],
+          "cost": {
+            "diy": {
+              "low": 2,
+              "high": 20,
+              "text": "$2–20 (household bleach, or an RV fresh-water-system cleaner)"
+            },
+            "pro": {
+              "low": 100,
+              "high": 200,
+              "text": "$100–200 at a dealer (de-winterize / spring service)"
+            },
+            "note": "DIY is nearly free: a measured bleach-and-water dose costs a couple dollars, or a bottled RV fresh-water-system sanitizer is ~$8–20. Dealers charge about the same as a winterize (~$100–200) for spring de-winterize + sanitize.",
+            "sources": [
+              {
+                "label": "rv.com — DIY winterize/de-winterize $20–50 in supplies; professional $150–300",
+                "url": "https://www.rv.com/servicing-care/diy-how-to/how-to-winterize-your-rv/"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Prep the trailer for long-term storage",
+          "cadence": "seasonal",
+          "severity": "preventive",
+          "intervalText": "Before any long layup",
+          "why": "Freeze protection is only half of storage. Airstream's storage guidance also covers the running gear and shell: shut off the propane, clean and cover the tires and park level on pads so the weight doesn't flat-spot or dry-rot them, protect the 7-pin connector with dielectric grease, defrost and prop the fridge, lubricate joints/stabilizers/gears, and either remove the batteries or keep them on a trickle charger (they self-discharge and can freeze when flat). Leave a roof vent or fan lid cracked for airflow to fight condensation and mold, and clear all food to deter pests.",
+          "doThis": "Park level on tire pads/blocks, inflate and cover the tires, and keep them off bare ground. Shut off and ideally remove the LP tanks. Dielectric-grease the 7-pin. Defrost and prop the fridge door. Lubricate stabilizer jacks, joints, and gears. Remove the batteries to a cool dry place (or fit a trickle charger). Crack a roof vent/fan lid for airflow, remove all food, and set pest deterrents.",
+          "appliesTo": "All Airstream travel trailers in extended storage",
+          "sources": [
+            {
+              "label": "Airstream — Getting Ready for Winter: Winterization, Storage & Security (shut off propane; clean/inflate/cover tires; dielectric grease on 7-pin; lube joints/stabilizers/gears; remove batteries or trickle charge; pest precautions)",
+              "url": "https://www.airstream.com/ask-an-airstreamer/how-when-and-why-to-winterize/"
+            },
+            {
+              "label": "Airstream Support — exhaust fan (leave the lid cracked open in storage for airflow to avoid mold and material stress)",
+              "url": "https://support.airstream.com/hc/en-us/articles/15703909827988-How-Do-I-Troubleshoot-Issues-with-My-Exhaust-Fan"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (your time)"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "—"
+            },
+            "note": "No parts needed — just a few minutes of your time.",
+            "sources": []
+          }
+        },
+        {
+          "name": "Flush the black tank & service dump valves after the season",
+          "cadence": "seasonal",
+          "severity": "upkeep",
+          "intervalText": "End of season / after each trip",
+          "why": "Airstream tells you to flush the waste (black) tank after every camping trip — once you dump it, run the built-in tank flush to knock sediment off the walls so it can't dry into a crust that fouls the level sensors and clogs the flush nozzle. Before storage, prime the tank with a few gallons of clean water and lubricate the dump-valve handles so they don't seize over the layup. Use only ABS-safe products (household ammonia or TSP in small amounts) — never petroleum distillates or abrasives, which attack the rubber dump-valve and toilet seals.",
+          "doThis": "After dumping, hook a dedicated (non-fresh-water) hose to the black-tank flush and run it until clear; repeat. Prime with 3–5 gallons of clean water for storage. Lubricate the dump-valve handles with RV drain-valve lubricant. Clean drains only with ABS-approved products — no petroleum, dish soap, or abrasives.",
+          "appliesTo": "All Airstream travel trailers with black/gray holding tanks",
+          "sources": [
+            {
+              "label": "Airstream Support — dump the waste (black) tank (flush after every trip; separate hose; prime with 3–5 gal; drain-valve lubricant)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360030788052-How-and-when-should-I-dump-my-waste-black-tank"
+            },
+            {
+              "label": "Airstream Support — maintenance schedule (clean drains only with ABS-approved products; no petroleum distillates, dish soap, or abrasives that attack seals)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360036393251-What-is-the-regular-maintenance-schedule"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 20,
+              "text": "$0–20 (a flush wand and/or tank treatment)"
+            },
+            "pro": {
+              "low": 0,
+              "high": 40,
+              "text": "~$20 add-on (dumping/flush as a service line item)"
+            },
+            "note": "DIY: a built-in black-tank flush costs nothing to run; a cleaning wand is ~$10–20 and tank treatment drops are a few dollars. Dealers list tank dumping/flush as a ~$20 add-on to other service. Mostly your time.",
+            "sources": [
+              {
+                "label": "Buckeye RV — winterize/tank steps; dumping/flush as a low-cost service add-on",
+                "url": "https://www.buckeyerv.com/blog/how-to-winterize-an-rv/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "multiyear",
+      "title": "Every few years",
+      "blurb": "Long-interval, safety-critical replacements that are easy to forget because they come due so rarely — the detectors, the propane regulator and hoses, and propane-cylinder recertification. Mark these by their date stamps so an expired part doesn't outlive its protection.",
+      "items": [
+        {
+          "name": "Replace smoke, CO & LP detectors at end of life",
+          "cadence": "multiyear",
+          "severity": "safety",
+          "intervalText": "Smoke 10 yr · CO 6 yr · LP ~7 yr",
+          "why": "Detectors don't last forever: the sensing element degrades whether or not the alarm still chirps. Airstream's own guidance is to replace the smoke alarm 10 years from the date of purchase, and the carbon-monoxide alarm by its printed “Replace By Date,” which is six (6) years from the date of manufacture. The galley LP-gas detector has roughly a 7-year life and gives an end-of-life signal. Testing monthly keeps them honest, but only replacement resets the clock.",
+          "doThis": "Read the purchase or “replace by” date on each unit. Replace the smoke alarm at 10 years (from purchase), the CO alarm at its 6-year replace-by date, and the LP detector at ~7 years (or whatever your unit's label states) — plus any detector that fails a test or sounds an end-of-life chirp.",
+          "appliesTo": "All Airstream travel trailers",
+          "sources": [
+            {
+              "label": "Airstream Support — smoke & CO alarms (replace smoke alarm 10 years from purchase; CO “Replace By Date” is 6 years from date of manufacture)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360030744192-What-do-I-need-to-know-about-the-use-of-and-maintaining-my-smoke-carbon-menoxide-alarms"
+            },
+            {
+              "label": "First Alert / NFPA 72 — replace smoke alarms at 10 yr, CO and combo alarms at ~7 yr",
+              "url": "https://support.firstalert.com/s/article/smoke-alarm-replacement-10yr"
+            },
+            {
+              "label": "RV.com — Cooking with Gas (RV propane and CO detectors typically last about 7 years, then replace)",
+              "url": "https://www.rv.com/how-to/rigs-gear-cooking-with-gas"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 30,
+              "high": 75,
+              "text": "$30–75 per unit (combo CO/LP ~$45–75; standalone ~$30–50)"
+            },
+            "pro": {
+              "low": 80,
+              "high": 200,
+              "text": "~$80–200 supplied & installed"
+            },
+            "note": "Detectors carry a 5–7 yr end-of-life (date on the back) and the whole unit is then replaced. A 12V combo CO/LP alarm is ~$45–75; a standalone LP or CO/smoke alarm ~$30–50. DIY swap is straightforward (most are screw-mount with lever-nut wiring); a tech adds a service call + short labor.",
+            "sources": [
+              {
+                "label": "RV Upgrade Store — RV Safe combo CO/LP detector, $60.49",
+                "url": "https://www.rvupgradestore.com/RV-Safe-RVCOLP-2B-Propane-Gas-CO-Detector-Alarm-p/15-2155.htm"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Replace the LP regulator & aging propane hoses",
+          "cadence": "multiyear",
+          "severity": "safety",
+          "intervalText": "Regulator ~8–10 yr · hoses when cracked",
+          "why": "The two-stage propane regulator is a wear item: Airstream says pressure regulators last about 8–10 years, and a failing one shows up as weak yellow flames, appliances cutting out, hissing, or icing. The rubber pigtail and supply hoses also age, crack, and chafe. Because these feed a combustion system inside a sealed trailer, replacement is a safety job, not a someday job — and a fresh regulator should be sized and installed by someone who can leak-test it afterward.",
+          "doThis": "Plan to replace the LP regulator around 8–10 years (sooner at any sign of failure — yellow flames, icing, inconsistent pressure). Inspect pigtails and supply hoses yearly and replace any that are cracked, brittle, or chafed. Have the work leak-tested before use.",
+          "appliesTo": "All Airstream travel trailers (LP system)",
+          "sources": [
+            {
+              "label": "Airstream Support — propane tank article (pressure regulators last about 8–10 years; replace an old or failing one)",
+              "url": "https://support.airstream.com/hc/en-us/articles/360046467432-How-to-Access-Use-Remove-and-Refill-an-Airstream-Propane-Tank"
+            },
+            {
+              "label": "Girl Camper — RV propane safety (monitor regulator age and replace every ~5–7 yr; replace cracked/damaged hoses)",
+              "url": "https://girlcamper.com/rv-pro-tip-propane-maintenance-and-safety-tips/"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 10,
+              "text": "$0–10 (soapy water / leak-detect spray for a quick check)"
+            },
+            "pro": {
+              "low": 50,
+              "high": 150,
+              "text": "~$50–150 for a proper manometer/timed-pressure-drop test"
+            },
+            "note": "A quick bubble check at fittings with soapy water or leak-detect spray (~$5–10) is free-ish. A proper LP system test — a manometer timed-pressure-drop test and regulator-output check — is a service-call + short labor at a shop (~$50–150). Worth paying a pro if you ever smell gas.",
+            "sources": [
+              {
+                "label": "49er Mobile RV Repair — $125/hr labor + $80–125 service call basis",
+                "url": "https://www.yelp.com/biz/49er-mobile-rv-repair-nevada-city-2"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Recertify or replace the propane cylinders",
+          "cadence": "multiyear",
+          "severity": "safety",
+          "intervalText": "Steel DOT cylinders: 12 yr from stamp, then every 5 yr",
+          "why": "A travel trailer's removable LP cylinders are DOT cylinders with a manufacture date stamped into the collar. A steel cylinder must be requalified 12 years from that date, then every 5 years after; an expired cylinder cannot legally be refilled, and a corroded or dented one shouldn't be. The OPD (overfill protection device) valve — the triangular handwheel — has been required since 2002. This is the one propane item with a hard legal deadline, so check the stamp before a fill station turns you away.",
+          "doThis": "Read the date stamped on each cylinder collar. Have steel cylinders requalified at 12 years (then every 5), or replace them. Replace any cylinder with heavy rust, dents, or a non-OPD (non-triangular) valve, and store cylinders upright.",
+          "appliesTo": "All Airstream travel trailers (removable DOT propane cylinders)",
+          "sources": [
+            {
+              "label": "D&N RV Service — RV propane system safety (steel DOT cylinders requalify every 12 yr from manufacture; OPD valves required since 2002; annual regulator + leak test)",
+              "url": "https://alabamarvservice.com/rv-lp/"
+            },
+            {
+              "label": "Girl Camper — RV propane safety (cylinders have a collar manufacture date; recertify ~10–12 yr by an authorized technician)",
+              "url": "https://girlcamper.com/rv-pro-tip-propane-maintenance-and-safety-tips/"
+            }
+          ],
+          "cost": {
+            "diy": {
+              "low": 0,
+              "high": 0,
+              "text": "$0 (your time)"
+            },
+            "pro": {
+              "low": 0,
+              "high": 0,
+              "text": "—"
+            },
+            "note": "No parts needed — just a few minutes of your time.",
+            "sources": []
+          }
         }
       ]
     }
   ],
-  "footnote": "Intervals are 'whichever comes first' and follow Airstream's published schedule plus the appliance, axle and tire makers' guidance. Your specific model year, axle type (Nev-R-Lube vs E-Z Lube), and water heater (Suburban steel vs Atwood/Dometic aluminum vs tankless) change some of these tasks — always confirm against your owner's manual and the data plates on your axle and water heater. Independent reference, not affiliated with Airstream, Inc."
+  "cadenceTimeline": {
+    "svg": "<svg viewBox=\"0 0 400 78\" role=\"img\" aria-label=\"Maintenance cadence timeline ribbon from most frequent to least: before every trip, monthly, quarterly, twice a year, annual, and the seasonal winterize and de-winterize bookends.\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n  <title>Service-cadence timeline</title>\n  <!-- baseline -->\n  <line x1=\"24\" y1=\"40\" x2=\"376\" y2=\"40\" opacity=\"0.45\"/>\n  <!-- arrow tip -->\n  <path d=\"M370 35 l6 5 l-6 5\" opacity=\"0.45\"/>\n  <!-- tick nodes, increasing ring size = longer interval -->\n  <g font-family=\"system-ui,sans-serif\" font-size=\"8.5\" fill=\"currentColor\">\n    <g transform=\"translate(48,40)\"><circle r=\"4\" fill=\"currentColor\" stroke=\"none\"/><text x=\"0\" y=\"-12\" text-anchor=\"middle\" stroke=\"none\">trip</text></g>\n    <g transform=\"translate(120,40)\"><circle r=\"5\"/><text x=\"0\" y=\"-13\" text-anchor=\"middle\" stroke=\"none\">monthly</text></g>\n    <g transform=\"translate(192,40)\"><circle r=\"6\"/><text x=\"0\" y=\"-14\" text-anchor=\"middle\" stroke=\"none\">quarterly</text></g>\n    <g transform=\"translate(264,40)\"><circle r=\"7\"/><text x=\"0\" y=\"-15\" text-anchor=\"middle\" stroke=\"none\">6-month</text></g>\n    <g transform=\"translate(330,40)\"><circle r=\"8\"/><text x=\"0\" y=\"-16\" text-anchor=\"middle\" stroke=\"none\">annual</text></g>\n  </g>\n  <!-- seasonal bookend markers below the line -->\n  <g font-family=\"system-ui,sans-serif\" font-size=\"8\" fill=\"currentColor\">\n    <path d=\"M120 40 v14 M330 40 v14\" opacity=\"0.5\"/>\n    <text x=\"120\" y=\"68\" text-anchor=\"middle\" stroke=\"none\">winterize</text>\n    <text x=\"330\" y=\"68\" text-anchor=\"middle\" stroke=\"none\">de-winterize</text>\n  </g>\n</svg>",
+    "caption": "Six cadences, most-frequent to least: **before every trip → monthly → quarterly → twice a year → annual**, with the **seasonal** winterize/de-winterize bookends tied to fall and spring."
+  }
 }

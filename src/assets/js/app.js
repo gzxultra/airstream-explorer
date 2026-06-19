@@ -568,6 +568,7 @@
     lens.removeAttribute('hidden');
 
     var state = { cadence: [], severity: [] };
+    var rig = { axle: 'any', heater: 'any', battery: 'any' };
 
     var MT_PREFS = 'maintenance.prefs';
     (function restore() {
@@ -579,9 +580,32 @@
     })();
     function persist() { Store.set(MT_PREFS, state); }
 
+    var MT_RIG = 'maintenance.rig';
+    function persistRig() { Store.set(MT_RIG, rig); }
+    (function restoreRig() {
+      var r = Store.get(MT_RIG, null);
+      if (r && typeof r === 'object') ['axle', 'heater', 'battery'].forEach(function (k) {
+        if (typeof r[k] === 'string') rig[k] = r[k];
+      });
+    })();
+
+    // A task scoped to a specific rig (e.g. Nev-R-Lube axle) is hidden when the
+    // owner has picked the OTHER rig. Tasks tagged "any" always show.
+    function rigOk(card) {
+      var keys = ['axle', 'heater', 'battery'];
+      for (var i = 0; i < keys.length; i++) {
+        var sel = rig[keys[i]];
+        if (sel === 'any') continue;
+        var cardVal = card.getAttribute('data-rig-' + keys[i]) || 'any';
+        if (cardVal !== 'any' && cardVal !== sel) return false;
+      }
+      return true;
+    }
+
     function matches(card) {
       if (state.cadence.length && state.cadence.indexOf(card.getAttribute('data-cadence')) === -1) return false;
       if (state.severity.length && state.severity.indexOf(card.getAttribute('data-severity')) === -1) return false;
+      if (!rigOk(card)) return false;
       return true;
     }
 
@@ -599,7 +623,8 @@
         if (vis === 0) sec.setAttribute('hidden', '');
         else sec.removeAttribute('hidden');
       });
-      var any = state.cadence.length || state.severity.length;
+      var any = state.cadence.length || state.severity.length ||
+        rig.axle !== 'any' || rig.heater !== 'any' || rig.battery !== 'any';
       if (countEl) {
         countEl.textContent = any
           ? (shown + ' of ' + cards.length + ' tasks')
@@ -607,6 +632,9 @@
       }
       if (resetEl) { if (any) resetEl.removeAttribute('hidden'); else resetEl.setAttribute('hidden', ''); }
       if (emptyEl) { if (shown === 0) emptyEl.removeAttribute('hidden'); else emptyEl.setAttribute('hidden', ''); }
+      // Let dependent widgets (budget rollup, progress) recompute against the
+      // new visibility. Single source of truth for what's shown lives here.
+      if (window.__mtAfterApply) window.__mtAfterApply(cards);
     }
 
     function toggle(dim, val, btn) {
@@ -626,8 +654,11 @@
 
     function resetAll() {
       state = { cadence: [], severity: [] };
+      rig = { axle: 'any', heater: 'any', battery: 'any' };
       chips.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
       Store.del(MT_PREFS);
+      Store.del(MT_RIG);
+      if (window.__mtSyncRigSelects) window.__mtSyncRigSelects(rig);
       apply();
     }
     if (resetEl) resetEl.addEventListener('click', resetAll);
@@ -638,7 +669,185 @@
       var val = btn.getAttribute('data-value');
       if (state[dim] && state[dim].indexOf(val) !== -1) btn.setAttribute('aria-pressed', 'true');
     });
+
+    // Public hooks for the tools IIFE (my-rig selects live there, visibility here).
+    window.__mtSetRig = function (dim, val) {
+      if (dim in rig) { rig[dim] = val; persistRig(); apply(); }
+    };
+    window.__mtApply = apply;
+    window.__mtResetAll = resetAll;
+
     apply();
+  })();
+
+  // =========================================================================
+  // 2a-3. MAINTENANCE TOOLS — "my rig" selects, DIY/Shop yearly budget rollup,
+  //     checklist mode, compact density + print. All progressive enhancement;
+  //     no-JS readers get the full static schedule. Reads visibility from the
+  //     filter IIFE (single source of truth) via window.__mtAfterApply.
+  //     Self-guards off every other page.
+  // =========================================================================
+  (function maintenanceTools() {
+    var tools = document.getElementById('mt-tools');
+    var main = document.getElementById('mt-main');
+    if (!tools || !main) return;
+    var cards = Array.prototype.slice.call(main.querySelectorAll('.mt-card'));
+    if (!cards.length) return;
+
+    tools.removeAttribute('hidden');
+    var budget = document.getElementById('mt-budget');
+    if (budget) budget.removeAttribute('hidden');
+
+    // --- My-rig selects: delegate to the filter IIFE's shared hook ----------
+    var MT_RIG = 'maintenance.rig';
+    var savedRig = Store.get(MT_RIG, null) || {};
+    var rigSelects = Array.prototype.slice.call(tools.querySelectorAll('select[data-rig]'));
+    rigSelects.forEach(function (sel) {
+      var dim = sel.getAttribute('data-rig');
+      if (savedRig && typeof savedRig[dim] === 'string') sel.value = savedRig[dim];
+      sel.addEventListener('change', function () {
+        if (window.__mtSetRig) window.__mtSetRig(dim, sel.value);
+      });
+    });
+    // Let "Clear filters" reset the selects too.
+    window.__mtSyncRigSelects = function (rig) {
+      rigSelects.forEach(function (sel) {
+        var dim = sel.getAttribute('data-rig');
+        if (rig && typeof rig[dim] === 'string') sel.value = rig[dim];
+      });
+    };
+
+    // --- Budget rollup ------------------------------------------------------
+    // Transparent per-cadence "times per year" assumptions, shown to the user so
+    // the annual figure is honest, not a hidden black box. The cost bands carry
+    // only the recurring per-service spend (one-time tooling and rare conditional
+    // repairs are kept out of the band and live in each card's note).
+    var TRIPS_PER_YEAR = 6;
+    var MT_FREQ = {
+      trip: TRIPS_PER_YEAR, monthly: 6, quarterly: 4,
+      semiannual: 2, annual: 1, multiyear: 0.25, seasonal: 2,
+    };
+    var basis = 'diy';
+    var figEl = document.getElementById('mt-budget-fig');
+    var noteEl = document.getElementById('mt-budget-note');
+    var diyBtn = document.getElementById('mt-basis-diy');
+    var proBtn = document.getElementById('mt-basis-pro');
+
+    function num(card, k) { var v = parseFloat(card.getAttribute(k)); return isFinite(v) ? v : null; }
+
+    function rollup(visibleCards) {
+      var lo = 0, hi = 0, counted = 0, missing = 0;
+      visibleCards.forEach(function (card) {
+        var freq = MT_FREQ[card.getAttribute('data-cadence')] || 1;
+        var bl = num(card, basis === 'diy' ? 'data-diy-low' : 'data-pro-low');
+        var bh = num(card, basis === 'diy' ? 'data-diy-high' : 'data-pro-high');
+        if (bl === null && bh === null) { missing++; return; }
+        if (bl === null) bl = bh;
+        if (bh === null) bh = bl;
+        // A $0 task (your-time-only) still counts as "costed" — it's a real $0.
+        lo += bl * freq; hi += bh * freq; counted++;
+      });
+      lo = Math.round(lo); hi = Math.round(hi);
+      if (figEl) figEl.textContent = counted ? (lo === hi ? '$' + lo + '/yr' : '$' + lo + '\u2013' + hi + '/yr') : '\u2014';
+      if (noteEl) {
+        noteEl.textContent = (basis === 'diy'
+          ? 'Parts & consumables only, doing the work yourself. '
+          : 'Typical shop / dealer labor. ')
+          + 'Annualized across ' + counted + ' costed task' + (counted === 1 ? '' : 's')
+          + ' currently shown (trips assumed ' + TRIPS_PER_YEAR + '\u00D7/yr; monthly 6\u00D7, quarterly 4\u00D7, twice-a-year 2\u00D7, annual 1\u00D7, every-few-years \u00BC\u00D7, seasonal 2\u00D7).'
+          + ' One-time tools and rare conditional repairs are noted on the cards but kept out of this figure.'
+          + (missing ? ' ' + missing + ' shown task' + (missing === 1 ? '' : 's') + ' have no published cost and aren\u2019t included.' : '')
+          + ' Estimates only \u2014 not quotes.';
+      }
+    }
+
+    function setBasis(b) {
+      basis = b;
+      if (diyBtn) { diyBtn.classList.toggle('is-on', b === 'diy'); diyBtn.setAttribute('aria-pressed', b === 'diy'); }
+      if (proBtn) { proBtn.classList.toggle('is-on', b === 'pro'); proBtn.setAttribute('aria-pressed', b === 'pro'); }
+      main.classList.toggle('basis-diy', b === 'diy');
+      main.classList.toggle('basis-pro', b === 'pro');
+      Store.set('maintenance.basis', b);
+      recompute();
+    }
+    if (diyBtn) diyBtn.addEventListener('click', function () { setBasis('diy'); });
+    if (proBtn) proBtn.addEventListener('click', function () { setBasis('pro'); });
+
+    function visible() { return cards.filter(function (c) { return !c.hasAttribute('hidden'); }); }
+    function recompute() { rollup(visible()); }
+
+    // Recompute whenever the filter changes visibility (rig/cadence/severity).
+    window.__mtAfterApply = function () { recompute(); refreshProgress(); };
+
+    // --- Checklist mode -----------------------------------------------------
+    var MT_DONE = 'maintenance.done';
+    var done = Store.get(MT_DONE, null);
+    if (!done || typeof done !== 'object') done = {};
+    var checkBtn = document.getElementById('mt-toggle-check');
+    var progEl = document.getElementById('mt-progress');
+    var checkOn = false;
+
+    function paintDone(card) {
+      var cid = card.getAttribute('data-cid');
+      var box = card.querySelector('.mt-check-box');
+      var on = !!done[cid];
+      if (box) box.checked = on;
+      card.classList.toggle('is-done', on);
+    }
+    function refreshProgress() {
+      if (!progEl) return;
+      if (!checkOn) { progEl.setAttribute('hidden', ''); return; }
+      var vis = visible(), total = vis.length, n = 0;
+      vis.forEach(function (c) { if (done[c.getAttribute('data-cid')]) n++; });
+      progEl.textContent = n + ' of ' + total + ' done';
+      progEl.removeAttribute('hidden');
+    }
+    cards.forEach(function (card) {
+      var box = card.querySelector('.mt-check-box');
+      if (!box) return;
+      paintDone(card);
+      box.addEventListener('change', function () {
+        var cid = card.getAttribute('data-cid');
+        if (box.checked) done[cid] = 1; else delete done[cid];
+        Store.set(MT_DONE, done);
+        card.classList.toggle('is-done', box.checked);
+        refreshProgress();
+      });
+    });
+    function setCheck(on) {
+      checkOn = on;
+      cards.forEach(function (card) {
+        var w = card.querySelector('.mt-check');
+        if (w) { if (on) w.removeAttribute('hidden'); else w.setAttribute('hidden', ''); }
+      });
+      if (checkBtn) { checkBtn.setAttribute('aria-pressed', on); checkBtn.classList.toggle('is-on', on); }
+      Store.set('maintenance.checkmode', on ? 1 : 0);
+      refreshProgress();
+    }
+    if (checkBtn) checkBtn.addEventListener('click', function () { setCheck(!checkOn); });
+
+    // --- Compact density ----------------------------------------------------
+    var compactBtn = document.getElementById('mt-toggle-print');
+    function setCompact(on) {
+      main.classList.toggle('is-compact', on);
+      if (compactBtn) { compactBtn.setAttribute('aria-pressed', on); compactBtn.classList.toggle('is-on', on); }
+      Store.set('maintenance.compact', on ? 1 : 0);
+    }
+    if (compactBtn) compactBtn.addEventListener('click', function () { setCompact(!main.classList.contains('is-compact')); });
+
+    // --- Print button -------------------------------------------------------
+    var printBtn = document.getElementById('mt-print');
+    if (printBtn) printBtn.addEventListener('click', function () {
+      if (!checkOn) setCheck(true); // a printed checklist wants tick boxes
+      window.print();
+    });
+
+    // --- Restore persisted UI state ----------------------------------------
+    var savedBasis = Store.get('maintenance.basis', 'diy');
+    setBasis(savedBasis === 'pro' ? 'pro' : 'diy'); // also triggers first rollup
+    if (Store.get('maintenance.checkmode', 0)) setCheck(true);
+    if (Store.get('maintenance.compact', 0)) setCompact(true);
+    recompute();
   })();
 
   // =========================================================================

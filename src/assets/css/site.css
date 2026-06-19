@@ -2023,3 +2023,148 @@ body.cg-drawer-open { overflow: hidden; }
   .mt-grid { grid-template-columns: 1fr; }
   .mt-lens-label { flex-basis: 100%; }
 }
+
+/* === MAINTENANCE v2 — hero stat, timeline, cost chips, diagrams, my-rig,
+      budget rollup, checklist + compact/print. Reuses existing tokens only. === */
+
+/* --- Hero stat line ----------------------------------------------------- */
+.mt-hero-stat {
+  margin: 14px 0 0; font-size: 14px; color: var(--muted);
+  letter-spacing: .01em; font-variant-numeric: tabular-nums;
+}
+.mt-hero-stat strong { color: var(--copper-deep); font-weight: 700; }
+.mt-hero-stat span { opacity: .5; margin: 0 4px; }
+
+/* --- Cadence timeline ribbon -------------------------------------------- */
+.mt-timeline {
+  max-width: var(--maxw); margin: 22px auto 0; padding: 18px 20px 14px;
+  background: linear-gradient(180deg, rgba(176,92,50,.05), rgba(176,92,50,.01));
+  border: 1px solid var(--line); border-radius: var(--radius);
+}
+.mt-timeline-art { color: var(--copper-deep); }
+.mt-timeline-art svg { display: block; width: 100%; height: auto; }
+.mt-timeline-cap { margin: 10px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); text-align: center; }
+
+/* --- Cost row: DIY vs Shop chips ---------------------------------------- */
+.mt-cost { margin: 4px 0 14px; }
+.mt-cost-label {
+  display: block; font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--copper-deep); margin-bottom: 6px;
+}
+.mt-cost-est { color: var(--muted); font-weight: 600; text-transform: none; letter-spacing: .01em; }
+.mt-cost-chips { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+.mt-cost-chip {
+  display: inline-flex; align-items: baseline; gap: 5px;
+  border: 1px solid var(--line); border-radius: 999px; padding: 3px 11px;
+  font-variant-numeric: tabular-nums; background: var(--surface);
+}
+.mt-cost-k { font-size: 9.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.mt-cost-v { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+.mt-cost-chip.is-diy { border-color: rgba(90,115,80,.45); background: rgba(90,115,80,.07); }
+.mt-cost-chip.is-diy .mt-cost-v { color: #46603c; }
+.mt-cost-chip.is-pro { border-color: rgba(176,92,50,.35); background: rgba(176,92,50,.06); }
+.mt-cost-chip.is-pro .mt-cost-v { color: var(--copper-deep); }
+.mt-cost-note { font-size: 11.5px; line-height: 1.5; color: var(--muted); margin: 7px 0 0; }
+.mt-cost-src { font-weight: 600; white-space: nowrap; }
+/* When the budget basis is set, dim the non-active chip so cards echo the toggle. */
+.mt-tools.basis-pro ~ #mt-main .mt-cost-chip.is-diy,
+.maintenance.basis-pro .mt-cost-chip.is-diy { opacity: .5; }
+.mt-tools.basis-diy ~ #mt-main .mt-cost-chip.is-pro,
+.maintenance.basis-diy .mt-cost-chip.is-pro { opacity: .5; }
+
+/* --- Diagram (collapsible inline line-art) ------------------------------ */
+.mt-diagram { margin: 0 0 14px; border: 1px dashed var(--line); border-radius: var(--radius); }
+.mt-diagram > summary {
+  cursor: pointer; list-style: none; padding: 8px 12px;
+  font-size: 12px; font-weight: 700; letter-spacing: .03em; color: var(--copper-deep);
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.mt-diagram > summary::-webkit-details-marker { display: none; }
+.mt-diagram-ico { font-size: 11px; transition: transform .15s ease; }
+.mt-diagram[open] .mt-diagram-ico { transform: rotate(90deg); }
+.mt-fig { margin: 0; padding: 4px 14px 16px; }
+.mt-fig-art { color: var(--copper-deep); }
+.mt-fig-art svg { display: block; width: 100%; max-width: 340px; height: auto; margin: 4px auto 0; }
+.mt-fig-cap { font-size: 11.5px; line-height: 1.55; color: var(--muted); margin: 10px auto 0; text-align: center; max-width: 46ch; }
+
+/* --- Control bar: my-rig selects + mode buttons ------------------------- */
+.mt-tools { max-width: var(--maxw); margin: 10px auto 0; padding: 14px 20px; }
+.mt-tools-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 18px 24px; justify-content: space-between; }
+.mt-tools-label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; flex-basis: 100%; }
+.mt-rig { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+.mt-rig-sel { display: flex; flex-direction: column; gap: 4px; font-size: 11px; font-weight: 700; letter-spacing: .03em; color: var(--muted); }
+.mt-rig-sel select {
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  padding: 8px 11px; min-height: 38px; cursor: pointer;
+}
+.mt-rig-sel select:focus-visible { outline: 2px solid var(--copper); outline-offset: 1px; }
+.mt-modes { display: flex; flex-wrap: wrap; gap: 8px; }
+.mt-mode-btn {
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; min-height: 38px;
+  background: var(--surface); color: var(--muted); border: 1px solid var(--line);
+  border-radius: 999px; padding: 7px 15px;
+  transition: border-color .15s ease, color .15s ease, background-color .15s ease;
+}
+.mt-mode-btn:hover { border-color: var(--copper); color: var(--copper-deep); }
+.mt-mode-btn[aria-pressed="true"] { background: var(--copper); border-color: var(--copper); color: #fff; box-shadow: 0 2px 6px rgba(138,69,36,.22); }
+
+/* --- Budget rollup bar -------------------------------------------------- */
+.mt-budget {
+  max-width: var(--maxw); margin: 10px auto 0; padding: 14px 20px;
+  background: linear-gradient(180deg, rgba(176,92,50,.06), rgba(176,92,50,.02));
+  border: 1px solid rgba(176,92,50,.22); border-radius: var(--radius);
+}
+.mt-budget-main { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+.mt-budget-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--copper-deep); }
+.mt-budget-figure { font-family: 'Fraunces', Georgia, serif; font-size: clamp(22px, 3vw, 30px); font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.mt-budget-seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); margin-left: auto; }
+.mt-seg-btn { font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; border: 0; background: transparent; color: var(--muted); padding: 7px 16px; min-height: 36px; }
+.mt-seg-btn.is-on { background: var(--copper); color: #fff; }
+.mt-budget-note { font-size: 11.5px; line-height: 1.55; color: var(--muted); margin: 9px 0 0; max-width: 86ch; }
+
+/* --- Checklist mode ----------------------------------------------------- */
+.mt-check { margin: 0 0 8px; }
+.mt-check-lab { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.mt-check-box { width: 17px; height: 17px; accent-color: var(--copper); cursor: pointer; }
+.mt-card.is-done { opacity: .62; }
+.mt-card.is-done .mt-name { text-decoration: line-through; text-decoration-color: var(--muted); }
+.mt-card.is-done .mt-check-lab { color: #46603c; }
+.mt-progress { font-size: 14px; font-weight: 600; color: var(--copper-deep); padding-top: 12px; font-variant-numeric: tabular-nums; }
+
+/* --- Compact density (toggled) ------------------------------------------ */
+.maintenance.is-compact .mt-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.maintenance.is-compact .mt-why,
+.maintenance.is-compact .mt-do,
+.maintenance.is-compact .mt-applies,
+.maintenance.is-compact .mt-cost-note,
+.maintenance.is-compact .mt-diagram { display: none; }
+.maintenance.is-compact .mt-card-body { padding: 13px 15px; }
+.maintenance.is-compact .mt-name { font-size: 16px; }
+@media (max-width: 1000px) { .maintenance.is-compact .mt-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 700px)  { .maintenance.is-compact .mt-grid { grid-template-columns: 1fr; } }
+
+/* --- Print: a clean checklist a phone-free owner can carry to the rig ---- */
+@media print {
+  body { background: #fff; color: #000; }
+  .site-header, .site-footer, .detail-nav, .mt-jump, .mt-lens, .mt-tools,
+  .mt-legend, .mt-empty, .mt-timeline, .mt-budget-seg { display: none !important; }
+  .mt-budget { border: 1px solid #000; background: none; }
+  .mt-card { break-inside: avoid; box-shadow: none; border: 1px solid #999; border-left: 3px solid #000; }
+  .mt-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .mt-do, .mt-diagram { background: none; }
+  .mt-diagram[open] .mt-fig-art svg { max-width: 160px; }
+  .mt-sources { display: none; }            /* keep the printout to action, not links */
+  .mt-check { display: block !important; }  /* always show a tick box on paper */
+  .mt-check-box { -webkit-appearance: none; appearance: none; width: 13px; height: 13px; border: 1.5px solid #000; }
+  a[href]::after { content: ""; }            /* suppress URL expansion */
+}
+
+/* --- Responsive additions ----------------------------------------------- */
+@media (max-width: 860px) {
+  .mt-tools-row { gap: 14px; }
+  .mt-budget-seg { margin-left: 0; }
+  .mt-rig { width: 100%; }
+  .mt-rig-sel { flex: 1 1 44%; }
+  .mt-fig-art svg { max-width: 100%; }
+}
