@@ -178,14 +178,19 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 .gallery-img-wrap {
   border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+}
+/* Studio cutouts (trailer on a white sweep): blend the white into a warm
+   cream sweep so the silver shell sits on a branded background. */
+.gallery-img-wrap.is-cutout {
   background: radial-gradient(125% 135% at 50% 16%, #faf6ef 0%, #f0e8d8 52%, #e7ddc8 100%);
 }
-.gallery-img { width: 100%; display: block; mix-blend-mode: darken; }
-.gallery-img {
-  width: 100%; border-radius: var(--radius); box-shadow: var(--shadow);
-  background: radial-gradient(125% 135% at 50% 16%, #faf6ef 0%, #f0e8d8 52%, #e7ddc8 100%);
-  mix-blend-mode: darken;
-}
+/* Full-bleed photos (interiors, lifestyle): render clean, edge to edge, with a
+   fixed 16:9 frame so the grid stays even regardless of source ratio. */
+.gallery-img-wrap.is-photo { background: #1a1a1a; }
+.gallery-img { width: 100%; display: block; }
+.gallery-img--cutout { mix-blend-mode: darken; }
+.gallery-img--photo { aspect-ratio: 920 / 518; object-fit: cover; mix-blend-mode: normal; }
+
 
 /* ---------- Floor plan ---------- */
 .floorplan { margin: 40px 0 0; }

@@ -6,6 +6,27 @@ import { dirname, join } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+/**
+ * Per-image gallery background classification, keyed by slug -> [bool], where
+ * true = studio cutout on a white background (gets the cream-blend treatment)
+ * and false = a full-bleed photo (interior/lifestyle, rendered clean with no
+ * blend). Built offline by sampling each image's edge pixels. Loaded once.
+ * Falls back to an empty map (everything treated as photo) if absent.
+ */
+let _cutoutFlags = null;
+export function galleryCutoutFlags() {
+  if (_cutoutFlags) return _cutoutFlags;
+  try {
+    _cutoutFlags = JSON.parse(
+      readFileSync(join(__dirname, '..', 'data', 'gallery-cutout-flags.json'), 'utf8'),
+    );
+  } catch {
+    _cutoutFlags = {};
+  }
+  return _cutoutFlags;
+}
+
+
 /** Load and validate the trailer dataset. Throws on structural problems. */
 export function loadTrailers(path) {
   const p = path || join(__dirname, '..', 'data', 'trailers.json');
@@ -211,11 +232,19 @@ export function catalogStats(trailers) {
  * Hero is derived from the model name via slugify() — NOT the legacy
  * `heroFamily` field, which was unreliable and is no longer used.
  */
+/**
+ * Max gallery slots probed per floorplan. Galleries are now variable-length:
+ * we collect every `<slug>-N.webp` that exists on disk (1..MAX), so a floorplan
+ * with 10 official photos shows 10 and one with 5 shows 5. The renderers map
+ * over whatever array comes back, so nothing here is hardcoded to 3 anymore.
+ */
+export const MAX_GALLERY = 12;
+
 export function assetPaths(t) {
   return {
     thumb: `assets/img/thumbs/${t.slug}.webp`,
     hero: `assets/img/heroes/${slugify(t.model)}.webp`,
-    gallery: [1, 2, 3].map((i) => `assets/img/gallery/${t.slug}-${i}.webp`),
+    gallery: Array.from({ length: MAX_GALLERY }, (_, i) => `assets/img/gallery/${t.slug}-${i + 1}.webp`),
     floorplan: `assets/img/floorplans/${t.slug}.webp`,
   };
 }
@@ -224,23 +253,38 @@ export function assetPaths(t) {
  * Existence-aware asset resolution for the build. `hasAsset(relPath)` returns
  * whether a file exists under public/. Resolves real, on-disk paths only:
  *   - hero: the model's hero file (null if somehow absent).
- *   - gallery: this slug's own photos, falling back to its cross-year twin's
- *     photos when the slug has none of its own; any image with neither is
- *     dropped rather than emitted as a broken <img>.
+ *   - gallery: this slug's own photos (slots 1..MAX_GALLERY), falling back to
+ *     its cross-year twin's photo for that slot when the slug has none of its
+ *     own; any slot with neither is dropped rather than emitted as a broken
+ *     <img>. Variable length: returns as many real photos as exist.
  * A trailer with no gallery at all (no twin either) simply renders hero-only.
  */
 export function resolveAssets(t, hasAsset) {
   const canon = assetPaths(t);
   const twin = twinSlug(t);
-  const gallery = [1, 2, 3]
-    .map((i) => {
-      const own = `assets/img/gallery/${t.slug}-${i}.webp`;
-      if (hasAsset(own)) return own;
-      const tw = `assets/img/gallery/${twin}-${i}.webp`;
-      if (hasAsset(tw)) return tw;
-      return null;
-    })
-    .filter(Boolean);
+  const flags = galleryCutoutFlags();
+  const gallery = [];
+  const galleryCutout = [];
+  for (let i = 1; i <= MAX_GALLERY; i++) {
+    const own = `assets/img/gallery/${t.slug}-${i}.webp`;
+    const tw = `assets/img/gallery/${twin}-${i}.webp`;
+    let rel = null;
+    let srcSlug = null;
+    if (hasAsset(own)) {
+      rel = own;
+      srcSlug = t.slug;
+    } else if (hasAsset(tw)) {
+      rel = tw;
+      srcSlug = twin;
+    }
+    if (!rel) continue;
+    gallery.push(rel);
+    // cutout (white-bg studio) => true gets the cream-blend; photo => false.
+    // Default to photo (false) when unknown, so we never wrongly blend a photo.
+    const arr = flags[srcSlug];
+    galleryCutout.push(Array.isArray(arr) && arr[i - 1] === true);
+  }
+
   // Floor-plan diagram: this slug's own, falling back to its cross-year twin's
   // (the 2025/2026 of one floorplan share an identical official diagram).
   let floorplan = null;
@@ -251,6 +295,8 @@ export function resolveAssets(t, hasAsset) {
     thumb: canon.thumb,
     hero: hasAsset(canon.hero) ? canon.hero : null,
     gallery,
+    galleryCutout,
+
     floorplan,
   };
 }

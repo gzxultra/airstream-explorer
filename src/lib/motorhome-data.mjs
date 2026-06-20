@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { slugify } from './data.mjs';
+import { slugify, galleryCutoutFlags } from './data.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -170,7 +170,38 @@ export function motorhomeAssetPaths(m) {
   return {
     thumb: `assets/img/thumbs/${m.slug}.webp`,
     hero: `assets/img/heroes/${motorhomeFamilySlug(m.model)}.webp`,
-    gallery: [1, 2, 3].map((i) => `assets/img/gallery/${m.slug}-${i}.webp`),
+    gallery: Array.from({ length: 12 }, (_, i) => `assets/img/gallery/${m.slug}-${i + 1}.webp`),
     floorplan: `assets/img/floorplans/${m.slug}.webp`,
   };
 }
+
+/**
+ * Existence-aware motorhome asset resolution (mirrors trailer resolveAssets).
+ * Galleries are variable-length: collect every `<slug>-N.webp` (1..12) that
+ * exists on disk. Motorhomes have no cross-year twins, so there's no twin
+ * fallback. Hero/thumb/floorplan resolve to null when absent so the renderer
+ * never emits a broken <img>. Pass build's `hasAsset` to enable; without it,
+ * falls back to the canonical (non-checked) paths for backwards compat.
+ */
+export function resolveMotorhomeAssets(m, hasAsset) {
+  const canon = motorhomeAssetPaths(m);
+  if (typeof hasAsset !== 'function') return canon;
+  const flags = galleryCutoutFlags();
+  const gallery = [];
+  const galleryCutout = [];
+  for (let i = 1; i <= 12; i++) {
+    const rel = `assets/img/gallery/${m.slug}-${i}.webp`;
+    if (!hasAsset(rel)) continue;
+    gallery.push(rel);
+    const arr = flags[m.slug];
+    galleryCutout.push(Array.isArray(arr) && arr[i - 1] === true);
+  }
+  return {
+    thumb: canon.thumb,
+    hero: hasAsset(canon.hero) ? canon.hero : null,
+    gallery,
+    galleryCutout,
+    floorplan: hasAsset(canon.floorplan) ? canon.floorplan : null,
+  };
+}
+

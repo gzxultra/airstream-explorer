@@ -716,7 +716,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
   const gallery = a.gallery
     .map(
       (g, i) =>
-        `<div class="gallery-img-wrap"><img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="lazy" class="gallery-img" width="920" height="600"></div>`,
+        `<div class="gallery-img-wrap${a.galleryCutout && a.galleryCutout[i] ? ' is-cutout' : ' is-photo'}"><img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="lazy" class="gallery-img${a.galleryCutout && a.galleryCutout[i] ? ' gallery-img--cutout' : ' gallery-img--photo'}" width="920" height="600"></div>`,
     )
     .join('\n');
   const fpZones = renderFloorplanZones(t.floorplan, t.slug);

@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
 import { loadTrailers, validateDataset, groupByFamily, resolveAssets, loadDecor, resolveDecor } from '../src/lib/data.mjs';
 import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, page } from '../src/lib/render.mjs';
-import { loadMotorhomes, validateMotorhomeDataset, groupMotorhomesByFamily, motorhomeAssetPaths } from '../src/lib/motorhome-data.mjs';
+import { loadMotorhomes, validateMotorhomeDataset, groupMotorhomesByFamily, resolveMotorhomeAssets } from '../src/lib/motorhome-data.mjs';
 import { renderMotorhomeIndex, renderMotorhomeFamily, renderMotorhomeDetail } from '../src/lib/motorhome-render.mjs';
 import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
 import { loadUpgrades, validateUpgrades, renderUpgradesBody } from '../src/lib/upgrades.mjs';
@@ -28,6 +28,7 @@ function log(...a) { console.log('[build]', ...a); }
 // Existence check against the source-of-truth public/ tree.
 const hasAsset = (rel) => existsSync(join(PUBLIC, rel));
 const resolve = (t) => resolveAssets(t, hasAsset);
+const resolveMH = (m) => resolveMotorhomeAssets(m, hasAsset);
 
 // 1. Load + validate (fail the build on any data problem)
 const trailers = loadTrailers();
@@ -133,12 +134,12 @@ writeFileSync(join(DIST, 'compare.html'), renderCompare(trailers, resolve, motor
 log('wrote explore.html + compare.html');
 
 // 4a-mh. Motorhome pages
-writeFileSync(join(DIST, 'motorhomes.html'), renderMotorhomeIndex(motorhomeFamilies, motorhomes, motorhomeAssetPaths));
+writeFileSync(join(DIST, 'motorhomes.html'), renderMotorhomeIndex(motorhomeFamilies, motorhomes, resolveMH));
 for (const fam of motorhomeFamilies) {
-  writeFileSync(join(DIST, 'mf', `${fam.slug}.html`), renderMotorhomeFamily(fam, motorhomeAssetPaths));
+  writeFileSync(join(DIST, 'mf', `${fam.slug}.html`), renderMotorhomeFamily(fam, resolveMH));
 }
 for (const mh of motorhomes) {
-  writeFileSync(join(DIST, 'mm', `${mh.slug}.html`), renderMotorhomeDetail(mh, motorhomeAssetPaths));
+  writeFileSync(join(DIST, 'mm', `${mh.slug}.html`), renderMotorhomeDetail(mh, resolveMH));
 }
 log(`wrote motorhomes.html + ${motorhomeFamilies.length} family pages + ${motorhomes.length} detail pages`);
 

@@ -1,1401 +1,5104 @@
 {
  "atlas-25ms-2027": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/819639985d/atlas-25ms-premiumpainttenoritegreymetallic-3qtr-studio.png",
-    "view": "atlas-25ms-premiumpainttenoritegreymetallic-3qtr-studio.png"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9db9890798/atlas-25ms-premiumpainthightechsilvermetallic-3qtr-studio.png",
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "atlas-25ms-2027-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6a60a091f0/atlas-25ms-interior-galley-studio.jpg",
-    "view": "atlas-25ms-interior-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d356c16c74/atlas-25ms-hightechsilvermetallic-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "atlas-25ms-2027-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ee9faa1c10/atlas-25ms-hightechsilvermetallic-roadside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "atlas-25ms-2027-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/49c7cc82ab/atlas-25ms-hightechsilvermetallic-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "atlas-25ms-2027-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/49532e0a98/1920x1080_atlas-25ms-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "atlas-25ms-2027-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6a60a091f0/atlas-25ms-interior-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "atlas-25ms-2027-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/882330d374/atlas-25ms-interior-bed-studio.jpg",
-    "view": "atlas-25ms-interior-bed-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "atlas-25ms-2027-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/aa77d61aa3/airstream-atlas-class-b-motorhome-on-mercedes-benz-lifestyle-interior-living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "atlas-25ms-2027-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1adf266713/atlas-25rt-interior-frontcab-studio.jpg",
+    "view": "cab",
+    "cat": "cab",
+    "file": "atlas-25ms-2027-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/16b9323644/atlas-25ms-interior-seating-studio.jpg",
+    "view": "seating",
+    "cat": "seating",
+    "file": "atlas-25ms-2027-10.webp"
    }
   ]
  },
  "atlas-25rt-2027": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2a66ce5a68/atlas-25rt-hightechsilvermetallic-3qtr-studio.png",
-    "view": "atlas-25rt-hightechsilvermetallic-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "atlas-25rt-2027-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b08a13f66f/atlas-25rt-interior-galley-studio.jpg",
-    "view": "atlas-25rt-interior-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8dd28e0959/atlas-25rt-hightechsilvermetallic-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "atlas-25rt-2027-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/052f9bd5dc/atlas-25rt-hightechsilvermetallic-roadside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "atlas-25rt-2027-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4d950fc0e6/atlas-25rt-hightechsilvermetallic-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "atlas-25rt-2027-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/49532e0a98/1920x1080_atlas-25ms-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "atlas-25rt-2027-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b08a13f66f/atlas-25rt-interior-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "atlas-25rt-2027-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3ed7d72736/atlas-25rt-interior-bedroom-studio.jpg",
-    "view": "atlas-25rt-interior-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "atlas-25rt-2027-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/aa77d61aa3/airstream-atlas-class-b-motorhome-on-mercedes-benz-lifestyle-interior-living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "atlas-25rt-2027-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1adf266713/atlas-25rt-interior-frontcab-studio.jpg",
+    "view": "cab",
+    "cat": "cab",
+    "file": "atlas-25rt-2027-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0204561ca2/airstream-upgrades-400-w-rooftop-solar-charging-system-atlas-25rt.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "atlas-25rt-2027-10.webp"
    }
   ]
  },
  "bambi-16rb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/baeb0b42e9/bambi-16rb-2021-3qtr-studio.png",
-    "view": "bambi-16rb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "bambi-16rb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f526078679/bambi-16rb-2021-galley-studio.jpg",
-    "view": "bambi-16rb-2021-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4d98ee0fb9/bambi-16rb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "bambi-16rb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e20dcc298f/bambi-16rb-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "bambi-16rb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a4f7d48c0f/bambi-16rb-2021-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "bambi-16rb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/96c4a5db60/1920x1080_bambi-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "bambi-16rb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f526078679/bambi-16rb-2021-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "bambi-16rb-2025-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/307cb852ca/bambi-16rb-2021-bedroom-studio.jpg",
-    "view": "bambi-16rb-2021-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "bambi-16rb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/416002d6ee/bambi_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "bambi-16rb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/40b8198855/my20-bambi-gallery-interior-1-1.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "bambi-16rb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/31388e6025/airstream-upgrades-100-w-rooftop-solar-charging-system-bambi-caravel-16.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "bambi-16rb-2025-10.webp"
    }
   ]
  },
  "bambi-16rb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/baeb0b42e9/bambi-16rb-2021-3qtr-studio.png",
-    "view": "bambi-16rb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "bambi-16rb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f526078679/bambi-16rb-2021-galley-studio.jpg",
-    "view": "bambi-16rb-2021-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4d98ee0fb9/bambi-16rb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "bambi-16rb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e20dcc298f/bambi-16rb-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "bambi-16rb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a4f7d48c0f/bambi-16rb-2021-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "bambi-16rb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/96c4a5db60/1920x1080_bambi-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "bambi-16rb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f526078679/bambi-16rb-2021-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "bambi-16rb-2026-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/307cb852ca/bambi-16rb-2021-bedroom-studio.jpg",
-    "view": "bambi-16rb-2021-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "bambi-16rb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/416002d6ee/bambi_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "bambi-16rb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/40b8198855/my20-bambi-gallery-interior-1-1.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "bambi-16rb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/31388e6025/airstream-upgrades-100-w-rooftop-solar-charging-system-bambi-caravel-16.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "bambi-16rb-2026-10.webp"
    }
   ]
  },
  "bambi-20fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/5696a26375/bambi-20fb-2021-3qtr-studio.png",
-    "view": "bambi-20fb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "bambi-20fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f9f8fe3c07/bambi_kitchen.jpg",
-    "view": "bambi_kitchen.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/70dfff9f38/bambi-20fb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "bambi-20fb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/310b4e91ad/bambi-20fb-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "bambi-20fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8cb64ab336/bambi-20fb-2021-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "bambi-20fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/96c4a5db60/1920x1080_bambi-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "bambi-20fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f526078679/bambi-16rb-2021-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "bambi-20fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0aac420114/bambi-20fb-2020-bedroom-studio.jpg",
-    "view": "bambi-20fb-2020-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "bambi-20fb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/416002d6ee/bambi_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "bambi-20fb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/40b8198855/my20-bambi-gallery-interior-1-1.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "bambi-20fb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/31388e6025/airstream-upgrades-100-w-rooftop-solar-charging-system-bambi-caravel-16.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "bambi-20fb-2025-10.webp"
    }
   ]
  },
  "bambi-20fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/5696a26375/bambi-20fb-2021-3qtr-studio.png",
-    "view": "bambi-20fb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "bambi-20fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f9f8fe3c07/bambi_kitchen.jpg",
-    "view": "bambi_kitchen.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/70dfff9f38/bambi-20fb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "bambi-20fb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/310b4e91ad/bambi-20fb-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "bambi-20fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8cb64ab336/bambi-20fb-2021-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "bambi-20fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/96c4a5db60/1920x1080_bambi-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "bambi-20fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f526078679/bambi-16rb-2021-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "bambi-20fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0aac420114/bambi-20fb-2020-bedroom-studio.jpg",
-    "view": "bambi-20fb-2020-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "bambi-20fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/416002d6ee/bambi_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "bambi-20fb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/40b8198855/my20-bambi-gallery-interior-1-1.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "bambi-20fb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/31388e6025/airstream-upgrades-100-w-rooftop-solar-charging-system-bambi-caravel-16.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "bambi-20fb-2026-10.webp"
    }
   ]
  },
  "bambi-22fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a64f0413b8/bambi-22fb-2021-3qtr-studio.png",
-    "view": "bambi-22fb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "bambi-22fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/385c1a73ae/bambi-22fb-2021-galley-studio.jpg",
-    "view": "bambi-22fb-2021-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a5114e0f18/bambi-22fb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "bambi-22fb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/05b14ad1d3/bambi-22fb-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "bambi-22fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f94baf3f42/bambi-22fb-2021-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "bambi-22fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/96c4a5db60/1920x1080_bambi-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "bambi-22fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/385c1a73ae/bambi-22fb-2021-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "bambi-22fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a341be6002/bambi-22fb-2021-bedroom-studio.jpg",
-    "view": "bambi-22fb-2021-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "bambi-22fb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/416002d6ee/bambi_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "bambi-22fb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/eb4848d835/bambi-22fb-2021-lavy-studio.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "bambi-22fb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/40b8198855/my20-bambi-gallery-interior-1-1.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "bambi-22fb-2025-10.webp"
    }
   ]
  },
  "bambi-22fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a64f0413b8/bambi-22fb-2021-3qtr-studio.png",
-    "view": "bambi-22fb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "bambi-22fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/385c1a73ae/bambi-22fb-2021-galley-studio.jpg",
-    "view": "bambi-22fb-2021-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a5114e0f18/bambi-22fb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "bambi-22fb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/05b14ad1d3/bambi-22fb-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "bambi-22fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f94baf3f42/bambi-22fb-2021-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "bambi-22fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/96c4a5db60/1920x1080_bambi-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "bambi-22fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/385c1a73ae/bambi-22fb-2021-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "bambi-22fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a341be6002/bambi-22fb-2021-bedroom-studio.jpg",
-    "view": "bambi-22fb-2021-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "bambi-22fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/416002d6ee/bambi_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "bambi-22fb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/eb4848d835/bambi-22fb-2021-lavy-studio.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "bambi-22fb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/40b8198855/my20-bambi-gallery-interior-1-1.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "bambi-22fb-2026-10.webp"
    }
   ]
  },
  "basecamp-16x-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/235091e749/tt-basecamp-lifestyle-exterior-rear-towing-1920x1080.jpg",
-    "view": "tt-basecamp-lifestyle-exterior-rear-towing-1920x1080.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/626ca917e6/basecamp-16x-2026-3qtr-studio.png",
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "basecamp-16x-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/251892b34e/tt-basecamp-lifestyle-interior-galley-and-back-lounge-1920x1080.jpg",
-    "view": "tt-basecamp-lifestyle-interior-galley-and-back-lounge-1920x1080.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9af15e888d/basecamp-16x-2026-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "basecamp-16x-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ba69b5c1b9/tt-basecamp-lifestyle-exterior-roadside-view-at-lakeside-1920x1080.jpg",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "basecamp-16x-2025-3.webp"
+   },
+   {
+    "slot": 4,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a652404cff/tt-basecamp-lifestyle-interior-front-lounge-wth-family-1920x1080.jpg",
-    "view": "tt-basecamp-lifestyle-interior-front-lounge-wth-family-1920x1080.jpg"
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "basecamp-16x-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/233a01a747/basecamp-16x-2026-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "basecamp-16x-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fe723d4527/1920x1080_basecamp-20-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "basecamp-16x-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/507e447c9b/basecamp-16-2024-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "basecamp-16x-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/5592d1080c/basecamp-16-2024-bed-down-studio.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "basecamp-16x-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/78f6ee9ef8/basecamp-20-2024-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "basecamp-16x-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/cfe4bdfd8d/airstream-upgrades-200-w-rooftop-solar-charging-system-with-lithium-batteries-basecamp-16x.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "basecamp-16x-2025-10.webp"
    }
   ]
  },
  "basecamp-16x-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/235091e749/tt-basecamp-lifestyle-exterior-rear-towing-1920x1080.jpg",
-    "view": "tt-basecamp-lifestyle-exterior-rear-towing-1920x1080.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/626ca917e6/basecamp-16x-2026-3qtr-studio.png",
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "basecamp-16x-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/251892b34e/tt-basecamp-lifestyle-interior-galley-and-back-lounge-1920x1080.jpg",
-    "view": "tt-basecamp-lifestyle-interior-galley-and-back-lounge-1920x1080.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9af15e888d/basecamp-16x-2026-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "basecamp-16x-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ba69b5c1b9/tt-basecamp-lifestyle-exterior-roadside-view-at-lakeside-1920x1080.jpg",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "basecamp-16x-2026-3.webp"
+   },
+   {
+    "slot": 4,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a652404cff/tt-basecamp-lifestyle-interior-front-lounge-wth-family-1920x1080.jpg",
-    "view": "tt-basecamp-lifestyle-interior-front-lounge-wth-family-1920x1080.jpg"
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "basecamp-16x-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/233a01a747/basecamp-16x-2026-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "basecamp-16x-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fe723d4527/1920x1080_basecamp-20-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "basecamp-16x-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/507e447c9b/basecamp-16-2024-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "basecamp-16x-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/5592d1080c/basecamp-16-2024-bed-down-studio.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "basecamp-16x-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/78f6ee9ef8/basecamp-20-2024-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "basecamp-16x-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/cfe4bdfd8d/airstream-upgrades-200-w-rooftop-solar-charging-system-with-lithium-batteries-basecamp-16x.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "basecamp-16x-2026-10.webp"
    }
   ]
  },
  "basecamp-20x-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b774ab9adb/basecamp-20x-2026-3qtr-studio.png",
-    "view": "basecamp-20x-2026-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "basecamp-20x-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/251892b34e/tt-basecamp-lifestyle-interior-galley-and-back-lounge-1920x1080.jpg",
-    "view": "tt-basecamp-lifestyle-interior-galley-and-back-lounge-1920x1080.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ec394cfcb0/basecamp-20x-2026-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "basecamp-20x-2025-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a652404cff/tt-basecamp-lifestyle-interior-front-lounge-wth-family-1920x1080.jpg",
-    "view": "tt-basecamp-lifestyle-interior-front-lounge-wth-family-1920x1080.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e51cf31ce2/basecamp-20x-2026-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "basecamp-20x-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1080x1920/8df7d1ffbc/tt-basecamp-20x-lifestyle-exterior-front-rock-guards-1920x1080.jpg",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "basecamp-20x-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3d6082d957/basecamp-20x-2026-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "basecamp-20x-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fe723d4527/1920x1080_basecamp-20-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "basecamp-20x-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/251892b34e/tt-basecamp-lifestyle-interior-galley-and-back-lounge-1920x1080.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "basecamp-20x-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e9b8ae76e9/tt-basecamp-lifestyle-interior-floor-storage-with-drinks-1920x1080.jpg",
+    "view": "storage",
+    "cat": "storage",
+    "file": "basecamp-20x-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1080x1920/d8a8ed2c3d/tt-basecamp-20x-lifestyle-interior-adjustable-table-1920x1080.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "basecamp-20x-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4e03dfb4cb/airstream-upgrades-300-w-rooftop-solar-charging-system-basecamp-20x.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "basecamp-20x-2025-10.webp"
    }
   ]
  },
  "basecamp-20x-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b774ab9adb/basecamp-20x-2026-3qtr-studio.png",
-    "view": "basecamp-20x-2026-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "basecamp-20x-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/251892b34e/tt-basecamp-lifestyle-interior-galley-and-back-lounge-1920x1080.jpg",
-    "view": "tt-basecamp-lifestyle-interior-galley-and-back-lounge-1920x1080.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ec394cfcb0/basecamp-20x-2026-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "basecamp-20x-2026-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a652404cff/tt-basecamp-lifestyle-interior-front-lounge-wth-family-1920x1080.jpg",
-    "view": "tt-basecamp-lifestyle-interior-front-lounge-wth-family-1920x1080.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e51cf31ce2/basecamp-20x-2026-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "basecamp-20x-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1080x1920/8df7d1ffbc/tt-basecamp-20x-lifestyle-exterior-front-rock-guards-1920x1080.jpg",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "basecamp-20x-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3d6082d957/basecamp-20x-2026-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "basecamp-20x-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fe723d4527/1920x1080_basecamp-20-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "basecamp-20x-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/251892b34e/tt-basecamp-lifestyle-interior-galley-and-back-lounge-1920x1080.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "basecamp-20x-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e9b8ae76e9/tt-basecamp-lifestyle-interior-floor-storage-with-drinks-1920x1080.jpg",
+    "view": "storage",
+    "cat": "storage",
+    "file": "basecamp-20x-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1080x1920/d8a8ed2c3d/tt-basecamp-20x-lifestyle-interior-adjustable-table-1920x1080.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "basecamp-20x-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4e03dfb4cb/airstream-upgrades-300-w-rooftop-solar-charging-system-basecamp-20x.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "basecamp-20x-2026-10.webp"
    }
   ]
  },
  "basecamp-xe-20xe-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 5,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3776692a2a/basecamp-20xe-2025-3qtr-studio.png",
-    "view": "basecamp-20xe-2025-3qtr-studio.png"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/5347105a95/basecampxe-20-2025-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "basecamp-xe-20xe-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b9ca06572d/basecampxe-interiors-1920x1080ftb-sandstone-canyon.jpg",
-    "view": "basecampxe-interiors-1920x1080ftb-sandstone-canyon.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/300cce12bc/basecampxe-20-2025-bed-studio.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "basecamp-xe-20xe-2025-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1080x1920/d8a8ed2c3d/tt-basecamp-20x-lifestyle-interior-adjustable-table-1920x1080.jpg",
-    "view": "tt-basecamp-20x-lifestyle-interior-adjustable-table-1920x1080.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8ac389ee6d/basecampxe-20-2025-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "basecamp-xe-20xe-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1e5b918ded/basecamp-xe-lifestyle-11.jpg",
+    "view": "lifestyle",
+    "cat": "lifestyle",
+    "file": "basecamp-xe-20xe-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/2048x1152/274dcccf4d/airstream-basecamp-xe-decors-79da07b3.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "basecamp-xe-20xe-2025-5.webp"
    }
   ]
  },
  "basecamp-xe-20xe-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 5,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3776692a2a/basecamp-20xe-2025-3qtr-studio.png",
-    "view": "basecamp-20xe-2025-3qtr-studio.png"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/5347105a95/basecampxe-20-2025-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "basecamp-xe-20xe-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b9ca06572d/basecampxe-interiors-1920x1080ftb-sandstone-canyon.jpg",
-    "view": "basecampxe-interiors-1920x1080ftb-sandstone-canyon.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/300cce12bc/basecampxe-20-2025-bed-studio.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "basecamp-xe-20xe-2026-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1080x1920/d8a8ed2c3d/tt-basecamp-20x-lifestyle-interior-adjustable-table-1920x1080.jpg",
-    "view": "tt-basecamp-20x-lifestyle-interior-adjustable-table-1920x1080.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8ac389ee6d/basecampxe-20-2025-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "basecamp-xe-20xe-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1e5b918ded/basecamp-xe-lifestyle-11.jpg",
+    "view": "lifestyle",
+    "cat": "lifestyle",
+    "file": "basecamp-xe-20xe-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/2048x1152/274dcccf4d/airstream-basecamp-xe-decors-79da07b3.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "basecamp-xe-20xe-2026-5.webp"
    }
   ]
  },
  "caravel-16rb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/083cfec271/caravel-16rb-2025-3qtr-studio.png",
-    "view": "caravel-16rb-2025-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "caravel-16rb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ccd04d45d3/caravel-16rb-2025-galley-studio.jpg",
-    "view": "caravel-16rb-2025-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a61178869f/caravel-16rb-2025-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "caravel-16rb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8fce74a841/caravel-16rb-2025-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "caravel-16rb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0260c9ff98/caravel-16rb-2025-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "caravel-16rb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0f48d5c8a9/caravel-gallery-exterior-towing-rear-1920x1080.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "caravel-16rb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ccd04d45d3/caravel-16rb-2025-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "caravel-16rb-2025-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a7ce07df24/caravel-16rb-2025-bedroom-studio.jpg",
-    "view": "caravel-16rb-2025-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "caravel-16rb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3397a141cd/caravel-16rb-2025-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "caravel-16rb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2b013c821c/caravel_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "caravel-16rb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4dca1368cf/caravel-gallery-interior-f2b-1920x1080.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "caravel-16rb-2025-10.webp"
    }
   ]
  },
  "caravel-16rb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/083cfec271/caravel-16rb-2025-3qtr-studio.png",
-    "view": "caravel-16rb-2025-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "caravel-16rb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ccd04d45d3/caravel-16rb-2025-galley-studio.jpg",
-    "view": "caravel-16rb-2025-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a61178869f/caravel-16rb-2025-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "caravel-16rb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8fce74a841/caravel-16rb-2025-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "caravel-16rb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0260c9ff98/caravel-16rb-2025-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "caravel-16rb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0f48d5c8a9/caravel-gallery-exterior-towing-rear-1920x1080.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "caravel-16rb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ccd04d45d3/caravel-16rb-2025-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "caravel-16rb-2026-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a7ce07df24/caravel-16rb-2025-bedroom-studio.jpg",
-    "view": "caravel-16rb-2025-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "caravel-16rb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3397a141cd/caravel-16rb-2025-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "caravel-16rb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2b013c821c/caravel_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "caravel-16rb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4dca1368cf/caravel-gallery-interior-f2b-1920x1080.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "caravel-16rb-2026-10.webp"
    }
   ]
  },
  "caravel-20fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f437fda5d8/caravel-20fb-2025-3qtr-studio.png",
-    "view": "caravel-20fb-2025-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "caravel-20fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f2c9e6f13c/caravel-20fb-2025-galley-studio.jpg",
-    "view": "caravel-20fb-2025-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6761a49a12/caravel-20fb-2025-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "caravel-20fb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1c7a0ed0d4/caravel-20fb-2025-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "caravel-20fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/642115e0b6/caravel-20fb-2025-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "caravel-20fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0f48d5c8a9/caravel-gallery-exterior-towing-rear-1920x1080.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "caravel-20fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f2c9e6f13c/caravel-20fb-2025-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "caravel-20fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/effe88555d/caravel-20fb-2025-bedroom-studio.jpg",
-    "view": "caravel-20fb-2025-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "caravel-20fb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d149e7e26f/caravel-20fb-2025-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "caravel-20fb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2b013c821c/caravel_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "caravel-20fb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4dca1368cf/caravel-gallery-interior-f2b-1920x1080.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "caravel-20fb-2025-10.webp"
    }
   ]
  },
  "caravel-20fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f437fda5d8/caravel-20fb-2025-3qtr-studio.png",
-    "view": "caravel-20fb-2025-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "caravel-20fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f2c9e6f13c/caravel-20fb-2025-galley-studio.jpg",
-    "view": "caravel-20fb-2025-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6761a49a12/caravel-20fb-2025-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "caravel-20fb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1c7a0ed0d4/caravel-20fb-2025-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "caravel-20fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/642115e0b6/caravel-20fb-2025-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "caravel-20fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0f48d5c8a9/caravel-gallery-exterior-towing-rear-1920x1080.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "caravel-20fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f2c9e6f13c/caravel-20fb-2025-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "caravel-20fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/effe88555d/caravel-20fb-2025-bedroom-studio.jpg",
-    "view": "caravel-20fb-2025-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "caravel-20fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d149e7e26f/caravel-20fb-2025-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "caravel-20fb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2b013c821c/caravel_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "caravel-20fb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4dca1368cf/caravel-gallery-interior-f2b-1920x1080.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "caravel-20fb-2026-10.webp"
    }
   ]
  },
  "caravel-22fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1e982769df/caravel-22fb-2025-3qtr-studio.png",
-    "view": "caravel-22fb-2025-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "caravel-22fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6f704c0cd8/caravel-22fb-2025-galley-studio.jpg",
-    "view": "caravel-22fb-2025-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c3051eba93/caravel-22fb-2025-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "caravel-22fb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9489a3ea99/caravel-22fb-2025-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "caravel-22fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/28cf12cdd6/caravel-22fb-2025-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "caravel-22fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0f48d5c8a9/caravel-gallery-exterior-towing-rear-1920x1080.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "caravel-22fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6f704c0cd8/caravel-22fb-2025-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "caravel-22fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/43d5a33f8f/caravel-22fb-2025-bedroom-studio.jpg",
-    "view": "caravel-22fb-2025-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "caravel-22fb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2b013c821c/caravel_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "caravel-22fb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4f1d1082d9/caravel-22fb-2025-lavy-studio.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "caravel-22fb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4dca1368cf/caravel-gallery-interior-f2b-1920x1080.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "caravel-22fb-2025-10.webp"
    }
   ]
  },
  "caravel-22fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1e982769df/caravel-22fb-2025-3qtr-studio.png",
-    "view": "caravel-22fb-2025-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "caravel-22fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6f704c0cd8/caravel-22fb-2025-galley-studio.jpg",
-    "view": "caravel-22fb-2025-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c3051eba93/caravel-22fb-2025-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "caravel-22fb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9489a3ea99/caravel-22fb-2025-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "caravel-22fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/28cf12cdd6/caravel-22fb-2025-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "caravel-22fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0f48d5c8a9/caravel-gallery-exterior-towing-rear-1920x1080.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "caravel-22fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6f704c0cd8/caravel-22fb-2025-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "caravel-22fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/43d5a33f8f/caravel-22fb-2025-bedroom-studio.jpg",
-    "view": "caravel-22fb-2025-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "caravel-22fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2b013c821c/caravel_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "caravel-22fb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4f1d1082d9/caravel-22fb-2025-lavy-studio.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "caravel-22fb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4dca1368cf/caravel-gallery-interior-f2b-1920x1080.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "caravel-22fb-2026-10.webp"
    }
   ]
  },
  "classic-28rb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/64487e925d/classic-28rb-2025-3qtr-studio.png",
-    "view": "classic-28rb-2025-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "classic-28rb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6012ebf5d2/classic-28rb-2025-galley-studio.jpg",
-    "view": "classic-28rb-2025-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/71a39dd79e/classic-28rb-2025-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "classic-28rb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/5ad9525098/classic-28rb-2025-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "classic-28rb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/485028831f/classic-28rb-2025-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "classic-28rb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1d8d7f884e/airstream-classic-exterior-lifestyle-dock.jpg",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "classic-28rb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6012ebf5d2/classic-28rb-2025-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "classic-28rb-2025-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1b909d9607/classic-28rb-2025-bedroom-studio.jpg",
-    "view": "classic-28rb-2025-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "classic-28rb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/760c21df50/classic-30rb-2025-sofa-studio.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "classic-28rb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/76000cd33a/classic-28rb-2025-lavy-studio.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "classic-28rb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/87083735a1/classic-interiors-1920x1080-classic-ftb-comfort-white-with-cafe-latte-ultraleather.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "classic-28rb-2025-10.webp"
    }
   ]
  },
  "classic-28rb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/64487e925d/classic-28rb-2025-3qtr-studio.png",
-    "view": "classic-28rb-2025-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "classic-28rb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6012ebf5d2/classic-28rb-2025-galley-studio.jpg",
-    "view": "classic-28rb-2025-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/71a39dd79e/classic-28rb-2025-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "classic-28rb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/5ad9525098/classic-28rb-2025-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "classic-28rb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/485028831f/classic-28rb-2025-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "classic-28rb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1d8d7f884e/airstream-classic-exterior-lifestyle-dock.jpg",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "classic-28rb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6012ebf5d2/classic-28rb-2025-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "classic-28rb-2026-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1b909d9607/classic-28rb-2025-bedroom-studio.jpg",
-    "view": "classic-28rb-2025-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "classic-28rb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/760c21df50/classic-30rb-2025-sofa-studio.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "classic-28rb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/76000cd33a/classic-28rb-2025-lavy-studio.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "classic-28rb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/87083735a1/classic-interiors-1920x1080-classic-ftb-comfort-white-with-cafe-latte-ultraleather.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "classic-28rb-2026-10.webp"
    }
   ]
  },
  "classic-30rb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4d416cecaf/classic-30rb-2025-3qtr-studio.png",
-    "view": "classic-30rb-2025-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "classic-30rb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/24e92b8786/classic-30rb-2022-galley-studio.jpg",
-    "view": "classic-30rb-2022-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0eda4e390e/classic-30rb-2025-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "classic-30rb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/661f7f0817/classic-30rb-2025-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "classic-30rb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d89e2c5ea7/airstream-classic-exterior-lifestyle-front-walk.jpg",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "classic-30rb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ea58f73aea/classic-30rb-2025-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "classic-30rb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1d8d7f884e/airstream-classic-exterior-lifestyle-dock.jpg",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "classic-30rb-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/24e92b8786/classic-30rb-2022-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "classic-30rb-2025-7.webp"
+   },
+   {
+    "slot": 8,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/54ec519078/classic-30rb-2022-bedroom-studio.jpg",
-    "view": "classic-30rb-2022-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "classic-30rb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/760c21df50/classic-30rb-2025-sofa-studio.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "classic-30rb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/87083735a1/classic-interiors-1920x1080-classic-ftb-comfort-white-with-cafe-latte-ultraleather.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "classic-30rb-2025-10.webp"
    }
   ]
  },
  "classic-30rb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4d416cecaf/classic-30rb-2025-3qtr-studio.png",
-    "view": "classic-30rb-2025-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "classic-30rb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/24e92b8786/classic-30rb-2022-galley-studio.jpg",
-    "view": "classic-30rb-2022-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0eda4e390e/classic-30rb-2025-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "classic-30rb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/661f7f0817/classic-30rb-2025-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "classic-30rb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d89e2c5ea7/airstream-classic-exterior-lifestyle-front-walk.jpg",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "classic-30rb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ea58f73aea/classic-30rb-2025-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "classic-30rb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1d8d7f884e/airstream-classic-exterior-lifestyle-dock.jpg",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "classic-30rb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/24e92b8786/classic-30rb-2022-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "classic-30rb-2026-7.webp"
+   },
+   {
+    "slot": 8,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/54ec519078/classic-30rb-2022-bedroom-studio.jpg",
-    "view": "classic-30rb-2022-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "classic-30rb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/760c21df50/classic-30rb-2025-sofa-studio.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "classic-30rb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/87083735a1/classic-interiors-1920x1080-classic-ftb-comfort-white-with-cafe-latte-ultraleather.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "classic-30rb-2026-10.webp"
    }
   ]
  },
  "classic-33fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/bebe33aa3d/classic-33fb-2025-3qtr-studio.png",
-    "view": "classic-33fb-2025-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "classic-33fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/08703b8d34/classic-33fb-2022-galley-studio.jpg",
-    "view": "classic-33fb-2022-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/874e3e272a/classic-33fb-2025-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "classic-33fb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/52bf54c251/classic-33fb-2025-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "classic-33fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d89e2c5ea7/airstream-classic-exterior-lifestyle-front-walk.jpg",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "classic-33fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/63665b0c35/classic-33fb-2025-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "classic-33fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1d8d7f884e/airstream-classic-exterior-lifestyle-dock.jpg",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "classic-33fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/08703b8d34/classic-33fb-2022-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "classic-33fb-2025-7.webp"
+   },
+   {
+    "slot": 8,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8c09ab92bb/classic-33fb-2022-bedroom-studio.jpg",
-    "view": "classic-33fb-2022-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "classic-33fb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/760c21df50/classic-30rb-2025-sofa-studio.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "classic-33fb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/28c0f1cb8b/classic-33fb-2022-lavy-studio.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "classic-33fb-2025-10.webp"
    }
   ]
  },
  "classic-33fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/bebe33aa3d/classic-33fb-2025-3qtr-studio.png",
-    "view": "classic-33fb-2025-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "classic-33fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/08703b8d34/classic-33fb-2022-galley-studio.jpg",
-    "view": "classic-33fb-2022-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/874e3e272a/classic-33fb-2025-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "classic-33fb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/52bf54c251/classic-33fb-2025-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "classic-33fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d89e2c5ea7/airstream-classic-exterior-lifestyle-front-walk.jpg",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "classic-33fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/63665b0c35/classic-33fb-2025-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "classic-33fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1d8d7f884e/airstream-classic-exterior-lifestyle-dock.jpg",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "classic-33fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/08703b8d34/classic-33fb-2022-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "classic-33fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8c09ab92bb/classic-33fb-2022-bedroom-studio.jpg",
-    "view": "classic-33fb-2022-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "classic-33fb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/760c21df50/classic-30rb-2025-sofa-studio.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "classic-33fb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/28c0f1cb8b/classic-33fb-2022-lavy-studio.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "classic-33fb-2026-10.webp"
    }
   ]
  },
  "flying-cloud-23fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c892185b9c/flyingcloud-23fb-2023-3qtr-studio.png",
-    "view": "flyingcloud-23fb-2023-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "flying-cloud-23fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8c2be458c9/flyingcloud-23fb-2023-galley-studio.jpg",
-    "view": "flyingcloud-23fb-2023-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7bd544d453/flyingcloud-23fb-2023-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "flying-cloud-23fb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/5dd33f4837/flyingcloud-23fb-2023-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "flying-cloud-23fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3ad969f163/flyingcloud-23fb-2023-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "flying-cloud-23fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c1d7b53f91/1920x1080_flying-cloud-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "flying-cloud-23fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fbffb68fea/flying-coud-exterior-towing.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "flying-cloud-23fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8c2be458c9/flyingcloud-23fb-2023-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "flying-cloud-23fb-2025-7.webp"
+   },
+   {
+    "slot": 8,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2572016345/flyingcloud-23fb-2023-bedroom-studio.jpg",
-    "view": "flyingcloud-23fb-2023-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "flying-cloud-23fb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c735631f37/flyingcloud-23fb-2021-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "flying-cloud-23fb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8b211654f8/flying-cloud_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "flying-cloud-23fb-2025-10.webp"
    }
   ]
  },
  "flying-cloud-23fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c892185b9c/flyingcloud-23fb-2023-3qtr-studio.png",
-    "view": "flyingcloud-23fb-2023-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "flying-cloud-23fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8c2be458c9/flyingcloud-23fb-2023-galley-studio.jpg",
-    "view": "flyingcloud-23fb-2023-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7bd544d453/flyingcloud-23fb-2023-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "flying-cloud-23fb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/5dd33f4837/flyingcloud-23fb-2023-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "flying-cloud-23fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3ad969f163/flyingcloud-23fb-2023-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "flying-cloud-23fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c1d7b53f91/1920x1080_flying-cloud-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "flying-cloud-23fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fbffb68fea/flying-coud-exterior-towing.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "flying-cloud-23fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8c2be458c9/flyingcloud-23fb-2023-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "flying-cloud-23fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2572016345/flyingcloud-23fb-2023-bedroom-studio.jpg",
-    "view": "flyingcloud-23fb-2023-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "flying-cloud-23fb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c735631f37/flyingcloud-23fb-2021-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "flying-cloud-23fb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8b211654f8/flying-cloud_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "flying-cloud-23fb-2026-10.webp"
    }
   ]
  },
  "flying-cloud-25fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/bd9b4d3447/flyingcloud-25fb-2021-3qtr-studio.png",
-    "view": "flyingcloud-25fb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "flying-cloud-25fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2724378536/flyingcloud-25fb-2025-galleystudio.jpg",
-    "view": "flyingcloud-25fb-2025-galleystudio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b1362d9764/flyingcloud-25fb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "flying-cloud-25fb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7b6420447a/flyingcloud-25fb-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "flying-cloud-25fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/80135f8be3/flyingcloud-25fb-2021-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "flying-cloud-25fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c1d7b53f91/1920x1080_flying-cloud-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "flying-cloud-25fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fbffb68fea/flying-coud-exterior-towing.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "flying-cloud-25fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2724378536/flyingcloud-25fb-2025-galleystudio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "flying-cloud-25fb-2025-7.webp"
+   },
+   {
+    "slot": 8,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7a3383ae87/flyingcloud-25fb-2025-bedroom-studio.jpg",
-    "view": "flyingcloud-25fb-2025-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "flying-cloud-25fb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8b211654f8/flying-cloud_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "flying-cloud-25fb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7429276015/flyingcloud-25fb-2025-lavy-studio.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "flying-cloud-25fb-2025-10.webp"
    }
   ]
  },
  "flying-cloud-25fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/bd9b4d3447/flyingcloud-25fb-2021-3qtr-studio.png",
-    "view": "flyingcloud-25fb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "flying-cloud-25fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2724378536/flyingcloud-25fb-2025-galleystudio.jpg",
-    "view": "flyingcloud-25fb-2025-galleystudio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b1362d9764/flyingcloud-25fb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "flying-cloud-25fb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7b6420447a/flyingcloud-25fb-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "flying-cloud-25fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/80135f8be3/flyingcloud-25fb-2021-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "flying-cloud-25fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c1d7b53f91/1920x1080_flying-cloud-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "flying-cloud-25fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fbffb68fea/flying-coud-exterior-towing.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "flying-cloud-25fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2724378536/flyingcloud-25fb-2025-galleystudio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "flying-cloud-25fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7a3383ae87/flyingcloud-25fb-2025-bedroom-studio.jpg",
-    "view": "flyingcloud-25fb-2025-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "flying-cloud-25fb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8b211654f8/flying-cloud_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "flying-cloud-25fb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7429276015/flyingcloud-25fb-2025-lavy-studio.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "flying-cloud-25fb-2026-10.webp"
    }
   ]
  },
  "flying-cloud-27fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/24925c7fb5/flyingcloud-27fb-2021-3qtr-studio.png",
-    "view": "flyingcloud-27fb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "flying-cloud-27fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/de3f675c8b/flyingcloud-27fb-2021-galley-studio.jpg",
-    "view": "flyingcloud-27fb-2021-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e80d0baf51/flyingcloud-27fb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "flying-cloud-27fb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/18aa4e8be1/flyingcloud-27fb-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "flying-cloud-27fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/69920bdd65/airstream-upgrades-rear-hatch-flying-cloud.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "flying-cloud-27fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c1d7b53f91/1920x1080_flying-cloud-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "flying-cloud-27fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fbffb68fea/flying-coud-exterior-towing.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "flying-cloud-27fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/de3f675c8b/flyingcloud-27fb-2021-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "flying-cloud-27fb-2025-7.webp"
+   },
+   {
+    "slot": 8,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/20283f3c9d/flyingcloud-27fb-2021-bedroom-studio.jpg",
-    "view": "flyingcloud-27fb-2021-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "flying-cloud-27fb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4575a9a040/flyingcloud-27fb-2021-lavy-studio.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "flying-cloud-27fb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/426beb2d91/flyingcloud-27fb-2021-desk-studio.jpg",
+    "view": "desk",
+    "cat": "desk",
+    "file": "flying-cloud-27fb-2025-10.webp"
    }
   ]
  },
  "flying-cloud-27fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/24925c7fb5/flyingcloud-27fb-2021-3qtr-studio.png",
-    "view": "flyingcloud-27fb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "flying-cloud-27fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/de3f675c8b/flyingcloud-27fb-2021-galley-studio.jpg",
-    "view": "flyingcloud-27fb-2021-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e80d0baf51/flyingcloud-27fb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "flying-cloud-27fb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/18aa4e8be1/flyingcloud-27fb-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "flying-cloud-27fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/69920bdd65/airstream-upgrades-rear-hatch-flying-cloud.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "flying-cloud-27fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c1d7b53f91/1920x1080_flying-cloud-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "flying-cloud-27fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fbffb68fea/flying-coud-exterior-towing.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "flying-cloud-27fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/de3f675c8b/flyingcloud-27fb-2021-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "flying-cloud-27fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/20283f3c9d/flyingcloud-27fb-2021-bedroom-studio.jpg",
-    "view": "flyingcloud-27fb-2021-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "flying-cloud-27fb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4575a9a040/flyingcloud-27fb-2021-lavy-studio.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "flying-cloud-27fb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/426beb2d91/flyingcloud-27fb-2021-desk-studio.jpg",
+    "view": "desk",
+    "cat": "desk",
+    "file": "flying-cloud-27fb-2026-10.webp"
    }
   ]
  },
  "flying-cloud-28rb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9d1e085a11/flying-coud-exterior-curb.jpg",
-    "view": "flying-coud-exterior-curb.jpg"
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "flying-cloud-28rb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/66b69453f3/flying-cloud_kitchen.jpg",
-    "view": "flying-cloud_kitchen.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/89c2ec11b5/airstream-upgrades-zipdee-rear-and-roadside-window-awning-package-flying-cloud.jpg",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "flying-cloud-28rb-2025-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6f9ed2191b/flying-cloud_bedroom.jpg",
-    "view": "flying-cloud_bedroom.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/69920bdd65/airstream-upgrades-rear-hatch-flying-cloud.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "flying-cloud-28rb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c1d7b53f91/1920x1080_flying-cloud-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "flying-cloud-28rb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fbffb68fea/flying-coud-exterior-towing.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "flying-cloud-28rb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/66b69453f3/flying-cloud_kitchen.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "flying-cloud-28rb-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d3dfdee085/airstream-upgrades-convertible-sofa-bed-with-side-tables-flying-cloud-23.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "flying-cloud-28rb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8b211654f8/flying-cloud_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "flying-cloud-28rb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/80ee6a1254/airstream-upgrades-powered-adjustable-desk-flying-cloud.jpg",
+    "view": "desk",
+    "cat": "desk",
+    "file": "flying-cloud-28rb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1babc6664a/flying-cloud-interiors-1920x1080-ftb-sunlit-maple-with-carolina-clay-ultraleather.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "flying-cloud-28rb-2025-10.webp"
    }
   ]
  },
  "flying-cloud-28rb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9d1e085a11/flying-coud-exterior-curb.jpg",
-    "view": "flying-coud-exterior-curb.jpg"
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "flying-cloud-28rb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/66b69453f3/flying-cloud_kitchen.jpg",
-    "view": "flying-cloud_kitchen.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/89c2ec11b5/airstream-upgrades-zipdee-rear-and-roadside-window-awning-package-flying-cloud.jpg",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "flying-cloud-28rb-2026-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6f9ed2191b/flying-cloud_bedroom.jpg",
-    "view": "flying-cloud_bedroom.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/69920bdd65/airstream-upgrades-rear-hatch-flying-cloud.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "flying-cloud-28rb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c1d7b53f91/1920x1080_flying-cloud-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "flying-cloud-28rb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fbffb68fea/flying-coud-exterior-towing.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "flying-cloud-28rb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/66b69453f3/flying-cloud_kitchen.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "flying-cloud-28rb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d3dfdee085/airstream-upgrades-convertible-sofa-bed-with-side-tables-flying-cloud-23.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "flying-cloud-28rb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8b211654f8/flying-cloud_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "flying-cloud-28rb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/80ee6a1254/airstream-upgrades-powered-adjustable-desk-flying-cloud.jpg",
+    "view": "desk",
+    "cat": "desk",
+    "file": "flying-cloud-28rb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1babc6664a/flying-cloud-interiors-1920x1080-ftb-sunlit-maple-with-carolina-clay-ultraleather.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "flying-cloud-28rb-2026-10.webp"
    }
   ]
  },
  "flying-cloud-30fb-bunk-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/30d1b30187/flyingcloud-30fbbunk-2021-3qtr-studio.png",
-    "view": "flyingcloud-30fbbunk-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "flying-cloud-30fb-bunk-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/bb185dbc91/flyingcloud-30fb-2024-galley-studio.jpg",
-    "view": "flyingcloud-30fb-2024-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/227a02a235/flyingcloud-30fbbunk-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "flying-cloud-30fb-bunk-2025-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4b7ca92486/flyingcloud-30fb-2024-bedroom-studio.jpg",
-    "view": "flyingcloud-30fb-2024-bedroom-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7bc7a6e1dc/flyingcloud-30fbbunk-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "flying-cloud-30fb-bunk-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b43ff2a4de/flyingcloud-30fbbunk-2021-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "flying-cloud-30fb-bunk-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c1d7b53f91/1920x1080_flying-cloud-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "flying-cloud-30fb-bunk-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fbffb68fea/flying-coud-exterior-towing.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "flying-cloud-30fb-bunk-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/66b69453f3/flying-cloud_kitchen.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "flying-cloud-30fb-bunk-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d3dfdee085/airstream-upgrades-convertible-sofa-bed-with-side-tables-flying-cloud-23.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "flying-cloud-30fb-bunk-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8b211654f8/flying-cloud_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "flying-cloud-30fb-bunk-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/271c6bd490/flyingcloud-30fb-2024-bunk-studio.jpg",
+    "view": "bunk",
+    "cat": "bunk",
+    "file": "flying-cloud-30fb-bunk-2025-10.webp"
    }
   ]
  },
  "flying-cloud-30fb-bunk-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/30d1b30187/flyingcloud-30fbbunk-2021-3qtr-studio.png",
-    "view": "flyingcloud-30fbbunk-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "flying-cloud-30fb-bunk-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/bb185dbc91/flyingcloud-30fb-2024-galley-studio.jpg",
-    "view": "flyingcloud-30fb-2024-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/227a02a235/flyingcloud-30fbbunk-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "flying-cloud-30fb-bunk-2026-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4b7ca92486/flyingcloud-30fb-2024-bedroom-studio.jpg",
-    "view": "flyingcloud-30fb-2024-bedroom-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7bc7a6e1dc/flyingcloud-30fbbunk-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "flying-cloud-30fb-bunk-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b43ff2a4de/flyingcloud-30fbbunk-2021-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "flying-cloud-30fb-bunk-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c1d7b53f91/1920x1080_flying-cloud-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "flying-cloud-30fb-bunk-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fbffb68fea/flying-coud-exterior-towing.jpg",
+    "view": "towing",
+    "cat": "ext-tow",
+    "file": "flying-cloud-30fb-bunk-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/66b69453f3/flying-cloud_kitchen.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "flying-cloud-30fb-bunk-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d3dfdee085/airstream-upgrades-convertible-sofa-bed-with-side-tables-flying-cloud-23.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "flying-cloud-30fb-bunk-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8b211654f8/flying-cloud_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "flying-cloud-30fb-bunk-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/271c6bd490/flyingcloud-30fb-2024-bunk-studio.jpg",
+    "view": "bunk",
+    "cat": "bunk",
+    "file": "flying-cloud-30fb-bunk-2026-10.webp"
    }
   ]
  },
  "frank-lloyd-wright-limited-edition-28rb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 9,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ed502ea690/airstream-frank-lloyd-wright-usonian-limited-edition-blog-preview-exterior-with-taliesin-west.jpg",
-    "view": "airstream-frank-lloyd-wright-usonian-limited-edition-blog-preview-exterior-with-taliesin-west.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c0c5b3423a/flw-28rb-2025-3qtr-studio.png",
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "frank-lloyd-wright-limited-edition-28rb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/bff2688dca/frank-lloyd-wright-galley-straight1920x1080.jpg",
-    "view": "frank-lloyd-wright-galley-straight1920x1080.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0e97db15f0/flw-28rb-2025-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "frank-lloyd-wright-limited-edition-28rb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4642cec931/flw-28rb-2025-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "frank-lloyd-wright-limited-edition-28rb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9b13648d0e/flw-28rb-2025-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "frank-lloyd-wright-limited-edition-28rb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6546eb05cb/frank-lloyd-wright-2026-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "frank-lloyd-wright-limited-edition-28rb-2026-5.webp"
+   },
+   {
+    "slot": 6,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ef69c36861/frank-lloyd-wright-2026-sofa-studio.jpg",
-    "view": "frank-lloyd-wright-2026-sofa-studio.jpg"
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "frank-lloyd-wright-limited-edition-28rb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d0cc92b13e/frank-lloyd-wright-2026-desk-studio.jpg",
+    "view": "desk",
+    "cat": "desk",
+    "file": "frank-lloyd-wright-limited-edition-28rb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1a3d796311/web-site-1920x1080-interiors-ftbflw_ftb.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "frank-lloyd-wright-limited-edition-28rb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/bbf8ca98d2/airstream-frank-lloyd-wright-usonian-limited-edition-convertibility-in-primary-sleeping-area.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "frank-lloyd-wright-limited-edition-28rb-2026-9.webp"
    }
   ]
  },
  "globetrotter-25fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 7,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/76b6a52e14/airstream-globetrotter-travel-trailer-exterior-rear-3qtr.jpg",
-    "view": "airstream-globetrotter-travel-trailer-exterior-rear-3qtr.jpg"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "globetrotter-25fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3a67f5aa51/globetrotter-25fb-2020-galley-studio.jpg",
-    "view": "globetrotter-25fb-2020-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e028f8cd74/airstream-globetrotter-travel-trailer-exterior-rear.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "globetrotter-25fb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3a67f5aa51/globetrotter-25fb-2020-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "globetrotter-25fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3ba8022795/globetrotter-25fb-2020-bedroom-studio.jpg",
-    "view": "globetrotter-25fb-2020-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "globetrotter-25fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8d8f69a78d/globetrotter_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "globetrotter-25fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e4aa6d73dc/globetrotter-interiors-1920x1080-ftb-natural-elm-with-london-grey-seating.jpg",
+    "view": "seating",
+    "cat": "seating",
+    "file": "globetrotter-25fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/dcb9fd6826/airstream-upgrades-second-ac-with-heat-pump-globetrotter.png",
+    "view": "photo",
+    "cat": "other",
+    "file": "globetrotter-25fb-2025-7.webp"
    }
   ]
  },
  "globetrotter-25fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 7,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/76b6a52e14/airstream-globetrotter-travel-trailer-exterior-rear-3qtr.jpg",
-    "view": "airstream-globetrotter-travel-trailer-exterior-rear-3qtr.jpg"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "globetrotter-25fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3a67f5aa51/globetrotter-25fb-2020-galley-studio.jpg",
-    "view": "globetrotter-25fb-2020-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e028f8cd74/airstream-globetrotter-travel-trailer-exterior-rear.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "globetrotter-25fb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3a67f5aa51/globetrotter-25fb-2020-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "globetrotter-25fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3ba8022795/globetrotter-25fb-2020-bedroom-studio.jpg",
-    "view": "globetrotter-25fb-2020-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "globetrotter-25fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8d8f69a78d/globetrotter_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "globetrotter-25fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e4aa6d73dc/globetrotter-interiors-1920x1080-ftb-natural-elm-with-london-grey-seating.jpg",
+    "view": "seating",
+    "cat": "seating",
+    "file": "globetrotter-25fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/dcb9fd6826/airstream-upgrades-second-ac-with-heat-pump-globetrotter.png",
+    "view": "photo",
+    "cat": "other",
+    "file": "globetrotter-25fb-2026-7.webp"
    }
   ]
  },
  "globetrotter-27fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 8,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1024x576/685b57d548/airstream-globetrotter-27fb-curb-side-exterior-1024x576-7de5a406.jpg",
-    "view": "airstream-globetrotter-27fb-curb-side-exterior-1024x576-7de5a406.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/76b6a52e14/airstream-globetrotter-travel-trailer-exterior-rear-3qtr.jpg",
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "globetrotter-27fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2a54c427de/airstream-globetrotter-travel-trailer-interior-cooking.jpg",
-    "view": "airstream-globetrotter-travel-trailer-interior-cooking.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1024x576/685b57d548/airstream-globetrotter-27fb-curb-side-exterior-1024x576-7de5a406.jpg",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "globetrotter-27fb-2025-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9dd974726e/airstream-globetrotter-travel-trailer-interior-kitchen-30rb.jpg",
-    "view": "airstream-globetrotter-travel-trailer-interior-kitchen-30rb.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e028f8cd74/airstream-globetrotter-travel-trailer-exterior-rear.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "globetrotter-27fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2a54c427de/airstream-globetrotter-travel-trailer-interior-cooking.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "globetrotter-27fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/255c9ef1ef/globetrotter_bedroom.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "globetrotter-27fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8d8f69a78d/globetrotter_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "globetrotter-27fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e4aa6d73dc/globetrotter-interiors-1920x1080-ftb-natural-elm-with-london-grey-seating.jpg",
+    "view": "seating",
+    "cat": "seating",
+    "file": "globetrotter-27fb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/dcb9fd6826/airstream-upgrades-second-ac-with-heat-pump-globetrotter.png",
+    "view": "photo",
+    "cat": "other",
+    "file": "globetrotter-27fb-2025-8.webp"
    }
   ]
  },
  "globetrotter-27fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 8,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1024x576/685b57d548/airstream-globetrotter-27fb-curb-side-exterior-1024x576-7de5a406.jpg",
-    "view": "airstream-globetrotter-27fb-curb-side-exterior-1024x576-7de5a406.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/76b6a52e14/airstream-globetrotter-travel-trailer-exterior-rear-3qtr.jpg",
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "globetrotter-27fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2a54c427de/airstream-globetrotter-travel-trailer-interior-cooking.jpg",
-    "view": "airstream-globetrotter-travel-trailer-interior-cooking.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1024x576/685b57d548/airstream-globetrotter-27fb-curb-side-exterior-1024x576-7de5a406.jpg",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "globetrotter-27fb-2026-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9dd974726e/airstream-globetrotter-travel-trailer-interior-kitchen-30rb.jpg",
-    "view": "airstream-globetrotter-travel-trailer-interior-kitchen-30rb.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e028f8cd74/airstream-globetrotter-travel-trailer-exterior-rear.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "globetrotter-27fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2a54c427de/airstream-globetrotter-travel-trailer-interior-cooking.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "globetrotter-27fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/255c9ef1ef/globetrotter_bedroom.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "globetrotter-27fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8d8f69a78d/globetrotter_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "globetrotter-27fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e4aa6d73dc/globetrotter-interiors-1920x1080-ftb-natural-elm-with-london-grey-seating.jpg",
+    "view": "seating",
+    "cat": "seating",
+    "file": "globetrotter-27fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/dcb9fd6826/airstream-upgrades-second-ac-with-heat-pump-globetrotter.png",
+    "view": "photo",
+    "cat": "other",
+    "file": "globetrotter-27fb-2026-8.webp"
    }
   ]
  },
  "globetrotter-30rb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ab8176f24b/globetrotter-30rb-2021-3qtr-studio.png",
-    "view": "globetrotter-30rb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "globetrotter-30rb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9dd974726e/airstream-globetrotter-travel-trailer-interior-kitchen-30rb.jpg",
-    "view": "airstream-globetrotter-travel-trailer-interior-kitchen-30rb.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d2bba21f5e/globetrotter-30rb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "globetrotter-30rb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/859d281f50/globetrotter-30rb-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "globetrotter-30rb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ed5facd8b4/globetrotter-30rb-2021-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "globetrotter-30rb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9dd974726e/airstream-globetrotter-travel-trailer-interior-kitchen-30rb.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "globetrotter-30rb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7d656ff00b/globetrotter-30rb-2020-bedroom-studio.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "globetrotter-30rb-2025-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ba5f28f9ed/globetrotter-30rb-2020-dinette-studio.jpg",
-    "view": "globetrotter-30rb-2020-dinette-studio.jpg"
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "globetrotter-30rb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8d8f69a78d/globetrotter_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "globetrotter-30rb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e4aa6d73dc/globetrotter-interiors-1920x1080-ftb-natural-elm-with-london-grey-seating.jpg",
+    "view": "seating",
+    "cat": "seating",
+    "file": "globetrotter-30rb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/dcb9fd6826/airstream-upgrades-second-ac-with-heat-pump-globetrotter.png",
+    "view": "photo",
+    "cat": "other",
+    "file": "globetrotter-30rb-2025-10.webp"
    }
   ]
  },
  "globetrotter-30rb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ab8176f24b/globetrotter-30rb-2021-3qtr-studio.png",
-    "view": "globetrotter-30rb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "globetrotter-30rb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9dd974726e/airstream-globetrotter-travel-trailer-interior-kitchen-30rb.jpg",
-    "view": "airstream-globetrotter-travel-trailer-interior-kitchen-30rb.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d2bba21f5e/globetrotter-30rb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "globetrotter-30rb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/859d281f50/globetrotter-30rb-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "globetrotter-30rb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ed5facd8b4/globetrotter-30rb-2021-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "globetrotter-30rb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9dd974726e/airstream-globetrotter-travel-trailer-interior-kitchen-30rb.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "globetrotter-30rb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7d656ff00b/globetrotter-30rb-2020-bedroom-studio.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "globetrotter-30rb-2026-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ba5f28f9ed/globetrotter-30rb-2020-dinette-studio.jpg",
-    "view": "globetrotter-30rb-2020-dinette-studio.jpg"
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "globetrotter-30rb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8d8f69a78d/globetrotter_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "globetrotter-30rb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e4aa6d73dc/globetrotter-interiors-1920x1080-ftb-natural-elm-with-london-grey-seating.jpg",
+    "view": "seating",
+    "cat": "seating",
+    "file": "globetrotter-30rb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/dcb9fd6826/airstream-upgrades-second-ac-with-heat-pump-globetrotter.png",
+    "view": "photo",
+    "cat": "other",
+    "file": "globetrotter-30rb-2026-10.webp"
    }
   ]
  },
  "international-23fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/15c296ef4e/international-23fb-2023-3qtr-studio.png",
-    "view": "international-23fb-2023-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "international-23fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3ec0deaeb0/international-23fb-2023-galley-studio.jpg",
-    "view": "international-23fb-2023-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b9742f37c3/international-23fb-2023-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "international-23fb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4bebe99c1e/international-23fb-2023-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "international-23fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ee25577def/international-23fb-2023-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "international-23fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3ec0deaeb0/international-23fb-2023-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "international-23fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b19da7d4e2/international-23fb-2023-bedroom-studio.jpg",
-    "view": "international-23fb-2023-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "international-23fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3c6d457fe3/international-23fb-2023-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "international-23fb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1317e3757d/international_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "international-23fb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/165cb1a6fe/airstream-international-lifestyle-interior-3.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "international-23fb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3340f232a5/airstream-international-lifestyle-1.jpg",
+    "view": "lifestyle",
+    "cat": "lifestyle",
+    "file": "international-23fb-2025-10.webp"
    }
   ]
  },
  "international-23fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/15c296ef4e/international-23fb-2023-3qtr-studio.png",
-    "view": "international-23fb-2023-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "international-23fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3ec0deaeb0/international-23fb-2023-galley-studio.jpg",
-    "view": "international-23fb-2023-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b9742f37c3/international-23fb-2023-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "international-23fb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4bebe99c1e/international-23fb-2023-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "international-23fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ee25577def/international-23fb-2023-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "international-23fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3ec0deaeb0/international-23fb-2023-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "international-23fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b19da7d4e2/international-23fb-2023-bedroom-studio.jpg",
-    "view": "international-23fb-2023-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "international-23fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3c6d457fe3/international-23fb-2023-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "international-23fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1317e3757d/international_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "international-23fb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/165cb1a6fe/airstream-international-lifestyle-interior-3.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "international-23fb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3340f232a5/airstream-international-lifestyle-1.jpg",
+    "view": "lifestyle",
+    "cat": "lifestyle",
+    "file": "international-23fb-2026-10.webp"
    }
   ]
  },
  "international-25fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 8,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e3c0f811b4/international-25fb-2020-streetside-studio.png",
-    "view": "international-25fb-2020-streetside-studio.png"
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "international-25fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/165cb1a6fe/airstream-international-lifestyle-interior-3.jpg",
-    "view": "airstream-international-lifestyle-interior-3.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e1b2145e31/airstream-upgrades-rear-hatch-international.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "international-25fb-2025-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1568394793/airstream-international-lifestyle-interior-5.jpg",
-    "view": "airstream-international-lifestyle-interior-5.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3ec0deaeb0/international-23fb-2023-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "international-25fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d2a3fdbc55/airstream-upgrades-convertible-sofa-bed-with-side-tables-international-23.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "international-25fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1317e3757d/international_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "international-25fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/165cb1a6fe/airstream-international-lifestyle-interior-3.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "international-25fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3340f232a5/airstream-international-lifestyle-1.jpg",
+    "view": "lifestyle",
+    "cat": "lifestyle",
+    "file": "international-25fb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2565ef3a4e/airstream-upgrades-second-ac-with-heat-pump-international.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "international-25fb-2025-8.webp"
    }
   ]
  },
  "international-25fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 8,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e3c0f811b4/international-25fb-2020-streetside-studio.png",
-    "view": "international-25fb-2020-streetside-studio.png"
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "international-25fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/165cb1a6fe/airstream-international-lifestyle-interior-3.jpg",
-    "view": "airstream-international-lifestyle-interior-3.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e1b2145e31/airstream-upgrades-rear-hatch-international.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "international-25fb-2026-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1568394793/airstream-international-lifestyle-interior-5.jpg",
-    "view": "airstream-international-lifestyle-interior-5.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3ec0deaeb0/international-23fb-2023-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "international-25fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d2a3fdbc55/airstream-upgrades-convertible-sofa-bed-with-side-tables-international-23.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "international-25fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1317e3757d/international_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "international-25fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/165cb1a6fe/airstream-international-lifestyle-interior-3.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "international-25fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3340f232a5/airstream-international-lifestyle-1.jpg",
+    "view": "lifestyle",
+    "cat": "lifestyle",
+    "file": "international-25fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2565ef3a4e/airstream-upgrades-second-ac-with-heat-pump-international.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "international-25fb-2026-8.webp"
    }
   ]
  },
  "international-27fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/885f663bde/international-27fb-2021-3qtr-studio.png",
-    "view": "international-27fb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "international-27fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e3d969b9dc/international-27fb-2021-galley-studio.jpg",
-    "view": "international-27fb-2021-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e3774bd928/international-27fb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "international-27fb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3e02ab1ad5/international-27fb-2020-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "international-27fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/72112d1578/international-27fb-2021-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "international-27fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e3d969b9dc/international-27fb-2021-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "international-27fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/bfdfed0594/international-27fb-2021-bedroom-studio.jpg",
-    "view": "international-27fb-2021-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "international-27fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c82cb8967c/international-27fb-2021-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "international-27fb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1317e3757d/international_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "international-27fb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/165cb1a6fe/airstream-international-lifestyle-interior-3.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "international-27fb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3340f232a5/airstream-international-lifestyle-1.jpg",
+    "view": "lifestyle",
+    "cat": "lifestyle",
+    "file": "international-27fb-2025-10.webp"
    }
   ]
  },
  "international-27fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/885f663bde/international-27fb-2021-3qtr-studio.png",
-    "view": "international-27fb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "international-27fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e3d969b9dc/international-27fb-2021-galley-studio.jpg",
-    "view": "international-27fb-2021-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e3774bd928/international-27fb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "international-27fb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3e02ab1ad5/international-27fb-2020-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "international-27fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/72112d1578/international-27fb-2021-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "international-27fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e3d969b9dc/international-27fb-2021-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "international-27fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/bfdfed0594/international-27fb-2021-bedroom-studio.jpg",
-    "view": "international-27fb-2021-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "international-27fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c82cb8967c/international-27fb-2021-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "international-27fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1317e3757d/international_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "international-27fb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/165cb1a6fe/airstream-international-lifestyle-interior-3.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "international-27fb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3340f232a5/airstream-international-lifestyle-1.jpg",
+    "view": "lifestyle",
+    "cat": "lifestyle",
+    "file": "international-27fb-2026-10.webp"
    }
   ]
  },
  "international-28rb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 7,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3340f232a5/airstream-international-lifestyle-1.jpg",
-    "view": "airstream-international-lifestyle-1.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e1b2145e31/airstream-upgrades-rear-hatch-international.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "international-28rb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/165cb1a6fe/airstream-international-lifestyle-interior-3.jpg",
-    "view": "airstream-international-lifestyle-interior-3.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3ec0deaeb0/international-23fb-2023-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "international-28rb-2025-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1568394793/airstream-international-lifestyle-interior-5.jpg",
-    "view": "airstream-international-lifestyle-interior-5.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d2a3fdbc55/airstream-upgrades-convertible-sofa-bed-with-side-tables-international-23.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "international-28rb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1317e3757d/international_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "international-28rb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/165cb1a6fe/airstream-international-lifestyle-interior-3.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "international-28rb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3340f232a5/airstream-international-lifestyle-1.jpg",
+    "view": "lifestyle",
+    "cat": "lifestyle",
+    "file": "international-28rb-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2565ef3a4e/airstream-upgrades-second-ac-with-heat-pump-international.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "international-28rb-2025-7.webp"
    }
   ]
  },
  "international-28rb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 7,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3340f232a5/airstream-international-lifestyle-1.jpg",
-    "view": "airstream-international-lifestyle-1.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e1b2145e31/airstream-upgrades-rear-hatch-international.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "international-28rb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/165cb1a6fe/airstream-international-lifestyle-interior-3.jpg",
-    "view": "airstream-international-lifestyle-interior-3.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3ec0deaeb0/international-23fb-2023-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "international-28rb-2026-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1568394793/airstream-international-lifestyle-interior-5.jpg",
-    "view": "airstream-international-lifestyle-interior-5.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d2a3fdbc55/airstream-upgrades-convertible-sofa-bed-with-side-tables-international-23.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "international-28rb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1317e3757d/international_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "international-28rb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/165cb1a6fe/airstream-international-lifestyle-interior-3.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "international-28rb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3340f232a5/airstream-international-lifestyle-1.jpg",
+    "view": "lifestyle",
+    "cat": "lifestyle",
+    "file": "international-28rb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2565ef3a4e/airstream-upgrades-second-ac-with-heat-pump-international.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "international-28rb-2026-7.webp"
    }
   ]
  },
  "international-30rb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/db4cd1f312/international-30rb-2021-3qtr-studio.png",
-    "view": "international-30rb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "international-30rb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7d40ea4358/international-30rb-2021-galley-studio.jpg",
-    "view": "international-30rb-2021-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/10f576192c/international-30rb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "international-30rb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ae8b1be942/international-30rb-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "international-30rb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e1b2145e31/airstream-upgrades-rear-hatch-international.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "international-30rb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7d40ea4358/international-30rb-2021-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "international-30rb-2025-5.webp"
+   },
+   {
+    "slot": 6,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/54028ae774/international-30rb-2021-bedroom-studio.jpg",
-    "view": "international-30rb-2021-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "international-30rb-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/77e76c8528/international-30rb-2021-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "international-30rb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1317e3757d/international_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "international-30rb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/165cb1a6fe/airstream-international-lifestyle-interior-3.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "international-30rb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3340f232a5/airstream-international-lifestyle-1.jpg",
+    "view": "lifestyle",
+    "cat": "lifestyle",
+    "file": "international-30rb-2025-10.webp"
    }
   ]
  },
  "international-30rb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/db4cd1f312/international-30rb-2021-3qtr-studio.png",
-    "view": "international-30rb-2021-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "international-30rb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7d40ea4358/international-30rb-2021-galley-studio.jpg",
-    "view": "international-30rb-2021-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/10f576192c/international-30rb-2021-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "international-30rb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ae8b1be942/international-30rb-2021-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "international-30rb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e1b2145e31/airstream-upgrades-rear-hatch-international.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "international-30rb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7d40ea4358/international-30rb-2021-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "international-30rb-2026-5.webp"
+   },
+   {
+    "slot": 6,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/54028ae774/international-30rb-2021-bedroom-studio.jpg",
-    "view": "international-30rb-2021-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "international-30rb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/77e76c8528/international-30rb-2021-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "international-30rb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1317e3757d/international_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "international-30rb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/165cb1a6fe/airstream-international-lifestyle-interior-3.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "international-30rb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3340f232a5/airstream-international-lifestyle-1.jpg",
+    "view": "lifestyle",
+    "cat": "lifestyle",
+    "file": "international-30rb-2026-10.webp"
    }
   ]
  },
  "interstate-19gt-2027": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d4d4bf6eb1/interstate-19gt-hightechsilvermetallic-3qtr-studio.png",
-    "view": "interstate-19gt-hightechsilvermetallic-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "interstate-19gt-2027-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9fb78e37a3/gallery-images-1920x1080-24gt-ar-galley19gt-ar.jpg",
-    "view": "gallery-images-1920x1080-24gt-ar-galley19gt-ar.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/001f2304cc/interstate-19gt-hightechsilvermetallic-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "interstate-19gt-2027-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/826b4f1251/interstate19gt-surfer-bed-lounge.jpeg",
-    "view": "interstate19gt-surfer-bed-lounge.jpeg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8cc3c9b2d8/interstate-19gt-hightechsilvermetallic-roadside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "interstate-19gt-2027-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2d3d5d76bf/interstate-19gt-hightechsilvermetallic-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "interstate-19gt-2027-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/799fba17d4/1920x1080_interstate-19gt-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "interstate-19gt-2027-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/6048x4032/a8d617980c/interstate-19gt-galley-couple-lifestyle.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "interstate-19gt-2027-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d519aa29ec/interstate-19gt-interior-bedroom-studio.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "interstate-19gt-2027-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/bbb7c95637/interstate-19gt-interior-cab-studio.jpg",
+    "view": "cab",
+    "cat": "cab",
+    "file": "interstate-19gt-2027-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9afcc0de69/interstate-19gt-interior-backseating-studio.jpg",
+    "view": "seating",
+    "cat": "seating",
+    "file": "interstate-19gt-2027-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d1a53a16fa/interstate19gt-interior-storage.jpg",
+    "view": "storage",
+    "cat": "storage",
+    "file": "interstate-19gt-2027-10.webp"
    }
   ]
  },
  "interstate-19gtx-2027": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d4d4bf6eb1/interstate-19gt-hightechsilvermetallic-3qtr-studio.png",
-    "view": "interstate-19gt-hightechsilvermetallic-3qtr-studio.png"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/74841d5e2e/interstate-19gtx-hightechsilvermetallic-3qtr-studio.png",
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "interstate-19gtx-2027-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9fb78e37a3/gallery-images-1920x1080-24gt-ar-galley19gt-ar.jpg",
-    "view": "gallery-images-1920x1080-24gt-ar-galley19gt-ar.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/eaf97c7226/interstate-19gtx-hightechsilvermetallic-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "interstate-19gtx-2027-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/826b4f1251/interstate19gt-surfer-bed-lounge.jpeg",
-    "view": "interstate19gt-surfer-bed-lounge.jpeg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6c54317a38/interstate-19gtx-hightechsilvermetallic-roadside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "interstate-19gtx-2027-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a5366a79b6/interstate-19gtx-hightechsilvermetallic-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "interstate-19gtx-2027-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/799fba17d4/1920x1080_interstate-19gt-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "interstate-19gtx-2027-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c5938976db/interstate-19gtx-interior-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "interstate-19gtx-2027-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/21473570dd/interstate-19gtx-interior-bed-studio.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "interstate-19gtx-2027-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e6ed0ddddb/interstate24gt-interior-loungeandsleeping.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "interstate-19gtx-2027-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/bbb7c95637/interstate-19gt-interior-cab-studio.jpg",
+    "view": "cab",
+    "cat": "cab",
+    "file": "interstate-19gtx-2027-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/424a2c372c/interstate-19gtx-interior-bench-studio.jpg",
+    "view": "seating",
+    "cat": "seating",
+    "file": "interstate-19gtx-2027-10.webp"
    }
   ]
  },
  "interstate-19x-2027": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/757b0f4ae3/interstate-19xhightechsilvermetallic-3qtr-studio.png",
-    "view": "interstate-19xhightechsilvermetallic-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "interstate-19x-2027-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/490c1f8993/interstate-19x-interior-galley-studio.jpg",
-    "view": "interstate-19x-interior-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/533201ef77/interstate-19xhightechsilvermetallic-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "interstate-19x-2027-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/396d9cff67/interstate-19xhightechsilvermetallic-roadside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "interstate-19x-2027-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ba39ecff2f/interstate-19xhightechsilvermetallic-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "interstate-19x-2027-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/18b7bfd36d/interstate-19xoutland-interior-rear-studio.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "interstate-19x-2027-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/490c1f8993/interstate-19x-interior-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "interstate-19x-2027-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/84555644ba/interstate-19xoutland-interior-bed-studio.jpg",
-    "view": "interstate-19xoutland-interior-bed-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "interstate-19x-2027-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/023f6ba02a/interstate-19x-interior-lavy-studio.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "interstate-19x-2027-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/304b50c77b/interstate-19x-interior-rearbenches-studio.jpg",
+    "view": "seating",
+    "cat": "seating",
+    "file": "interstate-19x-2027-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a1bfbab2fb/interstate-19x-le-outland-interiors-1920x1080-ftb-red-rock.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "interstate-19x-2027-10.webp"
    }
   ]
  },
  "interstate-24gl-2027": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1760aa2c04/interstate-24gl-hightechsilvermetallic-3qtr-studio.png",
-    "view": "interstate-24gl-hightechsilvermetallic-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "interstate-24gl-2027-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/01c04517b4/interstate-24glx-interior-galley-studio.jpg",
-    "view": "interstate-24glx-interior-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/45257243f2/interstate-24gl-hightechsilvermetallic-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "interstate-24gl-2027-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/3560245d1b/interstate-24gl-hightechsilvermetallic-roadside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "interstate-24gl-2027-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a6a974ee39/interstate-24gl-hightechsilvermetallic-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "interstate-24gl-2027-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/799fba17d4/1920x1080_interstate-19gt-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "interstate-24gl-2027-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b72fdc8e66/interstate-24gl-interior-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "interstate-24gl-2027-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2c8ae1b630/interstate-24gl-interior-bed-studio.jpg",
-    "view": "interstate-24gl-interior-bed-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "interstate-24gl-2027-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e6ed0ddddb/interstate24gt-interior-loungeandsleeping.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "interstate-24gl-2027-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/20a2d56d7c/interstate-24glx-interior-cab-studio.jpg",
+    "view": "cab",
+    "cat": "cab",
+    "file": "interstate-24gl-2027-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/15154e0a7b/interstate-24gl-interior-rearseating-studio.jpg",
+    "view": "seating",
+    "cat": "seating",
+    "file": "interstate-24gl-2027-10.webp"
    }
   ]
  },
  "interstate-24glx-2027": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1760aa2c04/interstate-24gl-hightechsilvermetallic-3qtr-studio.png",
-    "view": "interstate-24gl-hightechsilvermetallic-3qtr-studio.png"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/26c1abe4a4/interstate-24glx-hightechsilvermetallic-3qtr-studio.png",
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "interstate-24glx-2027-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/01c04517b4/interstate-24glx-interior-galley-studio.jpg",
-    "view": "interstate-24glx-interior-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f00209cdf7/interstate-24glx-hightechsilvermetallic-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "interstate-24glx-2027-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e3ae5e51ba/interstate-24glx-hightechsilvermetallic-roadside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "interstate-24glx-2027-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/db49bb0518/interstate-24glx-hightechsilvermetallic-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "interstate-24glx-2027-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/799fba17d4/1920x1080_interstate-19gt-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "interstate-24glx-2027-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/01c04517b4/interstate-24glx-interior-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "interstate-24glx-2027-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2c8ae1b630/interstate-24gl-interior-bed-studio.jpg",
-    "view": "interstate-24gl-interior-bed-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "interstate-24glx-2027-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e6ed0ddddb/interstate24gt-interior-loungeandsleeping.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "interstate-24glx-2027-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/20a2d56d7c/interstate-24glx-interior-cab-studio.jpg",
+    "view": "cab",
+    "cat": "cab",
+    "file": "interstate-24glx-2027-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e841521457/interstate-24glx-interior-rearseating-studio.jpg",
+    "view": "seating",
+    "cat": "seating",
+    "file": "interstate-24glx-2027-10.webp"
    }
   ]
  },
  "interstate-24gt-2027": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0537d5a1d0/interstate-24gt-hightechsilvermetallic-3qtr-studio.png",
-    "view": "interstate-24gt-hightechsilvermetallic-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "interstate-24gt-2027-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9c83a54e87/interstate24gt-24gtx-galley-stonehaven.jpeg",
-    "view": "interstate24gt-24gtx-galley-stonehaven.jpeg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/6638cb8736/interstate-24gt-hightechsilvermetallic-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "interstate-24gt-2027-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/94c9e8af80/interstate-24gt-hightechsilvermetallic-roadside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "interstate-24gt-2027-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/db463caf0d/interstate-24gt-hightechsilvermetallic-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "interstate-24gt-2027-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a610b13ed3/interstate-24gt-interior-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "interstate-24gt-2027-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/2048x1152/c2d2ce6204/interstate-24gt-bed-ac3ddb4e.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "interstate-24gt-2027-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e6ed0ddddb/interstate24gt-interior-loungeandsleeping.jpg",
-    "view": "interstate24gt-interior-loungeandsleeping.jpg"
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "interstate-24gt-2027-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ef8cc60fec/interstate-24gt-interior-cab-studio.jpg",
+    "view": "cab",
+    "cat": "cab",
+    "file": "interstate-24gt-2027-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8023a2dfaa/interstate-24gtx-interior-rearseating-studio.jpg",
+    "view": "seating",
+    "cat": "seating",
+    "file": "interstate-24gt-2027-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f72b6fb279/interstate24gt-interior-storage.jpg",
+    "view": "storage",
+    "cat": "storage",
+    "file": "interstate-24gt-2027-10.webp"
    }
   ]
  },
  "interstate-24gtx-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0537d5a1d0/interstate-24gt-hightechsilvermetallic-3qtr-studio.png",
-    "view": "interstate-24gt-hightechsilvermetallic-3qtr-studio.png"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/5757b5fb7f/interstate-24gtx-hightechsilvermetallic-3qtr-studio.png",
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "interstate-24gtx-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9c83a54e87/interstate24gt-24gtx-galley-stonehaven.jpeg",
-    "view": "interstate24gt-24gtx-galley-stonehaven.jpeg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7fea1594c9/interstate-24gtx-hightechsilvermetallic-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "interstate-24gtx-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fd1d715f83/interstate-24gtx-hightechsilvermetallic-roadside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "interstate-24gtx-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/62e4a6b57d/interstate-24gtx-hightechsilvermetallic-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "interstate-24gtx-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/799fba17d4/1920x1080_interstate-19gt-exterior-iso.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "interstate-24gtx-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/61e564b525/interstate-24gtx-interior-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "interstate-24gtx-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/658d1e49ea/interstate-24gtx-interior-bed-studio.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "interstate-24gtx-2026-7.webp"
+   },
+   {
+    "slot": 8,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e6ed0ddddb/interstate24gt-interior-loungeandsleeping.jpg",
-    "view": "interstate24gt-interior-loungeandsleeping.jpg"
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "interstate-24gtx-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/bbb7c95637/interstate-19gt-interior-cab-studio.jpg",
+    "view": "cab",
+    "cat": "cab",
+    "file": "interstate-24gtx-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8023a2dfaa/interstate-24gtx-interior-rearseating-studio.jpg",
+    "view": "seating",
+    "cat": "seating",
+    "file": "interstate-24gtx-2026-10.webp"
    }
   ]
  },
  "rangeline-21pl-2027": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8f7a40338f/rangeline-pl-lifestyle-exterior-metallicsilver-curbside.jpeg",
-    "view": "rangeline-pl-lifestyle-exterior-metallicsilver-curbside.jpeg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2fe4714acb/rangeline-bright-silver-metallic-3qtr-studio.png",
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "rangeline-21pl-2027-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/854x1280/5082ee241e/ridgeline-21pl-my27-lifestyle-galley-interior.jpeg",
-    "view": "ridgeline-21pl-my27-lifestyle-galley-interior.jpeg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7015b06762/rangeline-brightsilvermetallic-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "rangeline-21pl-2027-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1a26fd2960/rangeline-bright-silver-metallic-roadside.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "rangeline-21pl-2027-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/63b89281e8/rangeline-21pl-interior-front-to-backrl.jpg",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "rangeline-21pl-2027-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fd4c1531ce/rangeline-pl-driving-lifestyle-rear.jpeg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "rangeline-21pl-2027-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/000d1582a2/rangeline-pl-lifestyle-kids-exterior-doorway.jpeg",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "rangeline-21pl-2027-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fc6e25eddd/rangeline-21pl-interior-galley.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "rangeline-21pl-2027-7.webp"
+   },
+   {
+    "slot": 8,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/495f85b0c6/rangeline-21pl-interior-wetbath.jpg",
-    "view": "rangeline-21pl-interior-wetbath.jpg"
+    "view": "bath",
+    "cat": "bath",
+    "file": "rangeline-21pl-2027-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c1242a8a21/rangeline-21pl-interior-power-loft-bed.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "rangeline-21pl-2027-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/eeb5b020a3/rangeline-21pl-dining.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "rangeline-21pl-2027-10.webp"
    }
   ]
  },
  "rangeline-21ps-2027": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8f7a40338f/rangeline-pl-lifestyle-exterior-metallicsilver-curbside.jpeg",
-    "view": "rangeline-pl-lifestyle-exterior-metallicsilver-curbside.jpeg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/2fe4714acb/rangeline-bright-silver-metallic-3qtr-studio.png",
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "rangeline-21ps-2027-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/eb72aa16e7/rangeline-21ps-onyx-black-front-jump-seat.jpg",
-    "view": "rangeline-21ps-onyx-black-front-jump-seat.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7015b06762/rangeline-brightsilvermetallic-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "rangeline-21ps-2027-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1a26fd2960/rangeline-bright-silver-metallic-roadside.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "rangeline-21ps-2027-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/eb72aa16e7/rangeline-21ps-onyx-black-front-jump-seat.jpg",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "rangeline-21ps-2027-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/99b87c2edb/rangeline-21ps-ob-rear-bed-open.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "rangeline-21ps-2027-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/000d1582a2/rangeline-pl-lifestyle-kids-exterior-doorway.jpeg",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "rangeline-21ps-2027-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4f6ca09877/rangeline-21ps-ob-galley.jpg",
-    "view": "rangeline-21ps-ob-galley.jpg"
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "rangeline-21ps-2027-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/263059265f/rangeline-pl-exterior-camping-outdoorliving.jpeg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "rangeline-21ps-2027-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d7705acbc3/rangelinepl-interior-lavvy-wetbath.jpeg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "rangeline-21ps-2027-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/11381f6239/rangeline-21ps-lunar-gray-decor.jpg",
+    "view": "photo",
+    "cat": "other",
+    "file": "rangeline-21ps-2027-10.webp"
    }
   ]
  },
  "stetson-6666-special-edition-27fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a1570791ce/stetson6666-2026-3qtr-studio.png",
-    "view": "stetson6666-2026-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "stetson-6666-special-edition-27fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/784cae6795/stetson6666-27fb-2026-galley-studio.jpg",
-    "view": "stetson6666-27fb-2026-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f5729ae05b/stetson6666-2026-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "stetson-6666-special-edition-27fb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4fd2d3d738/stetson6666-2026-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "stetson-6666-special-edition-27fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f860a5ff41/stetson6666-2026-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "stetson-6666-special-edition-27fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1e635a0f20/1920x1080_stetson-6666-exterior-iso-copy.png",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "stetson-6666-special-edition-27fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/784cae6795/stetson6666-27fb-2026-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "stetson-6666-special-edition-27fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/fd1c654992/stetson6666-27fb-2026-bedroom-studio.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "stetson-6666-special-edition-27fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e10d43936b/stetson6666-27fb-2026-dinette-studio.jpg",
-    "view": "stetson6666-27fb-2026-dinette-studio.jpg"
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "stetson-6666-special-edition-27fb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0fbba3f68c/stetson-6666_western-living.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "stetson-6666-special-edition-27fb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/e032dc8a9c/stetson-6666_lavvy.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "stetson-6666-special-edition-27fb-2026-10.webp"
    }
   ]
  },
  "trade-wind-23fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/54c75094ef/tradewind-23fb-2025-3qtr-studio.png",
-    "view": "tradewind-23fb-2025-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "trade-wind-23fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/79a1111f60/tradewind-23fb-2025-galley-studio.jpg",
-    "view": "tradewind-23fb-2025-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/675ddfaf5f/tradewind-23fb-2025-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "trade-wind-23fb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/79cda79343/tradewind-23fb-2025-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "trade-wind-23fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4acb8af6d8/tradewind-23fb-2025-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "trade-wind-23fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/79a1111f60/tradewind-23fb-2025-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "trade-wind-23fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0e88ad126c/trade-wind_bedroom.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "trade-wind-23fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/87ed150133/tradewind-23fb-2025-dinette-studio.jpg",
-    "view": "tradewind-23fb-2025-dinette-studio.jpg"
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "trade-wind-23fb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7f18a8f235/trade-wind_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "trade-wind-23fb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/eaf61ac041/tradewind-23fb-2025-lavy-studio.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "trade-wind-23fb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8f26ac8f60/trade-wind-interiors-1920x1080-ftb-fieldstone.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "trade-wind-23fb-2025-10.webp"
    }
   ]
  },
  "trade-wind-23fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/54c75094ef/tradewind-23fb-2025-3qtr-studio.png",
-    "view": "tradewind-23fb-2025-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "trade-wind-23fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/79a1111f60/tradewind-23fb-2025-galley-studio.jpg",
-    "view": "tradewind-23fb-2025-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/675ddfaf5f/tradewind-23fb-2025-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "trade-wind-23fb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/79cda79343/tradewind-23fb-2025-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "trade-wind-23fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4acb8af6d8/tradewind-23fb-2025-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "trade-wind-23fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/79a1111f60/tradewind-23fb-2025-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "trade-wind-23fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0e88ad126c/trade-wind_bedroom.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "trade-wind-23fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/87ed150133/tradewind-23fb-2025-dinette-studio.jpg",
-    "view": "tradewind-23fb-2025-dinette-studio.jpg"
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "trade-wind-23fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7f18a8f235/trade-wind_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "trade-wind-23fb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/eaf61ac041/tradewind-23fb-2025-lavy-studio.jpg",
+    "view": "bath",
+    "cat": "bath",
+    "file": "trade-wind-23fb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8f26ac8f60/trade-wind-interiors-1920x1080-ftb-fieldstone.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "trade-wind-23fb-2026-10.webp"
    }
   ]
  },
  "trade-wind-25fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9d8827d75c/tradewind-25fb-2024-3qtr-studio.png",
-    "view": "tradewind-25fb-2024-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "trade-wind-25fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/56eedae4e3/tradewind-25fb-2024-galley-studio.jpg",
-    "view": "tradewind-25fb-2024-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d7ed56bb74/tradewind-25fb-2024-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "trade-wind-25fb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/84c74304c8/tradewind-25fb-2024-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "trade-wind-25fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0e781a2e7c/tradewind-25fb-2024-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "trade-wind-25fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/56eedae4e3/tradewind-25fb-2024-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "trade-wind-25fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d65102ce08/tradewind-25fb-2024-bedroom-studio.jpg",
-    "view": "tradewind-25fb-2024-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "trade-wind-25fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4aeba52316/tradewind-25fb-2024-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "trade-wind-25fb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7f18a8f235/trade-wind_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "trade-wind-25fb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8f26ac8f60/trade-wind-interiors-1920x1080-ftb-fieldstone.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "trade-wind-25fb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c784457ac1/trade-wind-interior-1.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "trade-wind-25fb-2025-10.webp"
    }
   ]
  },
  "trade-wind-25fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/9d8827d75c/tradewind-25fb-2024-3qtr-studio.png",
-    "view": "tradewind-25fb-2024-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "trade-wind-25fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/56eedae4e3/tradewind-25fb-2024-galley-studio.jpg",
-    "view": "tradewind-25fb-2024-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d7ed56bb74/tradewind-25fb-2024-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "trade-wind-25fb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/84c74304c8/tradewind-25fb-2024-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "trade-wind-25fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/0e781a2e7c/tradewind-25fb-2024-rear-studio.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "trade-wind-25fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/56eedae4e3/tradewind-25fb-2024-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "trade-wind-25fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/d65102ce08/tradewind-25fb-2024-bedroom-studio.jpg",
-    "view": "tradewind-25fb-2024-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "trade-wind-25fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4aeba52316/tradewind-25fb-2024-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "trade-wind-25fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7f18a8f235/trade-wind_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "trade-wind-25fb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8f26ac8f60/trade-wind-interiors-1920x1080-ftb-fieldstone.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "trade-wind-25fb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/c784457ac1/trade-wind-interior-1.jpg",
+    "view": "interior",
+    "cat": "interior",
+    "file": "trade-wind-25fb-2026-10.webp"
    }
   ]
  },
  "trade-wind-27fb-2025": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7d8775358e/tradewind-27fb-3qtr-studio.png",
-    "view": "tradewind-27fb-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "trade-wind-27fb-2025-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b3950b6800/tradewind-27fb-galley-studio.jpg",
-    "view": "tradewind-27fb-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7551cd00af/tradewind-27fb-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "trade-wind-27fb-2025-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4436a1f358/tradewind-27fb-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "trade-wind-27fb-2025-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b2ea4e8bfa/tradewind-27fb-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "trade-wind-27fb-2025-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/031027abe5/airstream-upgrades-rear-hatch-trade-wind.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "trade-wind-27fb-2025-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b3950b6800/tradewind-27fb-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "trade-wind-27fb-2025-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ac277c6ec8/tradewind-27fb-bedroom-studio.jpg",
-    "view": "tradewind-27fb-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "trade-wind-27fb-2025-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4d600a38f8/tradewind-27fb-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "trade-wind-27fb-2025-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7f18a8f235/trade-wind_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "trade-wind-27fb-2025-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8f26ac8f60/trade-wind-interiors-1920x1080-ftb-fieldstone.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "trade-wind-27fb-2025-10.webp"
    }
   ]
  },
  "trade-wind-27fb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7d8775358e/tradewind-27fb-3qtr-studio.png",
-    "view": "tradewind-27fb-3qtr-studio.png"
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "trade-wind-27fb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b3950b6800/tradewind-27fb-galley-studio.jpg",
-    "view": "tradewind-27fb-galley-studio.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7551cd00af/tradewind-27fb-curbside-studio.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "trade-wind-27fb-2026-2.webp"
    },
    {
     "slot": 3,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4436a1f358/tradewind-27fb-streetside-studio.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "trade-wind-27fb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b2ea4e8bfa/tradewind-27fb-front-studio.png",
+    "view": "exterior front",
+    "cat": "ext-front",
+    "file": "trade-wind-27fb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/031027abe5/airstream-upgrades-rear-hatch-trade-wind.jpg",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "trade-wind-27fb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/b3950b6800/tradewind-27fb-galley-studio.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "trade-wind-27fb-2026-6.webp"
+   },
+   {
+    "slot": 7,
     "url": "https://a-us.storyblok.com/f/1023767/1920x1080/ac277c6ec8/tradewind-27fb-bedroom-studio.jpg",
-    "view": "tradewind-27fb-bedroom-studio.jpg"
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "trade-wind-27fb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4d600a38f8/tradewind-27fb-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "trade-wind-27fb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/7f18a8f235/trade-wind_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "trade-wind-27fb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/8f26ac8f60/trade-wind-interiors-1920x1080-ftb-fieldstone.jpg",
+    "view": "interior",
+    "cat": "interior-ftb",
+    "file": "trade-wind-27fb-2026-10.webp"
    }
   ]
  },
  "world-traveler-22rb-2026": {
   "source": "airstream.com official (storyblok)",
+  "count": 10,
   "picks": [
    {
     "slot": 1,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/35b9cbfbf0/tt-world-traveler-exterior-lifestyle-rear-curbside-at-camp.jpg",
-    "view": "tt-world-traveler-exterior-lifestyle-rear-curbside-at-camp.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/badcaa2515/worldtraveler-2026-3qtr-studio.png",
+    "view": "exterior 3/4",
+    "cat": "ext-3qtr",
+    "file": "world-traveler-22rb-2026-1.webp"
    },
    {
     "slot": 2,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/1e8df4da5f/world-traveler-interiors-1920x1080ftb-sagebrush.jpg",
-    "view": "world-traveler-interiors-1920x1080ftb-sagebrush.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/10e120c85b/us_world-traveler-studios-websitecurbside.png",
+    "view": "exterior curbside",
+    "cat": "ext-curb",
+    "file": "world-traveler-22rb-2026-2.webp"
    },
    {
     "slot": 3,
-    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/613f54fd3c/world-traveler-interiors-1920x1080ftb-shoreline.jpg",
-    "view": "world-traveler-interiors-1920x1080ftb-shoreline.jpg"
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/64a26f9eb0/us_world-traveler-studios-websitestreetside.png",
+    "view": "exterior streetside",
+    "cat": "ext-street",
+    "file": "world-traveler-22rb-2026-3.webp"
+   },
+   {
+    "slot": 4,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/4234e0edf4/us_world-traveler-studios-websiterear.png",
+    "view": "exterior rear",
+    "cat": "ext-rear",
+    "file": "world-traveler-22rb-2026-4.webp"
+   },
+   {
+    "slot": 5,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/5e25f4aec8/tt-worldtraveler-lifestyle-exterior-fixing-awning-1920x1080.jpg",
+    "view": "exterior",
+    "cat": "ext-life",
+    "file": "world-traveler-22rb-2026-5.webp"
+   },
+   {
+    "slot": 6,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/841eebf450/world-traveler_kitchen.jpg",
+    "view": "kitchen",
+    "cat": "kitchen",
+    "file": "world-traveler-22rb-2026-6.webp"
+   },
+   {
+    "slot": 7,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/f398dffeab/world-traveler_bedroom.jpg",
+    "view": "bedroom",
+    "cat": "bed",
+    "file": "world-traveler-22rb-2026-7.webp"
+   },
+   {
+    "slot": 8,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/42d9f9b238/worldtraveler-2026-dinette-studio.jpg",
+    "view": "dinette",
+    "cat": "dinette",
+    "file": "world-traveler-22rb-2026-8.webp"
+   },
+   {
+    "slot": 9,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/46e95101a6/world-traveler_living-space.jpg",
+    "view": "lounge",
+    "cat": "lounge",
+    "file": "world-traveler-22rb-2026-9.webp"
+   },
+   {
+    "slot": 10,
+    "url": "https://a-us.storyblok.com/f/1023767/1920x1080/a67c47806c/tt-worldtraveler-lifestyle-walking-away-from-camper-1920x1080.jpg",
+    "view": "lifestyle",
+    "cat": "lifestyle",
+    "file": "world-traveler-22rb-2026-10.webp"
    }
   ]
  }

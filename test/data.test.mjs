@@ -4,7 +4,7 @@ import {
   loadTrailers, validateTrailer, validateDataset, groupByModel,
   modelNames, years, filterTrailers, assetPaths, groupByFamily,
   slugify, twinSlug, resolveAssets, loadDecor, resolveDecor,
-  officialUrl, OFFICIAL_URLS,
+  officialUrl, OFFICIAL_URLS, MAX_GALLERY,
 } from '../src/lib/data.mjs';
 import { readdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -142,7 +142,10 @@ test('assetPaths shape', () => {
   const a = assetPaths(t);
   assert.equal(a.thumb, 'assets/img/thumbs/classic-33fb-2026.webp');
   assert.equal(a.hero, 'assets/img/heroes/classic.webp');
-  assert.equal(a.gallery.length, 3);
+  // Galleries are variable-length now: assetPaths exposes MAX_GALLERY canonical
+  // slots; resolveAssets() trims to the ones that exist on disk.
+  assert.equal(a.gallery.length, MAX_GALLERY);
+  assert.equal(a.gallery[0], 'assets/img/gallery/classic-33fb-2026-1.webp');
 });
 
 // --- Image-resolution regressions (the broken-image bugs we fixed) ---
@@ -184,22 +187,42 @@ test('resolveAssets: every emitted gallery + hero path exists on disk', () => {
 });
 
 test('resolveAssets: a slug with no own gallery falls back to its 2025 twin', () => {
-  // synthetic: only the 2025 twin's gallery files exist on disk
+  // synthetic: only the 2025 twin's first 6 gallery files exist on disk
   const t = { slug: 'bambi-16rb-2026', year: 2026 };
-  const twinOnly = (p) => p.startsWith('assets/img/gallery/bambi-16rb-2025-');
+  const twinOnly = (p) =>
+    [1, 2, 3, 4, 5, 6].some((i) => p === `assets/img/gallery/bambi-16rb-2025-${i}.webp`);
   const a = resolveAssets(t, twinOnly);
-  assert.equal(a.gallery.length, 3);
+  assert.equal(a.gallery.length, 6);
   assert.ok(a.gallery.every((g) => g.includes('bambi-16rb-2025-')), 'should use 2025 twin files');
 });
 
 test('resolveAssets: every one of the 59 floorplans now has its OWN gallery on disk', () => {
   // The official-asset pass gave each floorplan its own photos; none rely on a twin.
   for (const t of trailers) {
-    const ownCount = [1, 2, 3].filter((i) =>
+    const ownCount = Array.from({ length: MAX_GALLERY }, (_, i) => i + 1).filter((i) =>
       hasAsset(`assets/img/gallery/${t.slug}-${i}.webp`),
     ).length;
     assert.ok(ownCount > 0, `${t.slug} has no own gallery images`);
   }
+});
+
+test('resolveAssets: galleries are variable-length and contiguous (no gaps), most >= 5', () => {
+  let richEnough = 0;
+  for (const t of trailers) {
+    const a = resolveAssets(t, hasAsset);
+    // contiguous: the resolved files are slots 1..N with no missing middle slot
+    const ownSlots = Array.from({ length: MAX_GALLERY }, (_, i) => i + 1).filter((i) =>
+      hasAsset(`assets/img/gallery/${t.slug}-${i}.webp`),
+    );
+    const expectedContig = ownSlots.length
+      ? ownSlots[ownSlots.length - 1] === ownSlots.length
+      : true;
+    assert.ok(expectedContig, `${t.slug} gallery slots not contiguous: ${ownSlots}`);
+    assert.ok(a.gallery.length >= 3, `${t.slug} has only ${a.gallery.length} gallery imgs`);
+    if (a.gallery.length >= 5) richEnough++;
+  }
+  // The expansion pass should have brought the vast majority well past the old 3.
+  assert.ok(richEnough >= trailers.length * 0.8, `only ${richEnough}/${trailers.length} have >=5`);
 });
 
 test('resolveAssets: orphan with no gallery + no twin renders hero-only, never broken', () => {
