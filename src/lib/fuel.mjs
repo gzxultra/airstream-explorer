@@ -30,6 +30,7 @@
 export const VEHICLE_CLASS_MPG = {
   'Half-ton pickup': 18,
   'Full-size SUV': 17,
+  'Luxury SUV': 17,
   'Mid-size SUV': 21,
   'Mid-size pickup': 20,
   'Compact SUV': 22,
