@@ -25,6 +25,7 @@ import {
 import {
   estimateFuelCost, formatDollars, formatMpg,
   VEHICLE_CLASS_MPG, DEFAULT_FUEL_PRICE, DEFAULT_DISTANCE_MI,
+  DEFAULT_KWH_PRICE, DEFAULT_KWH_PER_100MI,
 } from './fuel.mjs';
 import {
   calculatePayload, waterWeight, formatRemaining, formatLb,
@@ -516,6 +517,7 @@ export function renderFuelTool(t) {
   const def = pickDefaultVehicle(TOW_VEHICLES, trailer, { truckLoadLb: DEFAULT_TRUCK_OCCUPANT_LB });
   if (!def) return '';
   const defResult = estimateFuelCost(def, trailer);
+  const defElectric = !!defResult.isElectric;
 
   const vehicleOpts = TOW_VEHICLES
     .slice()
@@ -523,21 +525,49 @@ export function renderFuelTool(t) {
     .map((v) => `<option value="${esc(v.id)}"${v.id === def.id ? ' selected' : ''}>${esc(v.name)} — ${esc(v.config)}</option>`)
     .join('');
 
-  // Data island for client-side recomputation
+  // Data island for client-side recomputation. EVs carry their fuel type +
+  // baseline kWh/100mi so the client uses the electricity model, never fake
+  // gasoline math; gas vehicles keep the MPG-class model.
   const dataIsland = JSON.stringify({
     trailer: { gvwrLb: t.gvwrLb, weightLb: t.weightLb || null },
-    vehicles: TOW_VEHICLES.map((v) => ({ id: v.id, name: v.name, class: v.class, curbWeightLb: v.curbWeightLb })),
+    vehicles: TOW_VEHICLES.map((v) => ({
+      id: v.id, name: v.name, class: v.class, curbWeightLb: v.curbWeightLb,
+      fuel: v.fuel === 'electric' ? 'electric' : 'gas',
+      kwhPer100mi: v.kwhPer100mi || null,
+    })),
     defaultVehicleId: def.id,
-    defaults: { distanceMi: DEFAULT_DISTANCE_MI, fuelPriceGal: DEFAULT_FUEL_PRICE },
+    defaults: {
+      distanceMi: DEFAULT_DISTANCE_MI,
+      fuelPriceGal: DEFAULT_FUEL_PRICE,
+      kwhPriceKwh: DEFAULT_KWH_PRICE,
+      kwhPer100mi: DEFAULT_KWH_PER_100MI,
+    },
     classmpg: VEHICLE_CLASS_MPG,
   }).replace(/<\//g, '<\\/');
+
+  // Default-vehicle economy stat + price control differ by fuel type, but the
+  // element ids stay the same so the client can swap text/labels on change.
+  const economyStat = defElectric
+    ? `${esc(defResult.towingKwhPer100mi.toFixed(1))} kWh/100mi`
+    : esc(formatMpg(defResult.towingMpg));
+  const usedStat = defElectric
+    ? `${esc(defResult.kwhUsed.toFixed(1))} kWh`
+    : `${esc(defResult.gallonsUsed.toFixed(1))} gal`;
+  const usedLabel = defElectric ? 'Energy needed' : 'Fuel needed';
+  const economyLabel = defElectric ? 'Towing efficiency' : 'Towing economy';
+  const priceLabel = defElectric ? 'Electricity price' : 'Fuel price';
+  const priceValue = defElectric ? DEFAULT_KWH_PRICE.toFixed(2) : DEFAULT_FUEL_PRICE.toFixed(2);
+  const priceSuffix = defElectric ? '$/kWh' : '$/gal';
+  const priceStep = defElectric ? '0.01' : '0.10';
+  const priceMax = defElectric ? '2' : '10';
+  const costNoun = defElectric ? 'estimated energy' : 'estimated fuel';
 
   return `<section class="estimator fuel-tool" aria-label="Trip fuel cost estimator"
  data-gvwr="${esc(t.gvwrLb)}"${t.weightLb ? ` data-weight="${esc(t.weightLb)}"` : ''}>
 <script type="application/json" id="fuel-data">${dataIsland}</script>
 <div class="est-head">
 <h2>Trip fuel cost</h2>
-<p class="est-sub">Estimate what it costs to tow this ${esc(t.model)} ${esc(t.floorplan)} (${esc(formatWeight(t.gvwrLb))} loaded) on a road trip. Fuel economy drops ${Math.round(defResult.penalty * 100)}% when towing — the heavier the trailer relative to the truck, the bigger the hit.</p>
+<p class="est-sub" id="fuel-sub">Estimate what it costs to tow this ${esc(t.model)} ${esc(t.floorplan)} (${esc(formatWeight(t.gvwrLb))} loaded) on a road trip. ${defElectric ? 'Energy use climbs' : 'Fuel economy drops'} ${Math.round(defResult.penalty * 100)}% when towing — the heavier the trailer relative to the tow vehicle, the bigger the hit.</p>
 </div>
 <div class="est-controls">
 <div class="est-field est-field-wide">
@@ -549,24 +579,26 @@ export function renderFuelTool(t) {
 <div class="est-input-suffix"><input type="number" id="fuel-distance" value="${DEFAULT_DISTANCE_MI}" min="10" max="10000" step="10"><span>miles</span></div>
 </div>
 <div class="est-field">
-<label for="fuel-price">Fuel price</label>
-<div class="est-input-suffix"><input type="number" id="fuel-price" value="${DEFAULT_FUEL_PRICE.toFixed(2)}" min="1" max="10" step="0.10"><span>$/gal</span></div>
+<label for="fuel-price" id="fuel-price-label">${priceLabel}</label>
+<div class="est-input-suffix"><input type="number" id="fuel-price" value="${priceValue}" min="0.05" max="${priceMax}" step="${priceStep}"><span id="fuel-price-suffix">${priceSuffix}</span></div>
 </div>
 </div>
 <div class="est-result" id="fuel-result" aria-live="polite" aria-atomic="true">
 <div class="est-big">
 <span class="est-number" id="fuel-cost">${esc(formatDollars(defResult.totalCost))}</span>
-<span class="est-per">estimated fuel</span>
+<span class="est-per" id="fuel-cost-noun">${costNoun}</span>
 </div>
 <div class="fuel-stats" id="fuel-stats">
-<div class="fuel-stat"><span class="fuel-stat-value" id="fuel-mpg">${esc(formatMpg(defResult.towingMpg))}</span><span class="fuel-stat-label">Towing economy</span></div>
-<div class="fuel-stat"><span class="fuel-stat-value" id="fuel-gallons">${esc(defResult.gallonsUsed.toFixed(1))} gal</span><span class="fuel-stat-label">Fuel needed</span></div>
+<div class="fuel-stat"><span class="fuel-stat-value" id="fuel-mpg">${economyStat}</span><span class="fuel-stat-label" id="fuel-mpg-label">${economyLabel}</span></div>
+<div class="fuel-stat"><span class="fuel-stat-value" id="fuel-gallons">${usedStat}</span><span class="fuel-stat-label" id="fuel-gallons-label">${usedLabel}</span></div>
 <div class="fuel-stat"><span class="fuel-stat-value" id="fuel-cpm">${esc(formatDollars(defResult.costPerMile))}/mi</span><span class="fuel-stat-label">Cost per mile</span></div>
 </div>
 </div>
 <details class="est-method">
 <summary>How this is calculated</summary>
-<p>Towing reduces fuel economy by 30–60% vs. unladen driving. The penalty scales with the weight ratio (trailer GVWR ÷ vehicle curb weight): a 20% base drag from the hitch + aerodynamics, plus 25% per 1.0 weight ratio, capped at 60%. This model aligns with real-world Airstream towing reports (8–15 MPG range across the lineup). Fuel cost = distance ÷ towing MPG × price per gallon. These are planning estimates — your actual mileage depends on speed, terrain, wind, and driving style.</p>
+<p><strong>Gas vehicles:</strong> towing cuts fuel economy 30–60% vs. unladen driving. The penalty scales with the weight ratio (trailer GVWR ÷ tow-vehicle curb weight): a 20% base drag from the hitch + aerodynamics, plus 25% per 1.0 weight ratio, capped at 60%. This aligns with real-world Airstream towing reports (8–15 MPG across the lineup). Cost = distance ÷ towing MPG × price per gallon.</p>
+<p><strong>Electric vehicles:</strong> the same weight-ratio penalty is applied to each EV's <em>EPA-rated</em> energy use (kWh/100mi), so a ~50% penalty roughly doubles consumption — consistent with the ≈50% range loss EV owners report when towing. Cost = distance ÷ 100 × towing kWh/100mi × price per kWh. We never apply gasoline math to an EV.</p>
+<p>These are planning estimates — your actual range depends on speed, terrain, wind, and driving style.</p>
 </details>
 </section>`;
 }

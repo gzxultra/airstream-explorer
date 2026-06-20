@@ -2,11 +2,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   towingPenalty, estimateTowingMpg, estimateFuelCost,
+  estimateTowingKwhPer100mi, estimateElectricCost,
   formatDollars, formatMpg,
   BASE_PENALTY, WEIGHT_FACTOR, MAX_PENALTY, MIN_TOWING_MPG,
-  DEFAULT_FUEL_PRICE, DEFAULT_DISTANCE_MI,
+  DEFAULT_FUEL_PRICE, DEFAULT_DISTANCE_MI, DEFAULT_KWH_PRICE,
   VEHICLE_CLASS_MPG, DEFAULT_UNLADEN_MPG,
 } from '../src/lib/fuel.mjs';
+import { loadVehicles } from '../src/lib/tow.mjs';
 
 // ---------------------------------------------------------------------------
 // towingPenalty
@@ -168,6 +170,72 @@ test('formatMpg: formats MPG correctly', () => {
   assert.equal(formatMpg(11.3), '11.3 MPG');
   assert.equal(formatMpg(8.0), '8.0 MPG');
   assert.equal(formatMpg(null), '—');
+});
+
+// ---------------------------------------------------------------------------
+// Electric towing path (EVs): kWh model, never gasoline math
+// ---------------------------------------------------------------------------
+
+test('estimateTowingKwhPer100mi: raises consumption with the weight ratio', () => {
+  // base 43, ratio = 7000/6634 = 1.055 -> penalty = 0.20 + 0.25*1.055 = 0.464
+  // towing kWh = 43 / (1 - 0.464) = 80.2
+  const v = { fuel: 'electric', kwhPer100mi: 43, curbWeightLb: 6634 };
+  const kwh = estimateTowingKwhPer100mi(v, { gvwrLb: 7000 });
+  assert.ok(kwh > 43, 'towing uses more energy than unladen');
+  assert.ok(kwh > 75 && kwh < 86, `expected ~80 kWh/100mi, got ${kwh}`);
+});
+
+test('estimateTowingKwhPer100mi: falls back to a default baseline when missing', () => {
+  const v = { fuel: 'electric', curbWeightLb: 6000 }; // no kwhPer100mi
+  const kwh = estimateTowingKwhPer100mi(v, { gvwrLb: 5000 });
+  assert.ok(Number.isFinite(kwh) && kwh > 0);
+});
+
+test('estimateFuelCost: routes electric vehicles to the kWh model', () => {
+  const ev = { fuel: 'electric', kwhPer100mi: 44, curbWeightLb: 6768, class: 'Electric pickup' };
+  const r = estimateFuelCost(ev, { gvwrLb: 7000 }, { distanceMi: 500, kwhPriceKwh: 0.16 });
+  assert.equal(r.isElectric, true, 'flagged electric');
+  assert.ok('towingKwhPer100mi' in r && 'kwhUsed' in r, 'has kWh fields');
+  assert.ok(!('towingMpg' in r), 'no gasoline MPG field on an EV result');
+  assert.ok(!('gallonsUsed' in r), 'no gallons field on an EV result');
+  // cost ≈ (distance/100) × kWh/100mi × price
+  const expected = (500 / 100) * r.towingKwhPer100mi * 0.16;
+  assert.ok(Math.abs(r.totalCost - expected) < 1.0, 'cost ≈ kWh × price');
+  assert.ok(Math.abs(r.costPerMile - r.totalCost / 500) < 0.01);
+});
+
+test('estimateFuelCost: electric uses default kWh price when none given', () => {
+  const ev = { fuel: 'electric', kwhPer100mi: 49, curbWeightLb: 6768 };
+  const r = estimateFuelCost(ev, { gvwrLb: 6000 });
+  assert.equal(r.kwhPriceKwh, DEFAULT_KWH_PRICE);
+  assert.equal(r.distanceMi, DEFAULT_DISTANCE_MI);
+});
+
+test('estimateFuelCost: a heavy EV (Hummer) costs more energy than an efficient one (Rivian)', () => {
+  const hummer = { fuel: 'electric', kwhPer100mi: 64, curbWeightLb: 9063 };
+  const rivian = { fuel: 'electric', kwhPer100mi: 44, curbWeightLb: 6768 };
+  const trailer = { gvwrLb: 7600 };
+  const h = estimateFuelCost(hummer, trailer, { distanceMi: 500 });
+  const r = estimateFuelCost(rivian, trailer, { distanceMi: 500 });
+  assert.ok(h.totalCost > r.totalCost, 'thirstier EV costs more');
+  assert.ok(h.towingKwhPer100mi > r.towingKwhPer100mi);
+});
+
+test('estimateFuelCost: gas vehicles are unaffected by the electric branch', () => {
+  const gas = { fuel: 'gas', class: 'Half-ton pickup', curbWeightLb: 5100 };
+  const r = estimateFuelCost(gas, { gvwrLb: 7000 });
+  assert.ok('towingMpg' in r && 'gallonsUsed' in r, 'still the gasoline result shape');
+  assert.ok(!('isElectric' in r) || !r.isElectric);
+});
+
+test('real dataset: every electric vehicle carries a positive kWh/100mi figure', () => {
+  // EVs must bring their own EPA energy figure — no fabricated gas math.
+  for (const v of loadVehicles()) {
+    if (v.fuel === 'electric') {
+      assert.ok(typeof v.kwhPer100mi === 'number' && v.kwhPer100mi > 0,
+        `${v.id} (electric) needs a real kwhPer100mi`);
+    }
+  }
 });
 
 // ---------------------------------------------------------------------------

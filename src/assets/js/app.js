@@ -3289,6 +3289,8 @@
     var MAX_PENALTY = 0.60;
     var MIN_MPG = 5.0;
     var DEFAULT_MPG = 18;
+    var MIN_MI_PER_KWH = 0.5;
+    var DEFAULT_KWH_100 = (data.defaults && data.defaults.kwhPer100mi) || 48;
 
     var byId = {};
     data.vehicles.forEach(function (v) { byId[v.id] = v; });
@@ -3296,30 +3298,89 @@
     var elVehicle = document.getElementById('fuel-vehicle');
     var elDistance = document.getElementById('fuel-distance');
     var elPrice = document.getElementById('fuel-price');
+    var elPriceLabel = document.getElementById('fuel-price-label');
+    var elPriceSuffix = document.getElementById('fuel-price-suffix');
     var elCost = document.getElementById('fuel-cost');
+    var elCostNoun = document.getElementById('fuel-cost-noun');
     var elMpg = document.getElementById('fuel-mpg');
+    var elMpgLabel = document.getElementById('fuel-mpg-label');
     var elGallons = document.getElementById('fuel-gallons');
+    var elGallonsLabel = document.getElementById('fuel-gallons-label');
     var elCpm = document.getElementById('fuel-cpm');
+    var elSub = document.getElementById('fuel-sub');
+
+    function money(n) { return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+    // Remember the last price the user set for each fuel type, so switching
+    // gas<->electric restores a sensible per-unit price instead of reusing a
+    // gas $/gal as an absurd $/kWh.
+    var lastPrice = {
+      gas: (data.defaults && data.defaults.fuelPriceGal) || 3.50,
+      electric: (data.defaults && data.defaults.kwhPriceKwh) || 0.16,
+    };
+    var curMode = null; // 'gas' | 'electric'
+
+    function applyMode(mode) {
+      if (mode === curMode) return;
+      // Save the price the user had under the previous mode before swapping.
+      if (curMode) {
+        var prev = parseFloat(elPrice.value);
+        if (prev > 0) lastPrice[curMode] = prev;
+      }
+      curMode = mode;
+      var isEv = mode === 'electric';
+      if (elPriceLabel) elPriceLabel.textContent = isEv ? 'Electricity price' : 'Fuel price';
+      if (elPriceSuffix) elPriceSuffix.textContent = isEv ? '$/kWh' : '$/gal';
+      if (elCostNoun) elCostNoun.textContent = isEv ? 'estimated energy' : 'estimated fuel';
+      if (elMpgLabel) elMpgLabel.textContent = isEv ? 'Towing efficiency' : 'Towing economy';
+      if (elGallonsLabel) elGallonsLabel.textContent = isEv ? 'Energy needed' : 'Fuel needed';
+      elPrice.step = isEv ? '0.01' : '0.10';
+      elPrice.max = isEv ? '2' : '10';
+      elPrice.min = '0.05';
+      elPrice.value = lastPrice[mode].toFixed(2);
+    }
 
     function compute() {
       var v = byId[elVehicle.value] || data.vehicles[0];
+      var isEv = v.fuel === 'electric';
+      applyMode(isEv ? 'electric' : 'gas');
+
       var dist = parseFloat(elDistance.value) || data.defaults.distanceMi;
-      var price = parseFloat(elPrice.value) || data.defaults.fuelPriceGal;
+      var price = parseFloat(elPrice.value) || lastPrice[curMode];
       var trailerWt = data.trailer.gvwrLb || data.trailer.weightLb || 0;
       var vehicleCurb = v.curbWeightLb || 0;
-
-      var unladenMpg = (data.classmpg && data.classmpg[v.class]) || DEFAULT_MPG;
       var ratio = (trailerWt > 0 && vehicleCurb > 0) ? trailerWt / vehicleCurb : 0;
       var penalty = Math.min(BASE_PENALTY + WEIGHT_FACTOR * ratio, MAX_PENALTY);
-      var towMpg = Math.max(unladenMpg * (1 - penalty), MIN_MPG);
-      var gallons = dist / towMpg;
-      var cost = gallons * price;
-      var cpm = cost / dist;
 
-      elCost.textContent = '$' + cost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-      elMpg.textContent = towMpg.toFixed(1) + ' MPG';
-      elGallons.textContent = gallons.toFixed(1) + ' gal';
-      elCpm.textContent = '$' + cpm.toFixed(2) + '/mi';
+      var cost, cpm, economyText, usedText;
+      if (isEv) {
+        var baseKwh = v.kwhPer100mi || DEFAULT_KWH_100;
+        var towKwh100 = Math.min(baseKwh / (1 - penalty), 100 / MIN_MI_PER_KWH);
+        var kwhUsed = (dist / 100) * towKwh100;
+        cost = kwhUsed * price;
+        cpm = cost / dist;
+        economyText = towKwh100.toFixed(1) + ' kWh/100mi';
+        usedText = kwhUsed.toFixed(1) + ' kWh';
+      } else {
+        var unladenMpg = (data.classmpg && data.classmpg[v.class]) || DEFAULT_MPG;
+        var towMpg = Math.max(unladenMpg * (1 - penalty), MIN_MPG);
+        var gallons = dist / towMpg;
+        cost = gallons * price;
+        cpm = cost / dist;
+        economyText = towMpg.toFixed(1) + ' MPG';
+        usedText = gallons.toFixed(1) + ' gal';
+      }
+
+      elCost.textContent = money(cost);
+      elMpg.textContent = economyText;
+      elGallons.textContent = usedText;
+      elCpm.textContent = money(cpm) + '/mi';
+      if (elSub) {
+        elSub.textContent = elSub.textContent.replace(
+          /(?:Fuel economy drops|Energy use climbs) \d+%/,
+          (isEv ? 'Energy use climbs ' : 'Fuel economy drops ') + Math.round(penalty * 100) + '%'
+        );
+      }
     }
 
     if (elVehicle) elVehicle.addEventListener('change', compute);

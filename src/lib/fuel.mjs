@@ -69,6 +69,14 @@ export const BASE_PENALTY = 0.20;
 export const WEIGHT_FACTOR = 0.25;
 export const MAX_PENALTY = 0.60; // cap: never model worse than 60% loss
 export const MIN_TOWING_MPG = 5.0; // floor: no vehicle gets below 5 MPG
+export const MIN_TOWING_MI_PER_KWH = 0.5; // floor for electric towing economy
+
+/**
+ * Baseline (unladen) energy use for an electric tow vehicle when its own
+ * EPA figure is unavailable, in kWh per 100 miles. Conservative for a large
+ * EV truck/SUV. Real vehicles carry their own EPA `kwhPer100mi`.
+ */
+export const DEFAULT_KWH_PER_100MI = 48;
 
 /**
  * Default fuel price per gallon (USD). Updated periodically; the client
@@ -76,6 +84,12 @@ export const MIN_TOWING_MPG = 5.0; // floor: no vehicle gets below 5 MPG
  * (EIA 2025-2026 data).
  */
 export const DEFAULT_FUEL_PRICE = 3.50;
+
+/**
+ * Default electricity price per kWh (USD). The client lets the user override
+ * it. Based on the US residential average ~$0.16/kWh (EIA 2025-2026 data).
+ */
+export const DEFAULT_KWH_PRICE = 0.16;
 
 /** Default trip distance in miles. */
 export const DEFAULT_DISTANCE_MI = 500;
@@ -119,7 +133,88 @@ export function estimateTowingMpg(vehicle, trailer, opts = {}) {
 }
 
 /**
- * Estimate total fuel cost for a trip.
+ * Estimate towing energy use for an ELECTRIC vehicle, in kWh per 100 miles.
+ * Towing raises consumption the same way it cuts a gas vehicle's MPG: the
+ * penalty scales with the weight ratio. Energy use = baseline ÷ (1 - penalty),
+ * the reciprocal of the MPG model, so a 50% penalty roughly doubles kWh/100mi
+ * — consistent with real EV towing reports (≈50% range loss with a trailer).
+ *
+ * @param {object} vehicle  tow-vehicle record (kwhPer100mi, curbWeightLb)
+ * @param {object} trailer  trailer record (gvwrLb)
+ * @param {object} [opts]
+ * @param {number} [opts.baseKwhPer100mi]  override baseline (otherwise from vehicle/default)
+ * @returns {number} estimated towing kWh per 100 miles
+ */
+export function estimateTowingKwhPer100mi(vehicle, trailer, opts = {}) {
+  const baseKwh = opts.baseKwhPer100mi
+    || vehicle.kwhPer100mi
+    || DEFAULT_KWH_PER_100MI;
+  const trailerWeight = trailer.gvwrLb || trailer.weightLb || 0;
+  const vehicleCurb = vehicle.curbWeightLb || 0;
+  const penalty = towingPenalty(trailerWeight, vehicleCurb);
+  // Reciprocal of the MPG model: worse economy => MORE energy per mile.
+  const towingKwh = baseKwh / (1 - penalty);
+  // Floor on economy (mi/kWh) => cap on consumption (kWh/100mi).
+  const maxKwh = 100 / MIN_TOWING_MI_PER_KWH;
+  return Math.min(towingKwh, maxKwh);
+}
+
+/**
+ * Estimate total ELECTRIC energy cost for a trip.
+ *
+ * @param {object} vehicle  tow-vehicle record (kwhPer100mi, curbWeightLb, class)
+ * @param {object} trailer  trailer record (gvwrLb)
+ * @param {object} [opts]
+ * @param {number} [opts.distanceMi=500]      trip distance in miles
+ * @param {number} [opts.kwhPriceKwh=0.16]    electricity price per kWh
+ * @param {number} [opts.baseKwhPer100mi]     override baseline consumption
+ * @returns {{
+ *   isElectric: true,
+ *   towingKwhPer100mi: number,
+ *   kwhUsed: number,
+ *   totalCost: number,
+ *   costPerMile: number,
+ *   penalty: number,
+ *   baseKwhPer100mi: number,
+ *   distanceMi: number,
+ *   kwhPriceKwh: number
+ * }}
+ */
+export function estimateElectricCost(vehicle, trailer, opts = {}) {
+  const distanceMi = opts.distanceMi != null && opts.distanceMi > 0
+    ? opts.distanceMi : DEFAULT_DISTANCE_MI;
+  const kwhPriceKwh = opts.kwhPriceKwh != null && opts.kwhPriceKwh > 0
+    ? opts.kwhPriceKwh : DEFAULT_KWH_PRICE;
+  const baseKwhPer100mi = opts.baseKwhPer100mi
+    || vehicle.kwhPer100mi
+    || DEFAULT_KWH_PER_100MI;
+
+  const trailerWeight = trailer.gvwrLb || trailer.weightLb || 0;
+  const vehicleCurb = vehicle.curbWeightLb || 0;
+  const penalty = towingPenalty(trailerWeight, vehicleCurb);
+  const towingKwhPer100mi = estimateTowingKwhPer100mi(vehicle, trailer, opts);
+  const kwhUsed = (distanceMi / 100) * towingKwhPer100mi;
+  const totalCost = kwhUsed * kwhPriceKwh;
+  const costPerMile = totalCost / distanceMi;
+
+  return {
+    isElectric: true,
+    towingKwhPer100mi: Math.round(towingKwhPer100mi * 10) / 10,
+    kwhUsed: Math.round(kwhUsed * 10) / 10,
+    totalCost: Math.round(totalCost * 100) / 100,
+    costPerMile: Math.round(costPerMile * 100) / 100,
+    penalty: Math.round(penalty * 100) / 100,
+    baseKwhPer100mi,
+    distanceMi,
+    kwhPriceKwh,
+  };
+}
+
+/**
+ * Estimate total fuel cost for a trip. Branches on the vehicle's fuel type:
+ * an electric vehicle (`vehicle.fuel === 'electric'`) is costed in kWh via
+ * estimateElectricCost(); everything else uses the gasoline MPG model below.
+ * Applying gasoline math to an EV would invent fake gas costs, so we don't.
  *
  * @param {object} vehicle  tow-vehicle record
  * @param {object} trailer  trailer record
@@ -127,18 +222,13 @@ export function estimateTowingMpg(vehicle, trailer, opts = {}) {
  * @param {number} [opts.distanceMi=500]    trip distance in miles
  * @param {number} [opts.fuelPriceGal=3.50] fuel price per gallon
  * @param {number} [opts.unladenMpg]        override unladen MPG
- * @returns {{
- *   towingMpg: number,
- *   gallonsUsed: number,
- *   totalCost: number,
- *   costPerMile: number,
- *   penalty: number,
- *   unladenMpg: number,
- *   distanceMi: number,
- *   fuelPriceGal: number
- * }}
+ * @returns {object} gas result (towingMpg, gallonsUsed, …) or electric result
+ *   (isElectric, towingKwhPer100mi, kwhUsed, …)
  */
 export function estimateFuelCost(vehicle, trailer, opts = {}) {
+  if (vehicle && vehicle.fuel === 'electric') {
+    return estimateElectricCost(vehicle, trailer, opts);
+  }
   const distanceMi = opts.distanceMi != null && opts.distanceMi > 0
     ? opts.distanceMi : DEFAULT_DISTANCE_MI;
   const fuelPriceGal = opts.fuelPriceGal != null && opts.fuelPriceGal > 0

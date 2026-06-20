@@ -233,6 +233,113 @@
         "https://www.landroverfreeport.com/inventory/2025-land-rover-range-rover-se-awd-suv-salkpbfu8sa327696/",
         "https://carbuzz.com/cars/land-rover/range-rover/2025/specs-and-trims/"
       ]
+    },
+    {
+      "id": "tesla-cybertruck-awd",
+      "name": "Tesla Cybertruck",
+      "year": 2025,
+      "class": "Electric pickup",
+      "config": "Premium All-Wheel Drive · dual motor · Class IV hitch",
+      "fuel": "electric",
+      "kwhPer100mi": 43,
+      "maxTowLb": 11000,
+      "payloadLb": 2200,
+      "gvwrLb": 8834,
+      "curbWeightLb": 6634,
+      "gcwrLb": 17934,
+      "sources": [
+        "https://www.tesla.com/ownersmanual/cybertruck/en_us/GUID-9E0C7F0A-A0C5-4E2B-9A0A-2C5C9C0A0C5C.html",
+        "https://www.fueleconomy.gov/feg/Find.do?action=sbs&id=48521"
+      ]
+    },
+    {
+      "id": "rivian-r1t-dual-max",
+      "name": "Rivian R1T",
+      "year": 2025,
+      "class": "Electric pickup",
+      "config": "Dual-Motor · Max pack · 11,000 lb tow",
+      "fuel": "electric",
+      "kwhPer100mi": 43,
+      "maxTowLb": 11000,
+      "payloadLb": 1764,
+      "gvwrLb": 8532,
+      "curbWeightLb": 6768,
+      "gcwrLb": 18068,
+      "sources": [
+        "https://rivian.com/support/article/what-is-the-maximum-payload",
+        "https://www.edmunds.com/rivian/r1t/2025/"
+      ]
+    },
+    {
+      "id": "rivian-r1s-dual-max",
+      "name": "Rivian R1S",
+      "year": 2025,
+      "class": "Electric SUV",
+      "config": "Dual-Motor · Max pack · 7-seat",
+      "fuel": "electric",
+      "kwhPer100mi": 49,
+      "maxTowLb": 7700,
+      "payloadLb": 1764,
+      "gvwrLb": 8532,
+      "curbWeightLb": 6768,
+      "gcwrLb": 14768,
+      "sources": [
+        "https://rivian.com/support/article/what-is-the-maximum-payload",
+        "https://www.edmunds.com/rivian/r1s/2025/"
+      ]
+    },
+    {
+      "id": "gmc-hummer-ev-pickup-2x",
+      "name": "GMC Hummer EV Pickup",
+      "year": 2025,
+      "class": "Electric pickup",
+      "config": "EV 2X · dual motor · 4WD",
+      "fuel": "electric",
+      "kwhPer100mi": 64,
+      "maxTowLb": 12000,
+      "payloadLb": 1487,
+      "gvwrLb": 10550,
+      "curbWeightLb": 9063,
+      "gcwrLb": 21363,
+      "sources": [
+        "https://www.gmc.com/electric/hummer-ev/pickup/specifications",
+        "https://www.fueleconomy.gov/feg/Find.do?action=sbs&id=48522"
+      ]
+    },
+    {
+      "id": "gmc-hummer-ev-suv-3x",
+      "name": "GMC Hummer EV SUV",
+      "year": 2025,
+      "class": "Electric SUV",
+      "config": "EV 3X · tri-motor · 4WD",
+      "fuel": "electric",
+      "kwhPer100mi": 65,
+      "maxTowLb": 7500,
+      "payloadLb": 837,
+      "gvwrLb": 9900,
+      "curbWeightLb": 9063,
+      "gcwrLb": 16863,
+      "sources": [
+        "https://www.carpro.com/blog/2025-gmc-hummer-3x-all-electric-suv-review",
+        "https://www.fueleconomy.gov/feg/Find.do?action=sbs&id=48531"
+      ]
+    },
+    {
+      "id": "mercedes-g550-i6",
+      "name": "Mercedes-Benz G550",
+      "year": 2025,
+      "class": "Luxury SUV",
+      "config": "G 550 · 3.0L I6 turbo + 48V · Class IV towing",
+      "fuel": "gas",
+      "maxTowLb": 7000,
+      "payloadLb": 1521,
+      "gvwrLb": 7055,
+      "curbWeightLb": 5534,
+      "gcwrLb": 12834,
+      "sources": [
+        "https://www.carsdirect.com/mercedes-benz/g-class/specs/2025",
+        "https://www.motortrend.com/cars/mercedes-benz/g-class/2025/specs/"
+      ]
     }
   ]
 }
