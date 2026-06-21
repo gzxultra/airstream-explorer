@@ -86,3 +86,74 @@ test('built app.js hides the tow matcher for the motorhome type', () => {
   assert.match(js, /state\.type\s*!==\s*'motorhome'/);
   assert.match(js, /towTool/);
 });
+
+// --- SEO + PWA infrastructure: built-output checks --------------------------
+// Guards the crawl/icon/install scaffolding added in the standards-raise pass:
+// a 90+ page public reference site must ship robots.txt, a sitemap, a real
+// favicon set, a web manifest and a branded 404 — and the sitemap must list
+// the homepage as a clean root URL while excluding noindex stubs.
+test('root brand + crawl files are all emitted (icons, manifest, robots, sitemap, 404)', () => {
+  for (const f of [
+    'favicon.svg', 'favicon.ico', 'apple-touch-icon.png',
+    'icon-192.png', 'icon-512.png', 'site.webmanifest',
+    'robots.txt', 'sitemap.xml', '404.html',
+  ]) {
+    assert.ok(existsSync(join(DIST, f)), `missing root file: ${f}`);
+  }
+});
+
+test('site.webmanifest is valid JSON with name, theme + 192/512 icons', () => {
+  const m = JSON.parse(readFileSync(join(DIST, 'site.webmanifest'), 'utf8'));
+  assert.equal(m.name, 'Airstream Explorer');
+  assert.equal(m.theme_color, '#1F1B16');
+  const sizes = m.icons.map((i) => i.sizes);
+  assert.ok(sizes.includes('192x192'), 'has 192 icon');
+  assert.ok(sizes.includes('512x512'), 'has 512 icon');
+  // every referenced icon file must exist on disk
+  for (const ic of m.icons) {
+    assert.ok(existsSync(join(DIST, ic.src.replace(/^\//, ''))), `manifest icon missing: ${ic.src}`);
+  }
+});
+
+test('robots.txt allows crawling and points at the sitemap', () => {
+  const r = readFileSync(join(DIST, 'robots.txt'), 'utf8');
+  assert.match(r, /User-agent:\s*\*/);
+  assert.match(r, /Allow:\s*\//);
+  assert.match(r, /Sitemap:\s*https:\/\/[^\s]+\/sitemap\.xml/);
+});
+
+test('sitemap.xml lists the homepage as a clean root URL and excludes noindex stubs', () => {
+  const s = readFileSync(join(DIST, 'sitemap.xml'), 'utf8');
+  const locs = [...s.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  assert.ok(locs.length >= 90, `expected 90+ urls, got ${locs.length}`);
+  // homepage is the bare origin (matches the <link rel=canonical> on index)
+  assert.ok(locs.some((u) => /\/$/.test(u) && !/\/[a-z0-9-]+\.html\/$/.test(u)), 'homepage as root URL');
+  // noindex stubs must NOT be advertised
+  assert.ok(!locs.some((u) => u.endsWith('/stays.html')), 'stays.html excluded');
+  assert.ok(!locs.some((u) => u.endsWith('/404.html')), '404.html excluded');
+  // balanced + well-formed
+  assert.equal((s.match(/<url>/g) || []).length, (s.match(/<\/url>/g) || []).length, 'balanced <url>');
+});
+
+test('404.html is a branded, navigable, noindex page (full chrome + hashed assets)', () => {
+  const html = readFileSync(join(DIST, '404.html'), 'utf8');
+  assert.match(html, /name="robots" content="noindex/, '404 is noindex');
+  assert.match(html, /class="topnav"/, '404 has site nav');
+  assert.match(html, /class="site-footer"/, '404 has footer');
+  assert.equal((html.match(/<h1\b/g) || []).length, 1, '404 has a single H1');
+  // must reference hashed assets (it's written before the fingerprint rewrite)
+  assert.match(html, /assets\/css\/site\.[0-9a-f]{8}\.css/, '404 uses hashed site.css');
+  assert.ok(!/assets\/js\/app\.js"/.test(html), '404 must not use a bare app.js');
+});
+
+test('LCP heroes carry fetchpriority="high" (home, family, detail)', () => {
+  const home = readFileSync(join(DIST, 'index.html'), 'utf8');
+  assert.match(home, /home-hero-img[^>]*fetchpriority="high"/, 'home hero prioritized');
+  // a trailer detail + family page
+  const detailFile = readdirSync(join(DIST, 'm')).find((f) => f.endsWith('.html'));
+  const detail = readFileSync(join(DIST, 'm', detailFile), 'utf8');
+  assert.match(detail, /detail-hero-img[^>]*fetchpriority="high"/, 'detail hero prioritized');
+  const famFile = readdirSync(join(DIST, 'f')).find((f) => f.endsWith('.html'));
+  const fam = readFileSync(join(DIST, 'f', famFile), 'utf8');
+  assert.match(fam, /fam-hero-img[^>]*fetchpriority="high"/, 'family hero prioritized');
+});

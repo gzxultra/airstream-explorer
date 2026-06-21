@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { SITE_ORIGIN, absUrl, socialMeta, productJsonLd } from '../src/lib/seo.mjs';
+import { SITE_ORIGIN, absUrl, socialMeta, productJsonLd, iconMeta } from '../src/lib/seo.mjs';
 import { loadTrailers, groupByFamily } from '../src/lib/data.mjs';
 import { renderIndex, renderFamily, renderDetail } from '../src/lib/render.mjs';
 import { loadMotorhomes } from '../src/lib/motorhome-data.mjs';
@@ -114,4 +114,53 @@ test('family + home pages carry canonical and OG without JSON-LD (Product is det
   const fam = renderFamily(families[0]);
   assert.ok(fam.includes(`rel="canonical" href="${SITE_ORIGIN}/f/${families[0].slug}.html"`));
   assert.ok(fam.includes('property="og:image"'));
+});
+
+// ---------------------------------------------------------------------------
+// Favicon / app-icon / theme-color + PWA manifest (iconMeta)
+// ---------------------------------------------------------------------------
+test('iconMeta emits favicon, apple-touch, manifest and theme-color', () => {
+  const html = iconMeta('');
+  for (const needle of [
+    'rel="icon" href="favicon.svg" type="image/svg+xml"',
+    'rel="icon" href="favicon.ico"',
+    'rel="apple-touch-icon" href="apple-touch-icon.png"',
+    'rel="manifest" href="site.webmanifest"',
+    'name="theme-color" content="#1F1B16"',
+    'name="apple-mobile-web-app-title" content="Airstream Explorer"',
+  ]) {
+    assert.ok(html.includes(needle), `missing ${needle}`);
+  }
+});
+
+test('iconMeta prefixes relRoot so nested pages (m/, mm/, f/) resolve icons', () => {
+  const html = iconMeta('../');
+  assert.ok(html.includes('href="../favicon.svg"'), 'svg uses relRoot');
+  assert.ok(html.includes('href="../apple-touch-icon.png"'), 'apple-touch uses relRoot');
+  assert.ok(html.includes('href="../site.webmanifest"'), 'manifest uses relRoot');
+  // theme-color is a meta, no path — must NOT get a relRoot prefix
+  assert.ok(html.includes('content="#1F1B16"'), 'theme-color intact');
+});
+
+test('every page shell wires iconMeta into the head (root + nested relRoot)', () => {
+  const home = renderIndex(families, trailers);
+  assert.ok(home.includes('rel="manifest" href="site.webmanifest"'), 'home manifest at root');
+  assert.ok(home.includes('name="theme-color"'), 'home theme-color');
+
+  const detail = renderDetail(trailers[0]);
+  assert.ok(detail.includes('rel="manifest" href="../site.webmanifest"'), 'detail manifest nested');
+  assert.ok(detail.includes('rel="icon" href="../favicon.svg"'), 'detail favicon nested');
+
+  const mh = renderMotorhomeDetail(motorhomes[0]);
+  assert.ok(mh.includes('rel="apple-touch-icon" href="../apple-touch-icon.png"'), 'motorhome apple-touch nested');
+});
+
+test('home page renders exactly one <h1>; the secondary explore panel uses <h2>', () => {
+  const home = renderIndex(families, trailers);
+  const h1s = (home.match(/<h1\b/g) || []).length;
+  assert.equal(h1s, 1, 'home must have a single H1');
+  // the all-floorplans panel is secondary on the home hub → demoted to h2
+  assert.ok(home.includes('<h2>Every floorplan, by the numbers</h2>'), 'explore panel heading is h2 on home');
+  // and the all-floorplans view starts hidden (no FOUC / both-panels flash)
+  assert.ok(/id="view-all"[^>]*\shidden/.test(home), 'view-all starts hidden');
 });

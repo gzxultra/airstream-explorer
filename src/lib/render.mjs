@@ -10,7 +10,7 @@ import {
 import { assetPaths, familySlug, officialUrl, catalogStats } from './data.mjs';
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
-import { socialMeta, productJsonLd } from './seo.mjs';
+import { socialMeta, productJsonLd, iconMeta } from './seo.mjs';
 import { SORT_KEYS, exploreTags, tagLabel } from './explore.mjs';
 import { renderCampgroundFit } from './campgrounds-render.mjs';
 import { renderFloorplanZones, renderFloorplanLegend } from './floorplan-zones.mjs';
@@ -75,6 +75,7 @@ export function page({ title, description, body, relRoot = '', head = '', script
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 ${socialMeta({ title, description, canonicalPath, imagePath: ogImage, type: ogType })}
+${iconMeta(relRoot)}
 <link rel="stylesheet" href="${relRoot}assets/css/fonts.css">
 <link rel="stylesheet" href="${relRoot}assets/css/site.css">
 <link rel="stylesheet" href="${relRoot}assets/css/controls.css">
@@ -204,8 +205,8 @@ ${viewToggle}
 ${cards}
 </main>
 </section>
-<section class="hub-view" id="view-all" data-view="all">
-${renderExploreSections(trailers, resolve, motorhomes)}
+<section class="hub-view" id="view-all" data-view="all" hidden>
+${renderExploreSections(trailers, resolve, motorhomes, { headingLevel: 'h2' })}
 </section>`;
   return page({
     title: 'Airstream Explorer — the full lineup by family',
@@ -271,7 +272,7 @@ ${fam.years
     : fam.trailers.length;
   const body = `<nav class="detail-nav"><a href="../index.html" class="back-link">← All families</a></nav>
 <header class="fam-hero">
-<img class="fam-hero-img" src="../${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" width="1280" height="720" style="view-transition-name:vt-hero-${esc(fam.slug)}">
+<img class="fam-hero-img" src="../${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" width="1280" height="720" fetchpriority="high" style="view-transition-name:vt-hero-${esc(fam.slug)}">
 <div class="fam-hero-overlay">
 <p class="eyebrow eyebrow-light">AIRSTREAM ${esc(fam.years.join(' + '))}</p>
 <h1>${esc(fam.family)} ${limited}</h1>
@@ -745,7 +746,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
   const fam = familySlug(t.model);
   const official = officialUrl(t.model);
   const heroImg = a.hero
-    ? `<img src="../${esc(a.hero)}" alt="${esc(trailerTitle(t))}" class="detail-hero-img" width="1280" height="720">`
+    ? `<img src="../${esc(a.hero)}" alt="${esc(trailerTitle(t))}" class="detail-hero-img" width="1280" height="720" fetchpriority="high">`
     : '';
   const gallery = a.gallery
     .map(
@@ -883,7 +884,7 @@ ${specRow('MSRP', formatMsrp(t.msrp))}
  * `trailers` is the full (unsorted) dataset. All links are root-relative
  * (m/…, compare.html) so it renders correctly at the site root either way.
  */
-export function renderExploreSections(trailers, resolve = assetPaths, motorhomes = []) {
+export function renderExploreSections(trailers, resolve = assetPaths, motorhomes = [], { headingLevel = 'h1' } = {}) {
   const sortOpts = Object.entries(SORT_KEYS)
     .map(([k, def], i) => `<option value="${esc(k)}"${i === 0 ? ' selected' : ''}>${esc(def.label)}</option>`)
     .join('');
@@ -923,7 +924,7 @@ export function renderExploreSections(trailers, resolve = assetPaths, motorhomes
     : '';
   return `<header class="explore-head">
 <p class="eyebrow">FIND YOUR FLOORPLAN</p>
-<h1>Every floorplan, by the numbers</h1>
+<${headingLevel}>Every floorplan, by the numbers</${headingLevel}>
 <p class="lede">Search, sort and filter all ${totalPlans} floorplans${hasMotorhomes ? ' — travel trailers and motorhomes' : ''} — match a trailer to your tow vehicle, or browse by size, sleeping capacity or off-grid capability.</p>
 ${typeSeg}
 </header>

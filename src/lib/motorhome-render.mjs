@@ -8,7 +8,7 @@ import {
 } from './format.mjs';
 import { motorhomeAssetPaths, motorhomeFamilySlug, motorhomeOfficialUrl, motorhomeOfficialUrlBySlug } from './motorhome-data.mjs';
 import { catalogStats } from './data.mjs';
-import { socialMeta, productJsonLd } from './seo.mjs';
+import { socialMeta, productJsonLd, iconMeta } from './seo.mjs';
 import {
   estimateOffGrid, formatNights,
   LOAD_PRESETS,
@@ -46,6 +46,7 @@ function page({ title, description, body, relRoot = '', head = '', scripts = '',
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 ${socialMeta({ title, description, canonicalPath, imagePath: ogImage, type: ogType })}
+${iconMeta(relRoot)}
 <link rel="stylesheet" href="${relRoot}assets/css/fonts.css">
 <link rel="stylesheet" href="${relRoot}assets/css/site.css">
 <link rel="stylesheet" href="${relRoot}assets/css/controls.css">
@@ -204,7 +205,7 @@ ${fam.years
     : fam.motorhomes.length;
   const body = `<nav class="detail-nav"><a href="../motorhomes.html" class="back-link">← All touring coaches</a></nav>
 <header class="fam-hero">
-<img class="fam-hero-img" src="../${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" width="1280" height="720">
+<img class="fam-hero-img" src="../${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" width="1280" height="720" fetchpriority="high">
 <div class="fam-hero-overlay">
 <p class="eyebrow eyebrow-light">AIRSTREAM TOURING COACH ${esc(fam.years.join(' + '))}</p>
 <h1>${esc(fam.family)}</h1>
@@ -318,7 +319,7 @@ export function renderMotorhomeDetail(m, resolve = motorhomeAssetPaths) {
   const fam = motorhomeFamilySlug(m.model);
   const official = motorhomeOfficialUrlBySlug(m.slug, m.model);
   const heroImg = a.hero
-    ? `<img src="../${esc(a.hero)}" alt="${esc(trailerTitle(m))}" class="detail-hero-img" width="1280" height="720">`
+    ? `<img src="../${esc(a.hero)}" alt="${esc(trailerTitle(m))}" class="detail-hero-img" width="1280" height="720" fetchpriority="high">`
     : '';
   const gallery = a.gallery
     .map(

@@ -45,6 +45,28 @@ export function absUrl(rootRelPath) {
 }
 
 /**
+ * Favicon / app-icon / theme-color <head> block. Same markup on every page so
+ * the browser tab, iOS home-screen, Android install banner and WeChat/Telegram
+ * link cards all get a real brand mark instead of a blank globe. Icon files are
+ * served from the site root (NOT fingerprinted — conventional fixed names that
+ * crawlers and the webmanifest reference by path), so we prefix with relRoot to
+ * stay correct from pages nested under m/, mm/, f/, mf/.
+ *
+ * @param {string} [relRoot] '' at site root, '../' for detail pages
+ * @returns {string} HTML <link>/<meta> lines for icons + theme color + manifest
+ */
+export function iconMeta(relRoot = '') {
+  return [
+    `<link rel="icon" href="${relRoot}favicon.svg" type="image/svg+xml">`,
+    `<link rel="icon" href="${relRoot}favicon.ico" sizes="any">`,
+    `<link rel="apple-touch-icon" href="${relRoot}apple-touch-icon.png">`,
+    `<link rel="manifest" href="${relRoot}site.webmanifest">`,
+    `<meta name="theme-color" content="#1F1B16">`,
+    `<meta name="apple-mobile-web-app-title" content="Airstream Explorer">`,
+  ].join('\n');
+}
+
+/**
  * Build the Open Graph / Twitter / canonical <head> block.
  *
  * @param {object} o
