@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
 import { loadTrailers, validateDataset, groupByFamily, resolveAssets, loadDecor, resolveDecor } from '../src/lib/data.mjs';
-import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, page } from '../src/lib/render.mjs';
+import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, renderSaved, page } from '../src/lib/render.mjs';
 import { loadMotorhomes, validateMotorhomeDataset, groupMotorhomesByFamily, resolveMotorhomeAssets } from '../src/lib/motorhome-data.mjs';
 import { renderMotorhomeIndex, renderMotorhomeFamily, renderMotorhomeDetail } from '../src/lib/motorhome-render.mjs';
 import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
@@ -132,7 +132,8 @@ log(`wrote ${trailers.length} detail pages`);
 // 4a. Explore & match + Compare (root-level, relRoot = '')
 writeFileSync(join(DIST, 'explore.html'), renderExplore(trailers, resolve));
 writeFileSync(join(DIST, 'compare.html'), renderCompare(trailers, resolve, motorhomes));
-log('wrote explore.html + compare.html');
+writeFileSync(join(DIST, 'saved.html'), renderSaved(trailers, resolve, motorhomes));
+log('wrote explore.html + compare.html + saved.html');
 
 // 4a-mh. Motorhome pages
 writeFileSync(join(DIST, 'motorhomes.html'), renderMotorhomeIndex(motorhomeFamilies, motorhomes, resolveMH));
@@ -437,6 +438,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     join(DIST, 'index.html'),
     join(DIST, 'explore.html'),
     join(DIST, 'compare.html'),
+    join(DIST, 'saved.html'),
     join(DIST, 'campgrounds.html'),
     join(DIST, 'upgrades.html'),
     join(DIST, 'maintenance.html'),

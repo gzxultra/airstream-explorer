@@ -2223,3 +2223,129 @@ body.cg-drawer-open { overflow: hidden; }
   .mt-rig-sel { flex: 1 1 44%; }
   .mt-fig-art svg { max-width: 100%; }
 }
+
+/* =========================================================================
+   SAVED FLOORPLANS — site-wide shortlist
+   - .save-btn: heart toggle on cards (icon-only) + detail head (with text)
+   - .nav-badge: live count pill on the Saved nav tab
+   - .saved-* : the Saved page (grid of saved cards + toolbar + empty state)
+   All colors are var-driven, so dark mode is handled by theme.css automatically.
+   ========================================================================= */
+
+/* ---- nav count badge ---- */
+.nav-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; padding: 0 5px; margin-left: 5px;
+  font: 700 11px/1 "DM Sans", sans-serif; font-variant-numeric: tabular-nums;
+  color: #fff; background: var(--copper); border-radius: 999px;
+}
+
+/* ---- save buttons ---- */
+.save-btn {
+  -webkit-tap-highlight-color: transparent;
+  display: inline-flex; align-items: center; gap: 7px;
+  border: 1px solid var(--line); background: var(--card); color: var(--muted);
+  cursor: pointer; border-radius: 999px;
+  transition: color .16s ease, background .16s ease, border-color .16s ease, transform .12s ease;
+}
+.save-btn .save-heart { fill: none; stroke: currentColor; stroke-width: 1.8; transition: fill .16s ease, stroke .16s ease; }
+.save-btn:hover { color: var(--copper-text); border-color: var(--copper); }
+.save-btn:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+.save-btn.is-saved { color: var(--copper-text); border-color: var(--copper); background: rgba(176,92,50,.08); }
+.save-btn.is-saved .save-heart { fill: var(--copper); stroke: var(--copper); }
+.save-btn.save-pop { transform: scale(.86); }
+/* card variant: compact icon-only, lives in the card foot next to Compare */
+.save-btn--card { width: 34px; height: 34px; padding: 0; justify-content: center; flex: 0 0 auto; }
+/* detail variant: full pill with label, sits beside the H1 */
+.save-btn--detail { padding: 9px 16px; font: 700 14px/1 "DM Sans", sans-serif; align-self: center; }
+.save-btn--detail .save-heart { width: 17px; height: 17px; }
+
+/* the card foot now holds two actions (save + compare) on the right */
+.xcard-foot-actions { display: flex; align-items: center; gap: 10px; }
+
+/* detail head: title + save button on one row */
+.detail-head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.detail-head-row h1 { margin: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .save-btn, .save-btn .save-heart { transition: none; }
+  .save-btn.save-pop { transform: none; }
+}
+
+/* ---- Saved page ---- */
+.saved-wrap { max-width: var(--maxw); margin: 8px auto 0; padding: 0 20px 40px; }
+.saved-toolbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  flex-wrap: wrap; padding: 14px 18px; margin: 4px 0 22px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+}
+.saved-summary { margin: 0; font-size: 14px; color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+.saved-toolbar-actions { display: flex; align-items: center; gap: 10px; }
+.saved-compare-btn {
+  display: inline-flex; align-items: center; padding: 9px 16px; border-radius: 999px;
+  background: var(--copper); color: #fff; font-weight: 700; font-size: 14px;
+  transition: background .16s ease;
+}
+.saved-compare-btn:hover { background: var(--copper-deep); text-decoration: none; }
+.saved-clear-btn {
+  border: 1px solid var(--line); background: transparent; color: var(--muted);
+  padding: 9px 14px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 14px;
+  transition: color .16s ease, border-color .16s ease;
+}
+.saved-clear-btn:hover { color: var(--copper-text); border-color: var(--copper); }
+
+.saved-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.saved-card {
+  display: flex; flex-direction: column; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 6px; overflow: hidden;
+  box-shadow: var(--shadow); transition: transform .16s ease, box-shadow .16s ease;
+}
+.saved-card:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(31,27,22,.06), 0 16px 40px rgba(31,27,22,.12); }
+.saved-card-link { color: inherit; display: flex; flex-direction: column; }
+.saved-card-link:hover { text-decoration: none; }
+.saved-card-media {
+  position: relative; aspect-ratio: 3/2; overflow: hidden;
+  background: radial-gradient(125% 135% at 50% 16%, #faf6ef 0%, #f0e8d8 52%, #e7ddc8 100%);
+}
+.saved-card-media img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: darken; transition: transform .45s cubic-bezier(.2,.7,.2,1); }
+.saved-card-link:hover .saved-card-media img { transform: scale(1.045); }
+.saved-card-year { position: absolute; top: 10px; left: 10px; background: rgba(31,27,22,.78); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .06em; padding: 4px 9px; border-radius: 2px; }
+.saved-card-type { position: absolute; top: 10px; right: 10px; background: var(--copper); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 4px 8px; border-radius: 2px; }
+.saved-card-body { padding: 14px 16px 6px; }
+.saved-card-title { font-size: 20px; margin: 0 0 6px; }
+.saved-card-title span { color: var(--copper-deep); }
+.saved-card-specs { margin: 0 0 4px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.saved-card-price { margin: 0; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.saved-card-foot { margin-top: auto; padding: 10px 16px 14px; border-top: 1px solid var(--line); }
+.saved-remove {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--line); background: transparent; color: var(--muted);
+  padding: 6px 12px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 13px;
+  transition: color .16s ease, border-color .16s ease, background .16s ease;
+}
+.saved-remove:hover { color: #b3402c; border-color: #d98a78; background: rgba(179,64,44,.06); }
+.saved-remove svg { stroke: currentColor; }
+
+/* empty state */
+.saved-empty { text-align: center; max-width: 460px; margin: 30px auto 60px; padding: 0 16px; }
+.saved-empty-art { color: var(--copper); opacity: .55; margin-bottom: 14px; }
+.saved-empty-art svg { fill: none; stroke: currentColor; }
+.saved-empty-lead { font: 700 22px/1.2 "Fraunces", Georgia, serif; margin: 0 0 8px; color: var(--ink); }
+.saved-empty-sub { margin: 0 0 20px; color: var(--muted); font-size: 15px; line-height: 1.55; }
+.saved-empty-cta {
+  display: inline-flex; align-items: center; padding: 11px 22px; border-radius: 999px;
+  background: var(--copper); color: #fff; font-weight: 700; transition: background .16s ease;
+}
+.saved-empty-cta:hover { background: var(--copper-deep); text-decoration: none; }
+
+@media (max-width: 900px) {
+  .saved-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .saved-grid { grid-template-columns: 1fr; }
+  .saved-toolbar { flex-direction: column; align-items: stretch; }
+  .saved-toolbar-actions { justify-content: space-between; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .saved-card, .saved-card-media img, .saved-compare-btn, .saved-remove { transition: none; }
+}

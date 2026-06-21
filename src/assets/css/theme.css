@@ -64,6 +64,17 @@
 }
 [data-theme="dark"] .gallery-img--cutout { mix-blend-mode: normal; }
 
+/* Saved page + save buttons: the warm cream card-media gradient and white
+   studio cutouts need the same dark treatment the explore cards get, and the
+   "is-saved" wash should read on the dark surface. */
+[data-theme="dark"] .saved-card-media {
+  background: radial-gradient(125% 135% at 50% 16%, #2c2620 0%, #241f19 52%, #1c1813 100%);
+}
+[data-theme="dark"] .saved-card-media img { mix-blend-mode: normal; }
+[data-theme="dark"] .save-btn.is-saved { background: rgba(217,139,94,.16); }
+[data-theme="dark"] .saved-remove:hover { color: #e8927c; border-color: #7a4035; background: rgba(232,146,124,.10); }
+
+
 /* Year/plan ribbons already sit on a translucent dark ink; deepen slightly so
    they hold over a dark photo too. */
 [data-theme="dark"] .card-year,

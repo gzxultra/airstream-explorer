@@ -5,7 +5,7 @@ import {
   formatMsrp, formatWeight, formatLength, formatGal, formatTanks,
   formatPriceRange, formatLengthRange, formatMsrpShort,
   hitchPctOfGvwr,
-  trailerTitle, trailerLabel,
+  trailerTitle, trailerLabel, saveButton,
 } from './format.mjs';
 import { assetPaths, familySlug, officialUrl, catalogStats } from './data.mjs';
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
@@ -56,6 +56,7 @@ export function esc(s) {
 // 3 items fit a single persistent bar on mobile (no hamburger needed).
 const NAV_ITEMS = [
   ['index.html', 'Explore', 'index'],
+  ['saved.html', 'Saved', 'saved'],
   ['campsites.html', 'Campsites', 'campsites'],
   ['upgrades.html', 'Upgrades', 'upgrades'],
   ['maintenance.html', 'Maintenance', 'maintenance'],
@@ -65,7 +66,12 @@ export function page({ title, description, body, relRoot = '', head = '', script
   const _stats = catalogStats();
   const navLinks = NAV_ITEMS.map(([href, label, key]) => {
     const on = key === active;
-    return `<a href="${relRoot}${href}"${on ? ' class="is-active" aria-current="page"' : ''}>${label}</a>`;
+    // The Saved link carries a live count badge, populated client-side from
+    // localStorage (hidden until there's at least one saved floorplan).
+    const inner = key === 'saved'
+      ? `${label} <span class="nav-badge" id="nav-saved-count" hidden aria-hidden="true"></span>`
+      : label;
+    return `<a href="${relRoot}${href}"${on ? ' class="is-active" aria-current="page"' : ''}${key === 'saved' ? ' data-nav-saved' : ''}>${inner}</a>`;
   }).join('\n');
   return `<!DOCTYPE html>
 <html lang="en">
@@ -803,7 +809,10 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
 <article class="detail">
 <header class="detail-head">
 <p class="eyebrow">${esc(t.year)} MODEL YEAR</p>
+<div class="detail-head-row">
 <h1>${esc(t.model)} <span>${esc(t.floorplan)}</span></h1>
+${saveButton(t.slug, 'trailer', trailerLabel(t), 'detail')}
+</div>
 ${tagChips(t.tags)}
 ${official ? `<p class="official-head"><a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">Official ${esc(t.model)} page on airstream.com ↗</a></p>` : ''}
 </header>
@@ -889,7 +898,10 @@ ${specRow('MSRP', formatMsrp(t.msrp))}
 </a>
 <div class="xcard-foot">
 <span class="xcard-fit" data-fit hidden></span>
+<div class="xcard-foot-actions">
+${saveButton(t.slug, 'trailer', trailerLabel(t), 'card')}
 <label class="xcard-compare"><input type="checkbox" class="cmp-box" data-slug="${esc(t.slug)}" data-type="trailer" aria-label="Add ${esc(trailerLabel(t))} to compare"> Compare</label>
+</div>
 </div>
 </article>`;
 }
@@ -1102,5 +1114,69 @@ export function renderCompare(trailers, resolve = assetPaths, motorhomes = []) {
     body,
     active: 'compare',
     canonicalPath: 'compare.html',
+  });
+}
+
+/**
+ * Saved page (saved.html). A shopper's shortlist that spans the whole catalog —
+ * Compare caps at 3 same-type picks for a side-by-side; Saved has no cap and
+ * persists every floorplan you starred while browsing, trailers and motorhomes
+ * together. The full catalog is embedded as a CSP-safe JSON island keyed by
+ * slug; the client (app.js `savedPage`) reads localStorage `ae:saved` and
+ * renders the matching cards, newest-first, with remove + "compare these" +
+ * a quick stats rollup. No fetch, no build-time knowledge of what's saved.
+ */
+export function renderSaved(trailers, resolve = assetPaths, motorhomes = []) {
+  const byline = (t, type) => {
+    const a = type === 'trailer' ? resolve(t) : motorhomeAssetPaths(t);
+    const base = {
+      type, linkDir: type === 'trailer' ? 'm' : 'mm',
+      slug: t.slug, model: t.model, floorplan: t.floorplan, year: t.year,
+      thumb: a.thumb, lengthFt: t.lengthFt, weightLb: t.weightLb, gvwrLb: t.gvwrLb,
+      sleeps: t.sleeps, freshGal: t.freshGal, grayGal: t.grayGal, blackGal: t.blackGal,
+      solarW: t.solarW, batteryKwh: t.batteryKwh, offGridScore: t.offGridScore, msrp: t.msrp,
+      tags: t.tags || [],
+    };
+    if (type === 'trailer') { base.cccLb = t.cccLb; base.hitchWeightLb = t.hitchWeightLb; }
+    else { base.nccLb = t.nccLb; base.towCapacityLb = t.towCapacityLb; base.chassis = t.chassis; base.fuelType = t.fuelType; }
+    return base;
+  };
+  const all = [
+    ...trailers.map((t) => byline(t, 'trailer')),
+    ...motorhomes.map((m) => byline(m, 'motorhome')),
+  ];
+  // Map keyed by slug for O(1) client lookup; only </ needs neutralizing.
+  const map = {};
+  for (const r of all) map[r.slug] = r;
+  const json = JSON.stringify(map).replace(/</g, '\\u003c');
+
+  const body = `<header class="explore-head">
+<p class="eyebrow">YOUR SHORTLIST</p>
+<h1>Saved floorplans</h1>
+<p class="lede">Every floorplan you starred while browsing, kept here on this device. Save as many as you like — then send the ones you're torn between to <a href="compare.html">Compare</a>.</p>
+</header>
+<section class="saved-wrap" aria-label="Saved floorplans">
+<div class="saved-toolbar" id="saved-toolbar" hidden>
+<p class="saved-summary" id="saved-summary"></p>
+<div class="saved-toolbar-actions">
+<a class="saved-compare-btn" id="saved-compare" href="compare.html">Compare these →</a>
+<button type="button" class="saved-clear-btn" id="saved-clear">Clear all</button>
+</div>
+</div>
+<div class="saved-grid" id="saved-grid"></div>
+<div class="saved-empty" id="saved-empty">
+<div class="saved-empty-art" aria-hidden="true"><svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.3 4.6 12.9a4.6 4.6 0 1 1 6.5-6.5l.9.9.9-.9a4.6 4.6 0 1 1 6.5 6.5z"/></svg></div>
+<p class="saved-empty-lead">Nothing saved yet.</p>
+<p class="saved-empty-sub">Tap the heart on any floorplan — on a card or its detail page — to keep it here. Your list stays on this device.</p>
+<a class="saved-empty-cta" href="index.html#all">Browse the lineup →</a>
+</div>
+</section>
+<script type="application/json" id="saved-data">${json}</script>`;
+  return page({
+    title: 'Saved floorplans — your Airstream shortlist',
+    description: 'Your saved Airstream floorplans, kept on this device — trailers and motorhomes you starred while browsing, ready to revisit and compare.',
+    body,
+    active: 'saved',
+    canonicalPath: 'saved.html',
   });
 }

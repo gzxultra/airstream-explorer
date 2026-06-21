@@ -375,7 +375,102 @@
   }
 
   // =========================================================================
+  // 1b. SAVED FLOORPLANS — a site-wide shortlist (no cap, both types).
+  //     Stored as ae:saved = [{slug, type, at}] newest-last. Exposed via the
+  //     `Saved` object so the global save-button wiring (runs on every page),
+  //     the nav count badge, and the Saved page all share one source of truth.
+  //     A 'storage' listener keeps multiple open tabs in sync.
+  // =========================================================================
+  var Saved = (function () {
+    var KEY = 'saved';
+    function read() {
+      var v = Store.get(KEY, []);
+      if (!Array.isArray(v)) return [];
+      return v.filter(function (x) { return x && typeof x.slug === 'string'; });
+    }
+    function write(list) { Store.set(KEY, list); }
+    function has(slug) {
+      var l = read();
+      for (var i = 0; i < l.length; i++) if (l[i].slug === slug) return true;
+      return false;
+    }
+    function add(slug, type) {
+      var l = read();
+      for (var i = 0; i < l.length; i++) if (l[i].slug === slug) return l;
+      l.push({ slug: slug, type: (type === 'motorhome' ? 'motorhome' : 'trailer'), at: Date.now() });
+      write(l); return l;
+    }
+    function remove(slug) {
+      var l = read().filter(function (x) { return x.slug !== slug; });
+      write(l); return l;
+    }
+    function toggle(slug, type) {
+      return has(slug) ? (remove(slug), false) : (add(slug, type), true);
+    }
+    function clear() { write([]); }
+    function count() { return read().length; }
+    // Subscribe to changes (this tab's own toggles + other tabs via 'storage').
+    var subs = [];
+    function emit() { subs.forEach(function (fn) { try { fn(); } catch (e) {} }); }
+    function onChange(fn) { subs.push(fn); }
+    // Wrap mutators so local changes notify subscribers too.
+    function mAdd(s, t) { var r = add(s, t); emit(); return r; }
+    function mRemove(s) { var r = remove(s); emit(); return r; }
+    function mToggle(s, t) { var r = toggle(s, t); emit(); return r; }
+    function mClear() { clear(); emit(); }
+    if (window.addEventListener) {
+      window.addEventListener('storage', function (e) {
+        if (e && e.key === 'ae:' + KEY) emit();
+      });
+    }
+    return { read: read, has: has, add: mAdd, remove: mRemove, toggle: mToggle,
+      clear: mClear, count: count, onChange: onChange };
+  })();
+
+  // ---- Global: wire every .save-btn + the nav count badge (all pages) ------
+  (function savedGlobal() {
+    var badge = document.getElementById('nav-saved-count');
+    function paintBadge() {
+      if (!badge) return;
+      var n = Saved.count();
+      if (n > 0) { badge.textContent = String(n); badge.removeAttribute('hidden'); }
+      else { badge.textContent = ''; badge.setAttribute('hidden', ''); }
+    }
+    function paintBtn(btn) {
+      var on = Saved.has(btn.getAttribute('data-slug'));
+      btn.setAttribute('aria-pressed', String(on));
+      btn.classList.toggle('is-saved', on);
+      var txt = btn.querySelector('.save-btn-text');
+      if (txt) txt.textContent = on ? 'Saved' : 'Save';
+      var label = btn.getAttribute('data-label-base');
+      if (!label) { label = btn.getAttribute('aria-label') || 'this floorplan'; }
+    }
+    function paintAllBtns() {
+      var btns = document.querySelectorAll('.save-btn');
+      Array.prototype.forEach.call(btns, paintBtn);
+    }
+    var allBtns = document.querySelectorAll('.save-btn');
+    Array.prototype.forEach.call(allBtns, function (btn) {
+      paintBtn(btn);
+      btn.addEventListener('click', function (e) {
+        // On cards the button sits inside/over an <a>; never navigate on save.
+        e.preventDefault(); e.stopPropagation();
+        var slug = btn.getAttribute('data-slug');
+        var type = btn.getAttribute('data-type');
+        var nowOn = Saved.toggle(slug, type);
+        btn.classList.toggle('is-saved', nowOn);
+        btn.setAttribute('aria-pressed', String(nowOn));
+        // brief pop animation
+        btn.classList.remove('save-pop'); void btn.offsetWidth; btn.classList.add('save-pop');
+      });
+    });
+    Saved.onChange(function () { paintBadge(); paintAllBtns(); });
+    paintBadge();
+  })();
+
+  // =========================================================================
   // 2. EXPLORE PAGE — search / sort / filter + tow-vehicle matcher
+
   // =========================================================================
   (function explore() {
     var grid = document.getElementById('xgrid');
@@ -3693,6 +3788,166 @@
     if (elPropane) elPropane.addEventListener('change', compute);
     gearChecks.forEach(function (cb) { cb.addEventListener('change', compute); });
     compute();
+  })();
+
+  // =========================================================================
+  // 12. SAVED PAGE — render the shortlist from localStorage over the embedded
+  //     catalog island. Cards newest-first, each with remove + "compare these"
+  //     (loads up to the first 3 of the dominant type into Compare) + a small
+  //     rollup (count, price range, length range). Guarded by #saved-grid.
+  // =========================================================================
+  (function savedPage() {
+    var grid = document.getElementById('saved-grid');
+    if (!grid) return;
+    var dataEl = document.getElementById('saved-data');
+    var CATALOG = {};
+    try { CATALOG = JSON.parse(dataEl.textContent) || {}; } catch (e) { CATALOG = {}; }
+
+    var toolbar = document.getElementById('saved-toolbar');
+    var summary = document.getElementById('saved-summary');
+    var emptyEl = document.getElementById('saved-empty');
+    var clearBtn = document.getElementById('saved-clear');
+    var cmpBtn = document.getElementById('saved-compare');
+
+    function fmtUsdShort(n) {
+      if (!(n > 0)) return 'Price TBA';
+      if (n >= 1000) return '$' + (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'k';
+      return '$' + n;
+    }
+    function lenLabel(ft) {
+      if (ft == null) return '—';
+      var whole = Math.floor(ft);
+      var inch = Math.round((ft - whole) * 12);
+      if (inch === 12) { whole += 1; inch = 0; }
+      return whole + "' " + inch + '"';
+    }
+
+    function card(rec) {
+      var href = rec.linkDir + '/' + rec.slug + '.html';
+      var fig = document.createElement('article');
+      fig.className = 'saved-card';
+      fig.setAttribute('data-slug', rec.slug);
+      fig.setAttribute('data-type', rec.type);
+
+      var a = document.createElement('a');
+      a.className = 'saved-card-link';
+      a.href = href;
+
+      var media = document.createElement('div');
+      media.className = 'saved-card-media';
+      var img = document.createElement('img');
+      img.src = rec.thumb; img.alt = rec.model + ' ' + rec.floorplan;
+      img.loading = 'lazy'; img.width = 400; img.height = 260;
+      media.appendChild(img);
+      var yr = document.createElement('span');
+      yr.className = 'saved-card-year'; yr.textContent = rec.year;
+      media.appendChild(yr);
+      if (rec.type === 'motorhome') {
+        var badge = document.createElement('span');
+        badge.className = 'saved-card-type'; badge.textContent = 'Motorhome';
+        media.appendChild(badge);
+      }
+      a.appendChild(media);
+
+      var bodyEl = document.createElement('div');
+      bodyEl.className = 'saved-card-body';
+      var h = document.createElement('h3');
+      h.className = 'saved-card-title';
+      h.innerHTML = '';
+      h.appendChild(document.createTextNode(rec.model + ' '));
+      var sp = document.createElement('span'); sp.textContent = rec.floorplan; h.appendChild(sp);
+      bodyEl.appendChild(h);
+
+      var specs = document.createElement('p');
+      specs.className = 'saved-card-specs';
+      var weight = rec.weightLb ? Math.round(rec.weightLb).toLocaleString('en-US') + ' lb' : '—';
+      specs.textContent = lenLabel(rec.lengthFt) + ' · ' + weight + ' · sleeps ' + (rec.sleeps != null ? rec.sleeps : '—');
+      bodyEl.appendChild(specs);
+
+      var price = document.createElement('p');
+      price.className = 'saved-card-price';
+      price.textContent = rec.msrp > 0 ? '$' + Math.round(rec.msrp).toLocaleString('en-US') : 'Price TBA';
+      bodyEl.appendChild(price);
+      a.appendChild(bodyEl);
+      fig.appendChild(a);
+
+      var foot = document.createElement('div');
+      foot.className = 'saved-card-foot';
+      var rm = document.createElement('button');
+      rm.type = 'button'; rm.className = 'saved-remove';
+      rm.setAttribute('aria-label', 'Remove ' + rec.model + ' ' + rec.floorplan + ' from saved');
+      rm.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line></svg> Remove';
+      rm.addEventListener('click', function () { Saved.remove(rec.slug); });
+      foot.appendChild(rm);
+      fig.appendChild(foot);
+      return fig;
+    }
+
+    function render() {
+      var list = Saved.read();
+      // newest-first
+      list = list.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
+      var recs = [];
+      for (var i = 0; i < list.length; i++) {
+        var r = CATALOG[list[i].slug];
+        if (r) recs.push(r);
+      }
+      while (grid.firstChild) grid.removeChild(grid.firstChild);
+
+      if (!recs.length) {
+        grid.setAttribute('hidden', '');
+        if (toolbar) toolbar.setAttribute('hidden', '');
+        if (emptyEl) emptyEl.removeAttribute('hidden');
+        return;
+      }
+      grid.removeAttribute('hidden');
+      if (emptyEl) emptyEl.setAttribute('hidden', '');
+      if (toolbar) toolbar.removeAttribute('hidden');
+
+      recs.forEach(function (r) { grid.appendChild(card(r)); });
+
+      // rollup summary
+      var prices = recs.map(function (r) { return r.msrp; }).filter(function (n) { return n > 0; });
+      var lens = recs.map(function (r) { return r.lengthFt; }).filter(function (n) { return n != null; });
+      var nT = recs.filter(function (r) { return r.type === 'trailer'; }).length;
+      var nM = recs.length - nT;
+      var parts = [recs.length + ' saved'];
+      if (nT && nM) parts.push(nT + ' trailer' + (nT > 1 ? 's' : '') + ' · ' + nM + ' motorhome' + (nM > 1 ? 's' : ''));
+      if (prices.length) {
+        var lo = Math.min.apply(null, prices), hi = Math.max.apply(null, prices);
+        parts.push(lo === hi ? fmtUsdShort(lo) : fmtUsdShort(lo) + '–' + fmtUsdShort(hi));
+      }
+      if (lens.length) {
+        var ll = Math.min.apply(null, lens), lh = Math.max.apply(null, lens);
+        parts.push(ll === lh ? lenLabel(ll) : lenLabel(ll) + '–' + lenLabel(lh));
+      }
+      if (summary) summary.textContent = parts.join('  ·  ');
+
+      // "Compare these": pick the dominant type, send its first 3 (newest) to
+      // Compare via the same ?ids= deep-link the compare page already supports.
+      if (cmpBtn) {
+        var domType = nM > nT ? 'motorhome' : 'trailer';
+        var ofType = recs.filter(function (r) { return r.type === domType; }).slice(0, 3);
+        if (ofType.length >= 2) {
+          cmpBtn.removeAttribute('hidden');
+          cmpBtn.href = 'compare.html?ids=' + ofType.map(function (r) { return r.slug; }).join(',');
+          cmpBtn.textContent = (nT && nM)
+            ? 'Compare ' + domType + 's →'
+            : 'Compare these →';
+        } else {
+          cmpBtn.setAttribute('hidden', '');
+        }
+      }
+    }
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function () {
+        if (Saved.count() === 0) return;
+        if (window.confirm('Remove all saved floorplans?')) Saved.clear();
+      });
+    }
+    Saved.onChange(render);
+    render();
   })();
 
 })();

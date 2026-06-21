@@ -33,7 +33,11 @@
     "shorePowerAmp": 30,
     "offGridScore": 72,
     "description": "A flagship touring coach built on Mercedes-Benz performance, Atlas 25MS delivers expansive living, advanced technology, and residential comfort in a streamlined, luxury motorhome.",
-    "tags": ["luxury", "couples", "off-grid"],
+    "tags": [
+      "luxury",
+      "couples",
+      "off-grid"
+    ],
     "pros": [
       "Expansive living with power slide-out",
       "Premium Mercedes-Benz diesel chassis",
@@ -63,7 +67,7 @@
     "gvwrLb": 12125,
     "weightLb": 9965,
     "nccLb": 2160,
-    "towCapacityLb": 4000,
+    "towCapacityLb": 5000,
     "freshGal": 23,
     "grayGal": 31,
     "blackGal": 27,
@@ -78,7 +82,11 @@
     "shorePowerAmp": 30,
     "offGridScore": 60,
     "description": "The Airstream Atlas 25RT blends refined interiors, a rear pass-through garage, and confident Mercedes-Benz performance.",
-    "tags": ["adventure", "couples", "off-grid"],
+    "tags": [
+      "adventure",
+      "couples",
+      "off-grid"
+    ],
     "pros": [
       "Rear pass-through garage for gear",
       "Premium Mercedes-Benz diesel chassis",
@@ -123,7 +131,11 @@
     "shorePowerAmp": 30,
     "offGridScore": 70,
     "description": "The Interstate 24GTX elevates the 24GT with bold exterior upgrades and adventure-ready capability, while preserving the same luxurious, spacious interior.",
-    "tags": ["adventure", "luxury", "off-grid"],
+    "tags": [
+      "adventure",
+      "luxury",
+      "off-grid"
+    ],
     "pros": [
       "AWD for all-weather confidence",
       "Bold adventure-ready exterior",
@@ -168,7 +180,11 @@
     "shorePowerAmp": 30,
     "offGridScore": 70,
     "description": "Interstate 24GLX is a fully loaded adventure van that exudes Airstream quality and design with its aggressive stance, extreme comfort, abundant space, and cutting-edge amenities.",
-    "tags": ["adventure", "luxury", "off-grid"],
+    "tags": [
+      "adventure",
+      "luxury",
+      "off-grid"
+    ],
     "pros": [
       "AWD for all-weather confidence",
       "Aggressive adventure stance",
@@ -213,7 +229,11 @@
     "shorePowerAmp": 30,
     "offGridScore": 70,
     "description": "The Interstate 24GT is designed for maximum comfort. From its large galley to its spacious sleeping quarters and cleverly appointed bathroom, you will find comfort in abundance.",
-    "tags": ["luxury", "couples", "off-grid"],
+    "tags": [
+      "luxury",
+      "couples",
+      "off-grid"
+    ],
     "pros": [
       "Maximum comfort in Class B",
       "AWD standard",
@@ -241,8 +261,8 @@
     "lengthFt": 24.5,
     "heightFt": 9.75,
     "gvwrLb": 11030,
-    "weightLb": 9441,
-    "nccLb": 1589,
+    "weightLb": 9763,
+    "nccLb": 1267,
     "towCapacityLb": 5000,
     "freshGal": 23,
     "grayGal": 24,
@@ -258,7 +278,11 @@
     "shorePowerAmp": 30,
     "offGridScore": 70,
     "description": "The Interstate 24GL Touring Coach is built for bringing everyone along in comfort and style. With essential amenities like a kitchen and bathroom on board, every mile is effortless.",
-    "tags": ["family", "luxury", "off-grid"],
+    "tags": [
+      "family",
+      "luxury",
+      "off-grid"
+    ],
     "pros": [
       "Seats up to 9 passengers",
       "Full kitchen and bathroom",
@@ -303,7 +327,11 @@
     "shorePowerAmp": 30,
     "offGridScore": 65,
     "description": "The Interstate 19GTX elevates everything you love about the 19GT with bold, adventure-ready design, rugged capability, and the same premium comfort and luxury inside.",
-    "tags": ["adventure", "couples", "off-grid"],
+    "tags": [
+      "adventure",
+      "couples",
+      "off-grid"
+    ],
     "pros": [
       "Compact 20 ft for easy parking",
       "AWD + adventure-ready design",
@@ -348,7 +376,11 @@
     "shorePowerAmp": 30,
     "offGridScore": 65,
     "description": "Premium comfort in a compact 19-foot design. Refined finishes, advanced safety features, and the standard Advanced Power System bring the amenities of a larger motorhome to every mile.",
-    "tags": ["couples", "luxury", "off-grid"],
+    "tags": [
+      "couples",
+      "luxury",
+      "off-grid"
+    ],
     "pros": [
       "Most compact Interstate at 19 ft",
       "AWD standard",
@@ -393,7 +425,11 @@
     "shorePowerAmp": 30,
     "offGridScore": 65,
     "description": "Small footprint, big adventures. The Interstate 19X packs adventure-ready capability, smart storage, and essential gear into a compact 19-foot van designed to get you closer to the action.",
-    "tags": ["adventure", "couples", "off-grid"],
+    "tags": [
+      "adventure",
+      "couples",
+      "off-grid"
+    ],
     "pros": [
       "Best NCC in Interstate 19 series",
       "AWD standard",
@@ -438,7 +474,11 @@
     "shorePowerAmp": 30,
     "offGridScore": 48,
     "description": "A premier camper van featuring loft bed versatility for added flexibility, configurable living, smart storage, and a layout that sleeps up to four as standard.",
-    "tags": ["family", "adventure", "off-grid"],
+    "tags": [
+      "family",
+      "adventure",
+      "off-grid"
+    ],
     "pros": [
       "Sleeps 4 with loft bed",
       "Largest fresh water tank (28 gal)",
@@ -483,7 +523,11 @@
     "shorePowerAmp": 30,
     "offGridScore": 48,
     "description": "Rangeline combines camper van versatility with Airstream craftsmanship, delivering flexible living space, smart storage, and modern power for wherever adventure calls.",
-    "tags": ["family", "adventure", "off-grid"],
+    "tags": [
+      "family",
+      "adventure",
+      "off-grid"
+    ],
     "pros": [
       "Best NCC in Rangeline (1,689 lb)",
       "Sleeps 4",

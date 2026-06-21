@@ -4,7 +4,7 @@
 import {
   formatMsrp, formatWeight, formatLength, formatGal, formatTanks,
   formatPriceRange, formatLengthRange, formatMsrpShort,
-  trailerTitle, trailerLabel,
+  trailerTitle, trailerLabel, saveButton,
 } from './format.mjs';
 import { motorhomeAssetPaths, motorhomeFamilySlug, motorhomeOfficialUrl, motorhomeOfficialUrlBySlug } from './motorhome-data.mjs';
 import { catalogStats } from './data.mjs';
@@ -27,6 +27,7 @@ function esc(s) {
 // Navigation items — unified Explore hub (motorhomes live inside Explore now).
 const NAV_ITEMS = [
   ['index.html', 'Explore', 'index'],
+  ['saved.html', 'Saved', 'saved'],
   ['campsites.html', 'Campsites', 'campsites'],
   ['upgrades.html', 'Upgrades', 'upgrades'],
   ['maintenance.html', 'Maintenance', 'maintenance'],
@@ -36,7 +37,10 @@ function page({ title, description, body, relRoot = '', head = '', scripts = '',
   const _stats = catalogStats();
   const navLinks = NAV_ITEMS.map(([href, label, key]) => {
     const on = key === active;
-    return `<a href="${relRoot}${href}"${on ? ' class="is-active" aria-current="page"' : ''}>${label}</a>`;
+    const inner = key === 'saved'
+      ? `${label} <span class="nav-badge" id="nav-saved-count" hidden aria-hidden="true"></span>`
+      : label;
+    return `<a href="${relRoot}${href}"${on ? ' class="is-active" aria-current="page"' : ''}${key === 'saved' ? ' data-nav-saved' : ''}>${inner}</a>`;
   }).join('\n');
   return `<!DOCTYPE html>
 <html lang="en">
@@ -353,7 +357,10 @@ export function renderMotorhomeDetail(m, resolve = motorhomeAssetPaths) {
 <article class="detail">
 <header class="detail-head">
 <p class="eyebrow">${esc(m.year)} MODEL YEAR · CLASS ${esc(m.classType || 'B')} MOTORHOME</p>
+<div class="detail-head-row">
 <h1>${esc(m.model)} <span>${esc(m.floorplan)}</span></h1>
+${saveButton(m.slug, 'motorhome', trailerLabel(m), 'detail')}
+</div>
 ${tagChips(m.tags)}
 ${official ? `<p class="official-head"><a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">Official ${esc(m.model)} page on airstream.com ↗</a></p>` : ''}
 </header>
@@ -442,7 +449,10 @@ ${specRow('MSRP', formatMsrp(m.msrp))}
 </a>
 <div class="xcard-foot">
 <span class="xcard-fit" data-fit hidden></span>
+<div class="xcard-foot-actions">
+${saveButton(m.slug, 'motorhome', trailerLabel(m), 'card')}
 <label class="xcard-compare"><input type="checkbox" class="cmp-box" data-slug="${esc(m.slug)}" data-type="motorhome" aria-label="Add ${esc(trailerLabel(m))} to compare"> Compare</label>
+</div>
 </div>
 </article>`;
 }

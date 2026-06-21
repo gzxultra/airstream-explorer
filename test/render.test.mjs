@@ -342,17 +342,19 @@ test('detail page renders the towing callout from official GVWR (no derived rati
   assert.doesNotMatch(html, /Recommended minimum tow rating/);
 });
 
-test('top nav is exactly the 4 consolidated tabs — Explore / Campsites / Upgrades / Maintenance', () => {
+test('top nav is exactly the 5 consolidated tabs — Explore / Saved / Campsites / Upgrades / Maintenance', () => {
   for (const html of [renderIndex(groupByFamily(trailers), trailers), renderExplore(trailers), renderCompare(trailers)]) {
     assert.match(html, /class="topnav-links"/);
-    // exactly four top-level nav links (Campgrounds + Overnight Stays were
-    // merged into one Campsites hub; Motorhomes now live inside the Explore grid)
+    // five top-level nav links (Campgrounds + Overnight Stays were merged into
+    // one Campsites hub; Motorhomes live inside the Explore grid; Saved is the
+    // site-wide shortlist that completes browse → save → compare → decide)
     const nav = html.match(/<nav class="topnav-links"[^>]*>([\s\S]*?)<\/nav>/);
     assert.ok(nav, 'has a topnav-links nav');
     const links = nav[1].match(/<a /g) || [];
-    assert.equal(links.length, 4, 'exactly 4 top tabs');
-    // the four tabs are Explore (index) / Campsites / Upgrades / Maintenance
+    assert.equal(links.length, 5, 'exactly 5 top tabs');
+    // the five tabs are Explore (index) / Saved / Campsites / Upgrades / Maintenance
     assert.match(nav[1], /href="index\.html"[^>]*>Explore</);
+    assert.match(nav[1], /href="saved\.html"[^>]*>Saved /);
     assert.match(nav[1], /href="campsites\.html"[^>]*>Campsites</);
     assert.match(nav[1], /href="upgrades\.html"[^>]*>Upgrades</);
     assert.match(nav[1], /href="maintenance\.html"[^>]*>Maintenance</);

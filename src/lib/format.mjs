@@ -72,3 +72,26 @@ export function hitchPctOfGvwr(hitchLb, gvwrLb) {
   if (!(hitchLb > 0) || !(gvwrLb > 0)) return null;
   return Math.round((hitchLb / gvwrLb) * 100);
 }
+
+/**
+ * A "Save" toggle button for a floorplan (trailer or motorhome). Pure static
+ * markup — the client (app.js `savedStore`) wires every `.save-btn` on load,
+ * reflecting saved state from localStorage and toggling aria-pressed + label.
+ * Self-contained escaping so it can be reused by both renderers.
+ *
+ *   slug  — stable floorplan id (e.g. "classic-33fb-2026")
+ *   type  — "trailer" | "motorhome" (Saved page links to m/ vs mm/)
+ *   label — human label for the aria-label ("Classic 33FB")
+ *   variant — "card" (compact, icon-only) | "detail" (full, with text)
+ */
+export function saveButton(slug, type, label, variant = 'card') {
+  const e = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+  const heart = '<svg class="save-heart" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M12 20.3 4.6 12.9a4.6 4.6 0 1 1 6.5-6.5l.9.9.9-.9a4.6 4.6 0 1 1 6.5 6.5z"/></svg>';
+  const text = variant === 'detail'
+    ? '<span class="save-btn-text">Save</span>'
+    : '';
+  const cls = variant === 'detail' ? 'save-btn save-btn--detail' : 'save-btn save-btn--card';
+  return `<button type="button" class="${cls}" data-save data-slug="${e(slug)}" data-type="${e(type)}" aria-pressed="false" aria-label="Save ${e(label)}" title="Save this floorplan">${heart}${text}</button>`;
+}
