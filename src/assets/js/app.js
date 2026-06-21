@@ -26,6 +26,50 @@
   };
 
   // =========================================================================
+  // 0a. STICKY NAV — the top bar is pinned (CSS position:sticky). This module
+  //     (1) keeps the --nav-h custom property equal to the bar's REAL height
+  //     so other sticky elements (filter controls, the campground map) and
+  //     anchor-jump scroll-padding offset correctly — the bar is taller on
+  //     phones, where the brand stacks above the tab strip; and (2) toggles
+  //     .is-stuck once the page scrolls, for the hairline + shadow "floating
+  //     layer" treatment. Guarded by .topnav; no-op if the bar is absent.
+  // =========================================================================
+  (function stickyNav() {
+    var bar = document.querySelector('.topnav');
+    if (!bar) return;
+    var root = document.documentElement;
+    function measure() {
+      var h = Math.round(bar.getBoundingClientRect().height);
+      if (h > 0) root.style.setProperty('--nav-h', h + 'px');
+    }
+    var ticking = false;
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(function () {
+        var stuck = window.scrollY > 4;
+        if (stuck !== bar.classList.contains('is-stuck')) {
+          bar.classList.toggle('is-stuck', stuck);
+          // The bar shrinks on scroll via a CSS transition; re-measure both
+          // immediately (so dependents update right away) and once the
+          // transition settles (so --nav-h lands on the exact final height).
+          measure();
+          window.setTimeout(measure, 300);
+        }
+        ticking = false;
+      });
+    }
+    measure();
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', measure, { passive: true });
+    // Fonts load after first paint and can reflow the bar's height; re-measure.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(measure).catch(function () {});
+    }
+  })();
+
+  // =========================================================================
   // 0b. EXPLORE.HTML SHIM — old bookmark lands here; bounce to the canonical
   //     hub view. Guarded by [data-redirect]; no-op everywhere else. Without
   //     JS the shim still shows the full Explore experience inline.

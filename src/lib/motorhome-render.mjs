@@ -53,10 +53,12 @@ ${socialMeta({ title, description, canonicalPath, imagePath: ogImage, type: ogTy
 ${head}</head>
 <body>
 <header class="topnav">
+<div class="topnav-inner">
 <a class="brandbar" href="${relRoot}index.html"><span class="brandbar-mark">▲</span> Airstream Explorer</a>
 <nav class="topnav-links" aria-label="Primary">
 ${navLinks}
 </nav>
+</div>
 </header>
 ${body}
 <footer class="site-footer">

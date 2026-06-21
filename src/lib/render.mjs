@@ -84,10 +84,12 @@ ${head}</head>
 <body>
 <a class="skip-link" href="#main-content">Skip to content</a>
 <header class="topnav">
+<div class="topnav-inner">
 <a class="brandbar" href="${relRoot}index.html"><span class="brandbar-mark">▲</span> Airstream Explorer</a>
 <nav class="topnav-links" aria-label="Primary">
 ${navLinks}
 </nav>
+</div>
 </header>
 <a id="main-content" tabindex="-1"></a>
 ${body}
