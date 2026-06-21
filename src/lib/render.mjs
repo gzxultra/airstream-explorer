@@ -71,6 +71,7 @@ export function page({ title, description, body, relRoot = '', head = '', script
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>(function(){try{var t=localStorage.getItem('ae:theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
@@ -80,6 +81,7 @@ ${iconMeta(relRoot)}
 <link rel="stylesheet" href="${relRoot}assets/css/site.css">
 <link rel="stylesheet" href="${relRoot}assets/css/controls.css">
 <link rel="stylesheet" href="${relRoot}assets/css/premium.css">
+<link rel="stylesheet" href="${relRoot}assets/css/theme.css">
 <meta name="view-transition" content="same-origin">
 ${head}</head>
 <body>
@@ -89,6 +91,10 @@ ${head}</head>
 <a class="brandbar" href="${relRoot}index.html"><span class="brandbar-mark">▲</span> Airstream Explorer</a>
 <nav class="topnav-links" aria-label="Primary">
 ${navLinks}
+<button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch color theme" title="Switch color theme">
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"></circle><line x1="12" y1="2" x2="12" y2="4.5"></line><line x1="12" y1="19.5" x2="12" y2="22"></line><line x1="2" y1="12" x2="4.5" y2="12"></line><line x1="19.5" y1="12" x2="22" y2="12"></line><line x1="4.6" y1="4.6" x2="6.4" y2="6.4"></line><line x1="17.6" y1="17.6" x2="19.4" y2="19.4"></line><line x1="4.6" y1="19.4" x2="6.4" y2="17.6"></line><line x1="17.6" y1="6.4" x2="19.4" y2="4.6"></line></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.2A8.2 8.2 0 1 1 9.8 3.5a6.4 6.4 0 0 0 10.7 10.7z"></path></svg>
+</button>
 </nav>
 </div>
 </header>
@@ -98,6 +104,16 @@ ${body}
 <p>Airstream Explorer · enthusiast catalog · ${_stats.floorplanCount} floorplans across ${_stats.familyCount} families (2026 + 2025). · <a href="${relRoot}index.html#all">Explore &amp; match</a> · <a href="${relRoot}index.html#all&type=motorhome">Motorhomes</a> · <a href="${relRoot}compare.html">Compare</a> · <a href="${relRoot}campsites.html">Campsites</a> · <a href="${relRoot}campgrounds.html">Campground map</a> · <a href="${relRoot}upgrades.html">Upgrades</a> · <a href="${relRoot}maintenance.html">Maintenance</a> · <a href="${relRoot}community.html">Community photos</a> · <a href="${relRoot}credits.html">Credits</a></p>
 <p class="muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Model imagery is manufacturer product photography, used for editorial and reference identification; community photographs are used under their stated Creative Commons / public-domain licenses (see credits).</p>
 </footer>
+<div class="lightbox" id="lightbox" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Photo viewer">
+<div class="lightbox-backdrop" data-lb-close></div>
+<button type="button" class="lightbox-close" data-lb-close aria-label="Close (Esc)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg></button>
+<button type="button" class="lightbox-nav lightbox-prev" data-lb-prev aria-label="Previous photo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 5 8 12 15 19"></polyline></svg></button>
+<figure class="lightbox-stage">
+<img class="lightbox-img" id="lightbox-img" alt="">
+<figcaption class="lightbox-caption" id="lightbox-caption"></figcaption>
+</figure>
+<button type="button" class="lightbox-nav lightbox-next" data-lb-next aria-label="Next photo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 5 16 12 9 19"></polyline></svg></button>
+</div>
 <script src="${relRoot}assets/js/app.js" defer></script>
 ${scripts}</body>
 </html>`;
@@ -748,10 +764,11 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
   const heroImg = a.hero
     ? `<img src="../${esc(a.hero)}" alt="${esc(trailerTitle(t))}" class="detail-hero-img" width="1280" height="720" fetchpriority="high">`
     : '';
+  const galleryCount = a.gallery.length;
   const gallery = a.gallery
     .map(
       (g, i) =>
-        `<div class="gallery-img-wrap${a.galleryCutout && a.galleryCutout[i] ? ' is-cutout' : ' is-photo'}"><img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="lazy" class="gallery-img${a.galleryCutout && a.galleryCutout[i] ? ' gallery-img--cutout' : ' gallery-img--photo'}" width="920" height="600"></div>`,
+        `<button type="button" class="gallery-img-wrap${a.galleryCutout && a.galleryCutout[i] ? ' is-cutout' : ' is-photo'}" data-lightbox data-full="../${esc(g)}" data-index="${i}" data-caption="${esc(trailerLabel(t))} — photo ${i + 1} of ${galleryCount}" aria-label="Open photo ${i + 1} of ${galleryCount} full screen"><img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="lazy" class="gallery-img${a.galleryCutout && a.galleryCutout[i] ? ' gallery-img--cutout' : ' gallery-img--photo'}" width="920" height="600"><span class="gallery-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`,
     )
     .join('\n');
   const fpZones = renderFloorplanZones(t.floorplan, t.slug);
@@ -821,7 +838,7 @@ ${pros || cons ? `<section class="proscons">
 ${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}
 ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
 </section>` : ''}
-${gallery ? `<section class="gallery" aria-label="Gallery"><h2>Gallery</h2><div class="gallery-grid">${gallery}</div></section>` : ''}
+${gallery ? `<section class="gallery" aria-label="Gallery"><h2>Gallery</h2><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
 </article>`;
   return page({
     title: `${trailerTitle(t)} — specs, weights & price`,

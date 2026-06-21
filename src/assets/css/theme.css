@@ -1,0 +1,222 @@
+/* ===========================================================================
+   THEME + LIGHTBOX + INSTANT-NAV layer (2026-06-21)
+   Loaded LAST so it wins. Three concerns, each independent:
+     1. Dark mode  — [data-theme="dark"] overrides the semantic palette. The
+        whole site is built on CSS custom properties (--bg/--surface/--card/
+        --ink/--muted/--line) plus a copper accent, so a single palette swap
+        re-skins every page. Set by an inline <head> script (no FOUC) from
+        localStorage('ae:theme') or prefers-color-scheme; toggled in the nav.
+     2. Gallery lightbox — full-screen photo viewer (keyboard + swipe).
+     3. View transitions — activate the native cross-document morph that the
+        per-card view-transition-name hooks were already set up for.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   1. DARK THEME PALETTE
+   Warm near-black ground (not pure #000 — keeps the editorial warmth), raised
+   card surfaces, a brighter copper that holds contrast on dark, and softened
+   lines. Tuned so body text (--ink on --bg) and muted text clear WCAG AA.
+--------------------------------------------------------------------------- */
+[data-theme="dark"] {
+  --bg: #15120E;          /* warm near-black page ground */
+  --surface: #211C16;     /* cards, segmented controls, chips */
+  --card: #2A241D;        /* raised panels (floorplan fig, decor card, popovers) */
+  --ink: #F3ECE1;         /* primary text — 13.8:1 on --bg */
+  --muted: #B3A795;       /* secondary text — 6.6:1 on --bg, clears AA */
+  --line: #3A3228;        /* hairlines / borders */
+  --copper: #D98B5E;      /* brighter copper for fills on dark */
+  --copper-deep: #E59A6C; /* link/heading copper — 6.1:1 on --bg */
+  --copper-text: #E7A172; /* small copper text — 7.0:1 on --bg */
+  --shadow: 0 1px 2px rgba(0,0,0,.40), 0 10px 30px rgba(0,0,0,.50);
+  /* control layer (controls.css) */
+  --ctl-bg: #241E18;
+  --ctl-bg-hover: #2B251E;
+  --ctl-line: #3A3228;
+  --ctl-line-hover: #6E5A45;
+  --ctl-shadow: 0 1px 1px rgba(0,0,0,.30), 0 1px 3px rgba(0,0,0,.35);
+  --ctl-shadow-hover: 0 2px 4px rgba(0,0,0,.40), 0 8px 18px rgba(0,0,0,.45);
+  --ctl-ring: 0 0 0 3px rgba(217,139,94,.28);
+  --copper-soft: rgba(217,139,94,.14);
+  color-scheme: dark;
+}
+
+/* The sticky nav uses a translucent cream backdrop in site.css; in dark let
+   the dark ground show through instead. */
+[data-theme="dark"] .topnav {
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  border-bottom-color: var(--line);
+}
+[data-theme="dark"] .topnav.is-stuck {
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+}
+
+/* Raised panels keep a faint border so they read against the page in dark. */
+[data-theme="dark"] .floorplan-fig,
+[data-theme="dark"] .decor-card,
+[data-theme="dark"] .up-table-wrap { border-color: var(--line); }
+[data-theme="dark"] .decor-swatch img { border-color: var(--line); }
+
+/* Photo gallery's dark ground is already #1a1a1a; nudge to match the theme. */
+[data-theme="dark"] .gallery-img-wrap.is-photo { background: #100d0a; }
+/* Cutout gradient (cream sweep) would glow on dark — calm it to a warm slate. */
+[data-theme="dark"] .gallery-img-wrap.is-cutout {
+  background: radial-gradient(125% 135% at 50% 16%, #2c2620 0%, #241f19 52%, #1c1813 100%);
+}
+[data-theme="dark"] .gallery-img--cutout { mix-blend-mode: normal; }
+
+/* Year/plan ribbons already sit on a translucent dark ink; deepen slightly so
+   they hold over a dark photo too. */
+[data-theme="dark"] .card-year,
+[data-theme="dark"] .xcard-year,
+[data-theme="dark"] .fam-plans { background: rgba(0,0,0,.58); }
+
+/* --- Status-colored components (tow verdict, campground fit, hookup pills) --
+   These carry semantic hues (green = ok, amber = tight, red = over/no,
+   violet/blue = power grade). On light they're pale pastel fills; on dark a
+   pale pill floats and glares. Re-tint each as a deep, low-light wash of the
+   SAME hue with a light readable label, so the meaning survives the theme. */
+[data-theme="dark"] .tow-verdict.tow-ok    { background: #16241a; border-color: #2f5236; border-left-color: #4fae54; }
+[data-theme="dark"] .tow-verdict.tow-ok .tow-verdict-label    { color: #8fd494; }
+[data-theme="dark"] .tow-verdict.tow-tight { background: #271f10; border-color: #574521; border-left-color: #d2a32e; }
+[data-theme="dark"] .tow-verdict.tow-tight .tow-verdict-label { color: #e6bd5e; }
+[data-theme="dark"] .tow-verdict.tow-over  { background: #2a1813; border-color: #5a3127; border-left-color: #d0593e; }
+[data-theme="dark"] .tow-verdict.tow-over .tow-verdict-label  { color: #ef9a82; }
+
+[data-theme="dark"] .cg-fit-fits    { background: #16241a; color: #8fd494; }
+[data-theme="dark"] .cg-fit-tight   { background: #271f10; color: #e6bd5e; }
+[data-theme="dark"] .cg-fit-no      { background: #2a1813; color: #ef9a82; }
+[data-theme="dark"] .cg-fit-unknown { background: #221d16; color: var(--muted); }
+[data-theme="dark"] .cg-fit-limit   { background: #221d16; color: var(--muted); }
+
+[data-theme="dark"] .cg-fit-why-fits    { background: #16241a; border-left-color: #4fae54; color: #a7dcab; }
+[data-theme="dark"] .cg-fit-why-tight   { background: #271f10; border-left-color: #d2a32e; color: #e6c578; }
+[data-theme="dark"] .cg-fit-why-no      { background: #2a1813; border-left-color: #d0593e; color: #f0a892; }
+[data-theme="dark"] .cg-fit-why-unknown { background: #221d16; border-left-color: #6e6658; color: var(--muted); }
+
+[data-theme="dark"] .cg-pill-hook-full     { background: #16241a; border-color: #2f5236; color: #a7dcab; }
+[data-theme="dark"] .cg-pill-hook-electric { background: #271f10; border-color: #574521; color: #e6c578; }
+[data-theme="dark"] .cg-pill-pt            { background: #1f1a2a; border-color: #3d3454; color: #c3b4e6; }
+[data-theme="dark"] .cg-pill-el-elevated   { background: #18202a; border-color: #324252; color: #aec4dc; }
+[data-theme="dark"] .cg-pill-el-high       { background: #161f2c; border-color: #2c4262; color: #9cc0e8; }
+[data-theme="dark"] .cg-av-hook.has-elec   { background: #18202a; color: #9cc0e8; }
+[data-theme="dark"] .cg-src-live           { background: #16241a; color: #8fd494; }
+
+/* Image placeholders / segmented troughs that used a tan fill. */
+[data-theme="dark"] .cphoto-link,
+[data-theme="dark"] .cg-card-img { background: #211c16; }
+[data-theme="dark"] .cg-av-segs  { background: #1c1813; }
+[data-theme="dark"] .cg-av-card  { background: var(--card); border-color: var(--line); }
+[data-theme="dark"] .cg-av-error { background: #2a1813; border-color: #5a3127; color: #f0a892; }
+
+/* ---------------------------------------------------------------------------
+   THEME TOGGLE BUTTON (in the top nav)
+--------------------------------------------------------------------------- */
+.theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; padding: 0; margin-left: 4px;
+  background: transparent; border: 1px solid transparent; border-radius: 999px;
+  color: var(--ink); cursor: pointer; flex: 0 0 auto;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.theme-toggle:hover { background: var(--copper-soft, rgba(176,92,50,.10)); border-color: var(--line); color: var(--copper-deep); }
+.theme-toggle:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+.theme-toggle svg { display: block; }
+/* Show the icon for the theme you'd switch TO: moon in light, sun in dark. */
+.theme-icon-sun { display: none; }
+.theme-icon-moon { display: block; }
+[data-theme="dark"] .theme-icon-sun { display: block; }
+[data-theme="dark"] .theme-icon-moon { display: none; }
+
+/* ---------------------------------------------------------------------------
+   2. GALLERY — make each cell an interactive button + zoom affordance
+--------------------------------------------------------------------------- */
+button.gallery-img-wrap {
+  display: block; width: 100%; padding: 0; border: 0; cursor: zoom-in;
+  position: relative; font: inherit; color: inherit; text-align: left;
+  -webkit-appearance: none; appearance: none;
+}
+button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outline-offset: 3px; }
+.gallery-zoom {
+  position: absolute; right: 10px; bottom: 10px; z-index: 2;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 999px;
+  background: rgba(20,16,12,.62); color: #fff; backdrop-filter: blur(3px);
+  opacity: 0; transform: translateY(4px) scale(.92);
+  transition: opacity .18s ease, transform .18s ease;
+  pointer-events: none;
+}
+.gallery-img-wrap:hover .gallery-zoom,
+.gallery-img-wrap:focus-visible .gallery-zoom { opacity: 1; transform: translateY(0) scale(1); }
+
+/* ---------------------------------------------------------------------------
+   LIGHTBOX OVERLAY
+--------------------------------------------------------------------------- */
+.lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+}
+.lightbox[hidden] { display: none; }
+.lightbox-backdrop {
+  position: absolute; inset: 0; z-index: 0;
+  background: rgba(10,8,6,.92); cursor: zoom-out;
+  opacity: 0; transition: opacity .22s ease;
+}
+.lightbox.is-open .lightbox-backdrop { opacity: 1; }
+.lightbox-stage {
+  position: relative; z-index: 1; margin: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  max-width: min(92vw, 1400px); max-height: 88vh;
+  transform: scale(.97); opacity: 0;
+  transition: transform .24s cubic-bezier(.2,.7,.2,1), opacity .24s ease;
+}
+.lightbox.is-open .lightbox-stage { transform: scale(1); opacity: 1; }
+.lightbox-img {
+  max-width: 92vw; max-height: 78vh; width: auto; height: auto;
+  object-fit: contain; border-radius: 4px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.6);
+  background: #1a1a1a;
+}
+.lightbox-caption {
+  color: rgba(255,255,255,.86); font-size: 13.5px; letter-spacing: .03em;
+  text-align: center; max-width: 80ch;
+}
+.lightbox-close {
+  position: absolute; top: 16px; right: 18px; z-index: 3;
+  width: 44px; height: 44px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.10); color: #fff; border: 0; border-radius: 999px;
+  cursor: pointer; transition: background .15s ease, transform .12s ease;
+}
+.lightbox-close:hover { background: rgba(255,255,255,.20); transform: scale(1.06); }
+.lightbox-nav {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 3;
+  width: 52px; height: 52px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.10); color: #fff; border: 0; border-radius: 999px;
+  cursor: pointer; transition: background .15s ease, transform .12s ease;
+}
+.lightbox-nav:hover { background: rgba(255,255,255,.20); }
+.lightbox-prev { left: clamp(8px, 3vw, 28px); }
+.lightbox-next { right: clamp(8px, 3vw, 28px); }
+.lightbox-prev:hover { transform: translateY(-50%) translateX(-2px); }
+.lightbox-next:hover { transform: translateY(-50%) translateX(2px); }
+.lightbox-close:focus-visible,
+.lightbox-nav:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+/* Single-photo galleries: hide the arrows. */
+.lightbox.is-single .lightbox-nav { display: none; }
+@media (max-width: 560px) {
+  .lightbox-nav { width: 44px; height: 44px; background: rgba(255,255,255,.14); }
+  .lightbox-img { max-height: 72vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lightbox-backdrop, .lightbox-stage { transition: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   3. VIEW TRANSITIONS — activate the cross-document morph.
+   The per-card hero img carries view-transition-name:vt-hero-<slug>, matched
+   on the family/detail page hero, so the photo morphs across navigation.
+   The <meta name="view-transition" content="same-origin"> hook is the OLD
+   spec; current Chrome needs this @view-transition at-rule to opt in.
+--------------------------------------------------------------------------- */
+@view-transition { navigation: auto; }

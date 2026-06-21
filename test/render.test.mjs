@@ -236,11 +236,12 @@ test('no detail page contains an unescaped data-driven angle bracket in body tex
   for (const t of trailers) {
     const html = renderDetail(t);
     const scripts = html.match(/<script/g) || [];
-    // Legitimate scripts: the deferred app.js, the application/ld+json Product
-    // structured-data block, plus up to 3 application/json data islands
-    // (tow-data, fuel-data, payload-data) depending on trailer specs.
-    // Minimum 3 (app.js + ld+json + tow-data), maximum 5 (all tools present).
-    assert.ok(scripts.length >= 3 && scripts.length <= 5, `${t.slug} has unexpected <script> count: ${scripts.length}`);
+    // Legitimate scripts: the <head> no-flash theme script, the deferred
+    // app.js, the application/ld+json Product structured-data block, plus up
+    // to 3 application/json data islands (tow-data, fuel-data, payload-data)
+    // depending on trailer specs.
+    // Minimum 4 (theme + app.js + ld+json + tow-data), maximum 6 (all tools).
+    assert.ok(scripts.length >= 4 && scripts.length <= 6, `${t.slug} has unexpected <script> count: ${scripts.length}`);
     // No data island (json OR ld+json) should contain a raw </ breakout.
     const islands = html.match(/<script type="application\/(?:ld\+)?json"[^>]*>([\s\S]*?)<\/script>/g) || [];
     for (const m of islands) {

@@ -26,6 +26,185 @@
   };
 
   // =========================================================================
+  // 0a-THEME — light/dark toggle. The <head> inline script already set the
+  //     initial data-theme (from saved choice or OS preference) before paint,
+  //     so there's no flash. Here we just (1) wire the nav button to flip and
+  //     persist the choice, and (2) follow OS changes UNLESS the visitor has
+  //     made an explicit choice. Guarded by #theme-toggle.
+  // =========================================================================
+  (function themeToggle() {
+    var root = document.documentElement;
+    var btn = document.getElementById('theme-toggle');
+    var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+    function current() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+    function apply(theme) {
+      root.setAttribute('data-theme', theme);
+      if (btn) btn.setAttribute('aria-pressed', String(theme === 'dark'));
+    }
+    // Reflect initial state on the button for AT.
+    if (btn) btn.setAttribute('aria-pressed', String(current() === 'dark'));
+
+    if (btn) {
+      btn.addEventListener('click', function () {
+        var next = current() === 'dark' ? 'light' : 'dark';
+        apply(next);
+        // Stored RAW (not via the JSON Store) so the <head> no-flash script,
+        // which reads localStorage directly before app.js, sees a bare
+        // 'dark'/'light' string and can match it.
+        try { localStorage.setItem('ae:theme', next); } catch (e) {}
+      });
+    }
+    // OS theme changes only steer the page when the user hasn't chosen.
+    if (mq) {
+      var onChange = function (e) {
+        var saved = null;
+        try { saved = localStorage.getItem('ae:theme'); } catch (e2) {}
+        if (saved !== 'dark' && saved !== 'light') apply(e.matches ? 'dark' : 'light');
+      };
+      if (mq.addEventListener) mq.addEventListener('change', onChange);
+      else if (mq.addListener) mq.addListener(onChange);
+    }
+  })();
+
+  // =========================================================================
+  // 0b-LIGHTBOX — full-screen gallery viewer. Each gallery cell is a
+  //     <button data-lightbox data-full data-index data-caption> inside a
+  //     [data-gallery] grid. Opening reads the sibling buttons as the photo
+  //     set so prev/next wrap the whole gallery. Keyboard (←/→/Esc), touch
+  //     swipe, backdrop-click, and focus-trap + restore. Guarded by #lightbox.
+  // =========================================================================
+  (function lightbox() {
+    var lb = document.getElementById('lightbox');
+    if (!lb) return;
+    var triggers = Array.prototype.slice.call(document.querySelectorAll('[data-lightbox]'));
+    if (!triggers.length) return;
+
+    var imgEl = document.getElementById('lightbox-img');
+    var capEl = document.getElementById('lightbox-caption');
+    var elClose = lb.querySelector('[data-lb-close]');
+    var btnPrev = lb.querySelector('[data-lb-prev]');
+    var btnNext = lb.querySelector('[data-lb-next]');
+    var items = triggers.map(function (t) {
+      return { full: t.getAttribute('data-full'), cap: t.getAttribute('data-caption') || '', trigger: t };
+    });
+    var idx = 0;
+    var lastFocus = null;
+    var single = items.length < 2;
+    if (single) lb.classList.add('is-single');
+
+    function preload(i) {
+      if (i < 0 || i >= items.length) return;
+      var im = new Image(); im.src = items[i].full;
+    }
+    function render() {
+      var it = items[idx];
+      imgEl.src = it.full;
+      imgEl.alt = it.cap;
+      capEl.textContent = it.cap;
+      preload(idx + 1); preload(idx - 1);
+    }
+    function open(i) {
+      idx = i;
+      lastFocus = document.activeElement;
+      lb.hidden = false;
+      lb.setAttribute('aria-hidden', 'false');
+      render();
+      // Force a reflow so the .is-open transition runs from the hidden state.
+      void lb.offsetWidth;
+      lb.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      (single ? elClose : btnNext).focus();
+    }
+    function close() {
+      lb.classList.remove('is-open');
+      document.body.style.overflow = '';
+      lb.setAttribute('aria-hidden', 'true');
+      var done = function () {
+        lb.hidden = true;
+        lb.removeEventListener('transitionend', done);
+      };
+      // Respect reduced motion / no transition: hide promptly either way.
+      lb.addEventListener('transitionend', done);
+      setTimeout(done, 280);
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+    function go(delta) {
+      if (single) return;
+      idx = (idx + delta + items.length) % items.length;
+      render();
+    }
+
+    triggers.forEach(function (t, i) {
+      t.addEventListener('click', function (e) { e.preventDefault(); open(i); });
+    });
+    Array.prototype.slice.call(lb.querySelectorAll('[data-lb-close]')).forEach(function (el) {
+      el.addEventListener('click', close);
+    });
+    if (btnPrev) btnPrev.addEventListener('click', function () { go(-1); });
+    if (btnNext) btnNext.addEventListener('click', function () { go(1); });
+
+    document.addEventListener('keydown', function (e) {
+      if (lb.hidden) return;
+      if (e.key === 'Escape') { e.preventDefault(); close(); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+      else if (e.key === 'Tab') {
+        // Simple focus trap across the visible controls.
+        var f = [elClose, btnPrev, btnNext].filter(function (b) { return b && b.offsetParent !== null; });
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+
+    // Touch swipe on the image stage.
+    var tx = 0, ty = 0;
+    lb.addEventListener('touchstart', function (e) {
+      if (!e.touches[0]) return; tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+    }, { passive: true });
+    lb.addEventListener('touchend', function (e) {
+      if (!e.changedTouches[0]) return;
+      var dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+      if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy) * 1.6) { go(dx < 0 ? 1 : -1); }
+      else if (dy > 70 && Math.abs(dy) > Math.abs(dx) * 1.4) { close(); } // swipe-down to dismiss
+    }, { passive: true });
+  })();
+
+  // =========================================================================
+  // 0c-INSTANT NAV — prefetch a family/detail page on hover or touchstart so
+  //     the click lands on an already-warm page. Each prefetch fires once;
+  //     skipped for reduced-data users and only for same-origin .html links.
+  //     Pairs with the CSS @view-transition for a near-instant card→detail.
+  // =========================================================================
+  (function instantNav() {
+    var conn = navigator.connection;
+    if (conn && (conn.saveData || /2g/.test(conn.effectiveType || ''))) return;
+    var seen = {};
+    function prefetch(href) {
+      if (!href || seen[href]) return;
+      if (!/\.html(?:[#?].*)?$/.test(href) && href.indexOf('.html') === -1) return;
+      seen[href] = 1;
+      var l = document.createElement('link');
+      l.rel = 'prefetch'; l.href = href; l.as = 'document';
+      document.head.appendChild(l);
+    }
+    function fromEvent(e) {
+      var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+      if (!a) return;
+      var href = a.getAttribute('href');
+      if (!href || href[0] === '#' || /^[a-z]+:/i.test(href) && href.indexOf('http') === 0 && a.host !== location.host) return;
+      if (a.target === '_blank' || a.hasAttribute('download')) return;
+      prefetch(a.href);
+    }
+    document.addEventListener('mouseover', fromEvent, { passive: true });
+    document.addEventListener('touchstart', fromEvent, { passive: true });
+  })();
+
+  // =========================================================================
   // 0a. STICKY NAV — the top bar is pinned (CSS position:sticky). This module
   //     (1) keeps the --nav-h custom property equal to the bar's REAL height
   //     so other sticky elements (filter controls, the campground map) and
