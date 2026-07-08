@@ -315,3 +315,10 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .quiz-reason{background:color-mix(in srgb,var(--copper) 18%,var(--surface))}
 [data-theme="dark"] .quiz-restart{background:var(--surface);color:var(--ink);border-color:var(--line)}
 [data-theme="dark"] .quiz-match-img{background:var(--surface)}
+
+/* --- Footer, breadcrumb, floorplan zoom dark overrides --- */
+[data-theme="dark"] .footer-links a { color: var(--ink); }
+[data-theme="dark"] .footer-legal { border-top-color: var(--line); }
+[data-theme="dark"] .footer-legal a { color: var(--muted); }
+[data-theme="dark"] .breadcrumb-list li + li::before { color: var(--line); }
+[data-theme="dark"] .floorplan-zoom-btn:focus-visible { outline-color: var(--copper); }

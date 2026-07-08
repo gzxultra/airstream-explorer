@@ -8,7 +8,7 @@ import {
 } from './format.mjs';
 import { motorhomeAssetPaths, motorhomeFamilySlug, motorhomeOfficialUrl, motorhomeOfficialUrlBySlug } from './motorhome-data.mjs';
 import { catalogStats } from './data.mjs';
-import { socialMeta, productJsonLd, iconMeta } from './seo.mjs';
+import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
 import {
   estimateOffGrid, formatNights,
   LOAD_PRESETS,
@@ -79,8 +79,39 @@ ${navLinks}
 <a id="main-content" tabindex="-1"></a>
 ${body}
 <footer class="site-footer">
-<p>Airstream Explorer · enthusiast catalog · ${_stats.floorplanCount} floorplans across ${_stats.familyCount} families (2026 + 2025). · <a href="${relRoot}index.html#all">Explore &amp; match</a> · <a href="${relRoot}index.html#all&type=motorhome">Motorhomes</a> · <a href="${relRoot}compare.html">Compare</a> · <a href="${relRoot}campsites.html">Campsites</a> · <a href="${relRoot}upgrades.html">Upgrades</a> · <a href="${relRoot}maintenance.html">Maintenance</a> · <a href="${relRoot}community.html">Community photos</a> · <a href="${relRoot}credits.html">Credits</a></p>
-<p class="muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Model imagery is manufacturer product photography, used for editorial and reference identification; community photographs are used under their stated Creative Commons / public-domain licenses (see credits).</p>
+<div class="footer-grid">
+<div class="footer-col">
+<p class="footer-heading">Browse</p>
+<ul class="footer-links">
+<li><a href="${relRoot}index.html">Families</a></li>
+<li><a href="${relRoot}index.html#all">All floorplans</a></li>
+<li><a href="${relRoot}index.html#all&type=motorhome">Motorhomes</a></li>
+<li><a href="${relRoot}compare.html">Compare</a></li>
+</ul>
+</div>
+<div class="footer-col">
+<p class="footer-heading">Plan your trip</p>
+<ul class="footer-links">
+<li><a href="${relRoot}campsites.html">Campsites</a></li>
+<li><a href="${relRoot}campgrounds.html">Campground map</a></li>
+<li><a href="${relRoot}upgrades.html">Upgrades</a></li>
+<li><a href="${relRoot}maintenance.html">Maintenance</a></li>
+</ul>
+</div>
+<div class="footer-col">
+<p class="footer-heading">Community</p>
+<ul class="footer-links">
+<li><a href="${relRoot}community.html">Community photos</a></li>
+<li><a href="${relRoot}credits.html">Credits &amp; sources</a></li>
+<li><a href="https://www.airstream.com/" target="_blank" rel="noopener">airstream.com ↗</a></li>
+</ul>
+</div>
+<div class="footer-col footer-col-about">
+<p class="footer-heading">Airstream Explorer</p>
+<p class="footer-about">${_stats.floorplanCount} floorplans across ${_stats.familyCount} families. An independent, spec-accurate field guide to the current Airstream lineup.</p>
+</div>
+</div>
+<p class="footer-legal muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Model imagery is manufacturer product photography; community photos under Creative Commons / public-domain licenses (<a href="${relRoot}credits.html">see credits</a>).</p>
 </footer>
 <div class="lightbox" id="lightbox" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Photo viewer">
 <div class="lightbox-backdrop" data-lb-close></div>
@@ -280,7 +311,7 @@ ${fam.years
   const shownCount = hasBothYears
     ? fam.motorhomes.filter((m) => m.year === latest).length
     : fam.motorhomes.length;
-  const body = `<nav class="detail-nav"><a href="../motorhomes.html" class="back-link">← All touring coaches</a></nav>
+  const body = `<nav class="breadcrumb" aria-label="Breadcrumb"><ol class="breadcrumb-list"><li><a href="../index.html">Home</a></li><li><a href="../motorhomes.html">Touring coaches</a></li><li aria-current="page">${esc(fam.family)}</li></ol></nav>
 <header class="fam-hero">
 <img class="fam-hero-img" src="../${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" width="1280" height="720" fetchpriority="high">
 <div class="fam-hero-overlay">
@@ -297,6 +328,11 @@ ${yearSeg}
 <main class="cards" id="cards">
 ${cards}
 </main>`;
+  const mfBreadcrumbItems = [
+    { name: 'Airstream Explorer', path: 'index.html' },
+    { name: 'Touring coaches', path: 'motorhomes.html' },
+    { name: `Airstream ${fam.family}`, path: `mf/${fam.slug}.html` },
+  ];
   return page({
     title: `Airstream ${fam.family} — touring coach floorplans, specs & prices`,
     description: `Every Airstream ${fam.family} touring coach floorplan (${fam.years.join(' + ')}): ${range}, ${len}, sleeps up to ${fam.sleepsMax}. Compare ${fam.floorplanCount} floorplan${fam.floorplanCount === 1 ? '' : 's'} with full specs.`,
@@ -305,6 +341,7 @@ ${cards}
     active: 'motorhomes',
     canonicalPath: `mf/${fam.slug}.html`,
     ogImage: fam.hero || '',
+    head: breadcrumbJsonLd(mfBreadcrumbItems),
   });
 }
 
@@ -482,8 +519,20 @@ export function renderMotorhomeDetail(m, resolve = motorhomeAssetPaths, allMotor
   const sectionNav = buildMotorhomeSectionNav(galleryCount);
   // Related motorhomes
   const relatedSection = renderMotorhomeRelated(m, allMotorhomes, resolve);
+  const mmBreadcrumbItems = [
+    { name: 'Airstream Explorer', path: 'index.html' },
+    { name: 'Touring coaches', path: 'motorhomes.html' },
+    { name: m.model, path: `mf/${fam}.html` },
+    { name: `${m.model} ${m.floorplan}`, path: `mm/${m.slug}.html` },
+  ];
+  const mmBreadcrumbHtml = `<nav class="breadcrumb" aria-label="Breadcrumb"><ol class="breadcrumb-list">`
+    + `<li><a href="../index.html">Home</a></li>`
+    + `<li><a href="../motorhomes.html">Touring coaches</a></li>`
+    + `<li><a href="../mf/${esc(fam)}.html">${esc(m.model)}</a></li>`
+    + `<li aria-current="page">${esc(m.floorplan)}</li>`
+    + `</ol></nav>`;
   const body = `<div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
-<nav class="detail-nav"><a href="../mf/${esc(fam)}.html" class="back-link">← All ${esc(m.model)} floorplans</a></nav>
+${mmBreadcrumbHtml}
 ${sectionNav}
 <article class="detail" data-canonical="mm/${esc(m.slug)}.html" data-spec-text="${esc(buildMotorhomeSpecText(m))}">
 <header class="detail-head">
@@ -555,7 +604,7 @@ ${relatedSection}
       imagePath: a.hero || '',
       canonicalPath: `mm/${m.slug}.html`,
       category: 'Class B Motorhome',
-    }),
+    }) + '\n' + breadcrumbJsonLd(mmBreadcrumbItems),
   });
 }
 

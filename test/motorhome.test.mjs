@@ -316,11 +316,12 @@ test('renderMotorhomeDetail labels standard vs optional factory solar', () => {
   assert.doesNotMatch(optHtml, /400 W \(standard\)/);
 });
 
-test('renderMotorhomeDetail has back link to motorhome family page', () => {
+test('renderMotorhomeDetail has breadcrumb to motorhome family page', () => {
   const m = motorhomes.find((x) => x.slug === 'atlas-25ms-2027');
   const html = renderMotorhomeDetail(m);
   assert.match(html, /href="\.\.\/mf\/atlas\.html"/);
-  assert.match(html, /← All Atlas/);
+  assert.match(html, /aria-label="Breadcrumb"/);
+  assert.match(html, /BreadcrumbList/);
 });
 
 test('every motorhome renders a detail page without throwing', () => {

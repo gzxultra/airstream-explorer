@@ -10,7 +10,7 @@ import {
 import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel } from './data.mjs';
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
-import { socialMeta, productJsonLd, iconMeta } from './seo.mjs';
+import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
 import { SORT_KEYS, exploreTags, tagLabel } from './explore.mjs';
 import { renderCampgroundFit } from './campgrounds-render.mjs';
 import { renderFloorplanZones, renderFloorplanLegend } from './floorplan-zones.mjs';
@@ -110,8 +110,39 @@ ${navLinks}
 <a id="main-content" tabindex="-1"></a>
 ${body}
 <footer class="site-footer">
-<p>Airstream Explorer · enthusiast catalog · ${_stats.floorplanCount} floorplans across ${_stats.familyCount} families (2026 + 2025). · <a href="${relRoot}index.html#all">Explore &amp; match</a> · <a href="${relRoot}index.html#all&type=motorhome">Motorhomes</a> · <a href="${relRoot}compare.html">Compare</a> · <a href="${relRoot}campsites.html">Campsites</a> · <a href="${relRoot}campgrounds.html">Campground map</a> · <a href="${relRoot}upgrades.html">Upgrades</a> · <a href="${relRoot}maintenance.html">Maintenance</a> · <a href="${relRoot}community.html">Community photos</a> · <a href="${relRoot}credits.html">Credits</a></p>
-<p class="muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Model imagery is manufacturer product photography, used for editorial and reference identification; community photographs are used under their stated Creative Commons / public-domain licenses (see credits).</p>
+<div class="footer-grid">
+<div class="footer-col">
+<p class="footer-heading">Browse</p>
+<ul class="footer-links">
+<li><a href="${relRoot}index.html">Families</a></li>
+<li><a href="${relRoot}index.html#all">All floorplans</a></li>
+<li><a href="${relRoot}index.html#all&type=motorhome">Motorhomes</a></li>
+<li><a href="${relRoot}compare.html">Compare</a></li>
+</ul>
+</div>
+<div class="footer-col">
+<p class="footer-heading">Plan your trip</p>
+<ul class="footer-links">
+<li><a href="${relRoot}campsites.html">Campsites</a></li>
+<li><a href="${relRoot}campgrounds.html">Campground map</a></li>
+<li><a href="${relRoot}upgrades.html">Upgrades</a></li>
+<li><a href="${relRoot}maintenance.html">Maintenance</a></li>
+</ul>
+</div>
+<div class="footer-col">
+<p class="footer-heading">Community</p>
+<ul class="footer-links">
+<li><a href="${relRoot}community.html">Community photos</a></li>
+<li><a href="${relRoot}credits.html">Credits &amp; sources</a></li>
+<li><a href="https://www.airstream.com/" target="_blank" rel="noopener">airstream.com ↗</a></li>
+</ul>
+</div>
+<div class="footer-col footer-col-about">
+<p class="footer-heading">Airstream Explorer</p>
+<p class="footer-about">${_stats.floorplanCount} floorplans across ${_stats.familyCount} families. An independent, spec-accurate field guide to the current Airstream lineup.</p>
+</div>
+</div>
+<p class="footer-legal muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Model imagery is manufacturer product photography; community photos under Creative Commons / public-domain licenses (<a href="${relRoot}credits.html">see credits</a>).</p>
 </footer>
 <div class="lightbox" id="lightbox" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Photo viewer">
 <div class="lightbox-backdrop" data-lb-close></div>
@@ -526,7 +557,7 @@ ${fam.years
   const shownCount = hasBothYears
     ? fam.trailers.filter((t) => t.year === latest).length
     : fam.trailers.length;
-  const body = `<nav class="detail-nav"><a href="../index.html" class="back-link">← All families</a></nav>
+  const body = `<nav class="breadcrumb" aria-label="Breadcrumb"><ol class="breadcrumb-list"><li><a href="../index.html">Home</a></li><li aria-current="page">${esc(fam.family)}</li></ol></nav>
 <header class="fam-hero">
 <img class="fam-hero-img" src="../${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" width="1280" height="720" fetchpriority="high" style="view-transition-name:vt-hero-${esc(fam.slug)}">
 <div class="fam-hero-overlay">
@@ -544,6 +575,11 @@ ${yearSeg}
 ${cards}
 </main>
 ${renderFamilyCompare(fam)}`;
+  // Breadcrumb trail: Home → Family
+  const famBreadcrumbItems = [
+    { name: 'Airstream Explorer', path: 'index.html' },
+    { name: `Airstream ${fam.family}`, path: `f/${fam.slug}.html` },
+  ];
   return page({
     title: `Airstream ${fam.family} — floorplans, specs & prices`,
     description: `Every Airstream ${fam.family} floorplan (${fam.years.join(' + ')}): ${range}, ${len}, sleeps up to ${fam.sleepsMax}. Compare ${fam.floorplanCount} floorplan${fam.floorplanCount === 1 ? '' : 's'} with full specs.`,
@@ -552,6 +588,7 @@ ${renderFamilyCompare(fam)}`;
     active: 'index',
     canonicalPath: `f/${fam.slug}.html`,
     ogImage: fam.hero || '',
+    head: breadcrumbJsonLd(famBreadcrumbItems),
   });
 }
 
@@ -1107,8 +1144,9 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
   const fpHint = fpZones
     ? `<p class="floorplan-hint" data-fp-hint>Tap a numbered point to see what's where. <span class="muted">Zones placed against the official ${esc(t.floorplan)} diagram.</span></p>`
     : '';
+  const floorplanLbIdx = totalMedia; // lightbox index after hero + gallery
   const floorplanSection = a.floorplan
-    ? `<section class="floorplan${fpInteractive}" id="floorplan" aria-label="Floor plan" data-floorplan-code="${esc(t.floorplan)}"><h2>Floor plan</h2>${fpHint}<figure class="floorplan-fig"><span class="floorplan-stage"><img src="../${esc(a.floorplan)}" alt="${esc(trailerLabel(t))} floor plan diagram" loading="lazy" class="floorplan-img" width="820" height="1332">${fpZones}</span>${fpLegend}<figcaption class="muted">Official Airstream ${esc(t.floorplan)} floor plan${official ? ` · <a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">View ${esc(t.model)} floor plans on airstream.com ↗</a>` : ''}</figcaption></figure></section>`
+    ? `<section class="floorplan${fpInteractive}" id="floorplan" aria-label="Floor plan" data-floorplan-code="${esc(t.floorplan)}"><h2>Floor plan</h2>${fpHint}<figure class="floorplan-fig"><button type="button" class="floorplan-zoom-btn" data-lightbox data-full="../${esc(a.floorplan)}" data-index="${floorplanLbIdx}" data-caption="${esc(trailerLabel(t))} floor plan" aria-label="View floor plan full screen"><span class="floorplan-stage"><img src="../${esc(a.floorplan)}" alt="${esc(trailerLabel(t))} floor plan diagram" loading="lazy" class="floorplan-img" width="820" height="1332">${fpZones}</span><span class="floorplan-zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg> Tap to enlarge</span></button>${fpLegend}<figcaption class="muted">Official Airstream ${esc(t.floorplan)} floor plan${official ? ` · <a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">View ${esc(t.model)} floor plans on airstream.com ↗</a>` : ''}</figcaption></figure></section>`
     : '';
   const decorSection = renderDecor(decor, t.model);
   const pros = (t.pros || []).map((p) => `<li>${esc(p)}</li>`).join('');
@@ -1141,8 +1179,19 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
   ].filter(Boolean));
   // Related floorplans: same family, different floorplan, prefer same year
   const relatedSection = renderRelated(t, allTrailers, resolve);
+  // Breadcrumb trail: Home → Family → Floorplan
+  const breadcrumbItems = [
+    { name: 'Airstream Explorer', path: 'index.html' },
+    { name: t.model, path: `f/${fam}.html` },
+    { name: `${t.model} ${t.floorplan}`, path: `m/${t.slug}.html` },
+  ];
+  const breadcrumbHtml = `<nav class="breadcrumb" aria-label="Breadcrumb"><ol class="breadcrumb-list">`
+    + `<li><a href="../index.html">Home</a></li>`
+    + `<li><a href="../f/${esc(fam)}.html">${esc(t.model)}</a></li>`
+    + `<li aria-current="page">${esc(t.floorplan)}</li>`
+    + `</ol></nav>`;
   const body = `<div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
-<nav class="detail-nav"><a href="../f/${esc(fam)}.html" class="back-link">← All ${esc(t.model)} floorplans</a></nav>
+${breadcrumbHtml}
 ${sectionNav}
 <article class="detail" data-canonical="m/${esc(t.slug)}.html" data-spec-text="${esc(buildSpecText(t))}">
 <header class="detail-head">
@@ -1211,7 +1260,7 @@ ${relatedSection}
       imagePath: a.hero || '',
       canonicalPath: `m/${t.slug}.html`,
       category: 'Travel Trailer',
-    }),
+    }) + '\n' + breadcrumbJsonLd(breadcrumbItems),
   });
 }
 

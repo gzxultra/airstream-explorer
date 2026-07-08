@@ -68,10 +68,10 @@ test('home leads with Classic and sinks Basecamp below it', () => {
   assert.ok(basecampIdx > classicIdx, 'Basecamp sits below Classic');
 });
 
-test('renderFamily shows all of a family\'s floorplans with hero + back link', () => {
+test('renderFamily shows all of a family\'s floorplans with hero + breadcrumb', () => {
   const html = renderFamily(classicFam);
   assert.ok(html.startsWith('<!DOCTYPE html>'));
-  assert.match(html, /← All families/);
+  assert.match(html, /aria-label="Breadcrumb"/);
   assert.match(html, /class="fam-hero"/);
   assert.match(html, /\.\.\/assets\/img\/heroes\/classic\.webp/);
   assert.equal((html.match(/class="card"/g) || []).length, classicFam.trailers.length);
@@ -129,9 +129,12 @@ test('renderDetail has full spec table with audited numbers', () => {
   assert.match(html, /1,575 lb/);          // ccc
   assert.match(html, /Cargo capacity/);
   assert.match(html, /Off-grid score/);
-  // back link now points at the family page
+  // breadcrumb points at the family page
   assert.match(html, /href="\.\.\/f\/classic\.html"/);
-  assert.match(html, /← All Classic floorplans/);
+  assert.match(html, /aria-label="Breadcrumb"/);
+  assert.match(html, /aria-current="page"/);
+  // breadcrumb JSON-LD
+  assert.match(html, /BreadcrumbList/);
   assert.match(html, /\.\.\/assets\/img\/heroes\/classic\.webp/);
 });
 
@@ -237,11 +240,11 @@ test('no detail page contains an unescaped data-driven angle bracket in body tex
     const html = renderDetail(t);
     const scripts = html.match(/<script/g) || [];
     // Legitimate scripts: the <head> no-flash theme script, the deferred
-    // app.js, the application/ld+json Product structured-data block, plus up
-    // to 3 application/json data islands (tow-data, fuel-data, payload-data)
-    // depending on trailer specs.
-    // Minimum 4 (theme + app.js + ld+json + tow-data), maximum 6 (all tools).
-    assert.ok(scripts.length >= 4 && scripts.length <= 6, `${t.slug} has unexpected <script> count: ${scripts.length}`);
+    // app.js, the application/ld+json Product structured-data block, the
+    // application/ld+json BreadcrumbList block, plus up to 3 application/json
+    // data islands (tow-data, fuel-data, payload-data) depending on trailer specs.
+    // Minimum 5 (theme + app.js + ld+json product + ld+json breadcrumb + tow-data), maximum 7 (all tools).
+    assert.ok(scripts.length >= 5 && scripts.length <= 7, `${t.slug} has unexpected <script> count: ${scripts.length}`);
     // No data island (json OR ld+json) should contain a raw </ breakout.
     const islands = html.match(/<script type="application\/(?:ld\+)?json"[^>]*>([\s\S]*?)<\/script>/g) || [];
     for (const m of islands) {

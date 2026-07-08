@@ -131,3 +131,30 @@ export function productJsonLd({ name, description, imagePath, canonicalPath = ''
   const json = JSON.stringify(data).replace(/<\//g, '<\\/');
   return `<script type="application/ld+json">${json}</script>`;
 }
+
+/**
+ * BreadcrumbList structured data (schema.org/BreadcrumbList) for navigation and
+ * SEO. Produces a <script type="application/ld+json"> block that helps search
+ * engines understand the page hierarchy.
+ *
+ * @param {Array<{name: string, path: string}>} items ordered breadcrumb items;
+ *        each carries a human-readable name and a root-relative path. The last
+ *        item is the current page (no link in the visual trail, but still
+ *        present in the structured data).
+ * @returns {string} a <script type="application/ld+json"> block
+ */
+export function breadcrumbJsonLd(items) {
+  if (!items || items.length < 2) return '';
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((it, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: it.name,
+      item: absUrl(it.path),
+    })),
+  };
+  const json = JSON.stringify(data).replace(/<\//g, '<\\/');
+  return `<script type="application/ld+json">${json}</script>`;
+}
