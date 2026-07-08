@@ -121,6 +121,25 @@ ${body}
 <button type="button" class="lightbox-nav lightbox-next" data-lb-next aria-label="Next photo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 5 16 12 9 19"></polyline></svg></button>
 </div>
 <button type="button" class="back-to-top" id="back-to-top" aria-label="Back to top" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
+<div class="kb-help" id="kb-help" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+<div class="kb-help-backdrop" data-kb-close></div>
+<div class="kb-help-panel">
+<div class="kb-help-head"><h2>Keyboard shortcuts</h2><button type="button" class="kb-help-close" data-kb-close aria-label="Close">&times;</button></div>
+<div class="kb-help-body">
+<div class="kb-group"><h3>Navigation</h3>
+<div class="kb-row"><kbd>/</kbd><span>Focus search</span></div>
+<div class="kb-row"><kbd>j</kbd> / <kbd>k</kbd><span>Next / previous card</span></div>
+<div class="kb-row"><kbd>Enter</kbd><span>Open focused card</span></div>
+<div class="kb-row"><kbd>Esc</kbd><span>Close overlay</span></div>
+</div>
+<div class="kb-group"><h3>Actions</h3>
+<div class="kb-row"><kbd>d</kbd><span>Toggle dark mode</span></div>
+<div class="kb-row"><kbd>s</kbd><span>Save / unsave floorplan</span></div>
+<div class="kb-row"><kbd>?</kbd><span>Show this help</span></div>
+</div>
+</div>
+</div>
+</div>
 <script src="${relRoot}assets/js/app.js" defer></script>
 ${scripts}</body>
 </html>`;
@@ -876,14 +895,16 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
   const a = resolve(t);
   const fam = familySlug(t.model);
   const official = officialUrl(t.model);
+  const totalMedia = a.gallery.length + (a.hero ? 1 : 0);
   const heroImg = a.hero
-    ? `<img src="../${esc(a.hero)}" alt="${esc(trailerTitle(t))}" class="detail-hero-img" width="1280" height="720" fetchpriority="high">`
+    ? `<button type="button" class="detail-hero-btn" data-lightbox data-full="../${esc(a.hero)}" data-index="0" data-caption="${esc(trailerTitle(t))} — hero" aria-label="View hero image full screen"><img src="../${esc(a.hero)}" alt="${esc(trailerTitle(t))}" class="detail-hero-img" width="1280" height="720" fetchpriority="high"><span class="hero-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`
     : '';
   const galleryCount = a.gallery.length;
+  const heroOffset = a.hero ? 1 : 0;
   const gallery = a.gallery
     .map(
       (g, i) =>
-        `<button type="button" class="gallery-img-wrap${a.galleryCutout && a.galleryCutout[i] ? ' is-cutout' : ' is-photo'}" data-lightbox data-full="../${esc(g)}" data-index="${i}" data-caption="${esc(trailerLabel(t))} — photo ${i + 1} of ${galleryCount}" aria-label="Open photo ${i + 1} of ${galleryCount} full screen"><img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="lazy" class="gallery-img${a.galleryCutout && a.galleryCutout[i] ? ' gallery-img--cutout' : ' gallery-img--photo'}" width="920" height="600"><span class="gallery-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`,
+        `<button type="button" class="gallery-img-wrap${a.galleryCutout && a.galleryCutout[i] ? ' is-cutout' : ' is-photo'}" data-lightbox data-full="../${esc(g)}" data-index="${i + heroOffset}" data-caption="${esc(trailerLabel(t))} — photo ${i + 1} of ${galleryCount}" aria-label="Open photo ${i + 1} of ${galleryCount} full screen"><img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="lazy" class="gallery-img${a.galleryCutout && a.galleryCutout[i] ? ' gallery-img--cutout' : ' gallery-img--photo'}" width="920" height="600"><span class="gallery-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`,
     )
     .join('\n');
   const fpZones = renderFloorplanZones(t.floorplan, t.slug);
@@ -1127,6 +1148,10 @@ ${typeSeg}
 <div class="xc-sleeps">
 <label for="x-sleeps">Sleeps ≥</label>
 <select id="x-sleeps"><option value="">Any</option><option value="2">2</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="8">8</option></select>
+</div>
+<div class="xc-price">
+<label for="x-price">Budget</label>
+<select id="x-price"><option value="">Any price</option><option value="80000">Under $80k</option><option value="120000">Under $120k</option><option value="160000">Under $160k</option><option value="200000">Under $200k</option></select>
 </div>
 <button type="button" class="xc-reset" id="x-reset">Reset</button>
 </div>

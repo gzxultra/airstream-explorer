@@ -2592,3 +2592,105 @@ html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) {
   .reveal-ready { opacity: 1; transform: none; transition: none; }
 }
+
+/* ======================================================================== */
+/* HERO CLICK-TO-LIGHTBOX                                                   */
+/* ======================================================================== */
+.detail-hero-btn {
+  display: block; width: 100%; padding: 0; border: none; background: none;
+  cursor: zoom-in; position: relative; overflow: hidden;
+  border-radius: 10px;
+}
+.detail-hero-btn:focus-visible { outline: 2px solid var(--copper, #B8763E); outline-offset: 2px; }
+.hero-zoom {
+  position: absolute; bottom: 12px; right: 12px;
+  display: flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(31,27,22,.55); color: #fff;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  opacity: 0; transition: opacity .2s;
+  pointer-events: none;
+}
+.detail-hero-btn:hover .hero-zoom,
+.detail-hero-btn:focus-visible .hero-zoom { opacity: 1; }
+@media (max-width: 560px) { .hero-zoom { width: 34px; height: 34px; } .hero-zoom svg { width: 18px; height: 18px; } }
+
+/* ======================================================================== */
+/* EXPLORE PRICE FILTER                                                     */
+/* ======================================================================== */
+.xc-price { display: flex; align-items: center; gap: 6px; }
+.xc-price label { font-size: 13px; font-weight: 500; color: var(--muted, #8C857D); white-space: nowrap; }
+.xc-price select {
+  font-family: inherit; font-size: 13px; padding: 5px 8px;
+  border: 1px solid var(--line, #E2DDD8); border-radius: 6px;
+  background: var(--bg, #FAF8F5); color: var(--ink, #1F1B16);
+}
+
+/* ======================================================================== */
+/* KEYBOARD HELP OVERLAY                                                    */
+/* ======================================================================== */
+.kb-help {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+}
+.kb-help[hidden] { display: none; }
+.kb-help-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(31,27,22,.5);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+}
+.kb-help-panel {
+  position: relative; z-index: 1;
+  background: var(--card, #fff); color: var(--ink, #1F1B16);
+  border-radius: 14px; box-shadow: 0 16px 48px rgba(0,0,0,.2);
+  max-width: 420px; width: 92%; max-height: 80vh;
+  overflow-y: auto; padding: 24px 28px 28px;
+  animation: kbSlideUp .25s ease-out;
+}
+@keyframes kbSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+.kb-help-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.kb-help-head h2 { font-size: 18px; font-weight: 600; margin: 0; }
+.kb-help-close {
+  border: none; background: none; font-size: 24px; cursor: pointer;
+  color: var(--muted, #8C857D); line-height: 1; padding: 4px;
+}
+.kb-help-close:hover { color: var(--ink, #1F1B16); }
+.kb-group { margin-bottom: 16px; }
+.kb-group:last-child { margin-bottom: 0; }
+.kb-group h3 {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--muted, #8C857D); margin: 0 0 8px;
+}
+.kb-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 5px 0; font-size: 14px;
+}
+.kb-row kbd {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 26px; height: 26px; padding: 0 7px;
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  background: var(--surface, #F3EFEB); border: 1px solid var(--line, #E2DDD8);
+  border-radius: 5px; box-shadow: 0 1px 1px rgba(0,0,0,.06);
+  color: var(--ink, #1F1B16);
+}
+.kb-row span { color: var(--ink, #1F1B16); }
+@media (max-width: 560px) {
+  .kb-help-panel { padding: 20px 22px 24px; }
+  .kb-row { font-size: 13px; }
+}
+@media print { .kb-help { display: none !important; } }
+
+/* ======================================================================== */
+/* EXPLORE CARD FOCUS STATE (keyboard nav)                                  */
+/* ======================================================================== */
+.xcard.is-kb-focus {
+  outline: 2px solid var(--copper, #B8763E);
+  outline-offset: 2px;
+  border-radius: 10px;
+}

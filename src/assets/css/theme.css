@@ -256,3 +256,10 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 
 /* Explore stats — dark mode */
 [data-theme="dark"] .x-stats { color: var(--muted); }
+
+/* Hero zoom + keyboard help in dark mode */
+[data-theme="dark"] .hero-zoom { background: rgba(255,255,255,.2); }
+[data-theme="dark"] .kb-help-backdrop { background: rgba(0,0,0,.6); }
+[data-theme="dark"] .kb-help-panel { box-shadow: 0 16px 48px rgba(0,0,0,.45); }
+[data-theme="dark"] .kb-row kbd { box-shadow: 0 1px 1px rgba(0,0,0,.2); }
+[data-theme="dark"] .xc-price select { background: var(--bg); color: var(--ink); border-color: var(--line); }

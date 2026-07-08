@@ -67,7 +67,123 @@
       if (mq.addEventListener) mq.addEventListener('change', onChange);
       else if (mq.addListener) mq.addListener(onChange);
     }
+    // =========================================================================
+  // 7. KEYBOARD SHORTCUTS — site-wide hotkeys for power users. ? opens the
+  //     help overlay, / focuses explore search, j/k navigates explore cards,
+  //     d toggles dark/light, s saves the current detail-page floorplan.
+  //     All shortcuts are suppressed when focus is inside an input, textarea,
+  //     select, or contenteditable element, so they never interfere with typing.
+  // =========================================================================
+  (function keyboardShortcuts() {
+    var helpEl = document.getElementById('kb-help');
+    if (!helpEl) return;
+    var isOpen = false;
+
+    function openHelp() {
+      helpEl.removeAttribute('hidden');
+      helpEl.setAttribute('aria-hidden', 'false');
+      isOpen = true;
+    }
+    function closeHelp() {
+      helpEl.setAttribute('hidden', '');
+      helpEl.setAttribute('aria-hidden', 'true');
+      isOpen = false;
+    }
+    // Close buttons
+    Array.prototype.slice.call(helpEl.querySelectorAll('[data-kb-close]')).forEach(function (el) {
+      el.addEventListener('click', closeHelp);
+    });
+
+    // Explore card keyboard nav state
+    var kbIdx = -1;
+    function getVisibleCards() {
+      var grid = document.getElementById('xgrid');
+      if (!grid) return [];
+      return Array.prototype.slice.call(grid.querySelectorAll('.xcard:not([hidden])'));
+    }
+    function clearKbFocus() {
+      var old = document.querySelector('.xcard.is-kb-focus');
+      if (old) old.classList.remove('is-kb-focus');
+    }
+    function setKbFocus(cards, idx) {
+      clearKbFocus();
+      if (idx < 0 || idx >= cards.length) return;
+      kbIdx = idx;
+      cards[idx].classList.add('is-kb-focus');
+      cards[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function inInput(e) {
+      var tag = (e.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
+      if (e.target.isContentEditable) return true;
+      return false;
+    }
+
+    document.addEventListener('keydown', function (e) {
+      // Escape always closes overlays
+      if (e.key === 'Escape') {
+        if (isOpen) { closeHelp(); e.preventDefault(); return; }
+        clearKbFocus(); kbIdx = -1;
+        return;
+      }
+      // Don't intercept when typing in inputs
+      if (inInput(e)) return;
+      // Don't intercept modified keys (Ctrl, Alt, Meta)
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+      var key = e.key;
+
+      // ? — show help
+      if (key === '?') { e.preventDefault(); isOpen ? closeHelp() : openHelp(); return; }
+
+      // / — focus search
+      if (key === '/') {
+        var search = document.getElementById('x-search');
+        if (search) { e.preventDefault(); search.focus(); search.select(); }
+        return;
+      }
+
+      // d — toggle dark mode
+      if (key === 'd') {
+        var toggle = document.getElementById('theme-toggle');
+        if (toggle) { e.preventDefault(); toggle.click(); }
+        return;
+      }
+
+      // s — save/unsave on detail page
+      if (key === 's') {
+        var detailSave = document.querySelector('.save-btn--detail');
+        if (detailSave) { e.preventDefault(); detailSave.click(); }
+        return;
+      }
+
+      // j/k — navigate explore cards
+      if (key === 'j' || key === 'k') {
+        var cards = getVisibleCards();
+        if (!cards.length) return;
+        e.preventDefault();
+        if (key === 'j') {
+          setKbFocus(cards, kbIdx < cards.length - 1 ? kbIdx + 1 : 0);
+        } else {
+          setKbFocus(cards, kbIdx > 0 ? kbIdx - 1 : cards.length - 1);
+        }
+        return;
+      }
+
+      // Enter — open focused card
+      if (key === 'Enter' && kbIdx >= 0) {
+        var cards2 = getVisibleCards();
+        if (cards2[kbIdx]) {
+          var link = cards2[kbIdx].querySelector('.xcard-link');
+          if (link) { e.preventDefault(); link.click(); }
+        }
+        return;
+      }
+    });
   })();
+
+})();
 
   // =========================================================================
   // 0b-LIGHTBOX — full-screen gallery viewer. Each gallery cell is a
@@ -492,7 +608,7 @@
     var towSummary = document.getElementById('tow-summary');
     var towPresets = Array.prototype.slice.call(document.querySelectorAll('.tow-preset'));
 
-    var state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all' };
+    var state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all', price: 0 };
 
     // Restore saved explore preferences (sort, year, sleeps, use-case tags, tow
     // rating). Search text stays transient.
@@ -506,9 +622,10 @@
       if (Array.isArray(p.tags)) state.tags = p.tags.filter(function (t) { return typeof t === 'string'; });
       if (typeof p.tow === 'number' && p.tow > 0) state.tow = p.tow;
       if (p.type === 'trailer' || p.type === 'motorhome' || p.type === 'all') state.type = p.type;
+      if (typeof p.price === 'number' && p.price > 0) state.price = p.price;
     })();
     function persistX() {
-      Store.set(X_PREFS, { sort: state.sort, year: state.year, sleeps: state.sleeps, tags: state.tags, tow: state.tow, type: state.type });
+      Store.set(X_PREFS, { sort: state.sort, year: state.year, sleeps: state.sleeps, tags: state.tags, tow: state.tow, type: state.type, price: state.price });
     }
 
     function num(card, k) { return parseFloat(card.getAttribute(k)); }
@@ -539,6 +656,10 @@
         if (ok && state.q && name.indexOf(state.q) === -1) ok = false;
         if (ok && state.year && year !== state.year) ok = false;
         if (ok && state.sleeps && sleeps < state.sleeps) ok = false;
+        if (ok && state.price) {
+          var msrp = num(card, 'data-msrp');
+          if (msrp > state.price) ok = false;
+        }
         if (ok && state.tags.length) {
           for (var i = 0; i < state.tags.length; i++) {
             if (tags.indexOf(state.tags[i]) === -1) { ok = false; break; }
@@ -628,6 +749,8 @@
     if (elSort) elSort.addEventListener('change', function () { state.sort = this.value; persistX(); apply(); });
     if (elYear) elYear.addEventListener('change', function () { state.year = this.value; persistX(); apply(); });
     if (elSleeps) elSleeps.addEventListener('change', function () { state.sleeps = parseInt(this.value, 10) || 0; persistX(); apply(); });
+    var elPrice = document.getElementById('x-price');
+    if (elPrice) elPrice.addEventListener('change', function () { state.price = parseInt(this.value, 10) || 0; persistX(); apply(); });
     tagBtns.forEach(function (btn) {
       btn.addEventListener('click', function () {
         var tag = btn.getAttribute('data-tag');
@@ -681,11 +804,12 @@
     });
 
     function resetAll() {
-      state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all' };
+      state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all', price: 0 };
       if (elSearch) elSearch.value = '';
       if (elSort) elSort.value = 'price-asc';
       if (elYear) elYear.value = '2026';
       if (elSleeps) elSleeps.value = '';
+      if (elPrice) elPrice.value = '';
       tagBtns.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
       Store.del(X_PREFS);
       setType('all', { persist: false });
@@ -757,6 +881,7 @@
       if (elSort && state.sort) elSort.value = state.sort;
       if (elYear) elYear.value = state.year;
       if (elSleeps) elSleeps.value = state.sleeps ? String(state.sleeps) : '';
+      if (elPrice) elPrice.value = state.price ? String(state.price) : '';
       if (state.tags && state.tags.length) {
         tagBtns.forEach(function (b) {
           if (state.tags.indexOf(b.getAttribute('data-tag')) !== -1) b.setAttribute('aria-pressed', 'true');

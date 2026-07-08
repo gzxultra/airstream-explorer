@@ -90,6 +90,25 @@ ${body}
 <button type="button" class="lightbox-nav lightbox-next" data-lb-next aria-label="Next photo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 5 16 12 9 19"></polyline></svg></button>
 </div>
 <button type="button" class="back-to-top" id="back-to-top" aria-label="Back to top" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
+<div class="kb-help" id="kb-help" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+<div class="kb-help-backdrop" data-kb-close></div>
+<div class="kb-help-panel">
+<div class="kb-help-head"><h2>Keyboard shortcuts</h2><button type="button" class="kb-help-close" data-kb-close aria-label="Close">&times;</button></div>
+<div class="kb-help-body">
+<div class="kb-group"><h3>Navigation</h3>
+<div class="kb-row"><kbd>/</kbd><span>Focus search</span></div>
+<div class="kb-row"><kbd>j</kbd> / <kbd>k</kbd><span>Next / previous card</span></div>
+<div class="kb-row"><kbd>Enter</kbd><span>Open focused card</span></div>
+<div class="kb-row"><kbd>Esc</kbd><span>Close overlay</span></div>
+</div>
+<div class="kb-group"><h3>Actions</h3>
+<div class="kb-row"><kbd>d</kbd><span>Toggle dark mode</span></div>
+<div class="kb-row"><kbd>s</kbd><span>Save / unsave floorplan</span></div>
+<div class="kb-row"><kbd>?</kbd><span>Show this help</span></div>
+</div>
+</div>
+</div>
+</div>
 <script src="${relRoot}assets/js/app.js" defer></script>
 ${scripts}</body>
 </html>`;
