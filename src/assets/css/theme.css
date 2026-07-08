@@ -285,3 +285,7 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .fc-scroll { border-color: var(--line); }
 [data-theme="dark"] .fc-table thead th { background: var(--surface); }
 [data-theme="dark"] .fc-table tbody tr:hover { background: rgba(212,154,106,.08); }
+
+/* Unit toggle — dark mode */
+[data-theme="dark"] .unit-toggle { color: var(--ink); border-color: var(--line); }
+[data-theme="dark"] .unit-toggle:hover { border-color: var(--copper); color: var(--copper); }

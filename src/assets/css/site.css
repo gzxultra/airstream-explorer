@@ -2934,3 +2934,22 @@ noscript img[loading="lazy"], img[loading="lazy"][data-no-fade] { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   img[loading="lazy"] { opacity: 1; transition: none; }
 }
+
+/* Unit toggle button */
+.unit-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: 1.5px solid var(--line, #e0dbd4); border-radius: 6px;
+  padding: 3px 8px; cursor: pointer; color: var(--ink, #1F1B16);
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+  letter-spacing: .04em; line-height: 1; transition: border-color .2s, color .2s, background .2s;
+  margin-left: 6px; vertical-align: middle;
+}
+.unit-toggle:hover { border-color: var(--copper, #B78E56); color: var(--copper, #B78E56); }
+.unit-toggle[aria-pressed="true"] { background: var(--copper, #B78E56); color: #fff; border-color: var(--copper, #B78E56); }
+.unit-toggle:focus-visible { outline: 2px solid var(--copper, #B78E56); outline-offset: 2px; }
+@media (max-width: 560px) { .unit-toggle { padding: 2px 6px; font-size: 11px; } }
+
+/* Touch-friendly spec tooltips */
+.spec-tip.is-tip-open .spec-tip-text {
+  visibility: visible; opacity: 1; pointer-events: auto;
+}

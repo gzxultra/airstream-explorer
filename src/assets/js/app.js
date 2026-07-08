@@ -67,6 +67,89 @@
       if (mq.addEventListener) mq.addEventListener('change', onChange);
       else if (mq.addListener) mq.addListener(onChange);
     }
+  // =========================================================================
+  // 0b-UNITS — imperial↔metric toggle for all spec values across the site.
+  //     Reads data-unit (weight|length|tanks) + data-raw attributes baked into
+  //     the server-rendered HTML. Persistent via localStorage('ae:units').
+  //     Conversions: lb→kg, ft→m, gal→L. Prices and dimensionless values
+  //     (sleeps, off-grid score) are unchanged.
+  // =========================================================================
+  (function unitToggle() {
+    var btn = document.getElementById('unit-toggle');
+    var label = document.getElementById('unit-label');
+    if (!btn) return;
+
+    var LB_TO_KG = 0.453592;
+    var FT_TO_M = 0.3048;
+    var GAL_TO_L = 3.78541;
+
+    function isMetric() {
+      try { return localStorage.getItem('ae:units') === 'metric'; } catch (e) { return false; }
+    }
+
+    function fmtWeight(lb) { return Math.round(lb * LB_TO_KG).toLocaleString('en-US') + ' kg'; }
+    function fmtLength(ft) {
+      var m = ft * FT_TO_M;
+      return m.toFixed(1).replace(/\.0$/, '') + ' m';
+    }
+    function fmtGal(g) { return Math.round(g * GAL_TO_L) + ' L'; }
+    function fmtWeightImp(lb) { return Math.round(lb).toLocaleString('en-US') + ' lb'; }
+    function fmtLengthImp(ft) {
+      var whole = Math.floor(ft);
+      var inches = Math.round((ft - whole) * 12);
+      if (inches === 0) return whole + "'";
+      if (inches === 12) return (whole + 1) + "'";
+      return whole + "' " + inches + '"';
+    }
+    function fmtTanks(raw, metric) {
+      var parts = raw.split(',');
+      return parts.map(function (p) {
+        var n = parseFloat(p);
+        if (isNaN(n)) return '—';
+        return metric ? fmtGal(n) : Math.round(n).toString();
+      }).join(' / ');
+    }
+
+    function apply(metric) {
+      var els = document.querySelectorAll('[data-unit]');
+      for (var i = 0; i < els.length; i++) {
+        var el = els[i];
+        var unit = el.getAttribute('data-unit');
+        var raw = el.getAttribute('data-raw');
+        if (!raw) continue;
+        var text;
+        if (unit === 'weight') {
+          var lb = parseFloat(raw);
+          if (isNaN(lb)) continue;
+          text = metric ? fmtWeight(lb) : fmtWeightImp(lb);
+          // Preserve trailing " GVWR" suffix if present
+          if (el.className && el.className.indexOf('weight-bar-gvwr') >= 0) text += ' GVWR';
+        } else if (unit === 'length') {
+          var ft = parseFloat(raw);
+          if (isNaN(ft)) continue;
+          text = metric ? fmtLength(ft) : fmtLengthImp(ft);
+        } else if (unit === 'tanks') {
+          text = fmtTanks(raw, metric);
+        } else {
+          continue;
+        }
+        el.textContent = text;
+      }
+      if (label) label.textContent = metric ? 'kg/m' : 'lb/ft';
+      btn.setAttribute('aria-pressed', String(metric));
+      btn.setAttribute('aria-label', metric ? 'Switch units to imperial' : 'Switch units to metric');
+      btn.setAttribute('title', metric ? 'Switch to imperial units' : 'Switch to metric units');
+    }
+
+    // Apply on load
+    if (isMetric()) apply(true);
+
+    btn.addEventListener('click', function () {
+      var next = !isMetric();
+      try { localStorage.setItem('ae:units', next ? 'metric' : 'imperial'); } catch (e) {}
+      apply(next);
+    });
+  })();
     // =========================================================================
   // 7. KEYBOARD SHORTCUTS — site-wide hotkeys for power users. ? opens the
   //     help overlay, / focuses explore search, j/k navigates explore cards,
@@ -148,6 +231,13 @@
       if (key === 'd') {
         var toggle = document.getElementById('theme-toggle');
         if (toggle) { e.preventDefault(); toggle.click(); }
+        return;
+      }
+
+      // u — toggle imperial/metric units
+      if (key === 'u') {
+        var unitBtn = document.getElementById('unit-toggle');
+        if (unitBtn) { e.preventDefault(); unitBtn.click(); }
         return;
       }
 
@@ -4167,6 +4257,44 @@
     }
     window.addEventListener('scroll', update, { passive: true });
     update();
+  })();
+
+  // =========================================================================
+  // TOUCH TOOLTIPS — the CSS-only spec glossary tooltips rely on :hover and
+  //     :focus which don't work reliably on mobile (iOS Safari tap != focus for
+  //     non-input elements). This module adds click/tap toggling so mobile
+  //     users can access glossary definitions. Tapping elsewhere closes any
+  //     open tooltip.
+  // =========================================================================
+  (function touchTooltips() {
+    var tips = document.querySelectorAll('.spec-tip');
+    if (!tips.length) return;
+    var current = null;
+
+    function close() {
+      if (current) {
+        current.classList.remove('is-tip-open');
+        current = null;
+      }
+    }
+
+    Array.prototype.slice.call(tips).forEach(function (tip) {
+      tip.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (current === tip) {
+          close();
+        } else {
+          close();
+          tip.classList.add('is-tip-open');
+          current = tip;
+        }
+      });
+    });
+
+    document.addEventListener('click', close);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') close();
+    });
   })();
 
   // =========================================================================

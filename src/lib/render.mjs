@@ -101,6 +101,9 @@ ${navLinks}
 <svg class="theme-icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"></circle><line x1="12" y1="2" x2="12" y2="4.5"></line><line x1="12" y1="19.5" x2="12" y2="22"></line><line x1="2" y1="12" x2="4.5" y2="12"></line><line x1="19.5" y1="12" x2="22" y2="12"></line><line x1="4.6" y1="4.6" x2="6.4" y2="6.4"></line><line x1="17.6" y1="17.6" x2="19.4" y2="19.4"></line><line x1="4.6" y1="19.4" x2="6.4" y2="17.6"></line><line x1="17.6" y1="6.4" x2="19.4" y2="4.6"></line></svg>
 <svg class="theme-icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.2A8.2 8.2 0 1 1 9.8 3.5a6.4 6.4 0 0 0 10.7 10.7z"></path></svg>
 </button>
+<button type="button" class="unit-toggle" id="unit-toggle" aria-label="Switch units to metric" title="Switch to metric units" aria-pressed="false">
+<span class="unit-toggle-label" id="unit-label">lb/ft</span>
+</button>
 </nav>
 </div>
 </header>
@@ -134,6 +137,7 @@ ${body}
 </div>
 <div class="kb-group"><h3>Actions</h3>
 <div class="kb-row"><kbd>d</kbd><span>Toggle dark mode</span></div>
+<div class="kb-row"><kbd>u</kbd><span>Toggle imperial / metric</span></div>
 <div class="kb-row"><kbd>s</kbd><span>Save / unsave floorplan</span></div>
 <div class="kb-row"><kbd>?</kbd><span>Show this help</span></div>
 </div>
@@ -171,12 +175,13 @@ function renderStandoutBadges(t, allTrailers) {
   return `<div class="standout-badges" aria-label="Standout traits">${pills}</div>`;
 }
 
-function specRow(label, value, { tip = false } = {}) {
+function specRow(label, value, { tip = false, unit = null, raw = null } = {}) {
   const glossary = tip && SPEC_GLOSSARY[label];
   const dtInner = glossary
     ? `<span class="spec-tip" tabindex="0" aria-label="${esc(label)}: ${esc(glossary)}"><span class="spec-tip-text">${esc(glossary)}</span>${esc(label)}</span>`
     : esc(label);
-  return `<div class="spec"><dt>${dtInner}</dt><dd>${esc(value)}</dd></div>`;
+  const unitAttr = unit && raw != null ? ` data-unit="${esc(unit)}" data-raw="${esc(String(raw))}"` : '';
+  return `<div class="spec"><dt>${dtInner}</dt><dd${unitAttr}>${esc(value)}</dd></div>`;
 }
 
 function tagChips(tags) {
@@ -190,15 +195,16 @@ function tagChips(tags) {
 /** Render the key-stats dashboard below the detail hero. */
 function renderKeyStats(t) {
   const stats = [
-    { icon: '📐', value: formatLength(t.lengthFt), label: 'Length' },
-    { icon: '⚖️', value: formatWeight(t.weightLb), label: 'Dry weight' },
+    { icon: '📐', value: formatLength(t.lengthFt), label: 'Length', unit: 'length', raw: t.lengthFt },
+    { icon: '⚖️', value: formatWeight(t.weightLb), label: 'Dry weight', unit: 'weight', raw: t.weightLb },
     { icon: '🛏️', value: String(t.sleeps), label: 'Sleeps' },
     { icon: '💰', value: formatMsrpShort(t.msrp), label: 'Base MSRP' },
     t.offGridScore ? { icon: '🔋', value: `${t.offGridScore}/100`, label: 'Off-grid' } : null,
   ].filter(Boolean);
-  return `<div class="key-stats" aria-label="Key specifications at a glance">${stats.map((s) =>
-    `<div class="key-stat"><span class="key-stat-icon" aria-hidden="true">${s.icon}</span><span class="key-stat-value">${esc(s.value)}</span><span class="key-stat-label">${esc(s.label)}</span></div>`
-  ).join('')}</div>`;
+  return `<div class="key-stats" aria-label="Key specifications at a glance">${stats.map((s) => {
+    const unitAttr = s.unit && s.raw != null ? ` data-unit="${esc(s.unit)}" data-raw="${esc(String(s.raw))}"` : '';
+    return `<div class="key-stat"><span class="key-stat-icon" aria-hidden="true">${s.icon}</span><span class="key-stat-value"${unitAttr}>${esc(s.value)}</span><span class="key-stat-label">${esc(s.label)}</span></div>`;
+  }).join('')}</div>`;
 }
 
 /** Render the weight capacity visualization bar. */
@@ -208,10 +214,10 @@ function renderWeightBar(t) {
   const cccPct = 100 - dryPct;
   const ccc = t.cccLb || (t.gvwrLb - t.weightLb);
   return `<div class="weight-bar" aria-label="Weight capacity breakdown">
-<div class="weight-bar-header"><span class="weight-bar-title">Weight capacity</span><span class="weight-bar-gvwr">${esc(formatWeight(t.gvwrLb))} GVWR</span></div>
+<div class="weight-bar-header"><span class="weight-bar-title">Weight capacity</span><span class="weight-bar-gvwr" data-unit="weight" data-raw="${esc(String(t.gvwrLb))}">${esc(formatWeight(t.gvwrLb))} GVWR</span></div>
 <div class="weight-bar-track">
-<div class="weight-bar-dry" style="width:${dryPct}%"><span class="weight-bar-seg-label">${esc(formatWeight(t.weightLb))}</span></div>
-<div class="weight-bar-ccc" style="width:${cccPct}%"><span class="weight-bar-seg-label">${esc(formatWeight(ccc))}</span></div>
+<div class="weight-bar-dry" style="width:${dryPct}%"><span class="weight-bar-seg-label" data-unit="weight" data-raw="${esc(String(t.weightLb))}">${esc(formatWeight(t.weightLb))}</span></div>
+<div class="weight-bar-ccc" style="width:${cccPct}%"><span class="weight-bar-seg-label" data-unit="weight" data-raw="${esc(String(ccc))}">${esc(formatWeight(ccc))}</span></div>
 </div>
 <div class="weight-bar-legend"><span class="weight-bar-legend-dry">Dry weight</span><span class="weight-bar-legend-ccc">Cargo capacity (CCC)</span></div>
 </div>`;
@@ -370,12 +376,12 @@ function renderFamilyCompare(fam) {
     return `<td>
 <a href="../m/${esc(t.slug)}.html" class="fc-link">${esc(t.floorplan)}</a>
 </td>
-<td>${esc(formatLength(t.lengthFt))}</td>
-<td${isLightest ? ' class="fc-best"' : ''}>${esc(formatWeight(t.weightLb))}</td>
-<td>${esc(formatWeight(t.gvwrLb))}</td>
-<td${isMostCcc ? ' class="fc-best"' : ''}>${t.cccLb ? esc(formatWeight(t.cccLb)) : '—'}</td>
+<td data-unit="length" data-raw="${esc(String(t.lengthFt))}">${esc(formatLength(t.lengthFt))}</td>
+<td${isLightest ? ' class="fc-best"' : ''} data-unit="weight" data-raw="${esc(String(t.weightLb))}">${esc(formatWeight(t.weightLb))}</td>
+<td data-unit="weight" data-raw="${esc(String(t.gvwrLb))}">${esc(formatWeight(t.gvwrLb))}</td>
+<td${isMostCcc ? ' class="fc-best"' : ''}${t.cccLb ? ` data-unit="weight" data-raw="${esc(String(t.cccLb))}"` : ''}>${t.cccLb ? esc(formatWeight(t.cccLb)) : '—'}</td>
 <td>${esc(String(t.sleeps))}</td>
-<td>${esc(formatTanks(t.freshGal, t.grayGal, t.blackGal))}</td>
+<td data-unit="tanks" data-raw="${esc([t.freshGal, t.grayGal, t.blackGal].join(','))}">${esc(formatTanks(t.freshGal, t.grayGal, t.blackGal))}</td>
 <td${isBestOffGrid ? ' class="fc-best"' : ''}>${t.offGridScore || '—'}</td>
 <td>${esc(formatMsrp(t.msrp))}</td>`;
   });
@@ -1012,7 +1018,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     ? `<section class="tow-callout" aria-label="Towing">
 <div class="tow-callout-main">
 <p class="tow-callout-label">Your tow vehicle must be rated for at least</p>
-<p class="tow-callout-value">${formatWeight(t.gvwrLb)}<span>fully-loaded GVWR</span></p>
+<p class="tow-callout-value"><span data-unit="weight" data-raw="${esc(String(t.gvwrLb))}">${formatWeight(t.gvwrLb)}</span><span>fully-loaded GVWR</span></p>
 </div>
 <p class="tow-callout-note">This is the official Airstream GVWR — the most this floorplan can weigh loaded, and the minimum tow rating your vehicle needs.${t.hitchWeightLb ? ` Official hitch (tongue) weight is ${esc(formatWeight(t.hitchWeightLb))}${hitchPct ? ` (~${hitchPct}% of GVWR)` : ''}.` : ''} <a href="../index.html#all">Match it to your vehicle →</a></p>
 </section>`
@@ -1054,13 +1060,13 @@ ${renderKeyStats(t)}
 <section class="spec-table" id="specs" aria-label="Specifications">
 <h2>Specifications</h2>
 <dl class="specs-grid">
-${specRow('Length', formatLength(t.lengthFt), { tip: true })}
-${specRow('Dry weight', formatWeight(t.weightLb), { tip: true })}
-${specRow('GVWR', formatWeight(t.gvwrLb), { tip: true })}
-${specRow('Cargo capacity (CCC)', formatWeight(t.cccLb), { tip: true })}
-${specRow('Hitch weight', formatWeight(t.hitchWeightLb), { tip: true })}
+${specRow('Length', formatLength(t.lengthFt), { tip: true, unit: 'length', raw: t.lengthFt })}
+${specRow('Dry weight', formatWeight(t.weightLb), { tip: true, unit: 'weight', raw: t.weightLb })}
+${specRow('GVWR', formatWeight(t.gvwrLb), { tip: true, unit: 'weight', raw: t.gvwrLb })}
+${specRow('Cargo capacity (CCC)', formatWeight(t.cccLb), { tip: true, unit: 'weight', raw: t.cccLb })}
+${specRow('Hitch weight', formatWeight(t.hitchWeightLb), { tip: true, unit: 'weight', raw: t.hitchWeightLb })}
 ${specRow('Sleeps', String(t.sleeps), { tip: true })}
-${specRow('Fresh / gray / black', formatTanks(t.freshGal, t.grayGal, t.blackGal), { tip: true })}
+${specRow('Fresh / gray / black', formatTanks(t.freshGal, t.grayGal, t.blackGal), { tip: true, unit: 'tanks', raw: [t.freshGal, t.grayGal, t.blackGal].join(',') })}
 ${specRow('Solar', t.solarW ? `${t.solarW} W ${t.solarStandard ? '(standard)' : '(optional)'}` : '—', { tip: true })}
 ${specRow('Battery', t.batteryKwh ? `${t.batteryKwh} kWh` : '—', { tip: true })}
 ${specRow('Off-grid score', `${t.offGridScore} / 100`, { tip: true })}
@@ -1125,8 +1131,8 @@ ${a.gallery && a.gallery.length ? `<span class="xcard-photos" aria-label="${a.ga
 <div class="xcard-body">
 <h3 class="xcard-title">${esc(t.model)} <span>${esc(t.floorplan)}</span></h3>
 <dl class="xcard-specs">
-${specRow('Length', formatLength(t.lengthFt))}
-${specRow('Dry weight', formatWeight(t.weightLb))}
+${specRow('Length', formatLength(t.lengthFt), { unit: 'length', raw: t.lengthFt })}
+${specRow('Dry weight', formatWeight(t.weightLb), { unit: 'weight', raw: t.weightLb })}
 ${specRow('Sleeps', String(t.sleeps))}
 ${specRow('MSRP', formatMsrp(t.msrp))}
 </dl>
