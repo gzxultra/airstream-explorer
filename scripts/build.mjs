@@ -125,7 +125,7 @@ log(`wrote ${families.length} family pages`);
 
 // 4. Detail pages
 for (const t of trailers) {
-  writeFileSync(join(DIST, 'm', `${t.slug}.html`), renderDetail(t, resolve, campgrounds, resolveDecor(t, decorMap, hasAsset)));
+  writeFileSync(join(DIST, 'm', `${t.slug}.html`), renderDetail(t, resolve, campgrounds, resolveDecor(t, decorMap, hasAsset), trailers));
 }
 log(`wrote ${trailers.length} detail pages`);
 
@@ -141,7 +141,7 @@ for (const fam of motorhomeFamilies) {
   writeFileSync(join(DIST, 'mf', `${fam.slug}.html`), renderMotorhomeFamily(fam, resolveMH));
 }
 for (const mh of motorhomes) {
-  writeFileSync(join(DIST, 'mm', `${mh.slug}.html`), renderMotorhomeDetail(mh, resolveMH));
+  writeFileSync(join(DIST, 'mm', `${mh.slug}.html`), renderMotorhomeDetail(mh, resolveMH, motorhomes));
 }
 log(`wrote motorhomes.html + ${motorhomeFamilies.length} family pages + ${motorhomes.length} detail pages`);
 

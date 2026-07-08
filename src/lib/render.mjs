@@ -120,6 +120,7 @@ ${body}
 </figure>
 <button type="button" class="lightbox-nav lightbox-next" data-lb-next aria-label="Next photo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 5 16 12 9 19"></polyline></svg></button>
 </div>
+<button type="button" class="back-to-top" id="back-to-top" aria-label="Back to top" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
 <script src="${relRoot}assets/js/app.js" defer></script>
 ${scripts}</body>
 </html>`;
@@ -338,7 +339,7 @@ export function renderOffGridTool(t) {
   const intensityOpts = Object.entries(LOAD_PRESETS)
     .map(([k, v]) => `<option value="${esc(k)}"${k === 'moderate' ? ' selected' : ''}>${esc(v.label)} — ${esc(v.blurb)}</option>`)
     .join('');
-  return `<section class="estimator offgrid-tool" aria-label="Off-grid endurance estimator"
+  return `<section class="estimator offgrid-tool" id="offgrid" aria-label="Off-grid endurance estimator"
  data-battery="${esc(t.batteryKwh)}" data-solar="${esc(t.solarW || 0)}" data-fresh="${esc(t.freshGal)}" data-gray="${esc(t.grayGal == null ? '' : t.grayGal)}" data-black="${esc(t.blackGal == null ? '' : t.blackGal)}">
 <div class="est-head">
 <h2>How long off-grid?</h2>
@@ -481,7 +482,7 @@ export function renderTowTool(t) {
     .map((s, i) => `<a href="${esc(s)}" target="_blank" rel="noopener nofollow">source${def.sources.length > 1 ? ' ' + (i + 1) : ''}</a>`)
     .join(' · ');
 
-  return `<section class="towtool" aria-label="Tow-safety calculator"
+  return `<section class="towtool" id="tow" aria-label="Tow-safety calculator"
  data-gvwr="${esc(t.gvwrLb)}"${t.weightLb ? ` data-weight="${esc(t.weightLb)}"` : ''}${t.hitchWeightLb ? ` data-hitch="${esc(t.hitchWeightLb)}"` : ''}>
 <script type="application/json" id="tow-data">${dataIsland}</script>
 <div class="tow-head">
@@ -587,7 +588,7 @@ export function renderFuelTool(t) {
   const priceMax = defElectric ? '2' : '10';
   const costNoun = defElectric ? 'estimated energy' : 'estimated fuel';
 
-  return `<section class="estimator fuel-tool" aria-label="Trip fuel cost estimator"
+  return `<section class="estimator fuel-tool" id="fuel" aria-label="Trip fuel cost estimator"
  data-gvwr="${esc(t.gvwrLb)}"${t.weightLb ? ` data-weight="${esc(t.weightLb)}"` : ''}>
 <script type="application/json" id="fuel-data">${dataIsland}</script>
 <div class="est-head">
@@ -686,7 +687,7 @@ export function renderPayloadTool(t) {
     waterLbPerGal: WATER_LB_PER_GAL,
   }).replace(/<\//g, '<\\/');
 
-  return `<section class="estimator payload-tool" aria-label="Payload packing calculator"
+  return `<section class="estimator payload-tool" id="payload" aria-label="Payload packing calculator"
  data-ccc="${esc(t.cccLb)}" data-fresh="${esc(t.freshGal || 0)}">
 <script type="application/json" id="payload-data">${dataIsland}</script>
 <div class="est-head">
@@ -759,11 +760,69 @@ ${desc}
 }
 
 // ---------------------------------------------------------------------------
+// SECTION QUICK-NAV: horizontal sticky bar for detail page sections
+// ---------------------------------------------------------------------------
+function buildSectionNav(items) {
+  if (items.length < 2) return '';
+  const links = items.map(([href, label]) =>
+    `<a href="${href}" class="secnav-link">${esc(label)}</a>`).join('');
+  return `<nav class="secnav" aria-label="Page sections" data-secnav>${links}</nav>`;
+}
+
+// ---------------------------------------------------------------------------
+// RELATED FLOORPLANS: cross-discovery cards at the bottom of detail pages
+// ---------------------------------------------------------------------------
+function renderRelated(current, allTrailers, resolve) {
+  if (!allTrailers.length) return '';
+  // Same family, same year, different floorplan
+  let related = allTrailers.filter(
+    (t) => t.model === current.model && t.slug !== current.slug && t.year === current.year,
+  );
+  // If not enough, add same-family from other years
+  if (related.length < 3) {
+    const slugs = new Set(related.map((r) => r.slug));
+    slugs.add(current.slug);
+    allTrailers
+      .filter((t) => t.model === current.model && !slugs.has(t.slug))
+      .forEach((t) => related.push(t));
+  }
+  // If still not enough (single-floorplan families like FLW), add similar-sized from other families
+  if (related.length < 2) {
+    const slugs = new Set(related.map((r) => r.slug));
+    slugs.add(current.slug);
+    const bySimilarity = allTrailers
+      .filter((t) => !slugs.has(t.slug) && t.year === current.year)
+      .map((t) => ({ t, dist: Math.abs(t.weightLb - current.weightLb) + Math.abs(t.msrp - current.msrp) / 100 }))
+      .sort((a, b) => a.dist - b.dist);
+    bySimilarity.slice(0, 4 - related.length).forEach(({ t }) => related.push(t));
+  }
+  related = related.slice(0, 4);
+  if (!related.length) return '';
+  const cards = related.map((t) => {
+    const a = resolve(t);
+    return `<a class="rel-card" href="${esc(t.slug)}.html">
+<div class="rel-media"><img src="../${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="400" height="260"></div>
+<div class="rel-body">
+<p class="rel-title">${esc(t.model)} <span>${esc(t.floorplan)}</span></p>
+<p class="rel-specs">${esc(formatLength(t.lengthFt))} · ${esc(formatWeight(t.weightLb))} · ${esc(formatMsrp(t.msrp))}</p>
+</div>
+</a>`;
+  }).join('\n');
+  const heading = related.every((r) => r.model === current.model)
+    ? `More ${esc(current.model)} floorplans`
+    : 'Explore similar floorplans';
+  return `<section class="related" aria-label="Related floorplans">
+<h2>${heading}</h2>
+<div class="related-grid">${cards}</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
 // DETAIL: one floorplan
 // ---------------------------------------------------------------------------
 
 /** A single trailer detail page. */
-export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor = null) {
+export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor = null, allTrailers = []) {
   const a = resolve(t);
   const fam = familySlug(t.model);
   const official = officialUrl(t.model);
@@ -784,7 +843,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     ? `<p class="floorplan-hint" data-fp-hint>Tap a numbered point to see what's where. <span class="muted">Zones placed against the official ${esc(t.floorplan)} diagram.</span></p>`
     : '';
   const floorplanSection = a.floorplan
-    ? `<section class="floorplan${fpInteractive}" aria-label="Floor plan" data-floorplan-code="${esc(t.floorplan)}"><h2>Floor plan</h2>${fpHint}<figure class="floorplan-fig"><span class="floorplan-stage"><img src="../${esc(a.floorplan)}" alt="${esc(trailerLabel(t))} floor plan diagram" loading="lazy" class="floorplan-img" width="820" height="1332">${fpZones}</span>${fpLegend}<figcaption class="muted">Official Airstream ${esc(t.floorplan)} floor plan${official ? ` · <a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">View ${esc(t.model)} floor plans on airstream.com ↗</a>` : ''}</figcaption></figure></section>`
+    ? `<section class="floorplan${fpInteractive}" id="floorplan" aria-label="Floor plan" data-floorplan-code="${esc(t.floorplan)}"><h2>Floor plan</h2>${fpHint}<figure class="floorplan-fig"><span class="floorplan-stage"><img src="../${esc(a.floorplan)}" alt="${esc(trailerLabel(t))} floor plan diagram" loading="lazy" class="floorplan-img" width="820" height="1332">${fpZones}</span>${fpLegend}<figcaption class="muted">Official Airstream ${esc(t.floorplan)} floor plan${official ? ` · <a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">View ${esc(t.model)} floor plans on airstream.com ↗</a>` : ''}</figcaption></figure></section>`
     : '';
   const decorSection = renderDecor(decor, t.model);
   const pros = (t.pros || []).map((p) => `<li>${esc(p)}</li>`).join('');
@@ -805,7 +864,20 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
 <p class="tow-callout-note">This is the official Airstream GVWR — the most this floorplan can weigh loaded, and the minimum tow rating your vehicle needs.${t.hitchWeightLb ? ` Official hitch (tongue) weight is ${esc(formatWeight(t.hitchWeightLb))}${hitchPct ? ` (~${hitchPct}% of GVWR)` : ''}.` : ''} <a href="../index.html#all">Match it to your vehicle →</a></p>
 </section>`
     : '';
+  // Section quick-nav: built from sections present on this page
+  const sectionNav = buildSectionNav([
+    ['#specs', 'Specs'],
+    t.gvwrLb ? ['#tow', 'Tow'] : null,
+    t.gvwrLb ? ['#fuel', 'Fuel'] : null,
+    t.cccLb ? ['#payload', 'Payload'] : null,
+    ['#offgrid', 'Off-grid'],
+    a.floorplan ? ['#floorplan', 'Floor plan'] : null,
+    galleryCount ? ['#gallery', 'Gallery'] : null,
+  ].filter(Boolean));
+  // Related floorplans: same family, different floorplan, prefer same year
+  const relatedSection = renderRelated(t, allTrailers, resolve);
   const body = `<nav class="detail-nav"><a href="../f/${esc(fam)}.html" class="back-link">← All ${esc(t.model)} floorplans</a></nav>
+${sectionNav}
 <article class="detail">
 <header class="detail-head">
 <p class="eyebrow">${esc(t.year)} MODEL YEAR</p>
@@ -818,7 +890,7 @@ ${official ? `<p class="official-head"><a class="official-link" href="${esc(offi
 </header>
 <div class="detail-hero">${heroImg}</div>
 <p class="detail-desc">${esc(t.description)}</p>
-<section class="spec-table" aria-label="Specifications">
+<section class="spec-table" id="specs" aria-label="Specifications">
 <h2>Specifications</h2>
 <dl class="specs-grid">
 ${specRow('Length', formatLength(t.lengthFt))}
@@ -847,7 +919,8 @@ ${pros || cons ? `<section class="proscons">
 ${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}
 ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
 </section>` : ''}
-${gallery ? `<section class="gallery" aria-label="Gallery"><h2>Gallery</h2><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
+${gallery ? `<section class="gallery" id="gallery" aria-label="Gallery"><h2>Gallery</h2><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
+${relatedSection}
 </article>`;
   return page({
     title: `${trailerTitle(t)} — specs, weights & price`,

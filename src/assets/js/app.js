@@ -3950,4 +3950,69 @@
     render();
   })();
 
+  // =========================================================================
+  // BACK-TO-TOP FAB — appears after scrolling 400px, smooth-scrolls to top.
+  // =========================================================================
+  (function backToTop() {
+    var btn = document.getElementById('back-to-top');
+    if (!btn) return;
+    var visible = false;
+    function check() {
+      var show = window.scrollY > 400;
+      if (show !== visible) {
+        visible = show;
+        btn.classList.toggle('is-visible', show);
+        btn.removeAttribute('hidden');
+      }
+    }
+    window.addEventListener('scroll', check, { passive: true });
+    btn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    check();
+  })();
+
+  // =========================================================================
+  // SECTION NAV SCROLL-SPY — highlights the active section link as you scroll.
+  // =========================================================================
+  (function sectionNavSpy() {
+    var nav = document.querySelector('[data-secnav]');
+    if (!nav) return;
+    var links = Array.prototype.slice.call(nav.querySelectorAll('.secnav-link'));
+    if (!links.length) return;
+    var sections = [];
+    links.forEach(function (a) {
+      var id = a.getAttribute('href');
+      if (id && id.charAt(0) === '#') {
+        var el = document.getElementById(id.slice(1));
+        if (el) sections.push({ el: el, link: a });
+      }
+    });
+    if (!sections.length) return;
+    var active = null;
+    var navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 56;
+    var offset = navH + nav.offsetHeight + 24;
+    function update() {
+      var scrollY = window.scrollY + offset;
+      var current = null;
+      for (var i = sections.length - 1; i >= 0; i--) {
+        if (sections[i].el.offsetTop <= scrollY) { current = sections[i]; break; }
+      }
+      if (!current && sections.length) current = sections[0];
+      if (current && current.link !== active) {
+        if (active) active.classList.remove('is-active');
+        current.link.classList.add('is-active');
+        active = current.link;
+        // Scroll the nav to keep active link visible
+        if (nav.scrollWidth > nav.clientWidth) {
+          var linkLeft = active.offsetLeft - nav.offsetLeft;
+          var linkCenter = linkLeft + active.offsetWidth / 2;
+          nav.scrollTo({ left: linkCenter - nav.clientWidth / 2, behavior: 'smooth' });
+        }
+      }
+    }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  })();
+
 })();

@@ -231,3 +231,9 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
    spec; current Chrome needs this @view-transition at-rule to opt in.
 --------------------------------------------------------------------------- */
 @view-transition { navigation: auto; }
+
+/* --- Dark mode: back-to-top, section nav, related cards --- */
+[data-theme="dark"] .back-to-top { box-shadow: 0 2px 12px rgba(0,0,0,.4); }
+[data-theme="dark"] .secnav { background: color-mix(in srgb, var(--bg) 88%, transparent); }
+[data-theme="dark"] .rel-card { box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+[data-theme="dark"] .rel-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.35); }

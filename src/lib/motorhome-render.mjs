@@ -89,6 +89,7 @@ ${body}
 </figure>
 <button type="button" class="lightbox-nav lightbox-next" data-lb-next aria-label="Next photo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 5 16 12 9 19"></polyline></svg></button>
 </div>
+<button type="button" class="back-to-top" id="back-to-top" aria-label="Back to top" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
 <script src="${relRoot}assets/js/app.js" defer></script>
 ${scripts}</body>
 </html>`;
@@ -265,7 +266,7 @@ function renderMotorhomeOffGridTool(m) {
   const intensityOpts = Object.entries(LOAD_PRESETS)
     .map(([k, v]) => `<option value="${esc(k)}"${k === 'moderate' ? ' selected' : ''}>${esc(v.label)} — ${esc(v.blurb)}</option>`)
     .join('');
-  return `<section class="estimator offgrid-tool" aria-label="Off-grid endurance estimator"
+  return `<section class="estimator offgrid-tool" id="offgrid" aria-label="Off-grid endurance estimator"
  data-battery="${esc(m.batteryKwh)}" data-solar="${esc(m.solarW || 0)}" data-fresh="${esc(m.freshGal)}" data-gray="${esc(m.grayGal == null ? '' : m.grayGal)}" data-black="${esc(m.blackGal == null ? '' : m.blackGal)}">
 <div class="est-head">
 <h2>How long off-grid?</h2>
@@ -336,8 +337,59 @@ function daysLabel(d) {
 }
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
+// ---------------------------------------------------------------------------
+// SECTION QUICK-NAV + RELATED for motorhome detail pages
+// ---------------------------------------------------------------------------
+function buildMotorhomeSectionNav(galleryCount) {
+  const items = [
+    ['#specs', 'Specs'],
+    ['#offgrid', 'Off-grid'],
+    galleryCount ? ['#gallery', 'Gallery'] : null,
+  ].filter(Boolean);
+  if (items.length < 2) return '';
+  const links = items.map(([href, label]) =>
+    `<a href="${href}" class="secnav-link">${esc(label)}</a>`).join('');
+  return `<nav class="secnav" aria-label="Page sections" data-secnav>${links}</nav>`;
+}
+
+function renderMotorhomeRelated(current, allMotorhomes, resolve) {
+  if (!allMotorhomes.length) return '';
+  let related = allMotorhomes.filter(
+    (m) => m.model === current.model && m.slug !== current.slug && m.year === current.year,
+  );
+  if (related.length < 2) {
+    const slugs = new Set(related.map((r) => r.slug));
+    slugs.add(current.slug);
+    allMotorhomes
+      .filter((m) => !slugs.has(m.slug) && m.year === current.year)
+      .map((m) => ({ m, dist: Math.abs(m.weightLb - current.weightLb) + Math.abs(m.msrp - current.msrp) / 100 }))
+      .sort((a, b) => a.dist - b.dist)
+      .slice(0, 4 - related.length)
+      .forEach(({ m }) => related.push(m));
+  }
+  related = related.slice(0, 4);
+  if (!related.length) return '';
+  const cards = related.map((m) => {
+    const a = resolve(m);
+    return `<a class="rel-card" href="${esc(m.slug)}.html">
+<div class="rel-media"><img src="../${esc(a.thumb)}" alt="${esc(trailerTitle(m))}" loading="lazy" width="400" height="260"></div>
+<div class="rel-body">
+<p class="rel-title">${esc(m.model)} <span>${esc(m.floorplan)}</span></p>
+<p class="rel-specs">${esc(formatLength(m.lengthFt))} · ${esc(formatWeight(m.weightLb))} · ${esc(formatMsrp(m.msrp))}</p>
+</div>
+</a>`;
+  }).join('\n');
+  const heading = related.every((r) => r.model === current.model)
+    ? `More ${esc(current.model)} floorplans`
+    : 'Explore similar motorhomes';
+  return `<section class="related" aria-label="Related motorhomes">
+<h2>${heading}</h2>
+<div class="related-grid">${cards}</div>
+</section>`;
+}
+
 /** A single motorhome detail page. */
-export function renderMotorhomeDetail(m, resolve = motorhomeAssetPaths) {
+export function renderMotorhomeDetail(m, resolve = motorhomeAssetPaths, allMotorhomes = []) {
   const a = resolve(m);
   const fam = motorhomeFamilySlug(m.model);
   const official = motorhomeOfficialUrlBySlug(m.slug, m.model);
@@ -353,7 +405,12 @@ export function renderMotorhomeDetail(m, resolve = motorhomeAssetPaths) {
     .join('\n');
   const pros = (m.pros || []).map((p) => `<li>${esc(p)}</li>`).join('');
   const cons = (m.cons || []).map((c) => `<li>${esc(c)}</li>`).join('');
+  // Section quick-nav
+  const sectionNav = buildMotorhomeSectionNav(galleryCount);
+  // Related motorhomes
+  const relatedSection = renderMotorhomeRelated(m, allMotorhomes, resolve);
   const body = `<nav class="detail-nav"><a href="../mf/${esc(fam)}.html" class="back-link">← All ${esc(m.model)} floorplans</a></nav>
+${sectionNav}
 <article class="detail">
 <header class="detail-head">
 <p class="eyebrow">${esc(m.year)} MODEL YEAR · CLASS ${esc(m.classType || 'B')} MOTORHOME</p>
@@ -366,7 +423,7 @@ ${official ? `<p class="official-head"><a class="official-link" href="${esc(offi
 </header>
 <div class="detail-hero">${heroImg}</div>
 <p class="detail-desc">${esc(m.description)}</p>
-<section class="spec-table" aria-label="Specifications">
+<section class="spec-table" id="specs" aria-label="Specifications">
 <h2>Specifications</h2>
 <dl class="specs-grid">
 ${specRow('Length', formatLength(m.lengthFt))}
@@ -399,7 +456,8 @@ ${pros || cons ? `<section class="proscons">
 ${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}
 ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
 </section>` : ''}
-${gallery ? `<section class="gallery" aria-label="Gallery"><h2>Gallery</h2><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
+${gallery ? `<section class="gallery" id="gallery" aria-label="Gallery"><h2>Gallery</h2><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
+${relatedSection}
 </article>`;
   return page({
     title: `${trailerTitle(m)} — specs, weight & price`,
