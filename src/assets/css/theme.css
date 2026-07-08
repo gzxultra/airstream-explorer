@@ -304,3 +304,14 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
   color: var(--ink);
 }
 [data-theme="dark"] .qv-close:hover { background: rgba(50,46,42,0.95); }
+
+/* Quiz dark overrides */
+[data-theme="dark"] .quiz-panel{background:var(--bg);box-shadow:0 24px 80px rgba(0,0,0,.5)}
+[data-theme="dark"] .quiz-opt{background:var(--surface);border-color:var(--line)}
+[data-theme="dark"] .quiz-opt:hover{background:color-mix(in srgb,var(--copper) 10%,var(--surface))}
+[data-theme="dark"] .quiz-opt.is-selected{background:color-mix(in srgb,var(--copper) 18%,var(--surface))}
+[data-theme="dark"] .quiz-match{border-color:var(--line)}
+[data-theme="dark"] .quiz-match:hover{border-color:var(--copper);box-shadow:0 4px 20px rgba(0,0,0,.2)}
+[data-theme="dark"] .quiz-reason{background:color-mix(in srgb,var(--copper) 18%,var(--surface))}
+[data-theme="dark"] .quiz-restart{background:var(--surface);color:var(--ink);border-color:var(--line)}
+[data-theme="dark"] .quiz-match-img{background:var(--surface)}

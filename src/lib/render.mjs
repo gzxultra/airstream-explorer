@@ -287,6 +287,79 @@ ${specRow('Years', yrs)}
  * toggles between them and mirrors state in the URL hash (#families / #all)
  * for deep-linking + back-button. `trailers`/`resolve` power the all view.
  */
+
+// ---------------------------------------------------------------------------
+// QUIZ: "Find Your Airstream" lifestyle recommendation wizard
+// ---------------------------------------------------------------------------
+function renderQuiz() {
+  return `<div class="quiz-overlay" id="quiz" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Find your Airstream">
+<div class="quiz-backdrop" data-quiz-close></div>
+<div class="quiz-panel">
+<div class="quiz-header">
+<div class="quiz-progress" id="quiz-progress"><span class="quiz-progress-fill" id="quiz-fill" style="width:25%"></span></div>
+<button type="button" class="quiz-close" data-quiz-close aria-label="Close">&times;</button>
+</div>
+<div class="quiz-steps" id="quiz-steps">
+<div class="quiz-step is-active" data-step="1">
+<p class="quiz-step-num">1 of 4</p>
+<h2 class="quiz-q">Who’s coming along?</h2>
+<p class="quiz-hint">This helps us narrow down sleeping capacity and living space.</p>
+<div class="quiz-opts">
+<button type="button" class="quiz-opt" data-key="group" data-val="solo"><span class="quiz-opt-icon" aria-hidden="true">🧑‍🤝‍🧑</span><span class="quiz-opt-label">Solo or couple</span><span class="quiz-opt-sub">1–2 people</span></button>
+<button type="button" class="quiz-opt" data-key="group" data-val="small"><span class="quiz-opt-icon" aria-hidden="true">👪</span><span class="quiz-opt-label">Small family</span><span class="quiz-opt-sub">3–4 people</span></button>
+<button type="button" class="quiz-opt" data-key="group" data-val="large"><span class="quiz-opt-icon" aria-hidden="true">🏕️</span><span class="quiz-opt-label">Large group</span><span class="quiz-opt-sub">5+ people</span></button>
+</div>
+</div>
+<div class="quiz-step" data-step="2">
+<p class="quiz-step-num">2 of 4</p>
+<h2 class="quiz-q">What’s your budget?</h2>
+<p class="quiz-hint">Base MSRP — before dealer options and delivery.</p>
+<div class="quiz-opts">
+<button type="button" class="quiz-opt" data-key="budget" data-val="80000"><span class="quiz-opt-icon" aria-hidden="true">💰</span><span class="quiz-opt-label">Under $80k</span><span class="quiz-opt-sub">Compact &amp; nimble</span></button>
+<button type="button" class="quiz-opt" data-key="budget" data-val="120000"><span class="quiz-opt-icon" aria-hidden="true">💳</span><span class="quiz-opt-label">$80k – $120k</span><span class="quiz-opt-sub">Mid-range sweet spot</span></button>
+<button type="button" class="quiz-opt" data-key="budget" data-val="180000"><span class="quiz-opt-icon" aria-hidden="true">💎</span><span class="quiz-opt-label">$120k – $180k</span><span class="quiz-opt-sub">Premium touring</span></button>
+<button type="button" class="quiz-opt" data-key="budget" data-val="999999"><span class="quiz-opt-icon" aria-hidden="true">👑</span><span class="quiz-opt-label">$180k+</span><span class="quiz-opt-sub">Flagship luxury</span></button>
+</div>
+</div>
+<div class="quiz-step" data-step="3">
+<p class="quiz-step-num">3 of 4</p>
+<h2 class="quiz-q">How do you travel?</h2>
+<p class="quiz-hint">Your style shapes which features matter most.</p>
+<div class="quiz-opts">
+<button type="button" class="quiz-opt" data-key="style" data-val="weekend"><span class="quiz-opt-icon" aria-hidden="true">🏖️</span><span class="quiz-opt-label">Weekend getaways</span><span class="quiz-opt-sub">Quick trips, campgrounds</span></button>
+<button type="button" class="quiz-opt" data-key="style" data-val="extended"><span class="quiz-opt-icon" aria-hidden="true">🛣️</span><span class="quiz-opt-label">Extended road trips</span><span class="quiz-opt-sub">Weeks on the road</span></button>
+<button type="button" class="quiz-opt" data-key="style" data-val="offgrid"><span class="quiz-opt-icon" aria-hidden="true">⛺</span><span class="quiz-opt-label">Off-grid adventure</span><span class="quiz-opt-sub">Boondocking &amp; dispersed</span></button>
+<button type="button" class="quiz-opt" data-key="style" data-val="fulltime"><span class="quiz-opt-icon" aria-hidden="true">🏠</span><span class="quiz-opt-label">Full-time living</span><span class="quiz-opt-sub">Home on wheels</span></button>
+</div>
+</div>
+<div class="quiz-step" data-step="4">
+<p class="quiz-step-num">4 of 4</p>
+<h2 class="quiz-q">What matters most?</h2>
+<p class="quiz-hint">Pick the priority that’ll tip the decision.</p>
+<div class="quiz-opts">
+<button type="button" class="quiz-opt" data-key="priority" data-val="tow"><span class="quiz-opt-icon" aria-hidden="true">🚚</span><span class="quiz-opt-label">Easy to tow</span><span class="quiz-opt-sub">Lighter &amp; shorter</span></button>
+<button type="button" class="quiz-opt" data-key="priority" data-val="space"><span class="quiz-opt-icon" aria-hidden="true">🛋️</span><span class="quiz-opt-label">Maximum space</span><span class="quiz-opt-sub">Room to stretch out</span></button>
+<button type="button" class="quiz-opt" data-key="priority" data-val="offgrid"><span class="quiz-opt-icon" aria-hidden="true">🔋</span><span class="quiz-opt-label">Off-grid capability</span><span class="quiz-opt-sub">Solar, batteries, tanks</span></button>
+<button type="button" class="quiz-opt" data-key="priority" data-val="value"><span class="quiz-opt-icon" aria-hidden="true">✨</span><span class="quiz-opt-label">Best value</span><span class="quiz-opt-sub">Most for the money</span></button>
+</div>
+</div>
+<div class="quiz-step quiz-results" data-step="results">
+<h2 class="quiz-q">Your top matches</h2>
+<p class="quiz-hint" id="quiz-criteria"></p>
+<div class="quiz-matches" id="quiz-matches"></div>
+<div class="quiz-results-actions">
+<button type="button" class="quiz-restart" id="quiz-restart">Start over</button>
+<button type="button" class="quiz-explore" id="quiz-explore">Explore all floorplans</button>
+</div>
+</div>
+</div>
+<div class="quiz-nav" id="quiz-nav">
+<button type="button" class="quiz-back" id="quiz-back" hidden>← Back</button>
+</div>
+</div>
+</div>`;
+}
+
 export function renderIndex(families, trailers = [], resolve = assetPaths, motorhomes = [], motorhomeFamilies = []) {
   // Unified family grid: trailer families + motorhome families in one .fam-grid.
   const cards = [
@@ -313,7 +386,7 @@ export function renderIndex(families, trailers = [], resolve = assetPaths, motor
 <p class="eyebrow eyebrow-light">AIRSTREAM · 2026 + 2025</p>
 <h1>Every Airstream, by family</h1>
 <p class="lede">A cinematic, spec-accurate field guide to the current Airstream lineup — ${allFamilies} families, ${totalPlans} floorplans across travel trailers and motorhomes.</p>
-<p class="home-hero-cta"><a class="home-hero-btn" href="#all" data-view-go="all">Explore all floorplans</a><a class="home-hero-ghost" href="community.html">Real community photos →</a></p>
+<p class="home-hero-cta"><a class="home-hero-btn" href="#all" data-view-go="all">Explore all floorplans</a><button type="button" class="home-hero-ghost quiz-trigger" id="quiz-open">Find your Airstream →</button></p>
 </div>
 </header>`
     : `<header class="hero-head">
@@ -332,6 +405,7 @@ export function renderIndex(families, trailers = [], resolve = assetPaths, motor
 </nav>`;
   const body = `${heroBand}
 ${viewToggle}
+${renderQuiz()}
 <section class="hub-view" id="view-families" data-view="families">
 <main class="fam-grid" id="families">
 ${cards}

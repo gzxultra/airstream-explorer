@@ -4756,3 +4756,301 @@
 
     observer.observe(container);
   })();
+
+
+  // =========================================================================
+  // LIFESTYLE QUIZ — "Find Your Airstream" recommendation wizard.
+  //     Reads explore-card data-* attributes to score & rank all floorplans
+  //     against the user's stated preferences. Pure client-side.
+  // =========================================================================
+  (function lifestyleQuiz() {
+    var overlay = document.getElementById('quiz');
+    if (!overlay) return;
+    var openBtn = document.getElementById('quiz-open');
+    var backBtn = document.getElementById('quiz-back');
+    var fillBar = document.getElementById('quiz-fill');
+    var stepsEl = document.getElementById('quiz-steps');
+    var matchesEl = document.getElementById('quiz-matches');
+    var criteriaEl = document.getElementById('quiz-criteria');
+    var savedFocus = null;
+    var currentStep = 1;
+    var answers = {};
+
+    function open() {
+      savedFocus = document.activeElement;
+      overlay.hidden = false;
+      overlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      reset();
+      overlay.querySelector('.quiz-close').focus();
+    }
+    function close() {
+      overlay.hidden = true;
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (savedFocus) savedFocus.focus();
+    }
+    function reset() {
+      currentStep = 1;
+      answers = {};
+      showStep(1);
+      // Clear selected states
+      var opts = overlay.querySelectorAll('.quiz-opt');
+      for (var i = 0; i < opts.length; i++) opts[i].classList.remove('is-selected');
+    }
+    function showStep(n) {
+      currentStep = n;
+      var steps = stepsEl.querySelectorAll('.quiz-step');
+      for (var i = 0; i < steps.length; i++) {
+        var s = steps[i];
+        var stepVal = s.getAttribute('data-step');
+        s.classList.toggle('is-active', stepVal === String(n) || (n === 5 && stepVal === 'results'));
+      }
+      fillBar.style.width = (n === 5 ? 100 : (n * 25)) + '%';
+      backBtn.hidden = (n <= 1);
+    }
+
+    function advance(key, val) {
+      answers[key] = val;
+      if (currentStep < 4) {
+        showStep(currentStep + 1);
+      } else {
+        showResults();
+      }
+    }
+
+    function scoreTrailers() {
+      var cards = document.querySelectorAll('.xcard[data-type="trailer"]');
+      var results = [];
+      for (var i = 0; i < cards.length; i++) {
+        var c = cards[i];
+        if (c.getAttribute('data-year') !== '2026') continue;
+        var msrp = parseInt(c.getAttribute('data-msrp'), 10) || 0;
+        var weight = parseInt(c.getAttribute('data-weight'), 10) || 0;
+        var gvwr = parseInt(c.getAttribute('data-gvwr'), 10) || 0;
+        var length = parseFloat(c.getAttribute('data-length')) || 0;
+        var sleeps = parseInt(c.getAttribute('data-sleeps'), 10) || 0;
+        var offgrid = parseInt(c.getAttribute('data-offgrid'), 10) || 0;
+        var ccc = parseInt(c.getAttribute('data-ccc'), 10) || 0;
+        var fresh = parseInt(c.getAttribute('data-fresh'), 10) || 0;
+        var slug = c.getAttribute('data-slug');
+        var model = c.getAttribute('data-model');
+        var floorplan = c.getAttribute('data-floorplan') || '';
+        var thumb = c.getAttribute('data-thumb') || '';
+        var tags = (c.getAttribute('data-tags') || '').split(' ');
+        var score = 0;
+        var reasons = [];
+
+        // Group size scoring
+        var g = answers.group;
+        if (g === 'solo') {
+          if (sleeps <= 3) { score += 20; reasons.push('Right-sized for 1–2'); }
+          else if (sleeps <= 4) score += 10;
+          else score -= 5;
+        } else if (g === 'small') {
+          if (sleeps >= 3 && sleeps <= 5) { score += 20; reasons.push('Sleeps your crew of 3–4'); }
+          else if (sleeps >= 2) score += 5;
+        } else if (g === 'large') {
+          if (sleeps >= 6) { score += 25; reasons.push('Sleeps ' + sleeps + ' — room for everyone'); }
+          else if (sleeps >= 5) { score += 10; reasons.push('Sleeps ' + sleeps); }
+        }
+
+        // Budget scoring
+        var b = parseInt(answers.budget, 10);
+        if (b === 80000) {
+          if (msrp <= 80000) { score += 20; reasons.push('Under $80k'); }
+          else if (msrp <= 100000) score += 5;
+          else score -= 15;
+        } else if (b === 120000) {
+          if (msrp > 80000 && msrp <= 120000) { score += 20; reasons.push('In your $80–120k range'); }
+          else if (msrp <= 80000) { score += 10; reasons.push('Under budget'); }
+          else if (msrp <= 140000) score += 5;
+          else score -= 10;
+        } else if (b === 180000) {
+          if (msrp > 120000 && msrp <= 180000) { score += 20; reasons.push('In your $120–180k range'); }
+          else if (msrp <= 120000) { score += 10; reasons.push('Under budget'); }
+          else score -= 10;
+        } else {
+          if (msrp > 180000) { score += 20; reasons.push('Flagship tier'); }
+          else if (msrp > 120000) score += 10;
+        }
+
+        // Travel style
+        var st = answers.style;
+        if (st === 'weekend') {
+          if (weight < 5000) { score += 15; reasons.push('Light — easy weekend hookup'); }
+          else if (weight < 6500) score += 5;
+        } else if (st === 'extended') {
+          if (fresh >= 30 && ccc >= 800) { score += 15; reasons.push('Big tanks + cargo for the road'); }
+          else if (fresh >= 20) score += 5;
+        } else if (st === 'offgrid') {
+          if (offgrid >= 60) { score += 20; reasons.push('Off-grid score ' + offgrid + '/100'); }
+          else if (offgrid >= 40) { score += 10; reasons.push('Off-grid ' + offgrid + '/100'); }
+          if (tags.indexOf('off-grid') >= 0) score += 5;
+        } else if (st === 'fulltime') {
+          if (length >= 28 && sleeps >= 4) { score += 15; reasons.push('Full-size living space'); }
+          else if (length >= 23) score += 5;
+          if (ccc >= 1000) { score += 5; reasons.push('Generous cargo capacity'); }
+        }
+
+        // Priority
+        var p = answers.priority;
+        if (p === 'tow') {
+          if (weight <= 4000) { score += 20; reasons.push('Under 4,000 lb dry'); }
+          else if (weight <= 5500) { score += 10; reasons.push(weight.toLocaleString() + ' lb dry'); }
+          score += Math.max(0, 10 - Math.floor(length / 3));
+        } else if (p === 'space') {
+          if (length >= 30) { score += 20; reasons.push(Math.floor(length) + "' of living space"); }
+          else if (length >= 25) { score += 10; reasons.push(Math.floor(length) + "' long"); }
+          if (sleeps >= 6) score += 5;
+        } else if (p === 'offgrid') {
+          if (offgrid >= 65) { score += 20; reasons.push('Top-tier off-grid'); }
+          else if (offgrid >= 45) score += 10;
+        } else if (p === 'value') {
+          // Value = most features per dollar (sleeps * offgrid / msrp proxy)
+          var valueScore = (sleeps * (offgrid || 30) * ccc) / (msrp || 100000);
+          if (valueScore > 1.5) { score += 20; reasons.push('Outstanding value'); }
+          else if (valueScore > 0.8) { score += 10; reasons.push('Strong value'); }
+        }
+
+        if (score > 0) {
+          results.push({
+            slug: slug, model: model, floorplan: floorplan, thumb: thumb,
+            msrp: msrp, weight: weight, sleeps: sleeps, offgrid: offgrid,
+            length: length, score: score, reasons: reasons,
+            type: c.getAttribute('data-type') || 'trailer'
+          });
+        }
+      }
+      results.sort(function (a, b) { return b.score - a.score; });
+      return results.slice(0, 5);
+    }
+
+    function fmtMoney(n) {
+      return n > 0 ? '$' + Number(n).toLocaleString('en-US') : '—';
+    }
+
+    function showResults() {
+      var matches = scoreTrailers();
+      var criteriaText = [];
+      if (answers.group === 'solo') criteriaText.push('1–2 people');
+      else if (answers.group === 'small') criteriaText.push('3–4 people');
+      else criteriaText.push('5+ people');
+      var bv = parseInt(answers.budget, 10);
+      if (bv === 80000) criteriaText.push('under $80k');
+      else if (bv === 120000) criteriaText.push('$80–120k');
+      else if (bv === 180000) criteriaText.push('$120–180k');
+      else criteriaText.push('$180k+');
+      criteriaText.push(answers.style === 'offgrid' ? 'off-grid' : answers.style);
+      criteriaText.push('priority: ' + answers.priority);
+      criteriaEl.textContent = 'Based on: ' + criteriaText.join(' · ');
+
+      if (matches.length === 0) {
+        matchesEl.innerHTML = '<p class="quiz-no-match">No perfect matches — try adjusting your answers or <a href="#all" data-view-go="all">explore all floorplans</a>.</p>';
+      } else {
+        matchesEl.innerHTML = matches.map(function (m, idx) {
+          var prefix = m.type === 'motorhome' ? 'mm/' : 'm/';
+          var reasons = m.reasons.slice(0, 3).map(function (r) {
+            return '<span class="quiz-reason">' + r + '</span>';
+          }).join('');
+          var wholeFt = Math.floor(m.length);
+          var inch = Math.round((m.length - wholeFt) * 12);
+          var lenStr = inch ? wholeFt + "\'" + inch + '\"' : wholeFt + "\'";
+          return '<a class="quiz-match" href="' + prefix + m.slug + '.html">' +
+            '<div class="quiz-match-rank">' + (idx + 1) + '</div>' +
+            (m.thumb ? '<img class="quiz-match-img" src="' + m.thumb + '" alt="' + m.model + ' ' + m.floorplan + '" loading="lazy" width="200" height="130">' : '') +
+            '<div class="quiz-match-info">' +
+            '<h3 class="quiz-match-title">' + m.model + ' ' + m.floorplan + '</h3>' +
+            '<p class="quiz-match-specs">' + fmtMoney(m.msrp) + ' \u00B7 ' + lenStr + ' \u00B7 sleeps ' + m.sleeps + ' \u00B7 off-grid ' + m.offgrid + '/100</p>' +
+            '<div class="quiz-match-reasons">' + reasons + '</div>' +
+            '</div></a>';
+        }).join('');
+      }
+      showStep(5);
+    }
+
+    // Event wiring
+    if (openBtn) openBtn.addEventListener('click', open);
+
+    // Close buttons
+    var closeEls = overlay.querySelectorAll('[data-quiz-close]');
+    for (var ci = 0; ci < closeEls.length; ci++) {
+      closeEls[ci].addEventListener('click', close);
+    }
+
+    // Escape key
+    overlay.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { close(); e.stopPropagation(); }
+    });
+
+    // Option selection
+    stepsEl.addEventListener('click', function (e) {
+      var opt = e.target.closest('.quiz-opt');
+      if (!opt) return;
+      var step = opt.closest('.quiz-step');
+      var siblings = step.querySelectorAll('.quiz-opt');
+      for (var si = 0; si < siblings.length; si++) siblings[si].classList.remove('is-selected');
+      opt.classList.add('is-selected');
+      setTimeout(function () { advance(opt.getAttribute('data-key'), opt.getAttribute('data-val')); }, 250);
+    });
+
+    // Back button
+    backBtn.addEventListener('click', function () {
+      if (currentStep > 1) showStep(currentStep - 1);
+    });
+
+    // Restart + explore buttons
+    var restartBtn = document.getElementById('quiz-restart');
+    var exploreBtn = document.getElementById('quiz-explore');
+    if (restartBtn) restartBtn.addEventListener('click', reset);
+    if (exploreBtn) exploreBtn.addEventListener('click', function () {
+      close();
+      var allLink = document.querySelector('[data-view-go="all"]');
+      if (allLink) allLink.click();
+    });
+  })();
+
+  // =========================================================================
+  // WEIGHT BAR ANIMATION — scroll-driven fill effect on detail pages.
+  //     The weight bar segments animate from 0% to their real width, and
+  //     the GVWR label counts up, when the bar scrolls into view.
+  // =========================================================================
+  (function weightBarAnim() {
+    var bar = document.querySelector('.weight-bar');
+    if (!bar || !('IntersectionObserver' in window)) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var dry = bar.querySelector('.weight-bar-dry');
+    var ccc = bar.querySelector('.weight-bar-ccc');
+    if (!dry || !ccc) return;
+    var dryTarget = dry.style.width;
+    var cccTarget = ccc.style.width;
+    // Start collapsed
+    dry.style.width = '0%';
+    ccc.style.width = '0%';
+    dry.style.transition = 'width 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
+    ccc.style.transition = 'width 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s';
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          dry.style.width = dryTarget;
+          ccc.style.width = cccTarget;
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+    observer.observe(bar);
+  })();
+
+  // =========================================================================
+  // GALLERY HOVER ZOOM — subtle scale-up on gallery images before lightbox.
+  //     CSS-driven via class, this just ensures the interaction feels alive.
+  // =========================================================================
+  (function galleryHoverZoom() {
+    var grid = document.querySelector('.gallery-grid');
+    if (!grid) return;
+    var btns = grid.querySelectorAll('.gallery-img-wrap');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.add('gallery-hoverable');
+    }
+  })();
