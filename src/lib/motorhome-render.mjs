@@ -352,6 +352,26 @@ function buildMotorhomeSectionNav(galleryCount) {
   return `<nav class="secnav" aria-label="Page sections" data-secnav>${links}</nav>`;
 }
 
+/** Build a plain-text spec summary for clipboard copy (motorhomes). */
+function buildMotorhomeSpecText(m) {
+  const lines = [
+    `${trailerTitle(m)}`,
+    `Length: ${formatLength(m.lengthFt)}`,
+    m.heightFt ? `Height: ${formatLength(m.heightFt)}` : null,
+    `Dry weight: ${formatWeight(m.weightLb)}`,
+    `GVWR: ${formatWeight(m.gvwrLb)}`,
+    m.gcwrLb ? `GCWR: ${formatWeight(m.gcwrLb)}` : null,
+    `Sleeps: ${m.sleeps}`,
+    `Tanks: ${formatTanks(m.freshGal, m.grayGal, m.blackGal)}`,
+    m.solarW ? `Solar: ${m.solarW}W ${m.solarStandard ? '(standard)' : '(optional)'}` : null,
+    m.batteryKwh ? `Battery: ${m.batteryKwh} kWh` : null,
+    `Off-grid score: ${m.offGridScore}/100`,
+    `MSRP: ${formatMsrp(m.msrp)}`,
+  ].filter(Boolean);
+  // Use || separator (split back to \n in client JS for clipboard copy)
+  return lines.join(' || ');
+}
+
 function renderMotorhomeRelated(current, allMotorhomes, resolve) {
   if (!allMotorhomes.length) return '';
   let related = allMotorhomes.filter(
@@ -409,9 +429,10 @@ export function renderMotorhomeDetail(m, resolve = motorhomeAssetPaths, allMotor
   const sectionNav = buildMotorhomeSectionNav(galleryCount);
   // Related motorhomes
   const relatedSection = renderMotorhomeRelated(m, allMotorhomes, resolve);
-  const body = `<nav class="detail-nav"><a href="../mf/${esc(fam)}.html" class="back-link">← All ${esc(m.model)} floorplans</a></nav>
+  const body = `<div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
+<nav class="detail-nav"><a href="../mf/${esc(fam)}.html" class="back-link">← All ${esc(m.model)} floorplans</a></nav>
 ${sectionNav}
-<article class="detail">
+<article class="detail" data-canonical="mm/${esc(m.slug)}.html" data-spec-text="${esc(buildMotorhomeSpecText(m))}">
 <header class="detail-head">
 <p class="eyebrow">${esc(m.year)} MODEL YEAR · CLASS ${esc(m.classType || 'B')} MOTORHOME</p>
 <div class="detail-head-row">
@@ -419,6 +440,11 @@ ${sectionNav}
 ${saveButton(m.slug, 'motorhome', trailerLabel(m), 'detail')}
 </div>
 ${tagChips(m.tags)}
+<div class="share-actions" data-share-actions>
+<button type="button" class="share-btn" id="detail-share" aria-label="Share this page" title="Share this page"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg> Share</button>
+<button type="button" class="share-btn" id="detail-copy-specs" aria-label="Copy specs to clipboard" title="Copy specs to clipboard"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg> Copy specs</button>
+<button type="button" class="share-btn" id="detail-print" aria-label="Print spec sheet" title="Print spec sheet"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> Print</button>
+</div>
 ${official ? `<p class="official-head"><a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">Official ${esc(m.model)} page on airstream.com ↗</a></p>` : ''}
 </header>
 <div class="detail-hero">${heroImg}</div>

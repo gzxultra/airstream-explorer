@@ -2420,3 +2420,75 @@ html { scroll-behavior: smooth; }
 @media (max-width: 900px) { .related-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .related-grid { grid-template-columns: 1fr 1fr; gap: 12px; } .rel-body { padding: 8px 10px 10px; } .rel-title { font-size: 14px; } .rel-specs { font-size: 12px; } }
 @media (prefers-reduced-motion: reduce) { .rel-card, .rel-media img { transition: none; } }
+
+/* ---- Print-optimized detail spec sheet ---- */
+@media print {
+  /* Hide chrome: nav, back-to-top, section quick-nav, lightbox, interactive tools */
+  .topnav, .back-to-top, [data-secnav], #lightbox, .theme-toggle,
+  .skip-link, .detail-nav, .save-btn, .tag-chips,
+  .tow-callout a, .official-head, footer,
+  .related, .back-link { display: none !important; }
+  /* Reset background and colors for clean B&W output */
+  body { background: #fff !important; color: #1a1a1a !important; margin: 0; padding: 0; font-size: 11pt; }
+  [data-theme="dark"] * { background: transparent !important; color: #1a1a1a !important; border-color: #ccc !important; }
+  /* Detail layout: remove max-width constraints for print */
+  .detail { max-width: 100%; padding: 0 0.5in; }
+  .detail-head { page-break-after: avoid; }
+  .detail-hero { max-height: 3.5in; overflow: hidden; margin: 8pt 0; }
+  .detail-hero-img { width: 100%; height: auto; max-height: 3.5in; object-fit: cover; }
+  .detail-desc { font-size: 10pt; margin: 4pt 0 12pt; }
+  /* Spec table: compact, bordered for print clarity */
+  .spec-table { page-break-inside: avoid; margin: 12pt 0; }
+  .specs-grid .spec { padding: 4pt 0; border-bottom: 0.5pt solid #ccc; }
+  .specs-grid .spec dt { font-size: 9pt; }
+  .specs-grid .spec dd { font-size: 10pt; }
+  /* Tow callout: keep it compact */
+  .tow-callout { border: 1pt solid #ccc; padding: 8pt 12pt; page-break-inside: avoid; }
+  /* Interactive tools: collapse to static summary */
+  .tool-card { page-break-inside: avoid; border: 0.5pt solid #ddd; padding: 8pt; margin: 8pt 0; }
+  .tool-card input, .tool-card select, .tool-card button,
+  .tool-controls, .tool-slider, .tool-range,
+  .expand-toggle, details summary { display: none !important; }
+  /* Floor plan */
+  .floorplan { page-break-inside: avoid; }
+  .floorplan-img { max-width: 100%; height: auto; max-height: 5in; }
+  /* Gallery: compact 3-column grid, no lightbox zoom icons */
+  .gallery { page-break-before: auto; }
+  .gallery-grid { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 4pt; }
+  .gallery-img-wrap { border: none; cursor: default; }
+  .gallery-zoom { display: none !important; }
+  .gallery-img { width: 100%; height: auto; max-height: 1.8in; object-fit: cover; }
+  /* Pros/cons side by side */
+  .proscons { display: flex; gap: 20pt; page-break-inside: avoid; }
+  .pros, .cons { flex: 1; }
+  /* Print URL at the bottom for reference */
+  .detail::after { content: "Printed from Airstream Explorer · " attr(data-canonical); display: block; margin-top: 16pt; padding-top: 8pt; border-top: 0.5pt solid #aaa; font-size: 8pt; color: #888; }
+  /* Share & copy buttons hidden in print */
+  .share-actions { display: none !important; }
+  /* Progress bar hidden */
+  .reading-progress { display: none !important; }
+}
+
+/* ---- Share / Copy / Print action buttons ---- */
+.share-actions { display: flex; gap: 8px; margin: 8px 0 0; flex-wrap: wrap; }
+.share-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 13px; font-weight: 500; font-family: inherit;
+  border: 1px solid var(--line, #E2DDD8);
+  background: var(--bg, #FAF8F5); color: var(--ink, #1F1B16);
+  transition: background 0.15s, border-color 0.15s;
+}
+.share-btn:hover { background: var(--surface, #F3EFEB); border-color: var(--copper, #B8763E); }
+.share-btn:active { transform: scale(0.97); }
+.share-btn svg { flex-shrink: 0; }
+.share-btn.is-copied { border-color: #4a8c5c; color: #4a8c5c; }
+@media (max-width: 560px) { .share-actions { gap: 6px; } .share-btn { padding: 5px 10px; font-size: 12px; } }
+
+/* ---- Reading progress bar (detail pages) ---- */
+.reading-progress {
+  position: fixed; top: 0; left: 0; width: 0%; height: 3px; z-index: 60;
+  background: linear-gradient(90deg, var(--copper, #B8763E), #D4A574);
+  transition: width 0.08s linear;
+  pointer-events: none;
+}

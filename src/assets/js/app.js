@@ -4015,4 +4015,102 @@
     update();
   })();
 
+  // =========================================================================
+  // DETAIL PAGE: Share, Copy Specs, Print — the action buttons row.
+  // =========================================================================
+  (function detailActions() {
+    var article = document.querySelector('article.detail');
+    if (!article) return;
+
+    // --- Shared flash helper (reused by share + copy) ----------------------
+    function flash(btn, msg) {
+      var prev = btn.getAttribute('data-label') || btn.textContent;
+      btn.setAttribute('data-label', prev);
+      btn.innerHTML = msg; btn.classList.add('is-copied');
+      setTimeout(function () {
+        btn.innerHTML = btn.getAttribute('data-label') || prev;
+        btn.classList.remove('is-copied');
+      }, 1800);
+    }
+
+    function copyText(text, btn, successMsg) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(
+          function () { flash(btn, successMsg); },
+          function () { fallbackCopy(text, btn, successMsg); }
+        );
+      } else {
+        fallbackCopy(text, btn, successMsg);
+      }
+    }
+
+    function fallbackCopy(text, btn, successMsg) {
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.setAttribute('readonly', '');
+        ta.style.position = 'absolute'; ta.style.left = '-9999px';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+        flash(btn, successMsg);
+      } catch (e) {
+        flash(btn, 'Copy failed');
+      }
+    }
+
+    // --- Share button (Web Share API → clipboard fallback) -----------------
+    var shareBtn = document.getElementById('detail-share');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', function () {
+        var url = location.href;
+        var title = document.title;
+        if (navigator.share) {
+          navigator.share({ title: title, url: url }).catch(function () {});
+        } else {
+          copyText(url, shareBtn, '✓ Link copied');
+        }
+      });
+    }
+
+    // --- Copy specs --------------------------------------------------------
+    var copyBtn = document.getElementById('detail-copy-specs');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function () {
+        var raw = article.getAttribute('data-spec-text') || '';
+        var specText = raw.replace(/ \|\| /g, '\n');
+        if (specText) {
+          copyText(specText, copyBtn, '✓ Specs copied');
+        }
+      });
+    }
+
+    // --- Print button ------------------------------------------------------
+    var printBtn = document.getElementById('detail-print');
+    if (printBtn) {
+      printBtn.addEventListener('click', function () {
+        window.print();
+      });
+    }
+  })();
+
+  // =========================================================================
+  // READING PROGRESS BAR — copper gradient showing scroll depth on detail pages.
+  // =========================================================================
+  (function readingProgress() {
+    var bar = document.getElementById('reading-progress');
+    if (!bar) return;
+    var ticking = false;
+    function update() {
+      var scrollTop = window.scrollY || document.documentElement.scrollTop;
+      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (docHeight <= 0) { bar.style.width = '0%'; return; }
+      var pct = Math.min(100, Math.max(0, (scrollTop / docHeight) * 100));
+      bar.style.width = pct + '%';
+      ticking = false;
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+    update();
+  })();
+
 })();

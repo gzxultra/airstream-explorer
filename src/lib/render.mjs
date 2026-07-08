@@ -769,6 +769,26 @@ function buildSectionNav(items) {
   return `<nav class="secnav" aria-label="Page sections" data-secnav>${links}</nav>`;
 }
 
+/** Build a plain-text spec summary for clipboard copy. */
+function buildSpecText(t) {
+  const lines = [
+    `${trailerTitle(t)}`,
+    `Length: ${formatLength(t.lengthFt)}`,
+    `Dry weight: ${formatWeight(t.weightLb)}`,
+    `GVWR: ${formatWeight(t.gvwrLb)}`,
+    t.cccLb ? `Cargo capacity (CCC): ${formatWeight(t.cccLb)}` : null,
+    t.hitchWeightLb ? `Hitch weight: ${formatWeight(t.hitchWeightLb)}` : null,
+    `Sleeps: ${t.sleeps}`,
+    `Tanks: ${formatTanks(t.freshGal, t.grayGal, t.blackGal)}`,
+    t.solarW ? `Solar: ${t.solarW}W ${t.solarStandard ? '(standard)' : '(optional)'}` : null,
+    t.batteryKwh ? `Battery: ${t.batteryKwh} kWh` : null,
+    `Off-grid score: ${t.offGridScore}/100`,
+    `MSRP: ${formatMsrp(t.msrp)}`,
+  ].filter(Boolean);
+  // Use || separator (split back to \n in client JS for clipboard copy)
+  return lines.join(' || ');
+}
+
 // ---------------------------------------------------------------------------
 // RELATED FLOORPLANS: cross-discovery cards at the bottom of detail pages
 // ---------------------------------------------------------------------------
@@ -876,9 +896,10 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
   ].filter(Boolean));
   // Related floorplans: same family, different floorplan, prefer same year
   const relatedSection = renderRelated(t, allTrailers, resolve);
-  const body = `<nav class="detail-nav"><a href="../f/${esc(fam)}.html" class="back-link">← All ${esc(t.model)} floorplans</a></nav>
+  const body = `<div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
+<nav class="detail-nav"><a href="../f/${esc(fam)}.html" class="back-link">← All ${esc(t.model)} floorplans</a></nav>
 ${sectionNav}
-<article class="detail">
+<article class="detail" data-canonical="m/${esc(t.slug)}.html" data-spec-text="${esc(buildSpecText(t))}">
 <header class="detail-head">
 <p class="eyebrow">${esc(t.year)} MODEL YEAR</p>
 <div class="detail-head-row">
@@ -886,6 +907,11 @@ ${sectionNav}
 ${saveButton(t.slug, 'trailer', trailerLabel(t), 'detail')}
 </div>
 ${tagChips(t.tags)}
+<div class="share-actions" data-share-actions>
+<button type="button" class="share-btn" id="detail-share" aria-label="Share this page" title="Share this page"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg> Share</button>
+<button type="button" class="share-btn" id="detail-copy-specs" aria-label="Copy specs to clipboard" title="Copy specs to clipboard"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg> Copy specs</button>
+<button type="button" class="share-btn" id="detail-print" aria-label="Print spec sheet" title="Print spec sheet"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> Print</button>
+</div>
 ${official ? `<p class="official-head"><a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">Official ${esc(t.model)} page on airstream.com ↗</a></p>` : ''}
 </header>
 <div class="detail-hero">${heroImg}</div>
