@@ -263,3 +263,20 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .kb-help-panel { box-shadow: 0 16px 48px rgba(0,0,0,.45); }
 [data-theme="dark"] .kb-row kbd { box-shadow: 0 1px 1px rgba(0,0,0,.2); }
 [data-theme="dark"] .xc-price select { background: var(--bg); color: var(--ink); border-color: var(--line); }
+
+/* Key stats dashboard — dark mode */
+[data-theme="dark"] .key-stats { background: var(--line); border-color: var(--line); }
+[data-theme="dark"] .key-stat { background: var(--card); }
+
+/* Weight capacity bar — dark mode */
+[data-theme="dark"] .weight-bar { background: var(--card); border-color: var(--line); }
+[data-theme="dark"] .weight-bar-dry { background: var(--muted); }
+[data-theme="dark"] .weight-bar-ccc { background: var(--copper, #D49A6A); }
+
+/* Photo badge — dark mode */
+[data-theme="dark"] .xcard-photos { background: rgba(0,0,0,.55); }
+
+/* Card hover shadows — dark mode */
+[data-theme="dark"] .xcard-link:hover { box-shadow: 0 12px 32px rgba(0,0,0,.25); }
+[data-theme="dark"] .card:hover { box-shadow: 0 12px 32px rgba(0,0,0,.25); }
+[data-theme="dark"] .fam-card:hover { box-shadow: 0 12px 32px rgba(0,0,0,.25); }

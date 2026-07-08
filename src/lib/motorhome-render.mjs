@@ -132,6 +132,37 @@ function tagChips(tags) {
 /**
  * A family card for the motorhome home grid.
  */
+
+/** Render the key-stats dashboard below the motorhome detail hero. */
+function renderMotorhomeKeyStats(m) {
+  const stats = [
+    { icon: '📐', value: formatLength(m.lengthFt), label: 'Length' },
+    { icon: '⚖️', value: formatWeight(m.weightLb), label: 'Base weight' },
+    { icon: '🛏️', value: String(m.sleeps), label: 'Sleeps' },
+    { icon: '💰', value: formatMsrpShort(m.msrp), label: 'Base MSRP' },
+    m.offGridScore ? { icon: '🔋', value: `${m.offGridScore}/100`, label: 'Off-grid' } : null,
+  ].filter(Boolean);
+  return `<div class="key-stats" aria-label="Key specifications at a glance">${stats.map((s) =>
+    `<div class="key-stat"><span class="key-stat-icon" aria-hidden="true">${s.icon}</span><span class="key-stat-value">${esc(s.value)}</span><span class="key-stat-label">${esc(s.label)}</span></div>`
+  ).join('')}</div>`;
+}
+
+/** Render weight capacity bar for motorhomes (uses NCC instead of CCC). */
+function renderMotorhomeWeightBar(m) {
+  if (!(m.weightLb > 0) || !(m.gvwrLb > 0)) return '';
+  const dryPct = Math.round((m.weightLb / m.gvwrLb) * 100);
+  const cccPct = 100 - dryPct;
+  const ncc = m.nccLb || (m.gvwrLb - m.weightLb);
+  return `<div class="weight-bar" aria-label="Weight capacity breakdown">
+<div class="weight-bar-header"><span class="weight-bar-title">Weight capacity</span><span class="weight-bar-gvwr">${esc(formatWeight(m.gvwrLb))} GVWR</span></div>
+<div class="weight-bar-track">
+<div class="weight-bar-dry" style="width:${dryPct}%"><span class="weight-bar-seg-label">${esc(formatWeight(m.weightLb))}</span></div>
+<div class="weight-bar-ccc" style="width:${cccPct}%"><span class="weight-bar-seg-label">${esc(formatWeight(ncc))}</span></div>
+</div>
+<div class="weight-bar-legend"><span class="weight-bar-legend-dry">Base weight</span><span class="weight-bar-legend-ccc">Net carrying capacity (NCC)</span></div>
+</div>`;
+}
+
 export function renderMotorhomeFamilyCard(fam, linkPrefix = '') {
   const range = formatPriceRange(fam.priceMin, fam.priceMax);
   const len = formatLengthRange(fam.lengthMin, fam.lengthMax);
@@ -467,6 +498,7 @@ ${tagChips(m.tags)}
 ${official ? `<p class="official-head"><a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">Official ${esc(m.model)} page on airstream.com ↗</a></p>` : ''}
 </header>
 <div class="detail-hero">${heroImg}</div>
+${renderMotorhomeKeyStats(m)}
 <p class="detail-desc">${esc(m.description)}</p>
 <section class="spec-table" id="specs" aria-label="Specifications">
 <h2>Specifications</h2>
@@ -496,6 +528,7 @@ ${specRow('Off-grid score', `${m.offGridScore} / 100`)}
 ${specRow('MSRP', formatMsrp(m.msrp))}
 </dl>
 </section>
+${renderMotorhomeWeightBar(m)}
 ${renderMotorhomeOffGridTool(m)}
 ${pros || cons ? `<section class="proscons">
 ${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}
@@ -539,6 +572,7 @@ export function renderMotorhomeExploreCard(m, resolve = motorhomeAssetPaths, hid
 <div class="xcard-media">
 <img src="${esc(a.thumb)}" alt="${esc(trailerTitle(m))}" loading="lazy" width="400" height="260">
 <span class="xcard-year">${esc(m.year)}</span>
+${a.gallery && a.gallery.length ? `<span class="xcard-photos" aria-label="${a.gallery.length} photos"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg> ${a.gallery.length}</span>` : ''}
 </div>
 <div class="xcard-body">
 <h3 class="xcard-title">${esc(m.model)} <span>${esc(m.floorplan)}</span></h3>

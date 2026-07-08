@@ -186,6 +186,37 @@ function tagChips(tags) {
     .join('')}</ul>`;
 }
 
+
+/** Render the key-stats dashboard below the detail hero. */
+function renderKeyStats(t) {
+  const stats = [
+    { icon: '📐', value: formatLength(t.lengthFt), label: 'Length' },
+    { icon: '⚖️', value: formatWeight(t.weightLb), label: 'Dry weight' },
+    { icon: '🛏️', value: String(t.sleeps), label: 'Sleeps' },
+    { icon: '💰', value: formatMsrpShort(t.msrp), label: 'Base MSRP' },
+    t.offGridScore ? { icon: '🔋', value: `${t.offGridScore}/100`, label: 'Off-grid' } : null,
+  ].filter(Boolean);
+  return `<div class="key-stats" aria-label="Key specifications at a glance">${stats.map((s) =>
+    `<div class="key-stat"><span class="key-stat-icon" aria-hidden="true">${s.icon}</span><span class="key-stat-value">${esc(s.value)}</span><span class="key-stat-label">${esc(s.label)}</span></div>`
+  ).join('')}</div>`;
+}
+
+/** Render the weight capacity visualization bar. */
+function renderWeightBar(t) {
+  if (!(t.weightLb > 0) || !(t.gvwrLb > 0)) return '';
+  const dryPct = Math.round((t.weightLb / t.gvwrLb) * 100);
+  const cccPct = 100 - dryPct;
+  const ccc = t.cccLb || (t.gvwrLb - t.weightLb);
+  return `<div class="weight-bar" aria-label="Weight capacity breakdown">
+<div class="weight-bar-header"><span class="weight-bar-title">Weight capacity</span><span class="weight-bar-gvwr">${esc(formatWeight(t.gvwrLb))} GVWR</span></div>
+<div class="weight-bar-track">
+<div class="weight-bar-dry" style="width:${dryPct}%"><span class="weight-bar-seg-label">${esc(formatWeight(t.weightLb))}</span></div>
+<div class="weight-bar-ccc" style="width:${cccPct}%"><span class="weight-bar-seg-label">${esc(formatWeight(ccc))}</span></div>
+</div>
+<div class="weight-bar-legend"><span class="weight-bar-legend-dry">Dry weight</span><span class="weight-bar-legend-ccc">Cargo capacity (CCC)</span></div>
+</div>`;
+}
+
 // ---------------------------------------------------------------------------
 // HOME: family grid
 // ---------------------------------------------------------------------------
@@ -967,6 +998,7 @@ ${renderStandoutBadges(t, allTrailers)}
 ${official ? `<p class="official-head"><a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">Official ${esc(t.model)} page on airstream.com ↗</a></p>` : ''}
 </header>
 <div class="detail-hero">${heroImg}</div>
+${renderKeyStats(t)}
 <p class="detail-desc">${esc(t.description)}</p>
 <section class="spec-table" id="specs" aria-label="Specifications">
 <h2>Specifications</h2>
@@ -985,6 +1017,7 @@ ${specRow('MSRP', formatMsrp(t.msrp), { tip: true })}
 </dl>
 ${note}
 </section>
+${renderWeightBar(t)}
 ${towCallout}
 ${renderTowTool(t)}
 ${renderFuelTool(t)}
@@ -1036,6 +1069,7 @@ export function renderExploreCard(t, resolve = assetPaths, hidden = false) {
 <div class="xcard-media">
 <img src="${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="400" height="260">
 <span class="xcard-year">${esc(t.year)}</span>
+${a.gallery && a.gallery.length ? `<span class="xcard-photos" aria-label="${a.gallery.length} photos"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg> ${a.gallery.length}</span>` : ''}
 </div>
 <div class="xcard-body">
 <h3 class="xcard-title">${esc(t.model)} <span>${esc(t.floorplan)}</span></h3>
