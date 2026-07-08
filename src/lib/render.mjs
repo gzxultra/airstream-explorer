@@ -343,6 +343,56 @@ ${specRow('MSRP', formatMsrp(t.msrp))}
 </a>`;
 }
 
+// ---------------------------------------------------------------------------
+// FAMILY SPEC COMPARISON TABLE
+// ---------------------------------------------------------------------------
+
+/**
+ * Side-by-side spec comparison table for all floorplans within a family.
+ * Renders a horizontally-scrollable table showing key specs for each floorplan
+ * so users can compare without clicking into each detail page. Only shows the
+ * latest model year to keep the table focused; if a family has a single
+ * floorplan, the table is skipped (nothing to compare).
+ */
+function renderFamilyCompare(fam) {
+  // Pick the latest year's floorplans for comparison
+  const latest = fam.years[0];
+  const plans = fam.trailers.filter((t) => t.year === latest);
+  if (plans.length < 2) return ''; // nothing to compare
+  // Find best/worst for highlighting
+  const bestOffGrid = Math.max(...plans.map((t) => t.offGridScore || 0));
+  const lightestLb = Math.min(...plans.map((t) => t.weightLb));
+  const mostCcc = Math.max(...plans.map((t) => t.cccLb || 0));
+  const cols = plans.map((t) => {
+    const isLightest = t.weightLb === lightestLb;
+    const isBestOffGrid = (t.offGridScore || 0) === bestOffGrid && bestOffGrid > 0;
+    const isMostCcc = (t.cccLb || 0) === mostCcc && mostCcc > 0;
+    return `<td>
+<a href="../m/${esc(t.slug)}.html" class="fc-link">${esc(t.floorplan)}</a>
+</td>
+<td>${esc(formatLength(t.lengthFt))}</td>
+<td${isLightest ? ' class="fc-best"' : ''}>${esc(formatWeight(t.weightLb))}</td>
+<td>${esc(formatWeight(t.gvwrLb))}</td>
+<td${isMostCcc ? ' class="fc-best"' : ''}>${t.cccLb ? esc(formatWeight(t.cccLb)) : '—'}</td>
+<td>${esc(String(t.sleeps))}</td>
+<td>${esc(formatTanks(t.freshGal, t.grayGal, t.blackGal))}</td>
+<td${isBestOffGrid ? ' class="fc-best"' : ''}>${t.offGridScore || '—'}</td>
+<td>${esc(formatMsrp(t.msrp))}</td>`;
+  });
+  const headerRow = `<tr><th>Floorplan</th><th>Length</th><th>Dry wt</th><th>GVWR</th><th>CCC</th><th>Sleeps</th><th>Tanks <span class="fc-sub">F/G/B gal</span></th><th>Off-grid</th><th>MSRP</th></tr>`;
+  const bodyRows = cols.map((c) => `<tr>${c}</tr>`).join('\n');
+  return `<section class="fam-compare" id="fam-compare" aria-label="Spec comparison">
+<h2>Compare ${esc(fam.family)} floorplans</h2>
+<p class="muted">${esc(String(latest))} model year · ${esc(String(plans.length))} floorplans side by side. Best-in-family values highlighted.</p>
+<div class="fc-scroll">
+<table class="fc-table">
+<thead>${headerRow}</thead>
+<tbody>${bodyRows}</tbody>
+</table>
+</div>
+</section>`;
+}
+
 /** A family page: hero banner + the floorplans in that family. relRoot='../'. */
 export function renderFamily(fam, resolve = assetPaths) {
   const hasBothYears = fam.years.length > 1;
@@ -389,7 +439,8 @@ ${yearSeg}
 </section>
 <main class="cards" id="cards">
 ${cards}
-</main>`;
+</main>
+${renderFamilyCompare(fam)}`;
   return page({
     title: `Airstream ${fam.family} — floorplans, specs & prices`,
     description: `Every Airstream ${fam.family} floorplan (${fam.years.join(' + ')}): ${range}, ${len}, sleeps up to ${fam.sleepsMax}. Compare ${fam.floorplanCount} floorplan${fam.floorplanCount === 1 ? '' : 's'} with full specs.`,

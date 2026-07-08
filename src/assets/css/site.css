@@ -2906,3 +2906,31 @@ html { scroll-behavior: smooth; }
   .xcard-link:hover, .card:hover, .fam-card:hover { transform: none; }
   .xcard-media img, .card-media img, .fam-hero img { transition: none; }
 }
+
+/* Family spec comparison table */
+.fam-compare { margin: 3rem auto 0; max-width: 1120px; padding: 0 1rem; }
+.fam-compare h2 { font-family: var(--ff-display); font-size: 1.5rem; margin-bottom: .25rem; }
+.fc-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 1rem; border: 1px solid var(--line); border-radius: 8px; }
+.fc-table { width: 100%; border-collapse: collapse; font-size: .875rem; white-space: nowrap; }
+.fc-table th, .fc-table td { padding: .65rem .85rem; text-align: left; border-bottom: 1px solid var(--line); }
+.fc-table thead th { font-weight: 600; color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; position: sticky; top: 0; background: var(--surface, #fff); }
+.fc-table tbody tr:last-child td { border-bottom: none; }
+.fc-table tbody tr:hover { background: rgba(183,142,86,.06); }
+.fc-link { color: var(--copper); font-weight: 600; text-decoration: none; }
+.fc-link:hover { text-decoration: underline; }
+.fc-best { color: var(--copper); font-weight: 600; }
+.fc-sub { font-weight: 400; font-size: .7rem; opacity: .65; }
+@media (max-width: 640px) {
+  .fc-table th, .fc-table td { padding: .5rem .6rem; font-size: .8rem; }
+  .fam-compare h2 { font-size: 1.25rem; }
+}
+
+/* Lazy-load image fade-in */
+img[loading="lazy"] { opacity: 0; transition: opacity .4s ease; }
+img[loading="lazy"].is-loaded, img[loading="lazy"].gallery-img--cutout.is-loaded { opacity: 1; }
+/* Cutout images use mix-blend-mode which needs opacity 1 to work; if JS hasn't
+   loaded yet, don't hide them */
+noscript img[loading="lazy"], img[loading="lazy"][data-no-fade] { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  img[loading="lazy"] { opacity: 1; transition: none; }
+}

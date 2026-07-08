@@ -4274,7 +4274,7 @@
   // =========================================================================
   (function sectionReveal() {
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    var sections = document.querySelectorAll('.spec-table, .tow-callout, .towtool, .fuel-tool, .offgrid-tool, .payload-tool, .floorplan, .decor, .gallery, .proscons, .related, .cg-fit');
+    var sections = document.querySelectorAll('.spec-table, .tow-callout, .towtool, .fuel-tool, .offgrid-tool, .payload-tool, .floorplan, .decor, .gallery, .proscons, .related, .cg-fit, .fam-compare');
     if (!sections.length) return;
     for (var i = 0; i < sections.length; i++) {
       sections[i].classList.add('reveal-ready');
@@ -4290,6 +4290,168 @@
     for (var j = 0; j < sections.length; j++) {
       observer.observe(sections[j]);
     }
+  })();
+
+  // 11. LAZY-LOAD IMAGE FADE-IN
+  // Observe every lazy image; add .is-loaded when it finishes loading so CSS
+  // can transition opacity smoothly. If the image is already complete (cached),
+  // add the class immediately.
+  (function lazyFade() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      // Skip — CSS already sets opacity:1 for reduced-motion
+      return;
+    }
+    var imgs = document.querySelectorAll('img[loading="lazy"]');
+    for (var i = 0; i < imgs.length; i++) {
+      (function (img) {
+        if (img.complete && img.naturalWidth > 0) {
+          img.classList.add('is-loaded');
+        } else {
+          img.addEventListener('load', function () { img.classList.add('is-loaded'); }, { once: true });
+          // Fallback: if load never fires (e.g. decode error), show anyway
+          img.addEventListener('error', function () { img.classList.add('is-loaded'); }, { once: true });
+        }
+      })(imgs[i]);
+    }
+  })();
+
+  // 12. EXPLORE SHAREABLE FILTER URL
+  // Encode explore filter state into the URL hash so a filtered view can be
+  // shared, bookmarked, or navigated back to. Only active on pages with the
+  // explore grid (#xgrid). Reads hash on load; writes hash after every filter
+  // change. Coexists with the hub hash (#all / #families) by only acting when
+  // the page is in the #all view.
+  (function exploreShareUrl() {
+    var grid = document.getElementById('xgrid');
+    if (!grid) return;
+    // The explore hub has #families (default) and #all views. Our shareable
+    // hash only applies when the All view is active.
+    var DEFAULTS = { sort: 'price-asc', year: '2026', sleeps: '', tow: '', type: 'all', price: '', q: '' };
+    var PARAM_KEYS = ['sort', 'year', 'sleeps', 'tow', 'type', 'price', 'q', 'tags'];
+
+    function currentState() {
+      // Read from the DOM controls directly
+      var elSort = document.getElementById('x-sort');
+      var elYear = document.getElementById('x-year');
+      var elSleeps = document.getElementById('x-sleeps');
+      var elPrice = document.getElementById('x-price');
+      var towInput = document.getElementById('tow-input');
+      var typeBtns = document.querySelectorAll('#x-type .xc-type-btn');
+      var tagBtns = document.querySelectorAll('.tagfilter[aria-pressed="true"]');
+      var elSearch = document.getElementById('x-search');
+      var type = 'all';
+      for (var i = 0; i < typeBtns.length; i++) {
+        if (typeBtns[i].classList.contains('is-active')) {
+          type = typeBtns[i].getAttribute('data-type') || 'all';
+          break;
+        }
+      }
+      var tags = [];
+      for (var j = 0; j < tagBtns.length; j++) {
+        tags.push(tagBtns[j].getAttribute('data-tag'));
+      }
+      return {
+        sort: elSort ? elSort.value : DEFAULTS.sort,
+        year: elYear ? elYear.value : DEFAULTS.year,
+        sleeps: elSleeps ? elSleeps.value : '',
+        tow: towInput ? towInput.value : '',
+        type: type,
+        price: elPrice ? elPrice.value : '',
+        q: elSearch ? elSearch.value : '',
+        tags: tags
+      };
+    }
+
+    function encodeHash(st) {
+      var parts = ['all'];
+      for (var i = 0; i < PARAM_KEYS.length; i++) {
+        var k = PARAM_KEYS[i];
+        var v = k === 'tags' ? (st.tags || []).join(',') : (st[k] || '');
+        var def = DEFAULTS[k] || '';
+        if (k === 'tags') def = '';
+        if (v && v !== def) parts.push(k + '=' + encodeURIComponent(v));
+      }
+      return parts.length > 1 ? '#' + parts.join('&') : '#all';
+    }
+
+    // Write hash after filter changes (debounced to avoid rapid-fire)
+    var timer = null;
+    function scheduleHashUpdate() {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        // Only update hash when in the "all" view
+        var hash = location.hash || '';
+        if (hash && hash.indexOf('all') === -1 && hash !== '#') return;
+        var newHash = encodeHash(currentState());
+        if ('#' + hash.replace(/^#/, '') !== newHash) {
+          try { history.replaceState(null, '', newHash); } catch (e) {}
+        }
+      }, 300);
+    }
+
+    // Observe filter control changes
+    var controls = document.querySelectorAll('#x-sort, #x-year, #x-sleeps, #x-price, #tow-input, #x-search');
+    for (var c = 0; c < controls.length; c++) {
+      controls[c].addEventListener('input', scheduleHashUpdate);
+      controls[c].addEventListener('change', scheduleHashUpdate);
+    }
+    // Tag + type button clicks
+    var clickables = document.querySelectorAll('.tagfilter, #x-type .xc-type-btn, .tow-preset, #x-reset, #x-empty-reset, #tow-clear');
+    for (var d = 0; d < clickables.length; d++) {
+      clickables[d].addEventListener('click', function () { setTimeout(scheduleHashUpdate, 50); });
+    }
+
+    // On page load: parse hash and apply to controls (only if hash has filter params)
+    function applyHashOnLoad() {
+      var hash = (location.hash || '').replace(/^#/, '');
+      if (!hash || hash.indexOf('all') !== 0) return;
+      var params = {};
+      var pairs = hash.split('&');
+      for (var i = 0; i < pairs.length; i++) {
+        var eq = pairs[i].indexOf('=');
+        if (eq > 0) params[pairs[i].substring(0, eq)] = decodeURIComponent(pairs[i].substring(eq + 1));
+      }
+      if (!Object.keys(params).length) return;
+      // Apply to DOM controls
+      var elSort = document.getElementById('x-sort');
+      var elYear = document.getElementById('x-year');
+      var elSleeps = document.getElementById('x-sleeps');
+      var elPrice = document.getElementById('x-price');
+      var towInput = document.getElementById('tow-input');
+      var elSearch = document.getElementById('x-search');
+      if (params.sort && elSort) elSort.value = params.sort;
+      if (params.year != null && elYear) elYear.value = params.year;
+      if (params.sleeps && elSleeps) elSleeps.value = params.sleeps;
+      if (params.price && elPrice) elPrice.value = params.price;
+      if (params.tow && towInput) towInput.value = params.tow;
+      if (params.q && elSearch) elSearch.value = params.q;
+      if (params.type) {
+        var typeBtns = document.querySelectorAll('#x-type .xc-type-btn');
+        for (var j = 0; j < typeBtns.length; j++) {
+          var isMatch = typeBtns[j].getAttribute('data-type') === params.type;
+          typeBtns[j].classList.toggle('is-active', isMatch);
+          typeBtns[j].setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+        }
+      }
+      if (params.tags) {
+        var wantTags = params.tags.split(',');
+        var tagBtns = document.querySelectorAll('.tagfilter');
+        for (var k = 0; k < tagBtns.length; k++) {
+          var tag = tagBtns[k].getAttribute('data-tag');
+          var pressed = wantTags.indexOf(tag) >= 0;
+          tagBtns[k].setAttribute('aria-pressed', pressed ? 'true' : 'false');
+        }
+      }
+      // Trigger a synthetic input event on the sort/year/sleeps/price selects
+      // so the existing explore module picks up the changes
+      [elSort, elYear, elSleeps, elPrice, towInput, elSearch].forEach(function (el) {
+        if (el) {
+          try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) {}
+          try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
+        }
+      });
+    }
+    applyHashOnLoad();
   })();
 
 })();

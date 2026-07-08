@@ -280,3 +280,8 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .xcard-link:hover { box-shadow: 0 12px 32px rgba(0,0,0,.25); }
 [data-theme="dark"] .card:hover { box-shadow: 0 12px 32px rgba(0,0,0,.25); }
 [data-theme="dark"] .fam-card:hover { box-shadow: 0 12px 32px rgba(0,0,0,.25); }
+
+/* Family comparison table — dark mode */
+[data-theme="dark"] .fc-scroll { border-color: var(--line); }
+[data-theme="dark"] .fc-table thead th { background: var(--surface); }
+[data-theme="dark"] .fc-table tbody tr:hover { background: rgba(212,154,106,.08); }
