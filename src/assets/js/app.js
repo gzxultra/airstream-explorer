@@ -4583,3 +4583,176 @@
   })();
 
 })();
+
+  // -----------------------------------------------------------------------
+  // QUICK VIEW — spec popover on explore cards (no navigation needed)
+  // -----------------------------------------------------------------------
+  (function quickView() {
+    var qv = document.getElementById('quick-view');
+    if (!qv) return;
+    var img = document.getElementById('qv-img');
+    var titleEl = document.getElementById('qv-title');
+    var yearEl = document.getElementById('qv-year');
+    var descEl = document.getElementById('qv-desc');
+    var specsEl = document.getElementById('qv-specs');
+    var linkEl = document.getElementById('qv-detail-link');
+    var savedFocus = null;
+
+    function fmtMoney(n) {
+      if (!n || n <= 0) return '—';
+      return '$' + Number(n).toLocaleString('en-US');
+    }
+    function fmtLen(ft) {
+      if (!ft) return '—';
+      ft = Number(ft);
+      var whole = Math.floor(ft), inch = Math.round((ft - whole) * 12);
+      if (inch === 12) { whole++; inch = 0; }
+      return inch ? whole + "' " + inch + '"' : whole + "'";
+    }
+    function fmtLb(n) {
+      return n ? Number(n).toLocaleString('en-US') + ' lb' : '—';
+    }
+    function fmtGal(n) { return n ? n + ' gal' : '—'; }
+
+    function open(card) {
+      var d = card.dataset;
+      img.src = d.thumb || card.querySelector('img').src;
+      img.alt = d.model + ' ' + d.floorplan;
+      titleEl.textContent = d.model + ' ' + d.floorplan;
+      yearEl.textContent = d.year + ' MODEL YEAR';
+      descEl.textContent = d.desc || '';
+      var type = d.type || 'trailer';
+      var href = (type === 'motorhome' ? 'mm/' : 'm/') + d.slug + '.html';
+      linkEl.href = href;
+
+      var specs = [
+        ['Length', fmtLen(d.length)],
+        ['Dry weight', fmtLb(d.weight)],
+        ['GVWR', fmtLb(d.gvwr)],
+        ['Cargo (CCC)', fmtLb(d.ccc)],
+        ['Sleeps', d.sleeps || '—'],
+        ['Off-grid', d.offgrid ? d.offgrid + '/100' : '—'],
+        ['Fresh tank', fmtGal(d.fresh)],
+        ['Solar', d.solar ? d.solar + ' W' : '—'],
+        ['Hitch weight', fmtLb(d.hitch)],
+        ['MSRP', fmtMoney(d.msrp)],
+      ];
+      specsEl.innerHTML = specs.map(function (s) {
+        return '<div class="qv-spec-item"><span class="qv-spec-label">' + s[0] + '</span><span class="qv-spec-value">' + s[1] + '</span></div>';
+      }).join('');
+
+      savedFocus = document.activeElement;
+      qv.hidden = false;
+      qv.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      qv.querySelector('[data-qv-close]').focus();
+    }
+
+    function close() {
+      qv.hidden = true;
+      qv.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (savedFocus) { savedFocus.focus(); savedFocus = null; }
+    }
+
+    // Delegate click on all peek buttons
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-peek]');
+      if (btn) {
+        e.preventDefault();
+        e.stopPropagation();
+        var card = btn.closest('.xcard');
+        if (card) open(card);
+        return;
+      }
+      if (e.target.closest('[data-qv-close]')) {
+        close();
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (qv.hidden) return;
+      if (e.key === 'Escape') { close(); e.preventDefault(); }
+    });
+  })();
+
+  // -----------------------------------------------------------------------
+  // ANIMATED KEY STATS — count-up animation when scrolled into view
+  // -----------------------------------------------------------------------
+  (function animateKeyStats() {
+    var container = document.querySelector('.key-stats');
+    if (!container || !('IntersectionObserver' in window)) return;
+
+    // Respect reduced motion preference
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var values = Array.prototype.slice.call(container.querySelectorAll('.key-stat-value'));
+    if (!values.length) return;
+
+    var animated = false;
+
+    function parseNumeric(text) {
+      // Extract leading number from strings like "$118K", "3,150 lb", "16' 3\"", "5", "47/100"
+      var clean = text.replace(/[$,]/g, '');
+      var m = clean.match(/^(\d+(?:\.\d+)?)/);
+      return m ? parseFloat(m[1]) : null;
+    }
+
+    function formatBack(n, template) {
+      // Reconstruct the formatted string: keep the suffix/prefix from template
+      var clean = template.replace(/[$,]/g, '');
+      var m = clean.match(/^(\d+(?:\.\d+)?)(.*)/);
+      if (!m) return template;
+      var hasDollar = template.charAt(0) === '$';
+      var suffix = m[2];
+      var isInt = !template.includes('.') || template.includes("'") || template.includes('/');
+      var formatted = isInt ? Math.round(n).toLocaleString('en-US') : n.toFixed(1);
+      // Handle K suffix from formatMsrpShort
+      if (suffix.startsWith('K')) {
+        formatted = Math.round(n).toLocaleString('en-US');
+      }
+      return (hasDollar ? '$' : '') + formatted + suffix;
+    }
+
+    function animate() {
+      if (animated) return;
+      animated = true;
+
+      values.forEach(function (el) {
+        var original = el.textContent;
+        var target = parseNumeric(original);
+        if (target === null || target === 0) return;
+
+        var duration = 800; // ms
+        var start = null;
+        el.classList.add('is-counting');
+
+        function step(ts) {
+          if (!start) start = ts;
+          var progress = Math.min((ts - start) / duration, 1);
+          // Ease-out cubic
+          var ease = 1 - Math.pow(1 - progress, 3);
+          var current = target * ease;
+          el.textContent = formatBack(current, original);
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            el.textContent = original; // Restore exact original
+            el.classList.remove('is-counting');
+          }
+        }
+        requestAnimationFrame(step);
+      });
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          animate();
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+
+    observer.observe(container);
+  })();

@@ -397,3 +397,97 @@ export function computeStandouts(trailer, allTrailers) {
 
   return badges;
 }
+
+// ---------------------------------------------------------------------------
+// SPEC PERCENTILE RANKINGS — where does this floorplan sit in the full lineup?
+// Computed at build time from the same-year catalog so the detail page can
+// show "Lighter than 85% of models" etc. without any client-side computation.
+// ---------------------------------------------------------------------------
+
+/**
+ * For each numeric spec field, compute the percentile rank of every trailer
+ * relative to same-year peers. Returns a Map<slug, rankings> where rankings
+ * is { fieldName: { pct, rank, total, direction } }.
+ *
+ * `direction` indicates whether high or low is "better" for user context:
+ *   'lower' = lower is better (weight, price, length for towability)
+ *   'higher' = higher is better (CCC, off-grid, tanks, solar)
+ *
+ * `pct` is the percentage of peers this trailer beats (0–100).
+ * E.g. pct=85 on weightLb (direction='lower') means "lighter than 85% of models".
+ */
+export function computePercentiles(trailers) {
+  const FIELDS = [
+    { key: 'weightLb', dir: 'lower' },
+    { key: 'lengthFt', dir: 'lower' },
+    { key: 'msrp', dir: 'lower' },
+    { key: 'cccLb', dir: 'higher' },
+    { key: 'offGridScore', dir: 'higher' },
+    { key: 'freshGal', dir: 'higher' },
+    { key: 'hitchWeightLb', dir: 'lower' },
+  ];
+
+  // Group by year so percentiles compare like with like
+  const byYear = new Map();
+  for (const t of trailers) {
+    if (!byYear.has(t.year)) byYear.set(t.year, []);
+    byYear.get(t.year).push(t);
+  }
+
+  const result = new Map();
+  for (const [, yearGroup] of byYear) {
+    const total = yearGroup.length;
+    if (total < 3) {
+      // Too few to rank meaningfully — skip percentiles for this year
+      for (const t of yearGroup) result.set(t.slug, null);
+      continue;
+    }
+    for (const { key, dir } of FIELDS) {
+      const vals = yearGroup
+        .filter((t) => t[key] != null && t[key] > 0)
+        .sort((a, b) => a[key] - b[key]);
+      const n = vals.length;
+      if (n < 3) continue; // not enough data for this field
+      for (let i = 0; i < n; i++) {
+        const t = vals[i];
+        if (!result.has(t.slug)) result.set(t.slug, {});
+        const rankings = result.get(t.slug);
+        // For 'lower is better': being at index 0 (smallest) means you beat
+        // everyone, so pct = ((n - 1 - i) / (n - 1)) * 100.
+        // For 'higher is better': being at index n-1 (largest) means you beat
+        // everyone, so pct = (i / (n - 1)) * 100.
+        const pct = dir === 'lower'
+          ? Math.round(((n - 1 - i) / (n - 1)) * 100)
+          : Math.round((i / (n - 1)) * 100);
+        rankings[key] = { pct, rank: i + 1, total: n, dir };
+      }
+    }
+  }
+  return result;
+}
+
+/**
+ * Format a percentile as a concise human label.
+ * Only returns a label for notable rankings (top/bottom 30%).
+ */
+export function percentileLabel(field, pctData) {
+  if (!pctData || pctData.pct == null) return null;
+  const { pct, dir } = pctData;
+  // Only highlight when the model is notably good (top 30%)
+  if (pct < 70) return null;
+  const LABELS = {
+    weightLb: { lower: 'lighter', higher: 'heavier' },
+    lengthFt: { lower: 'shorter', higher: 'longer' },
+    msrp: { lower: 'more affordable', higher: 'pricier' },
+    cccLb: { lower: 'less cargo', higher: 'more cargo capacity' },
+    offGridScore: { lower: 'less off-grid capable', higher: 'better off-grid' },
+    freshGal: { lower: 'smaller fresh tank', higher: 'more fresh water' },
+    hitchWeightLb: { lower: 'lighter tongue weight', higher: 'heavier tongue' },
+  };
+  const label = LABELS[field]?.[dir];
+  if (!label) return null;
+  // "Top 10%" is pct >= 90
+  if (pct >= 90) return `Top 10% — ${label} than 90% of lineup`;
+  if (pct >= 80) return `Top 20% — ${label} than 80%`;
+  return `Top 30% — ${label} than 70%`;
+}

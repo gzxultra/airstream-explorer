@@ -289,3 +289,18 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 /* Unit toggle — dark mode */
 [data-theme="dark"] .unit-toggle { color: var(--ink); border-color: var(--line); }
 [data-theme="dark"] .unit-toggle:hover { border-color: var(--copper); color: var(--copper); }
+
+/* Percentile indicators dark mode */
+[data-theme="dark"] .spec-pct--top20 .spec-pct-bar { background: #93b882; }
+[data-theme="dark"] .spec-pct--top20 .spec-pct-text { color: #93b882; }
+
+/* Quick-view dark mode */
+[data-theme="dark"] .xcard-peek {
+  background: rgba(40,36,32,0.85);
+  color: var(--ink);
+}
+[data-theme="dark"] .qv-close {
+  background: rgba(40,36,32,0.85);
+  color: var(--ink);
+}
+[data-theme="dark"] .qv-close:hover { background: rgba(50,46,42,0.95); }

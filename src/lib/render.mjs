@@ -7,7 +7,7 @@ import {
   hitchPctOfGvwr,
   trailerTitle, trailerLabel, saveButton,
 } from './format.mjs';
-import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts } from './data.mjs';
+import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel } from './data.mjs';
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
 import { socialMeta, productJsonLd, iconMeta } from './seo.mjs';
@@ -123,6 +123,22 @@ ${body}
 </figure>
 <button type="button" class="lightbox-nav lightbox-next" data-lb-next aria-label="Next photo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 5 16 12 9 19"></polyline></svg></button>
 </div>
+<div class="quick-view" id="quick-view" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Quick view">
+<div class="qv-backdrop" data-qv-close></div>
+<div class="qv-panel">
+<button type="button" class="qv-close" data-qv-close aria-label="Close">&times;</button>
+<div class="qv-media"><img class="qv-img" id="qv-img" alt="" width="400" height="260"></div>
+<div class="qv-body">
+<p class="qv-year" id="qv-year"></p>
+<h3 class="qv-title" id="qv-title"></h3>
+<p class="qv-desc" id="qv-desc"></p>
+<dl class="qv-specs" id="qv-specs"></dl>
+<div class="qv-actions">
+<a class="qv-detail-btn" id="qv-detail-link" href="#">View full details →</a>
+</div>
+</div>
+</div>
+</div>
 <button type="button" class="back-to-top" id="back-to-top" aria-label="Back to top" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
 <div class="kb-help" id="kb-help" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
 <div class="kb-help-backdrop" data-kb-close></div>
@@ -175,13 +191,20 @@ function renderStandoutBadges(t, allTrailers) {
   return `<div class="standout-badges" aria-label="Standout traits">${pills}</div>`;
 }
 
-function specRow(label, value, { tip = false, unit = null, raw = null } = {}) {
+function specRow(label, value, { tip = false, unit = null, raw = null, pctData = null } = {}) {
   const glossary = tip && SPEC_GLOSSARY[label];
   const dtInner = glossary
     ? `<span class="spec-tip" tabindex="0" aria-label="${esc(label)}: ${esc(glossary)}"><span class="spec-tip-text">${esc(glossary)}</span>${esc(label)}</span>`
     : esc(label);
   const unitAttr = unit && raw != null ? ` data-unit="${esc(unit)}" data-raw="${esc(String(raw))}"` : '';
-  return `<div class="spec"><dt>${dtInner}</dt><dd${unitAttr}>${esc(value)}</dd></div>`;
+  // Percentile ranking indicator (only shown for notable rankings ≥70th pct)
+  let pctHtml = '';
+  if (pctData && pctData.pct >= 70) {
+    const barW = pctData.pct;
+    const tier = pctData.pct >= 90 ? 'top10' : pctData.pct >= 80 ? 'top20' : 'top30';
+    pctHtml = `<span class="spec-pct spec-pct--${tier}" title="${esc(pctData.label || '')}" aria-label="${esc(pctData.label || '')}"><span class="spec-pct-bar" style="width:${barW}%"></span><span class="spec-pct-text">Top ${100 - barW}%</span></span>`;
+  }
+  return `<div class="spec"><dt>${dtInner}</dt><dd${unitAttr}>${esc(value)}${pctHtml}</dd></div>`;
 }
 
 function tagChips(tags) {
@@ -983,6 +1006,15 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
   const a = resolve(t);
   const fam = familySlug(t.model);
   const official = officialUrl(t.model);
+  // Compute percentile rankings for this trailer in its year cohort
+  const pctMap = allTrailers.length >= 3 ? computePercentiles(allTrailers) : new Map();
+  const rankings = pctMap.get(t.slug) || {};
+  const pctFor = (field) => {
+    const r = rankings[field];
+    if (!r) return null;
+    const label = percentileLabel(field, r);
+    return label ? { pct: r.pct, label } : null;
+  };
   const totalMedia = a.gallery.length + (a.hero ? 1 : 0);
   const heroImg = a.hero
     ? `<button type="button" class="detail-hero-btn" data-lightbox data-full="../${esc(a.hero)}" data-index="0" data-caption="${esc(trailerTitle(t))} — hero" aria-label="View hero image full screen"><img src="../${esc(a.hero)}" alt="${esc(trailerTitle(t))}" class="detail-hero-img" width="1280" height="720" fetchpriority="high"><span class="hero-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`
@@ -1060,17 +1092,17 @@ ${renderKeyStats(t)}
 <section class="spec-table" id="specs" aria-label="Specifications">
 <h2>Specifications</h2>
 <dl class="specs-grid">
-${specRow('Length', formatLength(t.lengthFt), { tip: true, unit: 'length', raw: t.lengthFt })}
-${specRow('Dry weight', formatWeight(t.weightLb), { tip: true, unit: 'weight', raw: t.weightLb })}
+${specRow('Length', formatLength(t.lengthFt), { tip: true, unit: 'length', raw: t.lengthFt, pctData: pctFor('lengthFt') })}
+${specRow('Dry weight', formatWeight(t.weightLb), { tip: true, unit: 'weight', raw: t.weightLb, pctData: pctFor('weightLb') })}
 ${specRow('GVWR', formatWeight(t.gvwrLb), { tip: true, unit: 'weight', raw: t.gvwrLb })}
-${specRow('Cargo capacity (CCC)', formatWeight(t.cccLb), { tip: true, unit: 'weight', raw: t.cccLb })}
-${specRow('Hitch weight', formatWeight(t.hitchWeightLb), { tip: true, unit: 'weight', raw: t.hitchWeightLb })}
+${specRow('Cargo capacity (CCC)', formatWeight(t.cccLb), { tip: true, unit: 'weight', raw: t.cccLb, pctData: pctFor('cccLb') })}
+${specRow('Hitch weight', formatWeight(t.hitchWeightLb), { tip: true, unit: 'weight', raw: t.hitchWeightLb, pctData: pctFor('hitchWeightLb') })}
 ${specRow('Sleeps', String(t.sleeps), { tip: true })}
 ${specRow('Fresh / gray / black', formatTanks(t.freshGal, t.grayGal, t.blackGal), { tip: true, unit: 'tanks', raw: [t.freshGal, t.grayGal, t.blackGal].join(',') })}
 ${specRow('Solar', t.solarW ? `${t.solarW} W ${t.solarStandard ? '(standard)' : '(optional)'}` : '—', { tip: true })}
 ${specRow('Battery', t.batteryKwh ? `${t.batteryKwh} kWh` : '—', { tip: true })}
-${specRow('Off-grid score', `${t.offGridScore} / 100`, { tip: true })}
-${specRow('MSRP', formatMsrp(t.msrp), { tip: true })}
+${specRow('Off-grid score', `${t.offGridScore} / 100`, { tip: true, pctData: pctFor('offGridScore') })}
+${specRow('MSRP', formatMsrp(t.msrp), { tip: true, pctData: pctFor('msrp') })}
 </dl>
 ${note}
 </section>
@@ -1121,12 +1153,13 @@ ${relatedSection}
 export function renderExploreCard(t, resolve = assetPaths, hidden = false) {
   const a = resolve(t);
   const tags = (t.tags || []).join(' ');
-  return `<article class="xcard" data-slug="${esc(t.slug)}" data-type="trailer" data-model="${esc(t.model)}" data-floorplan="${esc(t.floorplan)}" data-year="${esc(t.year)}" data-msrp="${esc(t.msrp)}" data-weight="${esc(t.weightLb)}" data-gvwr="${esc(t.gvwrLb)}" data-length="${esc(t.lengthFt)}" data-sleeps="${esc(t.sleeps)}" data-offgrid="${esc(t.offGridScore)}" data-tags="${esc(tags)}" data-name="${esc((t.model + ' ' + t.floorplan).toLowerCase())}"${hidden ? ' hidden' : ''}>
+  return `<article class="xcard" data-slug="${esc(t.slug)}" data-type="trailer" data-model="${esc(t.model)}" data-floorplan="${esc(t.floorplan)}" data-year="${esc(t.year)}" data-msrp="${esc(t.msrp)}" data-weight="${esc(t.weightLb)}" data-gvwr="${esc(t.gvwrLb)}" data-length="${esc(t.lengthFt)}" data-sleeps="${esc(t.sleeps)}" data-offgrid="${esc(t.offGridScore)}" data-tags="${esc(tags)}" data-name="${esc((t.model + ' ' + t.floorplan).toLowerCase())}" data-ccc="${esc(t.cccLb || '')}" data-fresh="${esc(t.freshGal || '')}" data-gray="${esc(t.grayGal || '')}" data-black="${esc(t.blackGal || '')}" data-solar="${esc(t.solarW || '')}" data-hitch="${esc(t.hitchWeightLb || '')}" data-desc="${esc(t.description || '')}" data-thumb="${esc(a.thumb || '')}"${hidden ? ' hidden' : ''}>
 <a class="xcard-link" href="m/${esc(t.slug)}.html">
 <div class="xcard-media">
 <img src="${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="400" height="260">
 <span class="xcard-year">${esc(t.year)}</span>
 ${a.gallery && a.gallery.length ? `<span class="xcard-photos" aria-label="${a.gallery.length} photos"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg> ${a.gallery.length}</span>` : ''}
+<button type="button" class="xcard-peek" data-peek aria-label="Quick view ${esc(trailerLabel(t))}" title="Quick view"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
 </div>
 <div class="xcard-body">
 <h3 class="xcard-title">${esc(t.model)} <span>${esc(t.floorplan)}</span></h3>
