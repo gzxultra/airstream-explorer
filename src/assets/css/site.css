@@ -2492,3 +2492,103 @@ html { scroll-behavior: smooth; }
   transition: width 0.08s linear;
   pointer-events: none;
 }
+
+/* ======================================================================== */
+/* SPEC GLOSSARY TOOLTIPS                                                   */
+/* ======================================================================== */
+.spec-tip {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dotted var(--muted);
+  padding-bottom: 1px;
+}
+.spec-tip-text {
+  display: none;
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  min-width: 220px;
+  max-width: 300px;
+  padding: 10px 14px;
+  font: 400 13px/1.45 'DM Sans', sans-serif;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--bg);
+  background: var(--ink);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.18);
+  z-index: 20;
+  pointer-events: none;
+  white-space: normal;
+}
+.spec-tip-text::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 16px;
+  border: 6px solid transparent;
+  border-top-color: var(--ink);
+}
+.spec-tip:hover .spec-tip-text,
+.spec-tip:focus .spec-tip-text {
+  display: block;
+}
+@media (max-width: 560px) {
+  .spec-tip-text { min-width: 180px; max-width: 240px; font-size: 12px; }
+}
+
+/* ======================================================================== */
+/* STANDOUT BADGES                                                          */
+/* ======================================================================== */
+.standout-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 4px;
+}
+.standout-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  color: var(--copper-deep);
+  background: rgba(176,92,50,.08);
+  border: 1px solid rgba(176,92,50,.18);
+  padding: 5px 12px;
+  border-radius: 999px;
+  line-height: 1.3;
+}
+.standout-icon { font-size: 14px; }
+
+/* ======================================================================== */
+/* EXPLORE STATS SUMMARY                                                    */
+/* ======================================================================== */
+.x-stats {
+  font-size: 13.5px;
+  color: var(--muted);
+  letter-spacing: .02em;
+  min-height: 1.4em;
+  margin: -4px 0 4px;
+}
+.x-stats:empty { display: none; }
+
+/* ======================================================================== */
+/* SECTION REVEAL ANIMATIONS                                                */
+/* ======================================================================== */
+.reveal-ready {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .55s cubic-bezier(.2,.7,.35,1), transform .55s cubic-bezier(.2,.7,.35,1);
+}
+.reveal-ready.is-revealed {
+  opacity: 1;
+  transform: none;
+}
+/* Stagger consecutive revealed sections slightly */
+.reveal-ready:nth-child(2) { transition-delay: .06s; }
+.reveal-ready:nth-child(3) { transition-delay: .12s; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal-ready { opacity: 1; transform: none; transition: none; }
+}

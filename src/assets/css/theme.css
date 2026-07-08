@@ -237,3 +237,22 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .secnav { background: color-mix(in srgb, var(--bg) 88%, transparent); }
 [data-theme="dark"] .rel-card { box-shadow: 0 1px 4px rgba(0,0,0,.2); }
 [data-theme="dark"] .rel-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.35); }
+
+/* Glossary tooltip — dark mode */
+[data-theme="dark"] .spec-tip-text {
+  color: var(--ink);
+  background: var(--bg);
+  box-shadow: 0 4px 16px rgba(0,0,0,.35);
+}
+[data-theme="dark"] .spec-tip-text::after { border-top-color: var(--bg); }
+[data-theme="dark"] .spec-tip { border-bottom-color: var(--line); }
+
+/* Standout badges — dark mode */
+[data-theme="dark"] .standout-badge {
+  background: rgba(232,184,154,.1);
+  border-color: rgba(232,184,154,.22);
+  color: #E8B89A;
+}
+
+/* Explore stats — dark mode */
+[data-theme="dark"] .x-stats { color: var(--muted); }

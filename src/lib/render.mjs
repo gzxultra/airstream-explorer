@@ -7,7 +7,7 @@ import {
   hitchPctOfGvwr,
   trailerTitle, trailerLabel, saveButton,
 } from './format.mjs';
-import { assetPaths, familySlug, officialUrl, catalogStats } from './data.mjs';
+import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts } from './data.mjs';
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
 import { socialMeta, productJsonLd, iconMeta } from './seo.mjs';
@@ -126,8 +126,38 @@ ${scripts}</body>
 </html>`;
 }
 
-function specRow(label, value) {
-  return `<div class="spec"><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`;
+// Glossary of spec terms — shown as tooltips on the detail spec table.
+// Each key matches the label used in specRow(); only detail-page rows get tips.
+const SPEC_GLOSSARY = {
+  'Length': 'Overall bumper-to-hitch length, including the tongue.',
+  'Dry weight': 'Empty weight from the factory — no water, propane, or personal gear.',
+  'GVWR': 'Gross Vehicle Weight Rating — the maximum safe total weight when fully loaded.',
+  'Cargo capacity (CCC)': 'GVWR minus dry weight. Everything you add (water, propane, gear) must fit within this.',
+  'Hitch weight': 'The downward force the tongue puts on your tow vehicle\'s hitch.',
+  'Fresh / gray / black': 'Fresh = clean drinking water. Gray = sink/shower drainage. Black = toilet waste.',
+  'Solar': 'Factory rooftop solar panel wattage for charging the house battery off-grid.',
+  'Battery': 'House battery capacity in kilowatt-hours — powers lights, outlets, and appliances.',
+  'Off-grid score': 'A 0–100 composite: battery kWh, solar watts, and tank sizes vs. the lineup.',
+  'MSRP': 'Manufacturer\'s Suggested Retail Price — the base sticker price before options or dealer markup.',
+  'Sleeps': 'Maximum sleeping positions from the factory floorplan layout.',
+};
+
+/** Render standout badges for a trailer detail page. */
+function renderStandoutBadges(t, allTrailers) {
+  const badges = computeStandouts(t, allTrailers);
+  if (!badges.length) return '';
+  const pills = badges.map((b) =>
+    `<span class="standout-badge"><span class="standout-icon" aria-hidden="true">${b.icon}</span>${esc(b.label)}</span>`
+  ).join('');
+  return `<div class="standout-badges" aria-label="Standout traits">${pills}</div>`;
+}
+
+function specRow(label, value, { tip = false } = {}) {
+  const glossary = tip && SPEC_GLOSSARY[label];
+  const dtInner = glossary
+    ? `<span class="spec-tip" tabindex="0" aria-label="${esc(label)}: ${esc(glossary)}"><span class="spec-tip-text">${esc(glossary)}</span>${esc(label)}</span>`
+    : esc(label);
+  return `<div class="spec"><dt>${dtInner}</dt><dd>${esc(value)}</dd></div>`;
 }
 
 function tagChips(tags) {
@@ -907,6 +937,7 @@ ${sectionNav}
 ${saveButton(t.slug, 'trailer', trailerLabel(t), 'detail')}
 </div>
 ${tagChips(t.tags)}
+${renderStandoutBadges(t, allTrailers)}
 <div class="share-actions" data-share-actions>
 <button type="button" class="share-btn" id="detail-share" aria-label="Share this page" title="Share this page"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg> Share</button>
 <button type="button" class="share-btn" id="detail-copy-specs" aria-label="Copy specs to clipboard" title="Copy specs to clipboard"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg> Copy specs</button>
@@ -919,17 +950,17 @@ ${official ? `<p class="official-head"><a class="official-link" href="${esc(offi
 <section class="spec-table" id="specs" aria-label="Specifications">
 <h2>Specifications</h2>
 <dl class="specs-grid">
-${specRow('Length', formatLength(t.lengthFt))}
-${specRow('Dry weight', formatWeight(t.weightLb))}
-${specRow('GVWR', formatWeight(t.gvwrLb))}
-${specRow('Cargo capacity (CCC)', formatWeight(t.cccLb))}
-${specRow('Hitch weight', formatWeight(t.hitchWeightLb))}
-${specRow('Sleeps', String(t.sleeps))}
-${specRow('Fresh / gray / black', formatTanks(t.freshGal, t.grayGal, t.blackGal))}
-${specRow('Solar', t.solarW ? `${t.solarW} W ${t.solarStandard ? '(standard)' : '(optional)'}` : '—')}
-${specRow('Battery', t.batteryKwh ? `${t.batteryKwh} kWh` : '—')}
-${specRow('Off-grid score', `${t.offGridScore} / 100`)}
-${specRow('MSRP', formatMsrp(t.msrp))}
+${specRow('Length', formatLength(t.lengthFt), { tip: true })}
+${specRow('Dry weight', formatWeight(t.weightLb), { tip: true })}
+${specRow('GVWR', formatWeight(t.gvwrLb), { tip: true })}
+${specRow('Cargo capacity (CCC)', formatWeight(t.cccLb), { tip: true })}
+${specRow('Hitch weight', formatWeight(t.hitchWeightLb), { tip: true })}
+${specRow('Sleeps', String(t.sleeps), { tip: true })}
+${specRow('Fresh / gray / black', formatTanks(t.freshGal, t.grayGal, t.blackGal), { tip: true })}
+${specRow('Solar', t.solarW ? `${t.solarW} W ${t.solarStandard ? '(standard)' : '(optional)'}` : '—', { tip: true })}
+${specRow('Battery', t.batteryKwh ? `${t.batteryKwh} kWh` : '—', { tip: true })}
+${specRow('Off-grid score', `${t.offGridScore} / 100`, { tip: true })}
+${specRow('MSRP', formatMsrp(t.msrp), { tip: true })}
 </dl>
 ${note}
 </section>
@@ -1100,6 +1131,7 @@ ${typeSeg}
 <button type="button" class="xc-reset" id="x-reset">Reset</button>
 </div>
 </section>
+<div class="x-stats" id="x-stats" aria-live="polite" aria-atomic="true"></div>
 <p class="xcount"><span id="x-count">${total}</span> floorplans</p>
 <main class="xgrid" id="xgrid">
 ${cards}

@@ -583,6 +583,35 @@
       if (elCount) elCount.textContent = shown;
       if (elEmpty) { if (shown === 0) elEmpty.removeAttribute('hidden'); else elEmpty.setAttribute('hidden', ''); }
 
+      // Live aggregate stats for visible cards
+      var statsEl = document.getElementById('x-stats');
+      if (statsEl) {
+        if (shown === 0) { statsEl.textContent = ''; }
+        else {
+          var prices = [], weights = [], lengths = [];
+          visible.forEach(function (c) {
+            var p = num(c, 'data-msrp'), w = num(c, 'data-weight'), l = num(c, 'data-length');
+            if (p > 0) prices.push(p);
+            if (w > 0) weights.push(w);
+            if (l > 0) lengths.push(l);
+          });
+          var parts = [];
+          if (prices.length >= 2) {
+            var pMin = Math.min.apply(null, prices), pMax = Math.max.apply(null, prices);
+            var fmtK = function (n) { return n >= 1000 ? '$' + Math.round(n / 1000) + 'k' : '$' + n.toLocaleString('en-US'); };
+            parts.push(fmtK(pMin) + ' – ' + fmtK(pMax));
+          }
+          if (weights.length >= 2) {
+            parts.push(Math.min.apply(null, weights).toLocaleString('en-US') + ' – ' + Math.max.apply(null, weights).toLocaleString('en-US') + ' lb');
+          }
+          if (lengths.length >= 2) {
+            var lMin = Math.min.apply(null, lengths), lMax = Math.max.apply(null, lengths);
+            parts.push(Math.round(lMin) + "'" + ' – ' + Math.round(lMax) + "'" + ' long');
+          }
+          statsEl.textContent = parts.length ? parts.join(' · ') : '';
+        }
+      }
+
       if (towSummary) {
         if (state.tow) {
           towSummary.removeAttribute('hidden');
@@ -4111,6 +4140,31 @@
       if (!ticking) { ticking = true; requestAnimationFrame(update); }
     }, { passive: true });
     update();
+  })();
+
+  // =========================================================================
+  // SECTION REVEAL — subtle entrance animations for detail-page sections.
+  //     Uses IntersectionObserver to add .is-revealed on first scroll into
+  //     view. Respects prefers-reduced-motion (skips animation entirely).
+  // =========================================================================
+  (function sectionReveal() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var sections = document.querySelectorAll('.spec-table, .tow-callout, .towtool, .fuel-tool, .offgrid-tool, .payload-tool, .floorplan, .decor, .gallery, .proscons, .related, .cg-fit');
+    if (!sections.length) return;
+    for (var i = 0; i < sections.length; i++) {
+      sections[i].classList.add('reveal-ready');
+    }
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    for (var j = 0; j < sections.length; j++) {
+      observer.observe(sections[j]);
+    }
   })();
 
 })();
