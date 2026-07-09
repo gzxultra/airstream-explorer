@@ -322,3 +322,15 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .footer-legal a { color: var(--muted); }
 [data-theme="dark"] .breadcrumb-list li + li::before { color: var(--line); }
 [data-theme="dark"] .floorplan-zoom-btn:focus-visible { outline-color: var(--copper); }
+
+/* --- Radar chart dark overrides --- */
+[data-theme="dark"] .radar-ring { stroke: var(--line); }
+[data-theme="dark"] .radar-spoke { stroke: var(--line); }
+[data-theme="dark"] .radar-fill { fill-opacity: 0.18; }
+[data-theme="dark"] .radar-label { fill: var(--muted); }
+
+/* --- Cross-family dark overrides --- */
+[data-theme="dark"] .xfam-card { background: var(--card); border-color: var(--line); }
+[data-theme="dark"] .xfam-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+[data-theme="dark"] .xfam-traits { background: color-mix(in srgb, var(--copper) 15%, var(--surface)); }
+[data-theme="dark"] .cross-family { border-top-color: var(--line); }

@@ -1061,6 +1061,172 @@ function buildSpecText(t) {
 }
 
 // ---------------------------------------------------------------------------
+// SPEC RADAR CHART: visual fingerprint of how a trailer stacks up
+// ---------------------------------------------------------------------------
+
+/**
+ * Catalog-wide min/max for radar axes. These define the normalization range.
+ * Values are from the full 2025+2026 catalog so every model maps to 0-1.
+ * Axes where "more is better" scale linearly; "less is better" axes are
+ * inverted so the polygon always grows outward toward "better".
+ */
+const RADAR_AXES = [
+  { key: 'offGridScore', label: 'Off-grid',  min: 35,  max: 95,  better: 'higher' },
+  { key: 'cccLb',        label: 'Cargo',     min: 300, max: 2300, better: 'higher' },
+  { key: 'sleeps',       label: 'Sleeps',    min: 2,   max: 8,    better: 'higher' },
+  { key: 'lengthFt',     label: 'Compact',   min: 16,  max: 34,   better: 'lower'  },
+  { key: 'weightLb',     label: 'Light',     min: 2600,max: 8500, better: 'lower'  },
+  { key: 'msrp',         label: 'Value',     min: 50000, max: 225000, better: 'lower' },
+];
+
+function radarNormalize(value, axis) {
+  if (value == null || value <= 0) return 0;
+  const clamped = Math.max(axis.min, Math.min(axis.max, value));
+  const ratio = (clamped - axis.min) / (axis.max - axis.min);
+  return axis.better === 'lower' ? 1 - ratio : ratio;
+}
+
+/**
+ * Render a pure-SVG radar chart for one trailer. Each axis is normalized 0-1
+ * against catalog-wide min/max. The polygon shows this trailer's "shape" —
+ * where it excels and where it trades off.
+ */
+function renderRadarChart(t) {
+  const cx = 120, cy = 120, R = 90;
+  const n = RADAR_AXES.length;
+  const angleStep = (2 * Math.PI) / n;
+  const startAngle = -Math.PI / 2; // top
+
+  // Concentric guide rings at 33%, 66%, 100%
+  const rings = [0.33, 0.66, 1].map((frac) => {
+    const r = R * frac;
+    const pts = [];
+    for (let i = 0; i < n; i++) {
+      const a = startAngle + i * angleStep;
+      pts.push(`${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`);
+    }
+    return `<polygon points="${pts.join(' ')}" class="radar-ring"/>`;
+  }).join('');
+
+  // Spoke lines from center to each vertex
+  const spokes = RADAR_AXES.map((_, i) => {
+    const a = startAngle + i * angleStep;
+    return `<line x1="${cx}" y1="${cy}" x2="${cx + R * Math.cos(a)}" y2="${cy + R * Math.sin(a)}" class="radar-spoke"/>`;
+  }).join('');
+
+  // Data polygon
+  const values = RADAR_AXES.map((axis) => radarNormalize(t[axis.key], axis));
+  const dataPts = values.map((v, i) => {
+    const r = Math.max(R * 0.08, R * v); // minimum visible radius
+    const a = startAngle + i * angleStep;
+    return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
+  }).join(' ');
+
+  // Data dots
+  const dots = values.map((v, i) => {
+    const r = Math.max(R * 0.08, R * v);
+    const a = startAngle + i * angleStep;
+    return `<circle cx="${cx + r * Math.cos(a)}" cy="${cy + r * Math.sin(a)}" r="3.5" class="radar-dot"/>`;
+  }).join('');
+
+  // Axis labels positioned outside the chart
+  const labels = RADAR_AXES.map((axis, i) => {
+    const a = startAngle + i * angleStep;
+    const labelR = R + 22;
+    const x = cx + labelR * Math.cos(a);
+    const y = cy + labelR * Math.sin(a);
+    const anchor = Math.abs(Math.cos(a)) < 0.1 ? 'middle'
+      : Math.cos(a) > 0 ? 'start' : 'end';
+    const dy = Math.abs(Math.sin(a)) > 0.8 ? (Math.sin(a) > 0 ? '0.9em' : '-0.3em') : '0.35em';
+    return `<text x="${x}" y="${y}" text-anchor="${anchor}" dy="${dy}" class="radar-label">${esc(axis.label)}</text>`;
+  }).join('');
+
+  return `<div class="radar-chart" aria-label="Spec profile chart">
+<svg viewBox="0 0 240 240" width="240" height="240" class="radar-svg" role="img" aria-label="Radar chart showing ${esc(t.model)} ${esc(t.floorplan)} spec profile">
+${rings}
+${spokes}
+<polygon points="${dataPts}" class="radar-fill"/>
+<polygon points="${dataPts}" class="radar-stroke"/>
+${dots}
+${labels}
+</svg>
+<p class="radar-hint muted">How this floorplan stacks up across the lineup</p>
+</div>`;
+}
+
+// ---------------------------------------------------------------------------
+// CROSS-FAMILY RECOMMENDATIONS: similar trailers from other families
+// ---------------------------------------------------------------------------
+
+/**
+ * Multi-dimensional distance between two trailers for recommendation matching.
+ * Each dimension is normalized 0-1 using catalog-wide ranges, then we compute
+ * Euclidean distance. Lower = more similar.
+ */
+function trailerDistance(a, b) {
+  const dims = [
+    { key: 'weightLb',  min: 2600, max: 8500 },
+    { key: 'lengthFt',  min: 16,   max: 34 },
+    { key: 'msrp',      min: 50000, max: 225000 },
+    { key: 'sleeps',    min: 2,    max: 8 },
+    { key: 'offGridScore', min: 35, max: 95 },
+    { key: 'cccLb',     min: 300,  max: 2300 },
+  ];
+  let sumSq = 0;
+  for (const { key, min, max } of dims) {
+    const va = a[key] != null ? (a[key] - min) / (max - min) : 0.5;
+    const vb = b[key] != null ? (b[key] - min) / (max - min) : 0.5;
+    sumSq += (va - vb) ** 2;
+  }
+  return Math.sqrt(sumSq);
+}
+
+/**
+ * "You might also like" — spec-similar trailers from OTHER families.
+ * Complements renderRelated() which stays within the same family.
+ */
+function renderCrossFamily(current, allTrailers, resolve) {
+  if (allTrailers.length < 10) return '';
+  const candidates = allTrailers
+    .filter((t) => t.model !== current.model && t.year === current.year && t.slug !== current.slug)
+    .map((t) => ({ t, dist: trailerDistance(current, t) }))
+    .sort((a, b) => a.dist - b.dist);
+  // Take top 4, but deduplicate families (at most one per family)
+  const seen = new Set();
+  const picks = [];
+  for (const { t } of candidates) {
+    if (seen.has(t.model)) continue;
+    seen.add(t.model);
+    picks.push(t);
+    if (picks.length >= 4) break;
+  }
+  if (picks.length < 2) return '';
+  const cards = picks.map((t) => {
+    const a = resolve(t);
+    // Show what makes this similar: shared traits
+    const traits = [];
+    if (Math.abs(t.sleeps - current.sleeps) <= 1) traits.push(`Sleeps ${t.sleeps}`);
+    if (Math.abs(t.weightLb - current.weightLb) < 1000) traits.push('Similar weight');
+    if (Math.abs(t.msrp - current.msrp) < 20000) traits.push('Similar price');
+    if (Math.abs(t.offGridScore - current.offGridScore) < 15) traits.push('Similar off-grid');
+    const traitStr = traits.length ? traits.slice(0, 2).join(' · ') : '';
+    return `<a class="xfam-card" href="${esc(t.slug)}.html">
+<div class="xfam-media"><img src="../${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="400" height="260"></div>
+<div class="xfam-body">
+<p class="xfam-title">${esc(t.model)} <span>${esc(t.floorplan)}</span></p>
+<p class="xfam-specs">${esc(formatLength(t.lengthFt))} · ${esc(formatWeight(t.weightLb))} · ${esc(formatMsrp(t.msrp))}</p>
+${traitStr ? `<p class="xfam-traits">${esc(traitStr)}</p>` : ''}
+</div>
+</a>`;
+  }).join('\n');
+  return `<section class="cross-family" aria-label="Similar from other families">
+<h2>You might also like</h2>
+<p class="cross-family-sub muted">Similar specs from other Airstream families</p>
+<div class="cross-family-grid">${cards}</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
 // RELATED FLOORPLANS: cross-discovery cards at the bottom of detail pages
 // ---------------------------------------------------------------------------
 function renderRelated(current, allTrailers, resolve) {
@@ -1179,6 +1345,8 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
   ].filter(Boolean));
   // Related floorplans: same family, different floorplan, prefer same year
   const relatedSection = renderRelated(t, allTrailers, resolve);
+  // Cross-family: spec-similar trailers from other model lines
+  const crossFamilySection = renderCrossFamily(t, allTrailers, resolve);
   // Breadcrumb trail: Home → Family → Floorplan
   const breadcrumbItems = [
     { name: 'Airstream Explorer', path: 'index.html' },
@@ -1211,7 +1379,10 @@ ${official ? `<p class="official-head"><a class="official-link" href="${esc(offi
 </header>
 <div class="detail-hero">${heroImg}</div>
 ${renderKeyStats(t)}
+<div class="detail-overview">
 <p class="detail-desc">${esc(t.description)}</p>
+${renderRadarChart(t)}
+</div>
 <section class="spec-table" id="specs" aria-label="Specifications">
 <h2>Specifications</h2>
 <dl class="specs-grid">
@@ -1244,6 +1415,7 @@ ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
 </section>` : ''}
 ${gallery ? `<section class="gallery" id="gallery" aria-label="Gallery"><h2>Gallery</h2><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
 ${relatedSection}
+${crossFamilySection}
 </article>`;
   return page({
     title: `${trailerTitle(t)} — specs, weights & price`,

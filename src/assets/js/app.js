@@ -5054,3 +5054,57 @@
       btns[i].classList.add('gallery-hoverable');
     }
   })();
+
+  // -----------------------------------------------------------------------
+  // Scroll-spy: highlight the current section in the sticky section nav
+  // -----------------------------------------------------------------------
+  (function scrollSpy() {
+    var nav = document.querySelector('[data-secnav]');
+    if (!nav) return;
+    var links = Array.prototype.slice.call(nav.querySelectorAll('.secnav-link'));
+    if (links.length < 2) return;
+
+    // Build id→link map from href="#id"
+    var sections = [];
+    links.forEach(function (link) {
+      var hash = link.getAttribute('href');
+      if (!hash || hash.charAt(0) !== '#') return;
+      var el = document.getElementById(hash.slice(1));
+      if (el) sections.push({ el: el, link: link });
+    });
+    if (sections.length < 2) return;
+
+    var activeLink = null;
+    function setActive(link) {
+      if (link === activeLink) return;
+      if (activeLink) activeLink.classList.remove('is-active');
+      if (link) link.classList.add('is-active');
+      activeLink = link;
+    }
+
+    // Use IntersectionObserver to track which sections are visible.
+    // The topmost visible section wins.
+    var visibleSet = new Set();
+    var navHeight = nav.offsetHeight || 60;
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var id = entry.target.id;
+        if (entry.isIntersecting) visibleSet.add(id);
+        else visibleSet.delete(id);
+      });
+      // Pick the first section (in DOM order) that's visible
+      for (var i = 0; i < sections.length; i++) {
+        if (visibleSet.has(sections[i].el.id)) {
+          setActive(sections[i].link);
+          return;
+        }
+      }
+      // Nothing visible — clear
+      setActive(null);
+    }, {
+      rootMargin: '-' + (navHeight + 20) + 'px 0px -40% 0px',
+      threshold: 0
+    });
+
+    sections.forEach(function (s) { observer.observe(s.el); });
+  })();
