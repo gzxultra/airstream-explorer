@@ -382,3 +382,6 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .filter-pill-x:hover { background: rgba(200,150,100,.2); }
 [data-theme="dark"] .scroll-top { background: var(--card); color: var(--ink); border-color: var(--line); box-shadow: 0 2px 12px rgba(0,0,0,.4); }
 [data-theme="dark"] .scroll-top:hover { background: var(--copper); color: #fff; border-color: var(--copper); }
+[data-theme="dark"] .finance-range-val { color: var(--ink); }
+[data-theme="dark"] .nextstep-card { background: var(--card); border-color: var(--line); }
+[data-theme="dark"] .nextstep-card:hover { border-color: var(--copper); box-shadow: 0 2px 12px rgba(0,0,0,.3); }

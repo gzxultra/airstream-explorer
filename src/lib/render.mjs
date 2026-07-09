@@ -910,6 +910,84 @@ export function renderFuelTool(t) {
  * is consumed by water and propane, and how much remains for personal cargo.
  * Server-renders a default scenario (full water, dual 20 lb propane).
  */
+
+// ---------------------------------------------------------------------------
+// FINANCING CALCULATOR: estimated monthly payment based on MSRP
+// ---------------------------------------------------------------------------
+
+/** Default financing assumptions — reasonable RV loan terms. */
+const FINANCE_DEFAULTS = { downPct: 20, apr: 6.99, termYears: 15 };
+
+/** Calculate monthly payment using standard amortization formula. */
+export function calculateMonthly(msrp, downPct, apr, termYears) {
+  const down = Math.round(msrp * downPct / 100);
+  const principal = msrp - down;
+  if (principal <= 0) return { monthly: 0, totalCost: down, totalInterest: 0, down, principal: 0 };
+  const r = apr / 100 / 12;
+  const n = termYears * 12;
+  const monthly = r > 0
+    ? principal * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)
+    : principal / n;
+  const totalCost = Math.round(monthly) * n + down;
+  return { monthly: Math.round(monthly), totalCost, totalInterest: totalCost - msrp, down, principal };
+}
+
+/** Render the financing calculator section for a detail page. */
+export function renderFinancingTool(t) {
+  if (!(t.msrp > 0)) return '';
+  const d = FINANCE_DEFAULTS;
+  const calc = calculateMonthly(t.msrp, d.downPct, d.apr, d.termYears);
+
+  const termOpts = [5, 10, 15, 20].map((y) =>
+    `<option value="${y}"${y === d.termYears ? ' selected' : ''}>${y} years</option>`
+  ).join('');
+
+  const dataIsland = JSON.stringify({ msrp: t.msrp }).replace(/<\//g, '<\\/');
+
+  return `<section class="estimator finance-tool" id="finance" aria-label="Monthly payment estimator"
+ data-msrp="${esc(t.msrp)}">
+<script type="application/json" id="finance-data">${dataIsland}</script>
+<div class="est-head">
+<h2>Estimated monthly payment</h2>
+<p class="est-sub">A financing estimate for the ${esc(t.model)} ${esc(t.floorplan)} at ${formatMsrp(t.msrp)} MSRP. Adjust the terms below — this is for planning only, not a loan offer.</p>
+</div>
+<div class="est-controls">
+<div class="est-field">
+<label for="finance-down">Down payment</label>
+<div class="finance-slider-row">
+<input type="range" id="finance-down" min="0" max="50" step="5" value="${d.downPct}" class="finance-range" aria-label="Down payment percentage">
+<span class="finance-range-val" id="finance-down-val">${d.downPct}% (${formatMsrp(calc.down)})</span>
+</div>
+</div>
+<div class="est-field">
+<label for="finance-apr">Interest rate (APR)</label>
+<div class="finance-slider-row">
+<input type="range" id="finance-apr" min="3" max="12" step="0.25" value="${d.apr}" class="finance-range" aria-label="Annual percentage rate">
+<span class="finance-range-val" id="finance-apr-val">${d.apr}%</span>
+</div>
+</div>
+<div class="est-field">
+<label for="finance-term">Loan term</label>
+<select id="finance-term">${termOpts}</select>
+</div>
+</div>
+<div class="est-result" id="finance-result" aria-live="polite" aria-atomic="true">
+<div class="est-big">
+<span class="est-number" id="finance-monthly">${formatMsrp(calc.monthly)}</span>
+<span class="est-number-cap">per month</span>
+</div>
+<div class="finance-breakdown">
+<dl class="finance-dl">
+<div class="finance-dl-row"><dt>Loan amount</dt><dd id="finance-principal">${formatMsrp(calc.principal)}</dd></div>
+<div class="finance-dl-row"><dt>Total interest</dt><dd id="finance-interest">${formatMsrp(calc.totalInterest)}</dd></div>
+<div class="finance-dl-row finance-dl-total"><dt>Total cost</dt><dd id="finance-total">${formatMsrp(calc.totalCost)}</dd></div>
+</dl>
+</div>
+</div>
+<p class="est-caveat muted">For planning purposes only. Actual rates depend on credit, lender, and terms. Does not include tax, registration, or dealer fees.</p>
+</section>`;
+}
+
 export function renderPayloadTool(t) {
   if (!(t.cccLb > 0)) return '';
   const def = calculatePayload(t);
@@ -1228,6 +1306,32 @@ ${traitStr ? `<p class="xfam-traits">${esc(traitStr)}</p>` : ''}
 }
 
 // ---------------------------------------------------------------------------
+// NEXT STEPS: actionable links to move from research to purchase
+// ---------------------------------------------------------------------------
+function renderNextSteps(t) {
+  const official = officialUrl(t.model);
+  const links = [];
+  links.push(`<a class="nextstep-card" href="https://www.airstream.com/find-a-dealer/" target="_blank" rel="noopener">
+<span class="nextstep-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1118 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
+<span class="nextstep-text"><span class="nextstep-title">Find a dealer</span><span class="nextstep-sub">Locate an authorized Airstream dealer near you</span></span>
+<span class="nextstep-arrow" aria-hidden="true">↗</span></a>`);
+  if (official) {
+    links.push(`<a class="nextstep-card" href="${esc(official)}" target="_blank" rel="noopener">
+<span class="nextstep-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg></span>
+<span class="nextstep-text"><span class="nextstep-title">Official ${esc(t.model)} page</span><span class="nextstep-sub">Full details, options &amp; configurator on airstream.com</span></span>
+<span class="nextstep-arrow" aria-hidden="true">↗</span></a>`);
+  }
+  links.push(`<a class="nextstep-card" href="https://www.airstream.com/build-your-own/" target="_blank" rel="noopener">
+<span class="nextstep-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"></path></svg></span>
+<span class="nextstep-text"><span class="nextstep-title">Build &amp; price</span><span class="nextstep-sub">Configure your Airstream with factory options</span></span>
+<span class="nextstep-arrow" aria-hidden="true">↗</span></a>`);
+  return `<section class="next-steps" aria-label="Next steps">
+<h2>Ready for the next step?</h2>
+<div class="nextstep-grid">${links.join('')}</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
 // RELATED FLOORPLANS: cross-discovery cards at the bottom of detail pages
 // ---------------------------------------------------------------------------
 function renderRelated(current, allTrailers, resolve) {
@@ -1383,6 +1487,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     t.gvwrLb ? ['#fuel', 'Fuel'] : null,
     t.gvwrLb ? ['#vehicles', 'Vehicles'] : null,
     t.cccLb ? ['#payload', 'Payload'] : null,
+    t.msrp > 0 ? ['#finance', 'Finance'] : null,
     ['#offgrid', 'Off-grid'],
     a.floorplan ? ['#floorplan', 'Floor plan'] : null,
     galleryCount ? ['#gallery', 'Gallery'] : null,
@@ -1463,6 +1568,7 @@ ${renderTowTool(t)}
 ${renderCompatibleVehicles(t)}
 ${renderFuelTool(t)}
 ${renderPayloadTool(t)}
+${renderFinancingTool(t)}
 ${renderOffGridTool(t)}
 ${floorplanSection}
 ${decorSection}
@@ -1472,6 +1578,7 @@ ${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}
 ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
 </section>` : ''}
 ${gallery ? `<section class="gallery" id="gallery" aria-label="Gallery"><h2>Gallery</h2><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
+${renderNextSteps(t)}
 ${relatedSection}
 ${crossFamilySection}
 </article>

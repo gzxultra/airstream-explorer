@@ -3743,3 +3743,73 @@ body:has(.cmp-bar:not([hidden])) .scroll-top.is-visible { bottom: 80px; }
 @media (prefers-reduced-motion: reduce) {
   .scroll-top { transition: none; }
 }
+
+/* ------------------------------------------------------------------ */
+/* FINANCING CALCULATOR                                               */
+/* ------------------------------------------------------------------ */
+.finance-slider-row {
+  display: flex; align-items: center; gap: 12px;
+}
+.finance-range {
+  flex: 1; min-width: 120px; accent-color: var(--copper);
+  height: 6px; cursor: pointer;
+}
+.finance-range-val {
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  white-space: nowrap; min-width: 110px; text-align: right;
+}
+.finance-breakdown { margin-top: 16px; }
+.finance-dl {
+  display: flex; flex-direction: column; gap: 0;
+  border-top: 1px solid var(--line); max-width: 340px;
+}
+.finance-dl-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+.finance-dl-row dt { color: var(--muted); }
+.finance-dl-row dd { font-weight: 600; margin: 0; }
+.finance-dl-total dt,
+.finance-dl-total dd { font-weight: 700; color: var(--ink); }
+.est-caveat {
+  font-size: 12px; margin-top: 14px; line-height: 1.5;
+}
+@media (max-width: 560px) {
+  .finance-slider-row { flex-wrap: wrap; }
+  .finance-range-val { min-width: auto; text-align: left; }
+}
+
+/* ------------------------------------------------------------------ */
+/* NEXT STEPS — dealer / resources cards                              */
+/* ------------------------------------------------------------------ */
+.next-steps {
+  padding: 40px 0 24px;
+  max-width: var(--reading, 880px);
+  margin: 0 auto;
+}
+.next-steps h2 {
+  font-family: var(--display); font-size: clamp(20px, 2.4vw, 26px);
+  font-weight: 600; margin: 0 0 18px; color: var(--ink);
+}
+.nextstep-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+.nextstep-card {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 18px; border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--card, #fff);
+  text-decoration: none; color: var(--ink);
+  transition: border-color .15s, box-shadow .15s;
+}
+.nextstep-card:hover {
+  border-color: var(--copper);
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+.nextstep-icon { flex-shrink: 0; color: var(--copper); }
+.nextstep-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.nextstep-title { font-weight: 600; font-size: 15px; }
+.nextstep-sub { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.nextstep-arrow { flex-shrink: 0; font-size: 16px; color: var(--muted); margin-left: auto; }

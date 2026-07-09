@@ -798,6 +798,8 @@
         'weight-asc': ['data-weight', 1], 'length-asc': ['data-length', 1],
         'length-desc': ['data-length', -1], 'sleeps-desc': ['data-sleeps', -1],
         'offgrid-desc': ['data-offgrid', -1],
+        'ccc-desc': ['data-ccc', -1],
+        'hitch-asc': ['data-hitch', 1],
       };
       var sk = keymap[state.sort] || keymap['price-asc'];
       var visible = cards.filter(function (c) { return !c.hasAttribute('hidden'); });
@@ -4065,6 +4067,66 @@
     if (elDistance) elDistance.addEventListener('input', compute);
     if (elPrice) elPrice.addEventListener('input', compute);
     compute();
+  })();
+
+  // =========================================================================
+  // 9b. FINANCING / MONTHLY PAYMENT CALCULATOR (detail pages)
+  //     Amortization formula, all client-side. Reads MSRP from a JSON island
+  //     (#finance-data). Sliders for down payment % and APR; select for term.
+  // =========================================================================
+  (function financeTool() {
+    var root = document.querySelector('.finance-tool');
+    if (!root) return;
+    var island = document.getElementById('finance-data');
+    if (!island) return;
+    var cfg;
+    try { cfg = JSON.parse(island.textContent); } catch (e) { return; }
+    var msrp = cfg.msrp;
+    if (!(msrp > 0)) return;
+
+    var elDown = document.getElementById('finance-down');
+    var elDownVal = document.getElementById('finance-down-val');
+    var elApr = document.getElementById('finance-apr');
+    var elAprVal = document.getElementById('finance-apr-val');
+    var elTerm = document.getElementById('finance-term');
+    var elMonthly = document.getElementById('finance-monthly');
+    var elPrincipal = document.getElementById('finance-principal');
+    var elInterest = document.getElementById('finance-interest');
+    var elTotal = document.getElementById('finance-total');
+
+    function fmt(n) {
+      if (n == null || isNaN(n) || n <= 0) return '$0';
+      return '$' + Math.round(n).toLocaleString('en-US');
+    }
+
+    function calc() {
+      var downPct = parseFloat(elDown.value) || 0;
+      var apr = parseFloat(elApr.value) || 0;
+      var termYears = parseInt(elTerm.value, 10) || 15;
+      var down = Math.round(msrp * downPct / 100);
+      var principal = msrp - down;
+      var r = apr / 100 / 12;
+      var n = termYears * 12;
+      var monthly = 0;
+      if (principal > 0) {
+        monthly = r > 0
+          ? principal * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)
+          : principal / n;
+      }
+      monthly = Math.round(monthly);
+      var totalCost = monthly * n + down;
+      var totalInterest = totalCost - msrp;
+      elDownVal.textContent = downPct + '% (' + fmt(down) + ')';
+      elAprVal.textContent = apr.toFixed(apr % 1 === 0 ? 0 : 2) + '%';
+      elMonthly.textContent = fmt(monthly);
+      elPrincipal.textContent = fmt(principal);
+      elInterest.textContent = fmt(totalInterest);
+      elTotal.textContent = fmt(totalCost);
+    }
+
+    if (elDown) elDown.addEventListener('input', calc);
+    if (elApr) elApr.addEventListener('input', calc);
+    if (elTerm) elTerm.addEventListener('change', calc);
   })();
 
   // =========================================================================

@@ -47,6 +47,8 @@ export const SORT_KEYS = {
   'length-desc': { label: 'Longest first', get: (t) => t.lengthFt, dir: -1 },
   'sleeps-desc': { label: 'Sleeps most', get: (t) => t.sleeps, dir: -1 },
   'offgrid-desc': { label: 'Best off-grid', get: (t) => t.offGridScore, dir: -1 },
+  'ccc-desc': { label: 'Most cargo capacity', get: (t) => t.cccLb || 0, dir: -1 },
+  'hitch-asc': { label: 'Lightest hitch', get: (t) => t.hitchWeightLb || Infinity, dir: 1 },
 };
 
 /**
