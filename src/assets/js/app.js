@@ -698,7 +698,7 @@
     var towSummary = document.getElementById('tow-summary');
     var towPresets = Array.prototype.slice.call(document.querySelectorAll('.tow-preset'));
 
-    var state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all', price: 0 };
+    var state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all', price: 0, maxLength: 0, maxWeight: 0 };
 
     // Restore saved explore preferences (sort, year, sleeps, use-case tags, tow
     // rating). Search text stays transient.
@@ -713,9 +713,11 @@
       if (typeof p.tow === 'number' && p.tow > 0) state.tow = p.tow;
       if (p.type === 'trailer' || p.type === 'motorhome' || p.type === 'all') state.type = p.type;
       if (typeof p.price === 'number' && p.price > 0) state.price = p.price;
+      if (typeof p.maxLength === 'number' && p.maxLength > 0) state.maxLength = p.maxLength;
+      if (typeof p.maxWeight === 'number' && p.maxWeight > 0) state.maxWeight = p.maxWeight;
     })();
     function persistX() {
-      Store.set(X_PREFS, { sort: state.sort, year: state.year, sleeps: state.sleeps, tags: state.tags, tow: state.tow, type: state.type, price: state.price });
+      Store.set(X_PREFS, { sort: state.sort, year: state.year, sleeps: state.sleeps, tags: state.tags, tow: state.tow, type: state.type, price: state.price, maxLength: state.maxLength, maxWeight: state.maxWeight });
     }
 
     function num(card, k) { return parseFloat(card.getAttribute(k)); }
@@ -749,6 +751,14 @@
         if (ok && state.price) {
           var msrp = num(card, 'data-msrp');
           if (msrp > state.price) ok = false;
+        }
+        if (ok && state.maxLength) {
+          var length = num(card, 'data-length');
+          if (length > state.maxLength) ok = false;
+        }
+        if (ok && state.maxWeight) {
+          var weight = num(card, 'data-weight');
+          if (weight > state.maxWeight) ok = false;
         }
         if (ok && state.tags.length) {
           for (var i = 0; i < state.tags.length; i++) {
@@ -841,6 +851,10 @@
     if (elSleeps) elSleeps.addEventListener('change', function () { state.sleeps = parseInt(this.value, 10) || 0; persistX(); apply(); });
     var elPrice = document.getElementById('x-price');
     if (elPrice) elPrice.addEventListener('change', function () { state.price = parseInt(this.value, 10) || 0; persistX(); apply(); });
+    var elLength = document.getElementById('x-length');
+    if (elLength) elLength.addEventListener('change', function () { state.maxLength = parseInt(this.value, 10) || 0; persistX(); apply(); });
+    var elWeight = document.getElementById('x-weight');
+    if (elWeight) elWeight.addEventListener('change', function () { state.maxWeight = parseInt(this.value, 10) || 0; persistX(); apply(); });
     tagBtns.forEach(function (btn) {
       btn.addEventListener('click', function () {
         var tag = btn.getAttribute('data-tag');
@@ -887,19 +901,39 @@
       if (!opts || opts.persist !== false) persistX();
       apply();
     }
-    if (towInput) towInput.addEventListener('input', function () { setTow(parseInt(this.value, 10) || 0); });
-    if (towClear) towClear.addEventListener('click', function () { setTow(0); });
-    towPresets.forEach(function (p) {
-      p.addEventListener('click', function () { setTow(parseInt(p.getAttribute('data-tow'), 10)); });
+    // Tow vehicle picker dropdown
+    var towVehiclePick = document.getElementById('tow-vehicle-pick');
+    if (towVehiclePick) {
+      towVehiclePick.addEventListener('change', function () {
+        var opt = this.options[this.selectedIndex];
+        if (opt && opt.getAttribute('data-tow')) {
+          setTow(parseInt(opt.getAttribute('data-tow'), 10));
+        } else if (this.value === 'custom') {
+          // Focus the manual input
+          if (towInput) towInput.focus();
+        }
+      });
+    }
+
+    if (towInput) towInput.addEventListener('input', function () {
+      setTow(parseInt(this.value, 10) || 0);
+      // Clear vehicle picker when manual input is used
+      if (towVehiclePick) towVehiclePick.value = this.value ? 'custom' : '';
+    });
+    if (towClear) towClear.addEventListener('click', function () {
+      setTow(0);
+      if (towVehiclePick) towVehiclePick.value = '';
     });
 
     function resetAll() {
-      state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all', price: 0 };
+      state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all', price: 0, maxLength: 0, maxWeight: 0 };
       if (elSearch) elSearch.value = '';
       if (elSort) elSort.value = 'price-asc';
       if (elYear) elYear.value = '2026';
       if (elSleeps) elSleeps.value = '';
       if (elPrice) elPrice.value = '';
+      if (elLength) elLength.value = '';
+      if (elWeight) elWeight.value = '';
       tagBtns.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
       Store.del(X_PREFS);
       setType('all', { persist: false });
@@ -4572,7 +4606,7 @@
       }
       // Trigger a synthetic input event on the sort/year/sleeps/price selects
       // so the existing explore module picks up the changes
-      [elSort, elYear, elSleeps, elPrice, towInput, elSearch].forEach(function (el) {
+      [elSort, elYear, elSleeps, elPrice, elLength, elWeight, towInput, elSearch].forEach(function (el) {
         if (el) {
           try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) {}
           try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}

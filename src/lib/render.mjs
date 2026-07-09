@@ -1279,6 +1279,48 @@ function renderRelated(current, allTrailers, resolve) {
 // ---------------------------------------------------------------------------
 
 /** A single trailer detail page. */
+
+// ---------------------------------------------------------------------------
+// DETAIL: compatible tow vehicles panel
+// ---------------------------------------------------------------------------
+
+/**
+ * Shows which tow vehicles from the database can safely tow this trailer,
+ * color-coded by margin. Gives buyers a quick "what can tow this?" answer.
+ */
+function renderCompatibleVehicles(t) {
+  if (!(t.gvwrLb > 0) || !TOW_VEHICLES.length) return '';
+  const sorted = TOW_VEHICLES.slice().sort((a, b) => a.maxTowLb - b.maxTowLb);
+  const rows = sorted.map((v) => {
+    const pct = (t.gvwrLb / v.maxTowLb) * 100;
+    let cls, label;
+    if (pct > 100) { cls = 'compat-over'; label = 'Over limit'; }
+    else if (pct > 80) { cls = 'compat-tight'; label = 'Tight'; }
+    else { cls = 'compat-ok'; label = 'Comfortable'; }
+    const margin = v.maxTowLb - t.gvwrLb;
+    const marginStr = margin > 0 ? `+${margin.toLocaleString()} lb margin` : `${margin.toLocaleString()} lb`;
+    return `<tr class="${cls}">
+<td class="compat-name">${esc(v.name)}</td>
+<td class="compat-rating" data-unit="weight" data-raw="${v.maxTowLb}">${formatWeight(v.maxTowLb)}</td>
+<td class="compat-margin">${esc(marginStr)}</td>
+<td class="compat-verdict"><span class="compat-badge">${esc(label)}</span></td>
+</tr>`;
+  }).join('\n');
+
+  const okCount = sorted.filter((v) => t.gvwrLb <= v.maxTowLb).length;
+
+  return `<section class="compat-vehicles" id="vehicles" aria-label="Compatible tow vehicles">
+<h2>What can tow it?</h2>
+<p class="compat-intro">${okCount} of ${sorted.length} popular tow vehicles can handle this trailer\'s ${formatWeight(t.gvwrLb)} GVWR. Green = comfortable (under 80%), yellow = within limit, red = exceeds rating.</p>
+<div class="compat-table-wrap">
+<table class="compat-table">
+<thead><tr><th>Vehicle</th><th>Tow rating</th><th>Margin</th><th>Verdict</th></tr></thead>
+<tbody>${rows}</tbody>
+</table>
+</div>
+</section>`;
+}
+
 export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor = null, allTrailers = []) {
   const a = resolve(t);
   const fam = familySlug(t.model);
@@ -1338,6 +1380,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     ['#specs', 'Specs'],
     t.gvwrLb ? ['#tow', 'Tow'] : null,
     t.gvwrLb ? ['#fuel', 'Fuel'] : null,
+    t.gvwrLb ? ['#vehicles', 'Vehicles'] : null,
     t.cccLb ? ['#payload', 'Payload'] : null,
     ['#offgrid', 'Off-grid'],
     a.floorplan ? ['#floorplan', 'Floor plan'] : null,
@@ -1403,6 +1446,7 @@ ${note}
 ${renderWeightBar(t)}
 ${towCallout}
 ${renderTowTool(t)}
+${renderCompatibleVehicles(t)}
 ${renderFuelTool(t)}
 ${renderPayloadTool(t)}
 ${renderOffGridTool(t)}
@@ -1484,6 +1528,13 @@ ${saveButton(t.slug, 'trailer', trailerLabel(t), 'card')}
  * (m/…, compare.html) so it renders correctly at the site root either way.
  */
 export function renderExploreSections(trailers, resolve = assetPaths, motorhomes = [], { headingLevel = 'h1' } = {}) {
+  // Build tow vehicle picker options from the shared dataset
+  const exploreTowVehicleOpts = TOW_VEHICLES
+    .slice()
+    .sort((a, b) => a.maxTowLb - b.maxTowLb)
+    .map((v) => `<option value="${esc(v.id)}" data-tow="${v.maxTowLb}">${esc(v.name)} \u2014 ${v.maxTowLb.toLocaleString()} lb</option>`)
+    .join('');
+
   const sortOpts = Object.entries(SORT_KEYS)
     .map(([k, def], i) => `<option value="${esc(k)}"${i === 0 ? ' selected' : ''}>${esc(def.label)}</option>`)
     .join('');
@@ -1529,23 +1580,24 @@ ${typeSeg}
 </header>
 <section class="tow-tool" aria-label="Tow vehicle matcher">
 <div class="tow-tool-inner">
+<div class="tow-field tow-field-wide">
+<label for="tow-vehicle-pick">Pick your tow vehicle</label>
+<select id="tow-vehicle-pick">
+<option value="">— Select a vehicle —</option>
+${exploreTowVehicleOpts}
+<option value="custom">Other (enter manually)</option>
+</select>
+</div>
 <div class="tow-field">
-<label for="tow-input">Your tow vehicle's max tow rating</label>
+<label for="tow-input">Or enter your max tow rating</label>
 <div class="tow-input-row">
 <input type="number" id="tow-input" inputmode="numeric" min="1000" max="20000" step="100" placeholder="e.g. 7000">
 <span class="tow-unit">lb</span>
 <button type="button" id="tow-clear" class="tow-clear" hidden>Clear</button>
 </div>
-<p class="tow-hint">Check your truck's door jamb or owner's manual. We compare it to each trailer's <strong>fully-loaded GVWR</strong> — not dry weight — the way Airstream recommends.</p>
-</div>
-<div class="tow-presets" aria-label="Common tow vehicles">
-<span class="tow-presets-label">Quick set:</span>
-<button type="button" class="tow-preset" data-tow="3500">SUV ~3,500</button>
-<button type="button" class="tow-preset" data-tow="5000">Midsize ~5,000</button>
-<button type="button" class="tow-preset" data-tow="7700">Half-ton ~7,700</button>
-<button type="button" class="tow-preset" data-tow="10000">¾-ton ~10,000</button>
 </div>
 </div>
+<p class="tow-hint">Pick a vehicle above or enter your max tow rating. We compare it to each trailer\'s <strong>fully-loaded GVWR</strong> — not dry weight — the way Airstream recommends.</p>
 <p class="tow-summary" id="tow-summary" hidden></p>
 </section>
 <section class="explore-controls" aria-label="Search and filter">
@@ -1571,6 +1623,14 @@ ${typeSeg}
 <div class="xc-price">
 <label for="x-price">Budget</label>
 <select id="x-price"><option value="">Any price</option><option value="80000">Under $80k</option><option value="120000">Under $120k</option><option value="160000">Under $160k</option><option value="200000">Under $200k</option></select>
+</div>
+<div class="xc-length">
+<label for="x-length">Max length</label>
+<select id="x-length"><option value="">Any</option><option value="20">Under 20\'</option><option value="25">Under 25\'</option><option value="28">Under 28\'</option><option value="30">Under 30\'</option></select>
+</div>
+<div class="xc-weight">
+<label for="x-weight">Max dry weight</label>
+<select id="x-weight"><option value="">Any</option><option value="4000">Under 4,000 lb</option><option value="5500">Under 5,500 lb</option><option value="7000">Under 7,000 lb</option><option value="8500">Under 8,500 lb</option></select>
 </div>
 <button type="button" class="xc-reset" id="x-reset">Reset</button>
 </div>

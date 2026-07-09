@@ -3475,3 +3475,31 @@ noscript img[loading="lazy"], img[loading="lazy"][data-no-fade] { opacity: 1; }
   color: var(--copper, #B8763E);
   border-bottom-color: var(--copper, #B8763E);
 }
+
+/* ==========================================================================
+   Compatible tow vehicles table (detail pages)
+   ========================================================================== */
+.compat-vehicles { margin: 3rem 0; }
+.compat-vehicles h2 { margin-bottom: 0.5rem; }
+.compat-intro { color: var(--muted); margin-bottom: 1.25rem; }
+.compat-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.compat-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.compat-table th { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid var(--line); color: var(--muted); font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.compat-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--line); }
+.compat-name { font-weight: 500; white-space: nowrap; }
+.compat-rating { white-space: nowrap; }
+.compat-margin { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.compat-badge { display: inline-block; padding: 0.15em 0.6em; border-radius: 999px; font-size: 0.78rem; font-weight: 600; line-height: 1.5; }
+.compat-ok .compat-badge { background: #e8f5e9; color: #2e7d32; }
+.compat-tight .compat-badge { background: #fff3e0; color: #e65100; }
+.compat-over .compat-badge { background: #fbe9e7; color: #c62828; }
+.compat-over { opacity: 0.6; }
+.compat-over .compat-name { text-decoration: line-through; text-decoration-color: var(--muted); }
+
+/* Explore tow vehicle picker */
+#tow-vehicle-pick { width: 100%; padding: 0.5rem 0.6rem; border: 1px solid var(--line); border-radius: 6px; font: inherit; font-size: 0.92rem; background: var(--bg); color: var(--ink); }
+
+/* Explore length/weight filter selects */
+.xc-length, .xc-weight { flex: 0 0 auto; }
+.xc-length select, .xc-weight select { padding: 0.35rem 0.5rem; border: 1px solid var(--line); border-radius: 6px; font: inherit; font-size: 0.88rem; background: var(--bg); color: var(--ink); }
+.xc-length label, .xc-weight label { font-size: 0.82rem; color: var(--muted); display: block; margin-bottom: 0.2rem; }

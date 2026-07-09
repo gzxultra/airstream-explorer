@@ -334,3 +334,12 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .xfam-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.25); }
 [data-theme="dark"] .xfam-traits { background: color-mix(in srgb, var(--copper) 15%, var(--surface)); }
 [data-theme="dark"] .cross-family { border-top-color: var(--line); }
+
+/* Dark mode: compatible vehicles table */
+[data-theme="dark"] .compat-ok .compat-badge { background: rgba(46, 125, 50, 0.2); color: #81c784; }
+[data-theme="dark"] .compat-tight .compat-badge { background: rgba(230, 81, 0, 0.2); color: #ffb74d; }
+[data-theme="dark"] .compat-over .compat-badge { background: rgba(198, 40, 40, 0.2); color: #ef9a9a; }
+/* Dark mode: tow vehicle picker + length/weight selects */
+[data-theme="dark"] #tow-vehicle-pick,
+[data-theme="dark"] .xc-length select,
+[data-theme="dark"] .xc-weight select { border-color: var(--line); }
