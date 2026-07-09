@@ -385,3 +385,25 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .finance-range-val { color: var(--ink); }
 [data-theme="dark"] .nextstep-card { background: var(--card); border-color: var(--line); }
 [data-theme="dark"] .nextstep-card:hover { border-color: var(--copper); box-shadow: 0 2px 12px rgba(0,0,0,.3); }
+
+/* Year diff dark mode */
+[data-theme="dark"] .year-diff-table-wrap { background: var(--card); border-color: var(--line); }
+[data-theme="dark"] .year-diff-table th { color: var(--muted); border-color: var(--line); }
+[data-theme="dark"] .year-diff-table td { color: var(--ink); border-color: var(--line); }
+[data-theme="dark"] .diff-from { color: var(--muted); }
+[data-theme="dark"] .diff-good .diff-delta { color: #66BB6A; }
+[data-theme="dark"] .diff-warn .diff-delta { color: #FF8A65; }
+[data-theme="dark"] .diff-good .diff-arrow { color: #66BB6A; }
+[data-theme="dark"] .diff-warn .diff-arrow { color: #FF8A65; }
+
+/* Ownership tool dark mode */
+[data-theme="dark"] .own-bar--insurance     { background: #7986CB; }
+[data-theme="dark"] .own-bar--storage       { background: #4DB6AC; }
+[data-theme="dark"] .own-bar--maintenance   { background: #FFB74D; }
+[data-theme="dark"] .own-bar--depreciation  { background: #90A4AE; }
+
+/* Collapsible chevron dark mode */
+[data-theme="dark"] .detail section[data-collapsible] > h2::after,
+[data-theme="dark"] .detail section[data-collapsible] > .est-head > h2::after {
+  border-color: var(--muted);
+}

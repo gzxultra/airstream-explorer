@@ -7,7 +7,7 @@ import {
   hitchPctOfGvwr,
   trailerTitle, trailerLabel, saveButton,
 } from './format.mjs';
-import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META } from './data.mjs';
+import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff } from './data.mjs';
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
@@ -1260,6 +1260,159 @@ function trailerDistance(a, b) {
   return Math.sqrt(sumSq);
 }
 
+
+// ---------------------------------------------------------------------------
+// YEAR-OVER-YEAR DIFF — "What changed in 2026" section for detail pages
+// ---------------------------------------------------------------------------
+
+function formatDiffValue(val, unit) {
+  if (val == null) return '—';
+  if (unit === '$') return formatMsrp(val);
+  if (unit === 'lb') return formatWeight(val);
+  if (unit === 'ft') return formatLength(val);
+  if (unit === 'gal') return formatGal(val);
+  return `${val} ${unit}`.trim();
+}
+
+function formatDiffDelta(delta, unit) {
+  if (delta == null) return '';
+  const sign = delta > 0 ? '+' : '';
+  if (unit === '$') return `${sign}$${Math.abs(delta).toLocaleString('en-US')}`;
+  if (unit === 'lb') return `${sign}${delta.toLocaleString('en-US')} lb`;
+  if (unit === 'gal') return `${sign}${delta} gal`;
+  if (unit === 'ft') return `${sign}${delta} ft`;
+  return `${sign}${delta} ${unit}`.trim();
+}
+
+function renderYearDiff(t, allTrailers) {
+  const diff = computeYearDiff(t, allTrailers);
+  if (!diff) return '';
+
+  const rows = diff.diffs.map((d) => {
+    const arrow = d.direction === 'up' ? '↑' : d.direction === 'down' ? '↓' : '~';
+    const cls = d.direction === 'up'
+      ? (d.key === 'msrp' || d.key === 'weightLb' ? 'diff-warn' : 'diff-good')
+      : d.direction === 'down'
+        ? (d.key === 'msrp' || d.key === 'weightLb' ? 'diff-good' : 'diff-warn')
+        : 'diff-neutral';
+    return `<tr class="${cls}">
+<td class="diff-field">${esc(d.field)}</td>
+<td class="diff-from">${formatDiffValue(d.from, d.unit)}</td>
+<td class="diff-arrow">${arrow}</td>
+<td class="diff-to">${formatDiffValue(d.to, d.unit)}</td>
+<td class="diff-delta">${d.delta != null ? formatDiffDelta(d.delta, d.unit) : '—'}</td>
+</tr>`;
+  }).join('\n');
+
+  return `<section class="year-diff" id="year-diff" aria-label="Year-over-year changes">
+<h2>What changed from 2025</h2>
+<p class="year-diff-sub">Spec differences between the ${esc(t.model)} ${esc(t.floorplan)} across model years.</p>
+<div class="year-diff-table-wrap">
+<table class="year-diff-table">
+<thead><tr><th>Spec</th><th>2025</th><th></th><th>2026</th><th>Change</th></tr></thead>
+<tbody>
+${rows}
+</tbody>
+</table>
+</div>
+<p class="muted year-diff-note">All figures are official Airstream base specifications.</p>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
+// TOTAL COST OF OWNERSHIP ESTIMATOR
+// ---------------------------------------------------------------------------
+
+const OWNERSHIP_DEFAULTS = {
+  insurancePct: 1.5,     // % of MSRP per year
+  storageMo: 150,        // $/month
+  maintenanceYr: 800,    // $/year
+  depreciationPct: 12,   // % of current value first year
+};
+
+function computeOwnership(msrp, opts = {}) {
+  const o = { ...OWNERSHIP_DEFAULTS, ...opts };
+  const insurance = Math.round(msrp * o.insurancePct / 100);
+  const storage = Math.round(o.storageMo * 12);
+  const maintenance = Math.round(o.maintenanceYr);
+  const depreciation = Math.round(msrp * o.depreciationPct / 100);
+  const total = insurance + storage + maintenance + depreciation;
+  return { insurance, storage, maintenance, depreciation, total };
+}
+
+export function renderOwnershipTool(t) {
+  if (!(t.msrp > 0)) return '';
+  const d = OWNERSHIP_DEFAULTS;
+  const calc = computeOwnership(t.msrp);
+
+  const dataIsland = JSON.stringify({
+    msrp: t.msrp,
+    defaults: d,
+  }).replace(/<\//g, '<\\/');
+
+  return `<section class="estimator ownership-tool" id="ownership" aria-label="Annual ownership cost estimator"
+ data-msrp="${esc(t.msrp)}">
+<script type="application/json" id="ownership-data">${dataIsland}</script>
+<div class="est-head">
+<h2>Annual ownership cost</h2>
+<p class="est-sub">Estimated yearly costs beyond the purchase price for the ${esc(t.model)} ${esc(t.floorplan)}. Adjust assumptions below.</p>
+</div>
+<div class="est-controls">
+<div class="est-field">
+<label for="own-insurance">Insurance (% of value/year)</label>
+<div class="finance-slider-row">
+<input type="range" id="own-insurance" min="0.5" max="3" step="0.25" value="${d.insurancePct}" class="finance-range" aria-label="Insurance rate">
+<span class="finance-range-val" id="own-insurance-val">${d.insurancePct}% (${formatMsrp(calc.insurance)}/yr)</span>
+</div>
+</div>
+<div class="est-field">
+<label for="own-storage">Storage ($/month)</label>
+<div class="finance-slider-row">
+<input type="range" id="own-storage" min="0" max="400" step="25" value="${d.storageMo}" class="finance-range" aria-label="Monthly storage cost">
+<span class="finance-range-val" id="own-storage-val">$${d.storageMo}/mo (${formatMsrp(calc.storage)}/yr)</span>
+</div>
+</div>
+<div class="est-field">
+<label for="own-maintenance">Maintenance ($/year)</label>
+<div class="finance-slider-row">
+<input type="range" id="own-maintenance" min="200" max="2000" step="100" value="${d.maintenanceYr}" class="finance-range" aria-label="Annual maintenance cost">
+<span class="finance-range-val" id="own-maintenance-val">${formatMsrp(calc.maintenance)}/yr</span>
+</div>
+</div>
+<div class="est-field">
+<label for="own-depreciation">First-year depreciation (%)</label>
+<div class="finance-slider-row">
+<input type="range" id="own-depreciation" min="5" max="20" step="1" value="${d.depreciationPct}" class="finance-range" aria-label="First year depreciation rate">
+<span class="finance-range-val" id="own-depreciation-val">${d.depreciationPct}% (${formatMsrp(calc.depreciation)})</span>
+</div>
+</div>
+</div>
+<div class="est-result" id="ownership-result" aria-live="polite" aria-atomic="true">
+<div class="est-big">
+<span class="est-number" id="own-total">${formatMsrp(calc.total)}</span>
+<span class="est-number-cap">estimated per year</span>
+</div>
+<div class="ownership-breakdown">
+<div class="own-bar-stack" id="own-bars">
+<div class="own-bar own-bar--insurance" style="flex:${calc.insurance}"><span class="own-bar-label">Insurance</span></div>
+<div class="own-bar own-bar--storage" style="flex:${calc.storage}"><span class="own-bar-label">Storage</span></div>
+<div class="own-bar own-bar--maintenance" style="flex:${calc.maintenance}"><span class="own-bar-label">Maint.</span></div>
+<div class="own-bar own-bar--depreciation" style="flex:${calc.depreciation}"><span class="own-bar-label">Depreciation</span></div>
+</div>
+<dl class="finance-dl">
+<div class="finance-dl-row"><dt>Insurance</dt><dd id="own-ins-dd">${formatMsrp(calc.insurance)}/yr</dd></div>
+<div class="finance-dl-row"><dt>Storage</dt><dd id="own-sto-dd">${formatMsrp(calc.storage)}/yr</dd></div>
+<div class="finance-dl-row"><dt>Maintenance</dt><dd id="own-mnt-dd">${formatMsrp(calc.maintenance)}/yr</dd></div>
+<div class="finance-dl-row"><dt>Depreciation</dt><dd id="own-dep-dd">${formatMsrp(calc.depreciation)}</dd></div>
+<div class="finance-dl-row finance-dl-total"><dt>Total annual cost</dt><dd id="own-tot-dd">${formatMsrp(calc.total)}/yr</dd></div>
+</dl>
+</div>
+</div>
+<p class="est-caveat muted">Rough planning estimates only. Insurance varies by coverage, location, and driving record. Airstreams hold value well — depreciation may be lower than shown. Storage cost varies widely by region and type (indoor/outdoor/covered).</p>
+</section>`;
+}
+
+
 /**
  * "You might also like" — spec-similar trailers from OTHER families.
  * Complements renderRelated() which stays within the same family.
@@ -1481,13 +1634,16 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
 </section>`
     : '';
   // Section quick-nav: built from sections present on this page
+  const yearDiff = computeYearDiff(t, allTrailers);
   const sectionNav = buildSectionNav([
     ['#specs', 'Specs'],
+    yearDiff ? ['#year-diff', '2025→26'] : null,
     t.gvwrLb ? ['#tow', 'Tow'] : null,
     t.gvwrLb ? ['#fuel', 'Fuel'] : null,
     t.gvwrLb ? ['#vehicles', 'Vehicles'] : null,
     t.cccLb ? ['#payload', 'Payload'] : null,
     t.msrp > 0 ? ['#finance', 'Finance'] : null,
+    t.msrp > 0 ? ['#ownership', 'Ownership'] : null,
     ['#offgrid', 'Off-grid'],
     a.floorplan ? ['#floorplan', 'Floor plan'] : null,
     galleryCount ? ['#gallery', 'Gallery'] : null,
@@ -1562,6 +1718,7 @@ ${specRow('MSRP', formatMsrp(t.msrp), { tip: true, pctData: pctFor('msrp') })}
 </dl>
 ${note}
 </section>
+${renderYearDiff(t, allTrailers)}
 ${renderWeightBar(t)}
 ${towCallout}
 ${renderTowTool(t)}
@@ -1569,6 +1726,7 @@ ${renderCompatibleVehicles(t)}
 ${renderFuelTool(t)}
 ${renderPayloadTool(t)}
 ${renderFinancingTool(t)}
+${renderOwnershipTool(t)}
 ${renderOffGridTool(t)}
 ${floorplanSection}
 ${decorSection}

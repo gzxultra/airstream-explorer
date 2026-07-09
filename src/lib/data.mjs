@@ -552,3 +552,59 @@ export function rangePosition(value, range) {
   if (span <= 0) return null;
   return Math.round(((value - range.min) / span) * 100);
 }
+
+// ---------------------------------------------------------------------------
+// YEAR-OVER-YEAR DIFF — what changed between 2025 and 2026 for a floorplan
+// ---------------------------------------------------------------------------
+
+/**
+ * Compare a 2026 trailer against its 2025 counterpart (same model+floorplan).
+ * Returns null if the trailer is not 2026 or no 2025 match exists.
+ * Otherwise returns { prev, diffs: [{ field, from, to, delta, direction }] }.
+ */
+export function computeYearDiff(trailer, allTrailers) {
+  if (!trailer || trailer.year !== 2026) return null;
+  const prev = allTrailers.find(
+    (t) => t.model === trailer.model && t.floorplan === trailer.floorplan && t.year === 2025,
+  );
+  if (!prev) return null;
+
+  const FIELDS = [
+    { key: 'msrp',          label: 'MSRP',          unit: '$' },
+    { key: 'weightLb',      label: 'Dry weight',     unit: 'lb' },
+    { key: 'gvwrLb',        label: 'GVWR',           unit: 'lb' },
+    { key: 'cccLb',         label: 'Cargo capacity', unit: 'lb' },
+    { key: 'hitchWeightLb', label: 'Hitch weight',   unit: 'lb' },
+    { key: 'freshGal',      label: 'Fresh water',    unit: 'gal' },
+    { key: 'grayGal',       label: 'Gray tank',      unit: 'gal' },
+    { key: 'blackGal',      label: 'Black tank',     unit: 'gal' },
+    { key: 'solarW',        label: 'Solar',          unit: 'W' },
+    { key: 'batteryKwh',    label: 'Battery',        unit: 'kWh' },
+    { key: 'sleeps',        label: 'Sleeps',         unit: '' },
+    { key: 'lengthFt',      label: 'Length',          unit: 'ft' },
+  ];
+
+  const diffs = [];
+  for (const f of FIELDS) {
+    const oldVal = prev[f.key];
+    const newVal = trailer[f.key];
+    if (oldVal == null && newVal == null) continue;
+    if (oldVal === newVal) continue;
+    // At least one is non-null and they differ
+    const delta = (typeof newVal === 'number' && typeof oldVal === 'number')
+      ? newVal - oldVal
+      : null;
+    const direction = delta > 0 ? 'up' : delta < 0 ? 'down' : 'changed';
+    diffs.push({
+      field: f.label,
+      key: f.key,
+      from: oldVal,
+      to: newVal,
+      unit: f.unit,
+      delta,
+      direction,
+    });
+  }
+
+  return diffs.length > 0 ? { prev, diffs } : null;
+}

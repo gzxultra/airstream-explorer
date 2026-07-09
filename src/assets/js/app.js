@@ -4130,6 +4130,149 @@
   })();
 
   // =========================================================================
+  // 9c. OWNERSHIP COST CALCULATOR (detail pages)
+  //     Annual cost estimator: insurance, storage, maintenance, depreciation.
+  //     Reads MSRP from a JSON island (#ownership-data). All client-side.
+  // =========================================================================
+  (function ownershipTool() {
+    var root = document.querySelector('.ownership-tool');
+    if (!root) return;
+    var island = document.getElementById('ownership-data');
+    if (!island) return;
+    var cfg;
+    try { cfg = JSON.parse(island.textContent); } catch (e) { return; }
+    var msrp = cfg.msrp;
+    if (!(msrp > 0)) return;
+
+    var elIns = document.getElementById('own-insurance');
+    var elInsVal = document.getElementById('own-insurance-val');
+    var elSto = document.getElementById('own-storage');
+    var elStoVal = document.getElementById('own-storage-val');
+    var elMnt = document.getElementById('own-maintenance');
+    var elMntVal = document.getElementById('own-maintenance-val');
+    var elDep = document.getElementById('own-depreciation');
+    var elDepVal = document.getElementById('own-depreciation-val');
+    var elTotal = document.getElementById('own-total');
+    var elInsDd = document.getElementById('own-ins-dd');
+    var elStoDd = document.getElementById('own-sto-dd');
+    var elMntDd = document.getElementById('own-mnt-dd');
+    var elDepDd = document.getElementById('own-dep-dd');
+    var elTotDd = document.getElementById('own-tot-dd');
+    var bars = root.querySelectorAll('.own-bar');
+
+    function fmt(n) {
+      if (n == null || isNaN(n) || n <= 0) return '$0';
+      return '$' + Math.round(n).toLocaleString('en-US');
+    }
+
+    function calc() {
+      var insPct = parseFloat(elIns.value) || 0;
+      var stoMo = parseFloat(elSto.value) || 0;
+      var mntYr = parseFloat(elMnt.value) || 0;
+      var depPct = parseFloat(elDep.value) || 0;
+
+      var insurance = Math.round(msrp * insPct / 100);
+      var storage = Math.round(stoMo * 12);
+      var maintenance = Math.round(mntYr);
+      var depreciation = Math.round(msrp * depPct / 100);
+      var total = insurance + storage + maintenance + depreciation;
+
+      elInsVal.textContent = insPct + '% (' + fmt(insurance) + '/yr)';
+      elStoVal.textContent = '$' + Math.round(stoMo) + '/mo (' + fmt(storage) + '/yr)';
+      elMntVal.textContent = fmt(maintenance) + '/yr';
+      elDepVal.textContent = depPct + '% (' + fmt(depreciation) + ')';
+      elTotal.textContent = fmt(total);
+      if (elInsDd) elInsDd.textContent = fmt(insurance) + '/yr';
+      if (elStoDd) elStoDd.textContent = fmt(storage) + '/yr';
+      if (elMntDd) elMntDd.textContent = fmt(maintenance) + '/yr';
+      if (elDepDd) elDepDd.textContent = fmt(depreciation);
+      if (elTotDd) elTotDd.textContent = fmt(total) + '/yr';
+
+      // Update stacked bar widths
+      var vals = [insurance, storage, maintenance, depreciation];
+      for (var i = 0; i < bars.length && i < vals.length; i++) {
+        bars[i].style.flex = String(vals[i] || 1);
+      }
+    }
+
+    if (elIns) elIns.addEventListener('input', calc);
+    if (elSto) elSto.addEventListener('input', calc);
+    if (elMnt) elMnt.addEventListener('input', calc);
+    if (elDep) elDep.addEventListener('input', calc);
+  })();
+
+  // =========================================================================
+  // 9d. COLLAPSIBLE DETAIL SECTIONS
+  //     Tool sections on detail pages can be collapsed/expanded. State is
+  //     persisted per section id in localStorage. Sections are open by default.
+  // =========================================================================
+  (function collapsibleSections() {
+    var detail = document.querySelector('.detail');
+    if (!detail) return;
+
+    var STORE_KEY = 'ae:collapsed';
+    var collapsed;
+    try { collapsed = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { collapsed = {}; }
+
+    // Target sections: the estimator/tool sections (not specs, gallery, proscons)
+    var selectors = [
+      '.towtool', '.fuel-tool', '.payload-tool', '.finance-tool',
+      '.ownership-tool', '.offgrid-tool', '.compat-vehicles',
+      '.year-diff', '.campground-fit',
+    ];
+
+    selectors.forEach(function (sel) {
+      var section = detail.querySelector(sel);
+      if (!section) return;
+      var id = section.id;
+      if (!id) return;
+
+      section.setAttribute('data-collapsible', '');
+
+      // Find the toggle target — either a direct h2 or h2 inside .est-head
+      var heading = section.querySelector('.est-head > h2') || section.querySelector(':scope > h2');
+      if (!heading) return;
+
+      // Wrap everything after h2/est-head in a collapsible body div
+      var wrapper = document.createElement('div');
+      wrapper.className = 'section-collapse-body';
+      var toggleParent = heading.parentElement === section ? heading : heading.closest('.est-head');
+      var sibling = toggleParent.nextElementSibling;
+      while (sibling) {
+        var next = sibling.nextElementSibling;
+        wrapper.appendChild(sibling);
+        sibling = next;
+      }
+      section.appendChild(wrapper);
+
+      // Restore collapsed state
+      if (collapsed[id]) {
+        section.classList.add('is-collapsed');
+      }
+
+      heading.setAttribute('role', 'button');
+      heading.setAttribute('aria-expanded', collapsed[id] ? 'false' : 'true');
+      heading.setAttribute('tabindex', '0');
+
+      function toggle() {
+        var isNowCollapsed = section.classList.toggle('is-collapsed');
+        heading.setAttribute('aria-expanded', isNowCollapsed ? 'false' : 'true');
+        if (isNowCollapsed) {
+          collapsed[id] = true;
+        } else {
+          delete collapsed[id];
+        }
+        try { localStorage.setItem(STORE_KEY, JSON.stringify(collapsed)); } catch (e) { /* noop */ }
+      }
+
+      heading.addEventListener('click', toggle);
+      heading.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+      });
+    });
+  })();
+
+  // =========================================================================
   // 10. PAYLOAD / PACKING CALCULATOR (detail pages)
   //     Mirrors the server-side math in src/lib/payload.mjs. Reads config from
   //     a CSP-safe JSON island (#payload-data); no network, works offline.
