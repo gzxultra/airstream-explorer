@@ -1679,7 +1679,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
   const body = `<div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
 ${breadcrumbHtml}
 ${sectionNav}
-<article class="detail" data-canonical="m/${esc(t.slug)}.html" data-spec-text="${esc(buildSpecText(t))}">
+<article class="detail" data-canonical="m/${esc(t.slug)}.html" data-spec-text="${esc(buildSpecText(t))}"${prevT ? ` data-prev-href="${esc(prevT.slug)}.html"` : ''}${nextT ? ` data-next-href="${esc(nextT.slug)}.html"` : ''}>
 <header class="detail-head">
 <p class="eyebrow">${esc(t.year)} MODEL YEAR</p>
 <div class="detail-head-row">
@@ -1896,8 +1896,9 @@ ${exploreTowVehicleOpts}
 </section>
 <section class="explore-controls" aria-label="Search and filter">
 <div class="xc-row">
-<div class="xc-search">
-<input type="search" id="x-search" placeholder="Search model or floorplan…" aria-label="Search floorplans">
+<div class="xc-search" role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-owns="x-suggest">
+<input type="search" id="x-search" placeholder="Search model or floorplan…" aria-label="Search floorplans" autocomplete="off" aria-autocomplete="list" aria-controls="x-suggest">
+<ul class="x-suggest" id="x-suggest" role="listbox" hidden></ul>
 </div>
 <div class="xc-sort">
 <label for="x-sort">Sort</label>

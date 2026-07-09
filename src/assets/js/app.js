@@ -1109,6 +1109,145 @@
   })();
 
   // =========================================================================
+  // 2a. SEARCH AUTOCOMPLETE — real-time dropdown as the user types in the
+  //     explore search box. Shows up to 8 matching models with thumbnails;
+  //     arrow keys navigate, Enter/click selects and navigates to detail page.
+  //     Complements the existing filter behavior (which still runs via input).
+  // =========================================================================
+  (function searchAutocomplete() {
+    var input = document.getElementById('x-search');
+    var list = document.getElementById('x-suggest');
+    var combobox = input ? input.closest('[role="combobox"]') : null;
+    if (!input || !list || !combobox) return;
+
+    var grid = document.getElementById('xgrid');
+    if (!grid) return;
+    var allCards = Array.prototype.slice.call(grid.querySelectorAll('.xcard'));
+
+    var focusIdx = -1;
+    var items = [];
+    var MAX = 8;
+
+    function clear() {
+      list.innerHTML = '';
+      list.setAttribute('hidden', '');
+      combobox.setAttribute('aria-expanded', 'false');
+      items = [];
+      focusIdx = -1;
+    }
+
+    function setFocus(idx) {
+      items.forEach(function (li, i) {
+        li.classList.toggle('is-focused', i === idx);
+        if (i === idx) li.setAttribute('aria-selected', 'true');
+        else li.removeAttribute('aria-selected');
+      });
+      focusIdx = idx;
+      if (idx >= 0 && items[idx]) {
+        input.setAttribute('aria-activedescendant', items[idx].id);
+        items[idx].scrollIntoView({ block: 'nearest' });
+      } else {
+        input.removeAttribute('aria-activedescendant');
+      }
+    }
+
+    function navigate(href) {
+      clear();
+      // Determine if we're in an explore section (index.html) or standalone
+      var isNested = window.location.pathname.indexOf('/m/') >= 0
+        || window.location.pathname.indexOf('/f/') >= 0;
+      var prefix = isNested ? '' : 'm/';
+      window.location.href = prefix + href;
+    }
+
+    function update() {
+      var q = input.value.trim().toLowerCase();
+      if (q.length < 2) { clear(); return; }
+
+      var matches = [];
+      for (var i = 0; i < allCards.length && matches.length < MAX; i++) {
+        var card = allCards[i];
+        var name = card.getAttribute('data-name') || '';
+        var slug = card.getAttribute('data-slug') || '';
+        var type = card.getAttribute('data-type') || 'trailer';
+        if (name.indexOf(q) < 0) continue;
+        var thumb = card.getAttribute('data-thumb') || '';
+        var model = card.getAttribute('data-model') || '';
+        var fp = card.getAttribute('data-floorplan') || '';
+        var year = card.getAttribute('data-year') || '';
+        var msrp = card.getAttribute('data-msrp') || '';
+        var price = msrp && parseInt(msrp, 10) > 0
+          ? '$' + Math.round(parseInt(msrp, 10)).toLocaleString('en-US')
+          : '';
+        matches.push({ slug: slug, type: type, model: model, fp: fp, year: year, thumb: thumb, price: price });
+      }
+
+      if (!matches.length) { clear(); return; }
+
+      var html = '';
+      for (var j = 0; j < matches.length; j++) {
+        var m = matches[j];
+        var href = m.slug + '.html';
+        var imgHtml = m.thumb
+          ? '<img class="x-sug-thumb" src="' + m.thumb + '" alt="" width="48" height="32" loading="lazy">'
+          : '<span class="x-sug-thumb" aria-hidden="true"></span>';
+        html += '<li class="x-suggest-item" id="x-sug-' + j + '" role="option" data-href="' + href + '">'
+          + imgHtml
+          + '<span class="x-sug-label"><strong>' + m.model + '</strong> ' + m.fp + '</span>'
+          + '<span class="x-sug-meta">' + m.year + (m.price ? ' · ' + m.price : '') + '</span>'
+          + '</li>';
+      }
+      list.innerHTML = html;
+      list.removeAttribute('hidden');
+      combobox.setAttribute('aria-expanded', 'true');
+      items = Array.prototype.slice.call(list.querySelectorAll('.x-suggest-item'));
+      focusIdx = -1;
+    }
+
+    input.addEventListener('input', function () {
+      // Small delay so the existing filter runs first
+      setTimeout(update, 60);
+    });
+
+    input.addEventListener('keydown', function (e) {
+      if (!items.length) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setFocus(focusIdx < items.length - 1 ? focusIdx + 1 : 0);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setFocus(focusIdx > 0 ? focusIdx - 1 : items.length - 1);
+      } else if (e.key === 'Enter' && focusIdx >= 0) {
+        e.preventDefault();
+        var href = items[focusIdx].getAttribute('data-href');
+        if (href) navigate(href);
+      } else if (e.key === 'Escape') {
+        clear();
+      }
+    });
+
+    list.addEventListener('click', function (e) {
+      var li = e.target.closest('.x-suggest-item');
+      if (!li) return;
+      var href = li.getAttribute('data-href');
+      if (href) navigate(href);
+    });
+
+    // Close on outside click
+    document.addEventListener('click', function (e) {
+      if (!combobox.contains(e.target)) clear();
+    });
+
+    // Close on focus leaving the combobox
+    input.addEventListener('blur', function () {
+      // Small delay so click on suggestion registers first
+      setTimeout(function () {
+        if (!combobox.contains(document.activeElement)) clear();
+      }, 150);
+    });
+  })();
+
+  // =========================================================================
   // 2b. UPGRADES PAGE — filter the owner-recommended options by community
   //     signal (consensus tier), source (factory/aftermarket) and use-case.
   //     Progressive enhancement: the page is fully readable with no JS; this
@@ -5639,4 +5778,168 @@
 
     // Initial check
     update();
+  })();
+
+  // =========================================================================
+  // TOUCH SWIPE NAVIGATION — detail pages: swipe left/right to navigate to
+  //     the previous/next floorplan. Reads data-prev-href / data-next-href
+  //     from the <article.detail> element (baked by the renderer). Shows a
+  //     subtle directional hint during the swipe. Respects reduced-motion.
+  //     Guarded by .detail[data-prev-href], .detail[data-next-href].
+  // =========================================================================
+  (function swipeNav() {
+    var article = document.querySelector('.detail[data-prev-href], .detail[data-next-href]');
+    if (!article) return;
+    // Skip on non-touch or reduced-motion
+    if (!('ontouchstart' in window)) return;
+    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var prevHref = article.getAttribute('data-prev-href');
+    var nextHref = article.getAttribute('data-next-href');
+    if (!prevHref && !nextHref) return;
+
+    var startX = 0, startY = 0, tracking = false;
+    var THRESHOLD = 80; // min px to trigger
+    var VERTICAL_LOCK = 35; // degrees — beyond this it's a vertical scroll
+
+    // Create hint elements
+    var hintPrev = null, hintNext = null;
+    if (prevHref) {
+      hintPrev = document.createElement('div');
+      hintPrev.className = 'swipe-hint swipe-hint--prev';
+      hintPrev.textContent = '← Previous';
+      hintPrev.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(hintPrev);
+    }
+    if (nextHref) {
+      hintNext = document.createElement('div');
+      hintNext.className = 'swipe-hint swipe-hint--next';
+      hintNext.textContent = 'Next →';
+      hintNext.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(hintNext);
+    }
+
+    function clearHints() {
+      if (hintPrev) hintPrev.classList.remove('is-visible');
+      if (hintNext) hintNext.classList.remove('is-visible');
+    }
+
+    article.addEventListener('touchstart', function (e) {
+      if (e.touches.length !== 1) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      tracking = true;
+    }, { passive: true });
+
+    article.addEventListener('touchmove', function (e) {
+      if (!tracking || e.touches.length !== 1) return;
+      var dx = e.touches[0].clientX - startX;
+      var dy = e.touches[0].clientY - startY;
+      var angle = Math.abs(Math.atan2(dy, dx) * 180 / Math.PI);
+      // If swiping more vertically, abort
+      if (angle > VERTICAL_LOCK && angle < (180 - VERTICAL_LOCK)) {
+        tracking = false;
+        clearHints();
+        return;
+      }
+      if (Math.abs(dx) > THRESHOLD / 2) {
+        if (dx > 0 && prevHref) {
+          if (hintPrev) hintPrev.classList.add('is-visible');
+          if (hintNext) hintNext.classList.remove('is-visible');
+        } else if (dx < 0 && nextHref) {
+          if (hintNext) hintNext.classList.add('is-visible');
+          if (hintPrev) hintPrev.classList.remove('is-visible');
+        }
+      } else {
+        clearHints();
+      }
+    }, { passive: true });
+
+    article.addEventListener('touchend', function (e) {
+      if (!tracking) return;
+      tracking = false;
+      clearHints();
+      var touch = e.changedTouches[0];
+      if (!touch) return;
+      var dx = touch.clientX - startX;
+      var dy = touch.clientY - startY;
+      var angle = Math.abs(Math.atan2(dy, dx) * 180 / Math.PI);
+      if (angle > VERTICAL_LOCK && angle < (180 - VERTICAL_LOCK)) return;
+      if (Math.abs(dx) < THRESHOLD) return;
+      if (prefersReduced) return;
+      if (dx > 0 && prevHref) {
+        window.location.href = prevHref;
+      } else if (dx < 0 && nextHref) {
+        window.location.href = nextHref;
+      }
+    }, { passive: true });
+
+    article.addEventListener('touchcancel', function () {
+      tracking = false;
+      clearHints();
+    }, { passive: true });
+  })();
+
+  // =========================================================================
+  // SECTION DEEP LINKS — detail pages: sync the URL hash with the active
+  //     section as the user scrolls (via scroll-spy), and on page load scroll
+  //     to the hash target section. Enables shareable deep links like
+  //     /m/classic-33fb-2026.html#gallery or #fuel.
+  //     Guarded by [data-secnav] (section navigation bar).
+  // =========================================================================
+  (function sectionDeepLinks() {
+    var nav = document.querySelector('[data-secnav]');
+    if (!nav) return;
+    var links = Array.prototype.slice.call(nav.querySelectorAll('.secnav-link'));
+    if (links.length < 2) return;
+
+    // Build section map
+    var sections = [];
+    links.forEach(function (link) {
+      var hash = link.getAttribute('href');
+      if (!hash || hash.charAt(0) !== '#') return;
+      var el = document.getElementById(hash.slice(1));
+      if (el) sections.push({ id: hash.slice(1), el: el });
+    });
+    if (sections.length < 2) return;
+
+    // 1. On load: scroll to hash target if present
+    var initialHash = (location.hash || '').replace('#', '');
+    if (initialHash) {
+      var target = document.getElementById(initialHash);
+      if (target) {
+        // Wait for layout to settle, then scroll with offset
+        requestAnimationFrame(function () {
+          setTimeout(function () {
+            var navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 64;
+            var y = target.getBoundingClientRect().top + window.scrollY - navH - 16;
+            window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+          }, 100);
+        });
+      }
+    }
+
+    // 2. Update URL hash on scroll (debounced, replaceState so no history spam)
+    var currentHash = initialHash;
+    var hashTimer = null;
+
+    // Use MutationObserver on the secnav links to detect is-active changes
+    // (the scroll-spy module already manages is-active)
+    var observer = new MutationObserver(function () {
+      var active = nav.querySelector('.secnav-link.is-active');
+      if (!active) return;
+      var href = active.getAttribute('href');
+      if (!href || href.charAt(0) !== '#') return;
+      var id = href.slice(1);
+      if (id === currentHash) return;
+      currentHash = id;
+      if (hashTimer) clearTimeout(hashTimer);
+      hashTimer = setTimeout(function () {
+        try {
+          history.replaceState(null, '', '#' + currentHash);
+        } catch (e) {}
+      }, 300);
+    });
+
+    observer.observe(nav, { attributes: true, attributeFilter: ['class'], subtree: true });
   })();

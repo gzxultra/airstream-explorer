@@ -527,12 +527,53 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .explore-controls { max-width: var(--maxw); margin: 28px auto 0; padding: 0 20px; display: flex; flex-direction: column; gap: 14px; }
 .xc-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
 .xc-row-2 { align-items: center; }
-.xc-search { flex: 1 1 280px; }
+.xc-search { flex: 1 1 280px; position: relative; }
 .xc-search input {
   font: inherit; width: 100%; padding: 11px 14px; min-height: 46px;
   border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink);
 }
 .xc-search input:focus, .explore-controls select:focus { outline: 2px solid var(--copper); outline-offset: 1px; }
+
+/* --- Search autocomplete dropdown --- */
+.x-suggest {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 30;
+  margin: 4px 0 0; padding: 4px 0; list-style: none;
+  background: var(--surface, #F3EFEB); border: 1px solid var(--line, #E2DDD8);
+  border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  max-height: 320px; overflow-y: auto;
+}
+.x-suggest[hidden] { display: none; }
+.x-suggest-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px; cursor: pointer; font-size: 14px; color: var(--ink);
+  transition: background 0.1s;
+}
+.x-suggest-item:hover, .x-suggest-item.is-focused {
+  background: var(--copper, #B8763E); color: #fff;
+}
+.x-suggest-item .x-sug-thumb {
+  width: 48px; height: 32px; object-fit: cover; border-radius: 4px;
+  flex-shrink: 0; background: var(--line);
+}
+.x-suggest-item .x-sug-label { flex: 1; }
+.x-suggest-item .x-sug-label strong { font-weight: 600; }
+.x-suggest-item .x-sug-meta {
+  font-size: 12px; color: var(--muted); white-space: nowrap;
+}
+.x-suggest-item:hover .x-sug-meta, .x-suggest-item.is-focused .x-sug-meta { color: rgba(255,255,255,.75); }
+
+/* --- Swipe navigation hint --- */
+.swipe-hint {
+  position: fixed; top: 50%; transform: translateY(-50%); z-index: 40;
+  padding: 12px 16px; border-radius: 8px;
+  background: var(--ink, #1F1B16); color: var(--bg, #FAF8F5);
+  font: 500 14px/1.3 'DM Sans', sans-serif;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.15s;
+}
+.swipe-hint.is-visible { opacity: 0.85; }
+.swipe-hint--prev { left: 12px; }
+.swipe-hint--next { right: 12px; }
 .xc-sort, .xc-year, .xc-sleeps { display: flex; flex-direction: column; gap: 4px; }
 .xc-sort label, .xc-year label, .xc-sleeps label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
 .explore-controls select {
@@ -2467,6 +2508,10 @@ html { scroll-behavior: smooth; }
   .share-actions { display: none !important; }
   /* Progress bar hidden */
   .reading-progress { display: none !important; }
+  /* Swipe hints + autocomplete hidden */
+  .swipe-hint, .x-suggest { display: none !important; }
+  /* Detail pager nav + cross-family recs — not useful on paper */
+  .detail-pager, .cross-family, .next-steps { display: none !important; }
 }
 
 /* ---- Share / Copy / Print action buttons ---- */
