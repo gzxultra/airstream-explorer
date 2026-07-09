@@ -5142,3 +5142,130 @@
 
     sections.forEach(function (s) { observer.observe(s.el); });
   })();
+
+  // =========================================================================
+  // RECENTLY VIEWED — track detail page visits in localStorage and populate
+  //     the "Recently Viewed" section on the Saved page.
+  // =========================================================================
+  (function recentlyViewed() {
+    var MAX = 12;
+    var KEY = 'recent';
+
+    function read() {
+      try {
+        var v = JSON.parse(localStorage.getItem('ae:' + KEY) || '[]');
+        return Array.isArray(v) ? v : [];
+      } catch (e) { return []; }
+    }
+    function write(list) {
+      try { localStorage.setItem('ae:' + KEY, JSON.stringify(list)); } catch (e) {}
+    }
+
+    // On detail pages: record the visit
+    var detail = document.querySelector('article.detail');
+    if (detail) {
+      var canonical = detail.getAttribute('data-canonical') || '';
+      // Extract slug from canonical path (m/slug.html)
+      var m = canonical.match(/^m\/(.+)\.html$/);
+      if (m) {
+        var slug = m[1];
+        var list = read().filter(function (x) { return x.slug !== slug; });
+        list.unshift({ slug: slug, type: 'trailer', at: Date.now() });
+        if (list.length > MAX) list = list.slice(0, MAX);
+        write(list);
+      }
+    }
+
+    // On motorhome detail pages
+    var mhDetail = document.querySelector('article.mh-detail');
+    if (mhDetail) {
+      var mhCanonical = mhDetail.getAttribute('data-canonical') || '';
+      var mm = mhCanonical.match(/^mm\/(.+)\.html$/);
+      if (mm) {
+        var mhSlug = mm[1];
+        var mhList = read().filter(function (x) { return x.slug !== mhSlug; });
+        mhList.unshift({ slug: mhSlug, type: 'motorhome', at: Date.now() });
+        if (mhList.length > MAX) mhList = mhList.slice(0, MAX);
+        write(mhList);
+      }
+    }
+
+    // On Saved page: render the recently viewed section
+    var recentGrid = document.getElementById('recent-grid');
+    var recentSection = document.getElementById('recent-section');
+    var recentClear = document.getElementById('recent-clear');
+    if (!recentGrid || !recentSection) return;
+
+    var dataEl = document.getElementById('saved-data');
+    var catalog = {};
+    if (dataEl) { try { catalog = JSON.parse(dataEl.textContent || '{}'); } catch (e) {} }
+
+    function render() {
+      var items = read();
+      if (items.length === 0) {
+        recentSection.setAttribute('hidden', '');
+        return;
+      }
+      recentSection.removeAttribute('hidden');
+      var html = '';
+      for (var i = 0; i < items.length; i++) {
+        var entry = items[i];
+        var info = catalog[entry.slug];
+        if (!info) continue;
+        var dir = info.type === 'motorhome' ? 'mm' : 'm';
+        html += '<a class="recent-card" href="' + dir + '/' + entry.slug + '.html">'
+          + (info.thumb ? '<img class="recent-card-thumb" src="' + info.thumb + '" alt="" loading="lazy" width="56" height="38">' : '')
+          + '<span class="recent-card-info"><span class="recent-card-model">' + info.model + ' ' + info.floorplan + '</span>'
+          + '<span class="recent-card-year">' + info.year + '</span></span></a>';
+      }
+      recentGrid.innerHTML = html;
+      if (!html) recentSection.setAttribute('hidden', '');
+    }
+
+    if (recentClear) {
+      recentClear.addEventListener('click', function () {
+        write([]);
+        render();
+      });
+    }
+
+    render();
+  })();
+
+  // =========================================================================
+  // EXPLORE: Grid/List layout toggle — switch between card grid and compact
+  //     list view. Persists the choice in localStorage.
+  // =========================================================================
+  (function layoutToggle() {
+    var layoutWrap = document.getElementById('x-layout');
+    var grid = document.getElementById('xgrid');
+    if (!layoutWrap || !grid) return;
+
+    var btns = Array.prototype.slice.call(layoutWrap.querySelectorAll('[data-layout]'));
+    if (!btns.length) return;
+
+    function apply(layout) {
+      if (layout === 'list') {
+        grid.classList.add('is-list');
+      } else {
+        grid.classList.remove('is-list');
+      }
+      btns.forEach(function (b) {
+        var on = b.getAttribute('data-layout') === layout;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      try { localStorage.setItem('ae:layout', layout); } catch (e) {}
+    }
+
+    btns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        apply(btn.getAttribute('data-layout'));
+      });
+    });
+
+    // Restore saved preference
+    var saved = null;
+    try { saved = localStorage.getItem('ae:layout'); } catch (e) {}
+    if (saved === 'list' || saved === 'grid') apply(saved);
+  })();

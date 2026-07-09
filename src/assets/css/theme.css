@@ -343,3 +343,18 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] #tow-vehicle-pick,
 [data-theme="dark"] .xc-length select,
 [data-theme="dark"] .xc-weight select { border-color: var(--line); }
+
+/* Dark mode: layout toggle + list view */
+[data-theme="dark"] .xc-layout-btn { border-color: var(--line); color: var(--muted); }
+[data-theme="dark"] .xc-layout-btn.is-active { background: var(--copper); color: #fff; border-color: var(--copper); }
+[data-theme="dark"] .xgrid.is-list .xcard { border-bottom-color: var(--line); }
+[data-theme="dark"] .xgrid.is-list .xcard:hover { background: color-mix(in srgb, var(--copper) 6%, var(--surface)); }
+
+/* Dark mode: detail pager */
+[data-theme="dark"] .detail-pager-name { color: var(--ink); }
+[data-theme="dark"] .detail-pager-link:hover .detail-pager-name { color: var(--copper); }
+
+/* Dark mode: recently viewed */
+[data-theme="dark"] .recent-card { background: var(--card); border-color: var(--line); }
+[data-theme="dark"] .recent-card:hover { border-color: var(--copper); }
+[data-theme="dark"] .recent-clear { border-color: var(--line); color: var(--muted); }

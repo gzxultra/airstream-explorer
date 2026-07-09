@@ -3503,3 +3503,89 @@ noscript img[loading="lazy"], img[loading="lazy"][data-no-fade] { opacity: 1; }
 .xc-length, .xc-weight { flex: 0 0 auto; }
 .xc-length select, .xc-weight select { padding: 0.35rem 0.5rem; border: 1px solid var(--line); border-radius: 6px; font: inherit; font-size: 0.88rem; background: var(--bg); color: var(--ink); }
 .xc-length label, .xc-weight label { font-size: 0.82rem; color: var(--muted); display: block; margin-bottom: 0.2rem; }
+
+/* ==========================================================================
+   Explore: Grid / List view toggle
+   ========================================================================== */
+.xc-layout { display: flex; gap: 4px; align-items: center; margin-left: auto; }
+.xc-row-layout { display: flex; align-items: center; gap: 12px; max-width: var(--maxw); margin: 14px auto 0; padding: 0 20px; }
+.xc-layout-btn {
+  background: none; border: 1px solid var(--line); border-radius: 4px;
+  padding: 5px 7px; cursor: pointer; color: var(--muted); display: inline-flex;
+  align-items: center; justify-content: center; transition: background .15s, color .15s, border-color .15s;
+}
+.xc-layout-btn.is-active { background: var(--copper); color: #fff; border-color: var(--copper); }
+.xc-layout-btn:hover:not(.is-active) { border-color: var(--copper); color: var(--ink); }
+
+.xgrid.is-list { grid-template-columns: 1fr; gap: 0; }
+.xgrid.is-list .xcard {
+  flex-direction: row; border-radius: 0; border-bottom: 1px solid var(--line);
+  border-left: none; border-right: none; border-top: none; box-shadow: none;
+}
+.xgrid.is-list .xcard:first-child { border-top: 1px solid var(--line); }
+.xgrid.is-list .xcard:hover { transform: none; box-shadow: none; background: color-mix(in srgb, var(--copper) 4%, var(--surface)); }
+.xgrid.is-list .xcard-link { flex-direction: row; align-items: center; }
+.xgrid.is-list .xcard-media { width: 120px; min-width: 120px; aspect-ratio: 3/2; border-radius: 4px; margin: 8px 0 8px 12px; }
+.xgrid.is-list .xcard-media img { border-radius: 4px; }
+.xgrid.is-list .xcard-body { padding: 10px 16px; flex: 1; min-width: 0; }
+.xgrid.is-list .xcard-title { font-size: 16px; margin: 0 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.xgrid.is-list .xcard-specs { grid-template-columns: repeat(4, auto); gap: 4px 18px; }
+.xgrid.is-list .xcard-specs .spec dd { font-size: 13px; }
+.xgrid.is-list .xcard-foot { padding: 8px 14px; border-top: none; border-left: 1px solid var(--line); min-width: 140px; }
+.xgrid.is-list .xcard-year { top: 6px; left: 6px; font-size: 10px; padding: 2px 6px; }
+.xgrid.is-list .xcard-photos { display: none; }
+.xgrid.is-list .xcard-peek { display: none; }
+@media (max-width: 700px) {
+  .xgrid.is-list .xcard-link { flex-direction: row; }
+  .xgrid.is-list .xcard-media { width: 80px; min-width: 80px; margin: 6px 0 6px 8px; }
+  .xgrid.is-list .xcard-specs { grid-template-columns: repeat(2, auto); gap: 2px 12px; }
+  .xgrid.is-list .xcard-foot { flex-direction: column; min-width: auto; border-left: none; border-top: 1px solid var(--line); padding: 6px 10px; }
+}
+
+/* ==========================================================================
+   Detail: prev/next floorplan navigation
+   ========================================================================== */
+.detail-pager {
+  max-width: var(--maxw); margin: 0 auto; padding: 0 20px;
+  display: flex; justify-content: space-between; align-items: center; gap: 16px;
+}
+.detail-pager-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 500; color: var(--muted);
+  padding: 12px 0; transition: color .15s;
+  text-decoration: none; min-width: 0;
+}
+.detail-pager-link:hover { color: var(--copper-deep); text-decoration: none; }
+.detail-pager-link--prev { margin-right: auto; }
+.detail-pager-link--next { margin-left: auto; text-align: right; }
+.detail-pager-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); display: block; }
+.detail-pager-name { font-size: 15px; font-weight: 600; color: var(--ink); display: block; }
+.detail-pager-link:hover .detail-pager-name { color: var(--copper-deep); }
+.detail-pager-arrow { font-size: 18px; color: var(--copper); flex-shrink: 0; }
+@media (max-width: 560px) {
+  .detail-pager { padding: 0 14px; }
+  .detail-pager-name { font-size: 13px; }
+}
+
+/* ==========================================================================
+   Saved: Recently Viewed section
+   ========================================================================== */
+.recent-section { max-width: var(--maxw); margin: 48px auto 0; padding: 0 20px 40px; }
+.recent-section h2 { font-size: 22px; margin: 0 0 6px; }
+.recent-lead { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+.recent-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px;
+}
+.recent-card {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+  padding: 10px 14px; text-decoration: none; color: inherit;
+  transition: border-color .15s, box-shadow .15s;
+}
+.recent-card:hover { border-color: var(--copper); box-shadow: 0 2px 8px rgba(31,27,22,.08); text-decoration: none; }
+.recent-card-thumb { width: 56px; height: 38px; border-radius: 3px; object-fit: cover; flex-shrink: 0; background: var(--bg); }
+.recent-card-info { min-width: 0; }
+.recent-card-model { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recent-card-year { font-size: 12px; color: var(--muted); }
+.recent-clear { font: inherit; font-size: 13px; background: none; border: 1px solid var(--line); border-radius: 4px; padding: 5px 12px; color: var(--muted); cursor: pointer; float: right; margin-top: -32px; }
+.recent-clear:hover { border-color: var(--copper); color: var(--ink); }

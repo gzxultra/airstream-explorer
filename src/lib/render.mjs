@@ -1390,6 +1390,19 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
   const relatedSection = renderRelated(t, allTrailers, resolve);
   // Cross-family: spec-similar trailers from other model lines
   const crossFamilySection = renderCrossFamily(t, allTrailers, resolve);
+  // Prev/next pager: navigate between floorplans (sorted model+floorplan+year)
+  const sorted = [...allTrailers].sort((a, b) =>
+    `${a.model} ${a.floorplan} ${a.year}`.localeCompare(`${b.model} ${b.floorplan} ${b.year}`));
+  const curIdx = sorted.findIndex((x) => x.slug === t.slug);
+  const prevT = curIdx > 0 ? sorted[curIdx - 1] : null;
+  const nextT = curIdx >= 0 && curIdx < sorted.length - 1 ? sorted[curIdx + 1] : null;
+  const pagerPrev = prevT
+    ? `<a class="detail-pager-link detail-pager-link--prev" href="${esc(prevT.slug)}.html"><span class="detail-pager-arrow">←</span><span><span class="detail-pager-label">Previous</span><span class="detail-pager-name">${esc(prevT.model)} ${esc(prevT.floorplan)}</span></span></a>`
+    : '<span></span>';
+  const pagerNext = nextT
+    ? `<a class="detail-pager-link detail-pager-link--next" href="${esc(nextT.slug)}.html"><span><span class="detail-pager-label">Next</span><span class="detail-pager-name">${esc(nextT.model)} ${esc(nextT.floorplan)}</span></span><span class="detail-pager-arrow">→</span></a>`
+    : '<span></span>';
+  const pagerNav = `<nav class="detail-pager" aria-label="Browse floorplans">${pagerPrev}${pagerNext}</nav>`;
   // Breadcrumb trail: Home → Family → Floorplan
   const breadcrumbItems = [
     { name: 'Airstream Explorer', path: 'index.html' },
@@ -1460,7 +1473,8 @@ ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
 ${gallery ? `<section class="gallery" id="gallery" aria-label="Gallery"><h2>Gallery</h2><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
 ${relatedSection}
 ${crossFamilySection}
-</article>`;
+</article>
+${pagerNav}`;
   return page({
     title: `${trailerTitle(t)} — specs, weights & price`,
     description: `${trailerTitle(t)}: ${formatLength(t.lengthFt)}, ${formatWeight(t.weightLb)} dry, sleeps ${t.sleeps}, ${formatMsrp(t.msrp)}. Full specs, tanks, off-grid and gallery.`,
@@ -1635,7 +1649,13 @@ ${exploreTowVehicleOpts}
 <button type="button" class="xc-reset" id="x-reset">Reset</button>
 </div>
 </section>
+<div class="xc-row xc-row-layout">
 <div class="x-stats" id="x-stats" aria-live="polite" aria-atomic="true"></div>
+<div class="xc-layout" id="x-layout" aria-label="View layout">
+<button type="button" class="xc-layout-btn is-active" data-layout="grid" aria-pressed="true" title="Grid view"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+<button type="button" class="xc-layout-btn" data-layout="list" aria-pressed="false" title="List view"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+</div>
+</div>
 <p class="xcount"><span id="x-count">${total}</span> floorplans</p>
 <main class="xgrid" id="xgrid">
 ${cards}
@@ -1806,7 +1826,13 @@ export function renderSaved(trailers, resolve = assetPaths, motorhomes = []) {
 <a class="saved-empty-cta" href="index.html#all">Browse the lineup →</a>
 </div>
 </section>
-<script type="application/json" id="saved-data">${json}</script>`;
+<script type="application/json" id="saved-data">${json}</script>
+<section class="recent-section" id="recent-section" hidden>
+<h2>Recently viewed</h2>
+<button type="button" class="recent-clear" id="recent-clear">Clear history</button>
+<p class="recent-lead">Floorplans you looked at recently on this device.</p>
+<div class="recent-grid" id="recent-grid"></div>
+</section>`;
   return page({
     title: 'Saved floorplans — your Airstream shortlist',
     description: 'Your saved Airstream floorplans, kept on this device — trailers and motorhomes you starred while browsing, ready to revisit and compare.',
