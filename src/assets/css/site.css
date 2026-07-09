@@ -2427,7 +2427,7 @@ html { scroll-behavior: smooth; }
   .topnav, .back-to-top, [data-secnav], #lightbox, .theme-toggle,
   .skip-link, .detail-nav, .save-btn, .tag-chips,
   .tow-callout a, .official-head, footer,
-  .related, .back-link { display: none !important; }
+  .related, .back-link, .range-bar { display: none !important; }
   /* Reset background and colors for clean B&W output */
   body { background: #fff !important; color: #1a1a1a !important; margin: 0; padding: 0; font-size: 11pt; }
   [data-theme="dark"] * { background: transparent !important; color: #1a1a1a !important; border-color: #ccc !important; }
@@ -3589,3 +3589,80 @@ noscript img[loading="lazy"], img[loading="lazy"][data-no-fade] { opacity: 1; }
 .recent-card-year { font-size: 12px; color: var(--muted); }
 .recent-clear { font: inherit; font-size: 13px; background: none; border: 1px solid var(--line); border-radius: 4px; padding: 5px 12px; color: var(--muted); cursor: pointer; float: right; margin-top: -32px; }
 .recent-clear:hover { border-color: var(--copper); color: var(--ink); }
+
+/* ==========================================================================
+   EXPLORE CARD RANGE BARS — inline fleet-position indicators
+   Show where each model sits in the lineup for weight, length, and price.
+   ========================================================================== */
+.range-bar {
+  display: block; margin-top: 3px;
+}
+.range-bar-track {
+  display: block; width: 100%; height: 3px;
+  background: var(--line); border-radius: 2px; overflow: hidden;
+}
+.range-bar-fill {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--copper), var(--copper-deep));
+  border-radius: 2px;
+  transition: width .4s cubic-bezier(.2,.7,.35,1);
+}
+.xgrid.is-list .range-bar { display: none; }
+@media (max-width: 440px) {
+  .range-bar { margin-top: 2px; }
+  .range-bar-track { height: 2px; }
+}
+
+/* ==========================================================================
+   IMAGE SHIMMER SKELETON — premium loading placeholder for lazy images.
+   Shows an animated shimmer gradient before the real image loads.
+   ========================================================================== */
+@keyframes img-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+img[loading="lazy"]:not(.is-loaded) {
+  background: linear-gradient(
+    90deg,
+    var(--surface) 25%,
+    color-mix(in srgb, var(--line) 60%, transparent) 37%,
+    var(--surface) 63%
+  );
+  background-size: 200% 100%;
+  animation: img-shimmer 1.6s ease-in-out infinite;
+}
+/* Cutout images on cream — slightly different tint so shimmer blends */
+.gallery-img--cutout:not(.is-loaded) {
+  background: linear-gradient(
+    90deg,
+    #F5EDE4 25%,
+    #E8DFD3 37%,
+    #F5EDE4 63%
+  );
+  background-size: 200% 100%;
+  animation: img-shimmer 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  img[loading="lazy"]:not(.is-loaded),
+  .gallery-img--cutout:not(.is-loaded) {
+    animation: none;
+    background: var(--surface);
+  }
+}
+
+/* ==========================================================================
+   DETAIL HERO PARALLAX — subtle depth effect on scroll
+   ========================================================================== */
+.detail-hero {
+  overflow: hidden;
+  /* Slightly taller than content to allow parallax movement */
+}
+.detail-hero-btn img,
+.detail-hero > img {
+  transition: transform .1s linear;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .detail-hero-btn img,
+  .detail-hero > img { will-change: auto; transition: none; }
+}

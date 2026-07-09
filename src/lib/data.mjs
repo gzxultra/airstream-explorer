@@ -491,3 +491,37 @@ export function percentileLabel(field, pctData) {
   if (pct >= 80) return `Top 20% — ${label} than 80%`;
   return `Top 30% — ${label} than 70%`;
 }
+
+// ---------------------------------------------------------------------------
+// FLEET RANGES — min/max for key numeric fields across the whole catalog.
+// Used by explore cards to show where a model sits in the lineup via tiny
+// inline range bars. Computed once at build time, passed to card renderers.
+// ---------------------------------------------------------------------------
+
+/**
+ * Compute min/max ranges for key spec fields across a mixed fleet of trailers
+ * and motorhomes. Returns { field: { min, max } } for weight, msrp, length.
+ */
+export function computeFleetRanges(trailers, motorhomes = []) {
+  const all = [...trailers, ...motorhomes];
+  if (!all.length) return {};
+  const fields = ['weightLb', 'msrp', 'lengthFt'];
+  const ranges = {};
+  for (const f of fields) {
+    const vals = all.map((t) => t[f]).filter((v) => typeof v === 'number' && v > 0);
+    if (vals.length < 2) continue;
+    ranges[f] = { min: Math.min(...vals), max: Math.max(...vals) };
+  }
+  return ranges;
+}
+
+/**
+ * Compute position (0–100) of a single value within a range.
+ * Returns null if the range is degenerate or value is missing.
+ */
+export function rangePosition(value, range) {
+  if (!range || typeof value !== 'number' || value <= 0) return null;
+  const span = range.max - range.min;
+  if (span <= 0) return null;
+  return Math.round(((value - range.min) / span) * 100);
+}

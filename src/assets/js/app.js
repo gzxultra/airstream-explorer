@@ -5077,6 +5077,52 @@
   })();
 
   // =========================================================================
+  // HERO PARALLAX — subtle depth effect on the detail-page hero image.
+  //     As the user scrolls past, the hero image shifts slightly slower,
+  //     creating a cinematic editorial feel. Respects prefers-reduced-motion.
+  //     Performance: uses requestAnimationFrame, only active while hero is
+  //     in viewport, and uses CSS transform (GPU-composited, no reflow).
+  // =========================================================================
+  (function heroParallax() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var hero = document.querySelector('.detail-hero');
+    if (!hero) return;
+    var img = hero.querySelector('img');
+    if (!img) return;
+    var ticking = false;
+    var isVisible = true;
+    var FACTOR = 0.15; // how much the image lags (0 = no effect, 1 = fixed)
+
+    function update() {
+      if (!isVisible) { ticking = false; return; }
+      var rect = hero.getBoundingClientRect();
+      var viewH = window.innerHeight || document.documentElement.clientHeight;
+      // progress: 0 = hero at bottom of viewport, 1 = hero at top
+      var progress = 1 - (rect.top + rect.height) / (viewH + rect.height);
+      progress = Math.max(0, Math.min(1, progress));
+      var shift = (progress - 0.5) * rect.height * FACTOR;
+      img.style.transform = 'translateY(' + shift.toFixed(1) + 'px) scale(1.06)';
+      ticking = false;
+    }
+
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+
+    // Only run parallax while hero is near viewport
+    if ('IntersectionObserver' in window) {
+      var obs = new IntersectionObserver(function (entries) {
+        isVisible = entries[0].isIntersecting;
+        if (isVisible) onScroll();
+      }, { rootMargin: '100px 0px' });
+      obs.observe(hero);
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll(); // initial position
+  })();
+
+  // =========================================================================
   // GALLERY HOVER ZOOM — subtle scale-up on gallery images before lightbox.
   //     CSS-driven via class, this just ensures the interaction feels alive.
   // =========================================================================

@@ -7,7 +7,7 @@ import {
   trailerTitle, trailerLabel, saveButton,
 } from './format.mjs';
 import { motorhomeAssetPaths, motorhomeFamilySlug, motorhomeOfficialUrl, motorhomeOfficialUrlBySlug } from './motorhome-data.mjs';
-import { catalogStats } from './data.mjs';
+import { catalogStats, rangePosition } from './data.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
 import {
   estimateOffGrid, formatNights,
@@ -150,6 +150,13 @@ ${scripts}</body>
 
 function specRow(label, value) {
   return `<div class="spec"><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`;
+}
+
+/** Tiny inline range bar showing where a value sits in the fleet range. */
+function renderRangeBar(value, range, label) {
+  const pos = rangePosition(value, range);
+  if (pos == null) return '';
+  return `<span class="range-bar" aria-label="${esc(label)}: ${pos}th percentile in lineup" title="${esc(label)}: ${pos}th percentile"><span class="range-bar-track"><span class="range-bar-fill" style="width:${pos}%"></span></span></span>`;
 }
 
 function tagChips(tags) {
@@ -616,7 +623,7 @@ ${relatedSection}
  * One explore-grid card for motorhomes. Carries data-* attributes for
  * client-side filtering/sorting.
  */
-export function renderMotorhomeExploreCard(m, resolve = motorhomeAssetPaths, hidden = false) {
+export function renderMotorhomeExploreCard(m, resolve = motorhomeAssetPaths, hidden = false, ranges = {}) {
   const a = resolve(m);
   const tags = (m.tags || []).join(' ');
   return `<article class="xcard" data-slug="${esc(m.slug)}" data-type="motorhome" data-model="${esc(m.model)}" data-floorplan="${esc(m.floorplan)}" data-year="${esc(m.year)}" data-msrp="${esc(m.msrp)}" data-weight="${esc(m.weightLb)}" data-gvwr="${esc(m.gvwrLb)}" data-length="${esc(m.lengthFt)}" data-sleeps="${esc(m.sleeps)}" data-offgrid="${esc(m.offGridScore)}" data-tags="${esc(tags)}" data-name="${esc((m.model + ' ' + m.floorplan).toLowerCase())}"${hidden ? ' hidden' : ''}>
@@ -629,10 +636,10 @@ ${a.gallery && a.gallery.length ? `<span class="xcard-photos" aria-label="${a.ga
 <div class="xcard-body">
 <h3 class="xcard-title">${esc(m.model)} <span>${esc(m.floorplan)}</span></h3>
 <dl class="xcard-specs">
-${specRow('Length', formatLength(m.lengthFt))}
-${specRow('Base weight', formatWeight(m.weightLb))}
+${specRow('Length', formatLength(m.lengthFt))}${renderRangeBar(m.lengthFt, ranges.lengthFt, 'Length')}
+${specRow('Base weight', formatWeight(m.weightLb))}${renderRangeBar(m.weightLb, ranges.weightLb, 'Base weight')}
 ${specRow('Sleeps', String(m.sleeps))}
-${specRow('MSRP', formatMsrp(m.msrp))}
+${specRow('MSRP', formatMsrp(m.msrp))}${renderRangeBar(m.msrp, ranges.msrp, 'MSRP')}
 </dl>
 </div>
 </a>

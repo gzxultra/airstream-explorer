@@ -358,3 +358,17 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .recent-card { background: var(--card); border-color: var(--line); }
 [data-theme="dark"] .recent-card:hover { border-color: var(--copper); }
 [data-theme="dark"] .recent-clear { border-color: var(--line); color: var(--muted); }
+
+/* Dark mode: range bars */
+[data-theme="dark"] .range-bar-track { background: rgba(255,255,255,.08); }
+[data-theme="dark"] .range-bar-fill { background: linear-gradient(90deg, var(--copper), #E8B89A); }
+
+/* Dark mode: shimmer skeleton */
+[data-theme="dark"] img[loading="lazy"]:not(.is-loaded) {
+  background: linear-gradient(90deg, var(--surface) 25%, rgba(255,255,255,.06) 37%, var(--surface) 63%);
+  background-size: 200% 100%;
+}
+[data-theme="dark"] .gallery-img--cutout:not(.is-loaded) {
+  background: linear-gradient(90deg, var(--surface) 25%, rgba(255,255,255,.06) 37%, var(--surface) 63%);
+  background-size: 200% 100%;
+}
