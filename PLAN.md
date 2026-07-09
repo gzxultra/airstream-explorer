@@ -1,6 +1,6 @@
 # Airstream Explorer — 功能路线图
 
-> 最后更新：2026-07-09 · commit `138c3b4` · 822 tests · 99 HTML pages · 1026 images
+> 最后更新：2026-07-09 · commit `pending` · 869 tests · 99 HTML pages · 1026 images
 > 站点：https://airstream-explorer.pages.dev
 > 仓库：github.com/gzxultra/airstream-explorer
 
@@ -14,9 +14,9 @@
 | 类别 | 数量 |
 |------|------|
 | 构建输出 | 65 MB dist/ |
-| 测试 | 795 pass / 54 test files |
-| app.js | 5,920 行 |
-| CSS (4 files) | 4,808 行 |
+| 测试 | 869 pass / 55 test files |
+| app.js | 6,322 行 |
+| CSS (5 files) | 5,244 行 |
 | 数据/渲染模块 | 27 .mjs |
 
 ---
@@ -86,6 +86,9 @@
 - [x] 搜索自动补全（输入即显示下拉建议，键盘/点击导航到详情页）
 - [x] 手机触摸滑动导航（详情页左右滑动切换车型）
 - [x] 区块深度链接（URL hash 同步滚动位置，可分享 #specs / #gallery 等锚点）
+- [x] Explore 筛选状态 URL 编码（可分享带筛选的链接，如 #all&year=2026&sleeps=4）
+- [x] Lightbox 照片计数器 + 导航点（"3/10" 显示 + 底部可点击圆点快速跳转）
+- [x] 规格表点击复制（点击规格行复制 "Flying Cloud 25FB: 5,650 lb dry weight" 到剪贴板）
 
 ### SEO & PWA
 - [x] sitemap.xml / robots.txt（96 URL）
@@ -153,6 +156,7 @@
 
 | 轮次 | Commit | 主要改进 | 测试数 |
 |------|--------|---------|--------|
+| R15 | `pending` | Explore 筛选 URL 分享、Lightbox 计数器+导航点、规格点击复制 | 869 |
 | R14 | `138c3b4` | 搜索自动补全、触摸滑动导航、区块深度链接 | 822 |
 | R13 | `00765e6` | 年份规格对比、持有成本估算、可折叠详情区块 | 795 |
 | R12 | `9153827` | 月供计算器、CCC/牵引排序、下一步行动卡 | 795 |

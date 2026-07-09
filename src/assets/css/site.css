@@ -4118,3 +4118,36 @@ body:has(.cmp-bar:not([hidden])) .scroll-top.is-visible { bottom: 80px; }
   .recs-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
   .recs-card img { height: 100px; }
 }
+
+/* --- Spec row tap-to-copy --- */
+.specs-copyable dt,
+.specs-copyable dd { cursor: pointer; transition: background-color .15s; }
+.specs-copyable dt:hover,
+.specs-copyable dd:hover { background-color: var(--line, rgba(0,0,0,.04)); border-radius: 4px; }
+.specs-copyable dt.is-copied,
+.specs-copyable dd.is-copied { background-color: rgba(166,126,83,.12); border-radius: 4px; }
+.copy-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--ink, #1F1B16);
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s, transform .2s;
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(0,0,0,.18);
+}
+.copy-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+[data-theme="dark"] .copy-toast {
+  background: #E8E0D4;
+  color: #1F1B16;
+}

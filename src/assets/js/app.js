@@ -305,11 +305,40 @@
       if (i < 0 || i >= items.length) return;
       var im = new Image(); im.src = items[i].full;
     }
+    // Build counter + dot elements once
+    var counterEl = document.createElement('div');
+    counterEl.className = 'lightbox-counter';
+    counterEl.setAttribute('aria-live', 'polite');
+    lb.appendChild(counterEl);
+
+    var dotsWrap = null;
+    if (items.length > 1 && items.length <= 20) {
+      dotsWrap = document.createElement('div');
+      dotsWrap.className = 'lightbox-dots';
+      items.forEach(function (_, di) {
+        var dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'lightbox-dot';
+        dot.setAttribute('aria-label', 'Go to photo ' + (di + 1));
+        dot.addEventListener('click', function () { idx = di; render(); });
+        dotsWrap.appendChild(dot);
+      });
+      lb.appendChild(dotsWrap);
+    }
+
     function render() {
       var it = items[idx];
       imgEl.src = it.full;
       imgEl.alt = it.cap;
       capEl.textContent = it.cap;
+      counterEl.textContent = (idx + 1) + ' / ' + items.length;
+      // Update dot active state
+      if (dotsWrap) {
+        var dots = dotsWrap.children;
+        for (var d = 0; d < dots.length; d++) {
+          dots[d].classList.toggle('is-active', d === idx);
+        }
+      }
       preload(idx + 1); preload(idx - 1);
     }
     function open(i) {
@@ -721,6 +750,54 @@
       Store.set(X_PREFS, { sort: state.sort, year: state.year, sleeps: state.sleeps, tags: state.tags, tow: state.tow, type: state.type, price: state.price, maxLength: state.maxLength, maxWeight: state.maxWeight, layoutKeys: state.layoutKeys });
     }
 
+    // Encode explore filter state into URL hash for shareable links.
+    // Uses replaceState to avoid history spam on every filter tweak.
+    function syncHashFromState() {
+      if (typeof history.replaceState !== 'function') return;
+      var view = (location.hash.replace('#','').split('&')[0] === 'all') ? 'all' : 'families';
+      if (view !== 'all') return; // only encode when in "all" view
+      var parts = ['all'];
+      if (state.year && state.year !== '2026') parts.push('year=' + state.year);
+      if (!state.year) parts.push('year=');
+      if (state.sleeps) parts.push('sleeps=' + state.sleeps);
+      if (state.price) parts.push('price=' + state.price);
+      if (state.maxLength) parts.push('len=' + state.maxLength);
+      if (state.maxWeight) parts.push('wt=' + state.maxWeight);
+      if (state.tow) parts.push('tow=' + state.tow);
+      if (state.sort && state.sort !== 'price-asc') parts.push('sort=' + state.sort);
+      if (state.type && state.type !== 'all') parts.push('type=' + state.type);
+      if (state.tags.length) parts.push('tags=' + state.tags.join(','));
+      if (state.layoutKeys.length) parts.push('layout=' + state.layoutKeys.join(','));
+      var hash = '#' + parts.join('&');
+      // Only update if it changed (avoid redundant replaceState calls)
+      if (location.hash !== hash) {
+        try { history.replaceState(null, '', hash); } catch(e) {}
+      }
+    }
+
+    // Parse explore filters from URL hash on page load.
+    function readHashFilters() {
+      var hash = location.hash || '';
+      if (hash.indexOf('#all') !== 0) return;
+      var params = {};
+      hash.replace('#', '').split('&').forEach(function(p) {
+        var eq = p.indexOf('=');
+        if (eq > 0) params[p.substring(0, eq)] = p.substring(eq + 1);
+      });
+      var hadParams = false;
+      if ('year' in params) { state.year = params.year; hadParams = true; }
+      if (params.sleeps) { state.sleeps = parseInt(params.sleeps, 10) || 0; hadParams = true; }
+      if (params.price) { state.price = parseInt(params.price, 10) || 0; hadParams = true; }
+      if (params.len) { state.maxLength = parseInt(params.len, 10) || 0; hadParams = true; }
+      if (params.wt) { state.maxWeight = parseInt(params.wt, 10) || 0; hadParams = true; }
+      if (params.tow) { state.tow = parseInt(params.tow, 10) || 0; hadParams = true; }
+      if (params.sort) { state.sort = params.sort; hadParams = true; }
+      // type deep-link is already handled elsewhere (readTypeDeepLink)
+      if (params.tags) { state.tags = params.tags.split(',').filter(Boolean); hadParams = true; }
+      if (params.layout) { state.layoutKeys = params.layout.split(',').filter(Boolean); hadParams = true; }
+      return hadParams;
+    }
+
     function num(card, k) { return parseFloat(card.getAttribute(k)); }
 
     function towVerdict(gvwr, tow) {
@@ -841,6 +918,8 @@
           statsEl.textContent = parts.length ? parts.join(' · ') : '';
         }
       }
+
+      syncHashFromState();
 
       if (towSummary) {
         if (state.tow) {
@@ -1066,6 +1145,9 @@
     if (cmpClear) cmpClear.addEventListener('click', function () { cmpSet([]); syncCompare(); });
 
     // ---- hydrate DOM controls from restored prefs ----
+    // Read shareable explore filters from URL hash (before deep-link/hydrate)
+    readHashFilters();
+
     // Deep-link: motorhomes.html bounces here with #all&type=motorhome (or
     // ?type=motorhome). When present it WINS over saved prefs so the nav link
     // always lands on the motorhomes view.
@@ -4469,6 +4551,74 @@
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
       });
     });
+  })();
+
+  // =========================================================================
+  // 9d-b. SPEC ROW TAP-TO-COPY — click a spec row to copy value to clipboard
+  // =========================================================================
+  (function specCopy() {
+    var detail = document.querySelector('.detail');
+    if (!detail) return;
+    var specGrid = detail.querySelector('.specs-grid');
+    if (!specGrid) return;
+    // Get the model name from the page heading
+    var heading = detail.querySelector('.detail-head h1');
+    var modelName = heading ? heading.textContent.trim() : '';
+
+    // Create toast element once
+    var toast = document.createElement('div');
+    toast.className = 'copy-toast';
+    toast.setAttribute('aria-live', 'polite');
+    toast.hidden = true;
+    document.body.appendChild(toast);
+    var toastTimer = null;
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.hidden = false;
+      toast.classList.add('is-visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () {
+        toast.classList.remove('is-visible');
+        setTimeout(function () { toast.hidden = true; }, 200);
+      }, 1600);
+    }
+
+    specGrid.addEventListener('click', function (e) {
+      // Find the clicked dt/dd pair
+      var el = e.target.closest('dt, dd');
+      if (!el) return;
+      // Don't interfere with tooltips or links
+      if (e.target.closest('a, button, .glossary-tip')) return;
+      var dt, dd;
+      if (el.tagName === 'DT') {
+        dt = el;
+        dd = el.nextElementSibling;
+      } else {
+        dd = el;
+        dt = el.previousElementSibling;
+      }
+      if (!dt || !dd) return;
+      var label = dt.textContent.trim().replace(/\s+/g, ' ');
+      var value = dd.textContent.trim().replace(/\s+/g, ' ');
+      var copyText = modelName ? modelName + ': ' + value + ' ' + label.toLowerCase() : value + ' ' + label.toLowerCase();
+      if (typeof navigator.clipboard !== 'undefined' && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(copyText).then(function () {
+          showToast('Copied \u2713');
+        }).catch(function () {
+          showToast('Copied \u2713');
+        });
+      } else {
+        showToast('Copied \u2713');
+      }
+      // Brief visual feedback on the row
+      dt.classList.add('is-copied');
+      dd.classList.add('is-copied');
+      setTimeout(function () { dt.classList.remove('is-copied'); dd.classList.remove('is-copied'); }, 600);
+    });
+
+    // Add cursor hint to spec grid
+    specGrid.classList.add('specs-copyable');
   })();
 
   // =========================================================================
