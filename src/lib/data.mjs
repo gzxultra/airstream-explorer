@@ -44,6 +44,33 @@ export function loadTrailers(path) {
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+// ---------------------------------------------------------------------------
+// Layout feature derivation — parse the description (and slug) to extract
+// filterable layout characteristics shoppers actually care about.
+// ---------------------------------------------------------------------------
+
+/**
+ * Layout rules: each has a stable key for data-attributes and filters, a
+ * human label for the chip, and a test predicate over the trailer record.
+ * Order determines chip display order on the Explore page.
+ */
+const LAYOUT_RULES = [
+  { key: 'rear-bed', label: 'Rear bed', test: (t) => /rear\s+(?:primary\s+|convertible\s+|v-shape)/i.test(t.description || '') },
+  { key: 'front-bed', label: 'Front bed', test: (t) => /front\s+primary\s+bed/i.test(t.description || '') },
+  { key: 'wet-bath', label: 'Wet bath', test: (t) => /wet\s+bath/i.test(t.description || '') },
+  { key: 'bunk', label: 'Bunk beds', test: (t) => /bunk/i.test(t.description || '') || /bunk/i.test(t.slug || '') },
+  { key: 'rear-hatch', label: 'Rear hatch', test: (t) => /rear\s+hatch/i.test(t.description || '') },
+  { key: 'u-dinette', label: 'U-seat dinette', test: (t) => /u-seated/i.test(t.description || '') },
+];
+
+/** Derive layout feature keys from a trailer record. */
+export function deriveLayoutFeatures(t) {
+  return LAYOUT_RULES.filter((r) => r.test(t)).map((r) => r.key);
+}
+
+/** All known layout feature keys in display order. */
+export const LAYOUT_META = LAYOUT_RULES.map((r) => ({ key: r.key, label: r.label }));
+
 /** Validate one trailer record. Returns array of problem strings (empty = ok). */
 export function validateTrailer(t) {
   const problems = [];

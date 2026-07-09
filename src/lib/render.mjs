@@ -7,7 +7,7 @@ import {
   hitchPctOfGvwr,
   trailerTitle, trailerLabel, saveButton,
 } from './format.mjs';
-import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition } from './data.mjs';
+import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META } from './data.mjs';
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
@@ -192,6 +192,7 @@ ${body}
 </div>
 </div>
 <script src="${relRoot}assets/js/app.js" defer></script>
+<button type="button" class="scroll-top" id="scroll-top" aria-label="Scroll to top" title="Back to top" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
 ${scripts}</body>
 </html>`;
 }
@@ -1513,7 +1514,8 @@ function renderRangeBar(value, range, label) {
 export function renderExploreCard(t, resolve = assetPaths, hidden = false, ranges = {}) {
   const a = resolve(t);
   const tags = (t.tags || []).join(' ');
-  return `<article class="xcard" data-slug="${esc(t.slug)}" data-type="trailer" data-model="${esc(t.model)}" data-floorplan="${esc(t.floorplan)}" data-year="${esc(t.year)}" data-msrp="${esc(t.msrp)}" data-weight="${esc(t.weightLb)}" data-gvwr="${esc(t.gvwrLb)}" data-length="${esc(t.lengthFt)}" data-sleeps="${esc(t.sleeps)}" data-offgrid="${esc(t.offGridScore)}" data-tags="${esc(tags)}" data-name="${esc((t.model + ' ' + t.floorplan).toLowerCase())}" data-ccc="${esc(t.cccLb || '')}" data-fresh="${esc(t.freshGal || '')}" data-gray="${esc(t.grayGal || '')}" data-black="${esc(t.blackGal || '')}" data-solar="${esc(t.solarW || '')}" data-hitch="${esc(t.hitchWeightLb || '')}" data-desc="${esc(t.description || '')}" data-thumb="${esc(a.thumb || '')}"${hidden ? ' hidden' : ''}>
+  const layout = deriveLayoutFeatures(t).join(' ');
+  return `<article class="xcard" data-slug="${esc(t.slug)}" data-type="trailer" data-model="${esc(t.model)}" data-floorplan="${esc(t.floorplan)}" data-year="${esc(t.year)}" data-msrp="${esc(t.msrp)}" data-weight="${esc(t.weightLb)}" data-gvwr="${esc(t.gvwrLb)}" data-length="${esc(t.lengthFt)}" data-sleeps="${esc(t.sleeps)}" data-offgrid="${esc(t.offGridScore)}" data-tags="${esc(tags)}" data-layout="${esc(layout)}" data-name="${esc((t.model + ' ' + t.floorplan).toLowerCase())}" data-ccc="${esc(t.cccLb || '')}" data-fresh="${esc(t.freshGal || '')}" data-gray="${esc(t.grayGal || '')}" data-black="${esc(t.blackGal || '')}" data-solar="${esc(t.solarW || '')}" data-hitch="${esc(t.hitchWeightLb || '')}" data-desc="${esc(t.description || '')}" data-thumb="${esc(a.thumb || '')}"${hidden ? ' hidden' : ''}>
 <a class="xcard-link" href="m/${esc(t.slug)}.html">
 <div class="xcard-media">
 <img src="${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="400" height="260">
@@ -1562,6 +1564,10 @@ export function renderExploreSections(trailers, resolve = assetPaths, motorhomes
   // Use-case tags span BOTH datasets so the chips work whatever type is active.
   const tagChips = exploreTags([...trailers, ...motorhomes])
     .map((tag) => `<button type="button" class="tagfilter" data-tag="${esc(tag)}" aria-pressed="false">${esc(tagLabel(tag))}</button>`)
+    .join('');
+  // Layout feature chips — bed position, bath type, etc.
+  const layoutChips = LAYOUT_META
+    .map((lf) => `<button type="button" class="layoutfilter" data-layout-key="${esc(lf.key)}" aria-pressed="false">${esc(lf.label)}</button>`)
     .join('');
   // Server-render the DEFAULT view correctly so the page is right without JS
   // and on first paint: latest model year (2026) visible, sorted cheapest-first;
@@ -1657,6 +1663,10 @@ ${exploreTowVehicleOpts}
 </div>
 <button type="button" class="xc-reset" id="x-reset">Reset</button>
 </div>
+<div class="xc-row xc-row-3">
+<div class="xc-tags xc-tags-layout" role="group" aria-label="Layout features">${layoutChips}</div>
+</div>
+<div class="active-filters" id="active-filters" hidden aria-live="polite"></div>
 </section>
 <div class="xc-row xc-row-layout">
 <div class="x-stats" id="x-stats" aria-live="polite" aria-atomic="true"></div>

@@ -3666,3 +3666,80 @@ img[loading="lazy"]:not(.is-loaded) {
   .detail-hero-btn img,
   .detail-hero > img { will-change: auto; transition: none; }
 }
+
+/* ==========================================================================
+   LAYOUT FEATURE FILTER CHIPS — bed/bath/layout type filters
+   ========================================================================== */
+.layoutfilter {
+  font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; min-height: 34px;
+  background: var(--surface); color: var(--muted); border: 1px solid var(--line);
+  border-radius: 999px; padding: 5px 12px;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.layoutfilter:hover { border-color: var(--copper); color: var(--copper-deep); }
+.layoutfilter[aria-pressed="true"] { background: var(--copper-deep); border-color: var(--copper-deep); color: #fff; }
+.xc-tags-layout { display: flex; flex-wrap: wrap; gap: 6px; }
+.xc-row-3 { max-width: var(--maxw); margin: 0 auto; padding: 8px 20px 0; }
+
+/* ==========================================================================
+   ACTIVE FILTER SUMMARY PILLS — shows what's filtered with remove buttons
+   ========================================================================== */
+.active-filters {
+  max-width: var(--maxw); margin: 10px auto 0; padding: 0 20px;
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+}
+.active-filters[hidden] { display: none; }
+.filter-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  font: inherit; font-size: 12px; font-weight: 600;
+  background: color-mix(in srgb, var(--copper) 12%, transparent);
+  color: var(--copper-deep); border: 1px solid color-mix(in srgb, var(--copper) 30%, transparent);
+  border-radius: 999px; padding: 4px 8px 4px 10px;
+  white-space: nowrap; line-height: 1;
+}
+.filter-pill-x {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%; border: none; padding: 0;
+  background: transparent; color: var(--copper-deep); cursor: pointer;
+  font-size: 13px; font-weight: 700; line-height: 1;
+  transition: background .15s;
+}
+.filter-pill-x:hover { background: color-mix(in srgb, var(--copper) 25%, transparent); }
+.filter-clear-all {
+  font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+  background: transparent; color: var(--muted); border: none; padding: 4px 8px;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.filter-clear-all:hover { color: var(--ink); }
+
+/* ==========================================================================
+   SCROLL TO TOP — floating action button
+   ========================================================================== */
+.scroll-top {
+  position: fixed; bottom: 28px; right: 28px; z-index: 90;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow: 0 2px 12px rgba(0,0,0,.12);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity .25s ease, transform .25s ease, background .15s, box-shadow .15s;
+  pointer-events: none;
+}
+.scroll-top.is-visible {
+  opacity: 1; transform: translateY(0); pointer-events: auto;
+}
+.scroll-top:hover {
+  background: var(--copper); color: #fff; border-color: var(--copper);
+  box-shadow: 0 4px 16px rgba(0,0,0,.18);
+}
+.scroll-top[hidden] { display: none; }
+@media (max-width: 560px) {
+  .scroll-top { bottom: 20px; right: 16px; width: 40px; height: 40px; }
+}
+/* Don't overlap the compare bar when it's visible */
+.cmp-bar:not([hidden]) ~ .scroll-top.is-visible,
+body:has(.cmp-bar:not([hidden])) .scroll-top.is-visible { bottom: 80px; }
+@media (prefers-reduced-motion: reduce) {
+  .scroll-top { transition: none; }
+}

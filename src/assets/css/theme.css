@@ -372,3 +372,13 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
   background: linear-gradient(90deg, var(--surface) 25%, rgba(255,255,255,.06) 37%, var(--surface) 63%);
   background-size: 200% 100%;
 }
+
+/* Dark mode: layout feature chips + filter pills + scroll-to-top */
+[data-theme="dark"] .layoutfilter { background: var(--card); border-color: var(--line); color: var(--muted); }
+[data-theme="dark"] .layoutfilter:hover { border-color: var(--copper); color: var(--copper); }
+[data-theme="dark"] .layoutfilter[aria-pressed="true"] { background: var(--copper-deep); border-color: var(--copper-deep); color: #fff; }
+[data-theme="dark"] .filter-pill { background: rgba(200,150,100,.15); color: var(--copper); border-color: rgba(200,150,100,.25); }
+[data-theme="dark"] .filter-pill-x { color: var(--copper); }
+[data-theme="dark"] .filter-pill-x:hover { background: rgba(200,150,100,.2); }
+[data-theme="dark"] .scroll-top { background: var(--card); color: var(--ink); border-color: var(--line); box-shadow: 0 2px 12px rgba(0,0,0,.4); }
+[data-theme="dark"] .scroll-top:hover { background: var(--copper); color: #fff; border-color: var(--copper); }

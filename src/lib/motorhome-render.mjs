@@ -144,6 +144,7 @@ ${body}
 </div>
 </div>
 <script src="${relRoot}assets/js/app.js" defer></script>
+<button type="button" class="scroll-top" id="scroll-top" aria-label="Scroll to top" title="Back to top" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
 ${scripts}</body>
 </html>`;
 }

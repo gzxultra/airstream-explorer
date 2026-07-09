@@ -698,7 +698,7 @@
     var towSummary = document.getElementById('tow-summary');
     var towPresets = Array.prototype.slice.call(document.querySelectorAll('.tow-preset'));
 
-    var state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all', price: 0, maxLength: 0, maxWeight: 0 };
+    var state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all', price: 0, maxLength: 0, maxWeight: 0, layoutKeys: [] };
 
     // Restore saved explore preferences (sort, year, sleeps, use-case tags, tow
     // rating). Search text stays transient.
@@ -715,9 +715,10 @@
       if (typeof p.price === 'number' && p.price > 0) state.price = p.price;
       if (typeof p.maxLength === 'number' && p.maxLength > 0) state.maxLength = p.maxLength;
       if (typeof p.maxWeight === 'number' && p.maxWeight > 0) state.maxWeight = p.maxWeight;
+      if (Array.isArray(p.layoutKeys)) state.layoutKeys = p.layoutKeys.filter(function (k) { return typeof k === 'string'; });
     })();
     function persistX() {
-      Store.set(X_PREFS, { sort: state.sort, year: state.year, sleeps: state.sleeps, tags: state.tags, tow: state.tow, type: state.type, price: state.price, maxLength: state.maxLength, maxWeight: state.maxWeight });
+      Store.set(X_PREFS, { sort: state.sort, year: state.year, sleeps: state.sleeps, tags: state.tags, tow: state.tow, type: state.type, price: state.price, maxLength: state.maxLength, maxWeight: state.maxWeight, layoutKeys: state.layoutKeys });
     }
 
     function num(card, k) { return parseFloat(card.getAttribute(k)); }
@@ -763,6 +764,12 @@
         if (ok && state.tags.length) {
           for (var i = 0; i < state.tags.length; i++) {
             if (tags.indexOf(state.tags[i]) === -1) { ok = false; break; }
+          }
+        }
+        if (ok && state.layoutKeys.length) {
+          var layoutStr = (card.getAttribute('data-layout') || '').split(' ');
+          for (var li = 0; li < state.layoutKeys.length; li++) {
+            if (layoutStr.indexOf(state.layoutKeys[li]) === -1) { ok = false; break; }
           }
         }
         // Tow filter is non-destructive: when set, "over" trailers are dimmed,
@@ -843,6 +850,34 @@
           towSummary.setAttribute('hidden', '');
         }
       }
+
+      // Active filter pills — show a summary of what's currently filtered
+      var afEl = document.getElementById('active-filters');
+      if (afEl) {
+        var pills = [];
+        var LABEL_MAP = {
+          'rear-bed': 'Rear bed', 'front-bed': 'Front bed', 'wet-bath': 'Wet bath',
+          'bunk': 'Bunk beds', 'rear-hatch': 'Rear hatch', 'u-dinette': 'U-seat dinette',
+          'couples': 'Couples', 'solo': 'Solo', 'family': 'Family', 'full-time': 'Full-time',
+          'off-grid': 'Off-grid', 'national_parks': 'National parks', 'luxury': 'Luxury'
+        };
+        if (state.year) pills.push({ label: 'Year: ' + state.year, kind: 'year' });
+        if (state.sleeps) pills.push({ label: 'Sleeps ≥ ' + state.sleeps, kind: 'sleeps' });
+        if (state.price) pills.push({ label: 'Under $' + Math.round(state.price / 1000) + 'k', kind: 'price' });
+        if (state.maxLength) pills.push({ label: "Under " + state.maxLength + "'", kind: 'length' });
+        if (state.maxWeight) pills.push({ label: 'Under ' + state.maxWeight.toLocaleString('en-US') + ' lb', kind: 'weight' });
+        if (state.tow) pills.push({ label: 'Tow: ' + state.tow.toLocaleString('en-US') + ' lb', kind: 'tow' });
+        state.tags.forEach(function (tag) { pills.push({ label: LABEL_MAP[tag] || tag, kind: 'tag', val: tag }); });
+        state.layoutKeys.forEach(function (key) { pills.push({ label: LABEL_MAP[key] || key, kind: 'layout', val: key }); });
+        if (state.type !== 'all') pills.push({ label: state.type === 'trailer' ? 'Travel trailers' : 'Motorhomes', kind: 'type' });
+        if (pills.length <= 1) { afEl.setAttribute('hidden', ''); afEl.innerHTML = ''; }
+        else {
+          afEl.removeAttribute('hidden');
+          afEl.innerHTML = pills.map(function (p) {
+            return '<span class="filter-pill">' + p.label + '<button type="button" class="filter-pill-x" data-pill-kind="' + p.kind + '"' + (p.val ? ' data-pill-val="' + p.val + '"' : '') + ' aria-label="Remove ' + p.label + ' filter">×</button></span>';
+          }).join('') + '<button type="button" class="filter-clear-all" id="filter-clear-all">Clear all</button>';
+        }
+      }
     }
 
     if (elSearch) elSearch.addEventListener('input', function () { state.q = this.value.trim().toLowerCase(); apply(); });
@@ -864,6 +899,47 @@
         persistX(); apply();
       });
     });
+    // Layout feature filter chips
+    var layoutBtns = Array.prototype.slice.call(document.querySelectorAll('.layoutfilter'));
+    layoutBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var key = btn.getAttribute('data-layout-key');
+        var i = state.layoutKeys.indexOf(key);
+        if (i === -1) { state.layoutKeys.push(key); btn.setAttribute('aria-pressed', 'true'); }
+        else { state.layoutKeys.splice(i, 1); btn.setAttribute('aria-pressed', 'false'); }
+        persistX(); apply();
+      });
+    });
+    // Active filter pill removal — event delegation on the container
+    var afContainer = document.getElementById('active-filters');
+    if (afContainer) {
+      afContainer.addEventListener('click', function (e) {
+        var pill = e.target.closest('.filter-pill-x');
+        var clearAll = e.target.closest('#filter-clear-all');
+        if (clearAll) { resetAll(); apply(); return; }
+        if (!pill) return;
+        var kind = pill.getAttribute('data-pill-kind');
+        var val = pill.getAttribute('data-pill-val');
+        if (kind === 'year') { state.year = ''; if (elYear) elYear.value = ''; }
+        else if (kind === 'sleeps') { state.sleeps = 0; if (elSleeps) elSleeps.value = ''; }
+        else if (kind === 'price') { state.price = 0; if (elPrice) elPrice.value = ''; }
+        else if (kind === 'length') { state.maxLength = 0; if (elLength) elLength.value = ''; }
+        else if (kind === 'weight') { state.maxWeight = 0; if (elWeight) elWeight.value = ''; }
+        else if (kind === 'tow') { setTow(0); if (towVehiclePick) towVehiclePick.value = ''; }
+        else if (kind === 'tag' && val) {
+          var ti = state.tags.indexOf(val);
+          if (ti !== -1) state.tags.splice(ti, 1);
+          tagBtns.forEach(function (b) { if (b.getAttribute('data-tag') === val) b.setAttribute('aria-pressed', 'false'); });
+        }
+        else if (kind === 'layout' && val) {
+          var lki = state.layoutKeys.indexOf(val);
+          if (lki !== -1) state.layoutKeys.splice(lki, 1);
+          layoutBtns.forEach(function (b) { if (b.getAttribute('data-layout-key') === val) b.setAttribute('aria-pressed', 'false'); });
+        }
+        else if (kind === 'type') { setType('all'); return; }
+        persistX(); apply();
+      });
+    }
 
     // Type segmented control: All / Travel trailers / Motorhomes. Reflects the
     // active type on the buttons (aria-pressed + is-active) and re-applies the
@@ -926,7 +1002,7 @@
     });
 
     function resetAll() {
-      state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all', price: 0, maxLength: 0, maxWeight: 0 };
+      state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all', price: 0, maxLength: 0, maxWeight: 0, layoutKeys: [] };
       if (elSearch) elSearch.value = '';
       if (elSort) elSort.value = 'price-asc';
       if (elYear) elYear.value = '2026';
@@ -935,6 +1011,7 @@
       if (elLength) elLength.value = '';
       if (elWeight) elWeight.value = '';
       tagBtns.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+      layoutBtns.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
       Store.del(X_PREFS);
       setType('all', { persist: false });
       setTow(0, { persist: false });
@@ -1009,6 +1086,11 @@
       if (state.tags && state.tags.length) {
         tagBtns.forEach(function (b) {
           if (state.tags.indexOf(b.getAttribute('data-tag')) !== -1) b.setAttribute('aria-pressed', 'true');
+        });
+      }
+      if (state.layoutKeys && state.layoutKeys.length) {
+        layoutBtns.forEach(function (b) {
+          if (state.layoutKeys.indexOf(b.getAttribute('data-layout-key')) !== -1) b.setAttribute('aria-pressed', 'true');
         });
       }
       // reflect the restored/deep-linked type on the segmented buttons
@@ -4558,7 +4640,7 @@
       controls[c].addEventListener('change', scheduleHashUpdate);
     }
     // Tag + type button clicks
-    var clickables = document.querySelectorAll('.tagfilter, #x-type .xc-type-btn, .tow-preset, #x-reset, #x-empty-reset, #tow-clear');
+    var clickables = document.querySelectorAll('.tagfilter, .layoutfilter, #x-type .xc-type-btn, .tow-preset, #x-reset, #x-empty-reset, #tow-clear');
     for (var d = 0; d < clickables.length; d++) {
       clickables[d].addEventListener('click', function () { setTimeout(scheduleHashUpdate, 50); });
     }
@@ -5314,4 +5396,42 @@
     var saved = null;
     try { saved = localStorage.getItem('ae:layout'); } catch (e) {}
     if (saved === 'list' || saved === 'grid') apply(saved);
+  })();
+
+  // =========================================================================
+  // SCROLL TO TOP — floating button that appears after scrolling down.
+  //     Guarded by #scroll-top.
+  // =========================================================================
+  (function scrollToTop() {
+    var btn = document.getElementById('scroll-top');
+    if (!btn) return;
+    var threshold = 600;
+    var visible = false;
+    var ticking = false;
+
+    function update() {
+      var y = window.pageYOffset || document.documentElement.scrollTop;
+      var shouldShow = y > threshold;
+      if (shouldShow !== visible) {
+        visible = shouldShow;
+        btn.removeAttribute('hidden');
+        if (visible) {
+          btn.classList.add('is-visible');
+        } else {
+          btn.classList.remove('is-visible');
+        }
+      }
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+
+    btn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Initial check
+    update();
   })();
