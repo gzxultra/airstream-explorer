@@ -1461,6 +1461,100 @@ ${traitStr ? `<p class="xfam-traits">${esc(traitStr)}</p>` : ''}
 // ---------------------------------------------------------------------------
 // NEXT STEPS: actionable links to move from research to purchase
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// TRIP READY CHECKLIST — model-specific pre-departure checklist using real specs
+// ---------------------------------------------------------------------------
+
+function renderTripReady(t) {
+  // Build checklist items using the trailer's real specs
+  const items = [];
+
+  // Water system
+  if (t.freshGal) {
+    items.push({ cat: 'water', text: `Fill ${t.freshGal}-gallon fresh water tank`, icon: '💧' });
+  }
+  if (t.blackGal || t.grayGal) {
+    const tanks = [];
+    if (t.grayGal) tanks.push(`gray (${t.grayGal} gal)`);
+    if (t.blackGal) tanks.push(t.grayGal ? `black (${t.blackGal} gal)` : `waste (${t.blackGal} gal)`);
+    items.push({ cat: 'water', text: `Empty ${tanks.join(' + ')} tank${tanks.length > 1 ? 's' : ''}`, icon: '🚿' });
+  }
+  items.push({ cat: 'water', text: 'Check water heater bypass valve position', icon: '♨️' });
+
+  // Tow & weight
+  if (t.hitchWeightLb) {
+    items.push({ cat: 'tow', text: `Verify hitch weight (~${formatWeight(t.hitchWeightLb)}) with tongue scale`, icon: '⚖️' });
+  }
+  if (t.gvwrLb) {
+    items.push({ cat: 'tow', text: `Confirm total weight under ${formatWeight(t.gvwrLb)} GVWR`, icon: '🏋️' });
+  }
+  items.push({ cat: 'tow', text: 'Check tire pressure (trailer & tow vehicle)', icon: '🛞' });
+  items.push({ cat: 'tow', text: 'Inspect hitch coupler & safety chains', icon: '🔗' });
+  items.push({ cat: 'tow', text: 'Test brake controller & breakaway switch', icon: '🛑' });
+  items.push({ cat: 'tow', text: 'Check all exterior lights & turn signals', icon: '💡' });
+
+  // Systems
+  if (t.solarW) {
+    items.push({ cat: 'systems', text: `Confirm ${t.solarW}W solar panel${t.solarW > 200 ? 's' : ''} unobstructed`, icon: '☀️' });
+  }
+  if (t.batteryKwh) {
+    items.push({ cat: 'systems', text: `Charge house battery (${t.batteryKwh} kWh) to 100%`, icon: '🔋' });
+  }
+  items.push({ cat: 'systems', text: 'Check propane tank level & valve operation', icon: '🔥' });
+  items.push({ cat: 'systems', text: 'Test LP & CO detectors', icon: '🚨' });
+  items.push({ cat: 'systems', text: 'Test smoke detector', icon: '🧯' });
+
+  // Interior
+  items.push({ cat: 'interior', text: 'Secure all cabinet doors & drawers', icon: '🗄️' });
+  items.push({ cat: 'interior', text: 'Stow loose items & close roof vents', icon: '📦' });
+  items.push({ cat: 'interior', text: 'Retract stabilizer jacks & entry step', icon: '🔧' });
+  items.push({ cat: 'interior', text: 'Retract TV antenna & lower awning', icon: '📡' });
+  items.push({ cat: 'interior', text: 'Lock entry door during travel', icon: '🔒' });
+
+  const catMeta = {
+    water: { label: 'Water System', cls: 'trip-cat--water' },
+    tow: { label: 'Tow & Safety', cls: 'trip-cat--tow' },
+    systems: { label: 'Power & Gas', cls: 'trip-cat--systems' },
+    interior: { label: 'Interior Prep', cls: 'trip-cat--interior' },
+  };
+
+  const groups = {};
+  for (const item of items) {
+    if (!groups[item.cat]) groups[item.cat] = [];
+    groups[item.cat].push(item);
+  }
+
+  let html = '';
+  for (const [cat, meta] of Object.entries(catMeta)) {
+    if (!groups[cat]) continue;
+    html += `<div class="trip-group ${meta.cls}">
+<h3 class="trip-group-title">${meta.label}</h3>
+<ul class="trip-list">`;
+    for (const item of groups[cat]) {
+      html += `<li class="trip-item">
+<label class="trip-label"><input type="checkbox" class="trip-check" data-trip-item="${esc(item.text)}"><span class="trip-icon" aria-hidden="true">${item.icon}</span><span class="trip-text">${esc(item.text)}</span></label>
+</li>`;
+    }
+    html += `</ul></div>`;
+  }
+
+  return `<section class="trip-ready collapsible" id="trip-ready" aria-label="Trip ready checklist">
+<h2 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">
+Trip Ready Checklist
+<span class="trip-count" id="trip-count"></span>
+<span class="collapsible-icon" aria-hidden="true"></span>
+</h2>
+<div class="collapsible-body" hidden>
+<p class="trip-intro">Pre-departure checklist for the ${esc(t.model)} ${esc(t.floorplan)}, using its real specs. Check off items as you go — progress saves on this device.</p>
+<div class="trip-progress"><div class="trip-progress-fill" id="trip-progress-fill"></div></div>
+<div class="trip-groups">${html}</div>
+<div class="trip-actions">
+<button type="button" class="trip-reset" id="trip-reset">Reset checklist</button>
+</div>
+</div>
+</section>`;
+}
+
 function renderNextSteps(t) {
   const official = officialUrl(t.model);
   const links = [];
@@ -1646,6 +1740,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     t.msrp > 0 ? ['#ownership', 'Ownership'] : null,
     ['#offgrid', 'Off-grid'],
     a.floorplan ? ['#floorplan', 'Floor plan'] : null,
+    ['#trip-ready', 'Trip Ready'],
     galleryCount ? ['#gallery', 'Gallery'] : null,
   ].filter(Boolean));
   // Related floorplans: same family, different floorplan, prefer same year
@@ -1735,6 +1830,7 @@ ${pros || cons ? `<section class="proscons">
 ${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}
 ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
 </section>` : ''}
+${renderTripReady(t)}
 ${gallery ? `<section class="gallery" id="gallery" aria-label="Gallery"><h2>Gallery</h2><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
 ${renderNextSteps(t)}
 ${relatedSection}
@@ -2024,6 +2120,7 @@ export function renderCompare(trailers, resolve = assetPaths, motorhomes = []) {
 <div class="cmp-chosen" id="cmp-chosen"></div>
 </section>
 <div class="cmp-table-wrap" id="cmp-table-wrap" hidden>
+<div class="cmp-share-row"><button type="button" class="share-btn cmp-share-btn" id="cmp-share"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"></path></svg> Share comparison</button></div>
 <table class="cmp-table" id="cmp-table"></table>
 </div>
 <div class="cmp-placeholder" id="cmp-placeholder">
@@ -2117,6 +2214,11 @@ export function renderSaved(trailers, resolve = assetPaths, motorhomes = []) {
 <button type="button" class="recent-clear" id="recent-clear">Clear history</button>
 <p class="recent-lead">Floorplans you looked at recently on this device.</p>
 <div class="recent-grid" id="recent-grid"></div>
+</section>
+<section class="recs-section" id="recs-section" hidden>
+<h2>You might also like</h2>
+<p class="recs-lead">Similar floorplans from other families, based on what you saved.</p>
+<div class="recs-grid" id="recs-grid"></div>
 </section>`;
   return page({
     title: 'Saved floorplans — your Airstream shortlist',

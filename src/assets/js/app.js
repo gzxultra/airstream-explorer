@@ -2211,6 +2211,7 @@
 
       var tbody = document.createElement('tbody');
       var ROWS = (cols[0] && cols[0].type === 'motorhome') ? ROWS_MOTORHOME : ROWS_TRAILER;
+      var winCounts = {};
       ROWS.forEach(function (row) {
         var tr = document.createElement('tr');
         var th = document.createElement('th');
@@ -2224,12 +2225,56 @@
         }
         cols.forEach(function (d, i) {
           var td = document.createElement('td');
-          td.textContent = row[2](vals[i], d);
+          var displayText = row[2](vals[i], d);
+          td.textContent = displayText;
           if (best !== null && vals[i] === best && cols.length > 1) td.className = 'cmp-best';
+          // Diff annotation: show gap vs best when 2+ models and numeric values
+          if (best !== null && cols.length > 1 && typeof vals[i] === 'number' && !isNaN(vals[i]) && vals[i] !== best) {
+            var gap = vals[i] - best;
+            var absGap = Math.abs(gap);
+            var gapStr = '';
+            // Format gap based on magnitude
+            if (row[0] === 'MSRP' || row[0] === 'Total cost') {
+              gapStr = (gap > 0 ? '+' : '−') + '$' + absGap.toLocaleString('en-US');
+            } else {
+              gapStr = (gap > 0 ? '+' : '−') + absGap.toLocaleString('en-US');
+            }
+            var diff = document.createElement('span');
+            diff.className = 'cmp-diff';
+            diff.textContent = ' ' + gapStr;
+            td.appendChild(diff);
+          }
+          // Track wins
+          if (best !== null && vals[i] === best && cols.length > 1) {
+            if (!winCounts[i]) winCounts[i] = 0;
+            winCounts[i]++;
+          }
           tr.appendChild(td);
         });
         tbody.appendChild(tr);
       });
+
+      // Verdict row: show which model leads the most specs
+      if (cols.length >= 2) {
+        var maxWins = 0;
+        for (var w = 0; w < cols.length; w++) { if ((winCounts[w] || 0) > maxWins) maxWins = winCounts[w] || 0; }
+        var tfoot = document.createElement('tfoot');
+        var vtr = document.createElement('tr');
+        vtr.className = 'cmp-verdict';
+        var vth = document.createElement('th');
+        vth.scope = 'row'; vth.textContent = 'Spec wins';
+        vtr.appendChild(vth);
+        cols.forEach(function (d, i) {
+          var vtd = document.createElement('td');
+          var wins = winCounts[i] || 0;
+          vtd.textContent = wins + ' of ' + ROWS.length;
+          if (wins === maxWins && maxWins > 0) vtd.className = 'cmp-verdict-lead';
+          vtr.appendChild(vtd);
+        });
+        tfoot.appendChild(vtr);
+        table.appendChild(tfoot);
+      }
+
       table.appendChild(tbody);
     }
 
@@ -2265,6 +2310,21 @@
     }
 
     render();
+
+    // Share comparison URL
+    var shareBtn = document.getElementById('cmp-share');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', function () {
+        if (!ids.length) return;
+        var url = location.origin + location.pathname + '?ids=' + ids.join(',');
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(function () {
+            shareBtn.textContent = '✓ Link copied';
+            setTimeout(function () { shareBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"></path></svg> Share comparison'; }, 2000);
+          });
+        }
+      });
+    }
   })();
 
   // =========================================================================
@@ -4412,6 +4472,84 @@
   })();
 
   // =========================================================================
+  // 9e. TRIP READY CHECKLIST — model-specific pre-departure checklist with
+  //     progress persistence in localStorage. Guarded by .trip-ready.
+  // =========================================================================
+  (function tripReady() {
+    var root = document.querySelector('.trip-ready');
+    if (!root) return;
+
+    var trigger = root.querySelector('.collapsible-trigger');
+    var body = root.querySelector('.collapsible-body');
+    var fill = document.getElementById('trip-progress-fill');
+    var countEl = document.getElementById('trip-count');
+    var resetBtn = document.getElementById('trip-reset');
+    var checks = Array.prototype.slice.call(root.querySelectorAll('.trip-check'));
+    if (!checks.length) return;
+
+    // Get slug from article data-canonical
+    var article = document.querySelector('.detail[data-canonical]');
+    var slug = '';
+    if (article) {
+      var can = article.getAttribute('data-canonical') || '';
+      var m = can.match(/m\/(.+)\.html$/);
+      if (m) slug = m[1];
+    }
+    var STORE_KEY = 'ae:trip:' + slug;
+
+    function readState() {
+      try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; }
+    }
+    function writeState(st) {
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(st)); } catch (e) {}
+    }
+
+    // Toggle collapsible
+    if (trigger && body) {
+      trigger.addEventListener('click', function () {
+        var expanded = trigger.getAttribute('aria-expanded') === 'true';
+        trigger.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+        if (expanded) body.setAttribute('hidden', '');
+        else body.removeAttribute('hidden');
+      });
+      trigger.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trigger.click(); }
+      });
+    }
+
+    function updateProgress() {
+      var done = 0;
+      checks.forEach(function (cb) { if (cb.checked) done++; });
+      var pct = Math.round(done / checks.length * 100);
+      if (fill) fill.style.width = pct + '%';
+      if (countEl) countEl.textContent = done + '/' + checks.length;
+    }
+
+    // Restore state
+    var state = readState();
+    checks.forEach(function (cb) {
+      var key = cb.getAttribute('data-trip-item');
+      if (state[key]) cb.checked = true;
+      cb.addEventListener('change', function () {
+        var st = readState();
+        if (cb.checked) st[key] = true;
+        else delete st[key];
+        writeState(st);
+        updateProgress();
+      });
+    });
+    updateProgress();
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        checks.forEach(function (cb) { cb.checked = false; });
+        writeState({});
+        updateProgress();
+      });
+    }
+  })();
+
+  // =========================================================================
   // 10. PAYLOAD / PACKING CALCULATOR (detail pages)
   //     Mirrors the server-side math in src/lib/payload.mjs. Reads config from
   //     a CSP-safe JSON island (#payload-data); no network, works offline.
@@ -4652,6 +4790,95 @@
     }
     Saved.onChange(render);
     render();
+
+    // --- "You might also like" recommendations based on saved items ---
+    (function savedRecs() {
+      var recsSection = document.getElementById('recs-section');
+      var recsGrid = document.getElementById('recs-grid');
+      if (!recsSection || !recsGrid) return;
+
+      // Euclidean distance on normalized specs (mirrors trailerDistance in render.mjs)
+      function dist(a, b) {
+        var dims = [
+          ['weightLb', 2600, 8500], ['lengthFt', 16, 34], ['msrp', 50000, 225000],
+          ['sleeps', 2, 8], ['offGridScore', 35, 95]
+        ];
+        var sum = 0;
+        for (var d = 0; d < dims.length; d++) {
+          var k = dims[d][0], lo = dims[d][1], hi = dims[d][2];
+          var va = a[k] != null ? (a[k] - lo) / (hi - lo) : 0.5;
+          var vb = b[k] != null ? (b[k] - lo) / (hi - lo) : 0.5;
+          sum += (va - vb) * (va - vb);
+        }
+        return Math.sqrt(sum);
+      }
+
+      function renderRecs() {
+        var saved = Saved.read();
+        if (saved.length === 0) { recsSection.setAttribute('hidden', ''); return; }
+
+        var savedSlugs = {};
+        var savedModels = {};
+        var savedItems = [];
+        for (var i = 0; i < saved.length; i++) {
+          var s = CATALOG[saved[i].slug];
+          if (s) { savedSlugs[s.slug] = true; savedModels[s.model] = true; savedItems.push(s); }
+        }
+        if (savedItems.length === 0) { recsSection.setAttribute('hidden', ''); return; }
+
+        // Score every unsaved model by average distance to saved items
+        var candidates = [];
+        var allSlugs = Object.keys(CATALOG);
+        for (var c = 0; c < allSlugs.length; c++) {
+          var cand = CATALOG[allSlugs[c]];
+          if (savedSlugs[cand.slug]) continue;
+          // Prefer cross-family: skip models from saved families (but allow if pool is thin)
+          var totalDist = 0;
+          for (var j = 0; j < savedItems.length; j++) totalDist += dist(cand, savedItems[j]);
+          candidates.push({ rec: cand, avg: totalDist / savedItems.length, sameFamily: !!savedModels[cand.model] });
+        }
+        // Sort: prefer cross-family, then by closest distance
+        candidates.sort(function (a, b) {
+          if (a.sameFamily !== b.sameFamily) return a.sameFamily ? 1 : -1;
+          return a.avg - b.avg;
+        });
+
+        // Take top 4
+        var top = candidates.slice(0, 4);
+        if (top.length === 0) { recsSection.setAttribute('hidden', ''); return; }
+
+        recsSection.removeAttribute('hidden');
+        while (recsGrid.firstChild) recsGrid.removeChild(recsGrid.firstChild);
+
+        for (var t = 0; t < top.length; t++) {
+          var rec = top[t].rec;
+          var dir = rec.type === 'motorhome' ? 'mm' : 'm';
+          var a = document.createElement('a');
+          a.className = 'recs-card';
+          a.href = dir + '/' + rec.slug + '.html';
+          var img = document.createElement('img');
+          img.src = rec.thumb; img.alt = rec.model + ' ' + rec.floorplan;
+          img.loading = 'lazy'; img.width = 280; img.height = 180;
+          a.appendChild(img);
+          var info = document.createElement('div');
+          info.className = 'recs-card-info';
+          var name = document.createElement('strong');
+          name.textContent = rec.model + ' ' + rec.floorplan;
+          info.appendChild(name);
+          var meta = document.createElement('span');
+          meta.className = 'recs-card-meta';
+          var weight = rec.weightLb ? Math.round(rec.weightLb).toLocaleString('en-US') + ' lb' : '—';
+          var price = rec.msrp > 0 ? '$' + Math.round(rec.msrp).toLocaleString('en-US') : 'Price TBA';
+          meta.textContent = rec.year + ' · ' + weight + ' · ' + price;
+          info.appendChild(meta);
+          a.appendChild(info);
+          recsGrid.appendChild(a);
+        }
+      }
+
+      Saved.onChange(renderRecs);
+      renderRecs();
+    })();
   })();
 
   // =========================================================================

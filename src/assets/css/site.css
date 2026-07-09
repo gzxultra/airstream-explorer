@@ -3975,3 +3975,146 @@ body:has(.cmp-bar:not([hidden])) .scroll-top.is-visible { bottom: 80px; }
 .is-collapsed .section-collapse-body {
   max-height: 0; opacity: 0;
 }
+
+/* ====================== COMPARE VERDICT + DIFF ====================== */
+.cmp-diff {
+  display: inline; font-size: 0.8em; color: var(--muted); margin-left: 4px;
+}
+.cmp-best .cmp-diff { color: var(--muted); }
+.cmp-verdict th, .cmp-verdict td {
+  border-top: 2px solid var(--line);
+  font-weight: 600; padding-top: 12px;
+}
+.cmp-verdict-lead {
+  color: var(--copper, #b87333); font-weight: 700;
+}
+.cmp-share-row {
+  display: flex; justify-content: flex-end; margin-bottom: 12px;
+}
+.cmp-share-btn { font-size: 0.85em; }
+
+/* ====================== SAVED RECOMMENDATIONS ====================== */
+.recs-section {
+  margin-top: 48px; padding-top: 32px;
+  border-top: 1px solid var(--line);
+}
+.recs-section h2 { margin-bottom: 4px; }
+.recs-lead {
+  color: var(--muted); font-size: 0.92em; margin-bottom: 20px;
+}
+.recs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.recs-card {
+  display: flex; flex-direction: column;
+  background: var(--card, #fff); border: 1px solid var(--line);
+  border-radius: 10px; overflow: hidden;
+  text-decoration: none; color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.recs-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+.recs-card img {
+  width: 100%; height: 140px; object-fit: cover;
+  background: var(--line);
+}
+.recs-card-info {
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 4px;
+}
+.recs-card-info strong { font-size: 0.95em; }
+.recs-card-meta {
+  font-size: 0.82em; color: var(--muted);
+}
+
+/* ====================== TRIP READY CHECKLIST ====================== */
+.trip-ready {
+  margin-top: 48px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.trip-ready .collapsible-trigger {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 20px;
+  cursor: pointer; user-select: none;
+  background: var(--card, #fff);
+  margin: 0; font-size: 1.2em;
+}
+.trip-ready .collapsible-icon {
+  margin-left: auto;
+  width: 10px; height: 10px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg);
+  transition: transform 0.25s ease;
+}
+.trip-ready .collapsible-trigger[aria-expanded="false"] .collapsible-icon {
+  transform: rotate(-45deg);
+}
+.trip-count {
+  font-size: 0.65em; font-weight: 400;
+  color: var(--muted); margin-left: 4px;
+}
+.trip-ready .collapsible-body {
+  padding: 0 20px 20px;
+}
+.trip-intro {
+  color: var(--muted); font-size: 0.9em; margin-bottom: 16px;
+}
+.trip-progress {
+  height: 6px; background: var(--line); border-radius: 3px;
+  margin-bottom: 20px; overflow: hidden;
+}
+.trip-progress-fill {
+  height: 100%; background: var(--copper, #b87333);
+  border-radius: 3px; width: 0;
+  transition: width 0.4s ease;
+}
+.trip-groups {
+  display: grid; gap: 20px;
+}
+.trip-group-title {
+  font-size: 0.88em; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--muted);
+  margin-bottom: 8px; font-weight: 600;
+}
+.trip-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.trip-item { margin: 0; }
+.trip-label {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: 6px;
+  cursor: pointer; transition: background 0.15s ease;
+  font-size: 0.92em;
+}
+.trip-label:hover { background: rgba(184,115,51,0.06); }
+.trip-check {
+  width: 18px; height: 18px; flex-shrink: 0;
+  accent-color: var(--copper, #b87333);
+}
+.trip-check:checked ~ .trip-text {
+  text-decoration: line-through; color: var(--muted);
+}
+.trip-icon { font-size: 1.1em; flex-shrink: 0; width: 22px; text-align: center; }
+.trip-actions {
+  margin-top: 16px; display: flex; justify-content: flex-end;
+}
+.trip-reset {
+  font-size: 0.85em; padding: 6px 14px;
+  background: transparent; border: 1px solid var(--line);
+  border-radius: 6px; cursor: pointer; color: var(--muted);
+  transition: border-color 0.2s ease;
+}
+.trip-reset:hover { border-color: var(--copper, #b87333); }
+@media (max-width: 560px) {
+  .trip-ready .collapsible-trigger { padding: 14px 16px; font-size: 1.05em; }
+  .trip-ready .collapsible-body { padding: 0 16px 16px; }
+  .recs-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .recs-card img { height: 100px; }
+}

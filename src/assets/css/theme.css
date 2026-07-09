@@ -407,3 +407,21 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .detail section[data-collapsible] > .est-head > h2::after {
   border-color: var(--muted);
 }
+
+/* Compare verdict dark mode */
+[data-theme="dark"] .cmp-verdict th,
+[data-theme="dark"] .cmp-verdict td { border-top-color: var(--line); }
+[data-theme="dark"] .cmp-verdict-lead { color: #D4A26A; }
+[data-theme="dark"] .cmp-diff { color: var(--muted); }
+
+/* Trip ready checklist dark mode */
+[data-theme="dark"] .trip-ready { border-color: var(--line); }
+[data-theme="dark"] .trip-ready .collapsible-trigger { background: var(--card); }
+[data-theme="dark"] .trip-label:hover { background: rgba(212,162,106,0.08); }
+[data-theme="dark"] .trip-progress { background: var(--line); }
+[data-theme="dark"] .trip-progress-fill { background: #D4A26A; }
+[data-theme="dark"] .trip-reset { border-color: var(--line); color: var(--muted); }
+
+/* Recs cards dark mode */
+[data-theme="dark"] .recs-card { background: var(--card); border-color: var(--line); }
+[data-theme="dark"] .recs-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
