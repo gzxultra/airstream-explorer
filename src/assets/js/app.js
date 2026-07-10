@@ -877,11 +877,21 @@
         'offgrid-desc': ['data-offgrid', -1],
         'ccc-desc': ['data-ccc', -1],
         'hitch-asc': ['data-hitch', 1],
+        'fresh-desc': ['data-fresh', -1],
       };
       var sk = keymap[state.sort] || keymap['price-asc'];
       var visible = cards.filter(function (c) { return !c.hasAttribute('hidden'); });
       visible.sort(function (a, b) {
-        var d = (num(a, sk[0]) - num(b, sk[0])) * sk[1];
+        var d;
+        if (state.sort === 'value-asc') {
+          var msrpA = num(a, 'data-msrp'), msrpB = num(b, 'data-msrp');
+          var lenA = num(a, 'data-length'), lenB = num(b, 'data-length');
+          var vA = lenA > 0 ? msrpA / lenA : Infinity;
+          var vB = lenB > 0 ? msrpB / lenB : Infinity;
+          d = vA - vB;
+        } else {
+          d = (num(a, sk[0]) - num(b, sk[0])) * sk[1];
+        }
         if (d !== 0) return d;
         return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
       });
@@ -6724,3 +6734,67 @@
       save();
     });
   })();
+
+// ===========================================================================
+// CSV CATALOG EXPORT — downloads the currently visible explore cards as a CSV.
+// Reads data-* attributes already on each card element, so it reflects whatever
+// filters + sort the user has applied. Standalone IIFE, no dependency on the
+// main IIFE's scope.
+// ===========================================================================
+(function csvExport() {
+  'use strict';
+  var btn = document.getElementById('csv-export');
+  if (!btn) return;
+
+  var COLS = [
+    { head: 'Model', attr: 'data-model' },
+    { head: 'Floorplan', attr: 'data-floorplan' },
+    { head: 'Year', attr: 'data-year' },
+    { head: 'MSRP ($)', attr: 'data-msrp' },
+    { head: 'Dry Weight (lb)', attr: 'data-weight' },
+    { head: 'GVWR (lb)', attr: 'data-gvwr' },
+    { head: 'Length (ft)', attr: 'data-length' },
+    { head: 'Sleeps', attr: 'data-sleeps' },
+    { head: 'Hitch Weight (lb)', attr: 'data-hitch' },
+    { head: 'CCC (lb)', attr: 'data-ccc' },
+    { head: 'Fresh Water (gal)', attr: 'data-fresh' },
+    { head: 'Gray Water (gal)', attr: 'data-gray' },
+    { head: 'Black Water (gal)', attr: 'data-black' },
+    { head: 'Solar (W)', attr: 'data-solar' },
+    { head: 'Off-Grid Score', attr: 'data-offgrid' },
+    { head: 'Tags', attr: 'data-tags' },
+  ];
+
+  function esc(v) {
+    if (v == null || v === '') return '';
+    var s = String(v);
+    if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1) {
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  }
+
+  btn.addEventListener('click', function () {
+    var grid = document.getElementById('xgrid');
+    if (!grid) return;
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.xcard:not([hidden])'));
+    if (!cards.length) return;
+
+    var rows = [COLS.map(function (c) { return c.head; }).join(',')];
+    cards.forEach(function (card) {
+      rows.push(COLS.map(function (c) {
+        return esc(card.getAttribute(c.attr) || '');
+      }).join(','));
+    });
+
+    var csv = rows.join('\r\n');
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'airstream-catalog.csv';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+  });
+})();

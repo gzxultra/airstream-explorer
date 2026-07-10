@@ -3620,7 +3620,16 @@ noscript img[loading="lazy"], img[loading="lazy"][data-no-fade] { opacity: 1; }
 /* ==========================================================================
    Explore: Grid / List view toggle
    ========================================================================== */
-.xc-layout { display: flex; gap: 4px; align-items: center; margin-left: auto; }
+.xc-layout { display: flex; gap: 4px; align-items: center; }
+.xc-layout-actions { display: flex; gap: 8px; align-items: center; margin-left: auto; }
+.csv-export-btn {
+  display: inline-flex; align-items: center; gap: 4px; background: none;
+  border: 1px solid var(--line); border-radius: 4px; padding: 4px 10px;
+  font: inherit; font-size: .8rem; color: var(--muted); cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.csv-export-btn:hover { border-color: var(--copper); color: var(--ink); }
+.csv-export-btn svg { flex-shrink: 0; }
 .xc-row-layout { display: flex; align-items: center; gap: 12px; max-width: var(--maxw); margin: 14px auto 0; padding: 0 20px; }
 .xc-layout-btn {
   background: none; border: 1px solid var(--line); border-radius: 4px;
@@ -4560,6 +4569,8 @@ body:has(.cmp-bar:not([hidden])) .scroll-top.is-visible { bottom: 80px; }
   .tow-tool,
   .explore-controls,
   .xc-layout,
+  .xc-layout-actions,
+  .csv-export-btn,
   .filter-pill,
   .active-filters,
   .xcount,

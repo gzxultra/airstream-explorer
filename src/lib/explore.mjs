@@ -49,6 +49,8 @@ export const SORT_KEYS = {
   'offgrid-desc': { label: 'Best off-grid', get: (t) => t.offGridScore, dir: -1 },
   'ccc-desc': { label: 'Most cargo capacity', get: (t) => t.cccLb || 0, dir: -1 },
   'hitch-asc': { label: 'Lightest hitch', get: (t) => t.hitchWeightLb || Infinity, dir: 1 },
+  'value-asc': { label: 'Best value ($/ft)', get: (t) => t.lengthFt > 0 ? t.msrp / t.lengthFt : Infinity, dir: 1 },
+  'fresh-desc': { label: 'Most fresh water', get: (t) => t.freshGal || 0, dir: -1 },
 };
 
 /**

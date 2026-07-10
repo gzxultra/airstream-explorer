@@ -529,3 +529,7 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .notes-status--saved {
   color: #5abf7b;
 }
+
+/* CSV export button — dark mode */
+[data-theme="dark"] .csv-export-btn { border-color: var(--line); color: var(--muted); }
+[data-theme="dark"] .csv-export-btn:hover { border-color: var(--copper); color: var(--ink); }

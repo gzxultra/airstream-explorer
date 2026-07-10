@@ -2363,9 +2363,12 @@ ${exploreTowVehicleOpts}
 </section>
 <div class="xc-row xc-row-layout">
 <div class="x-stats" id="x-stats" aria-live="polite" aria-atomic="true"></div>
+<div class="xc-layout-actions">
+<button type="button" class="csv-export-btn" id="csv-export" title="Download visible catalog as CSV"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> CSV</button>
 <div class="xc-layout" id="x-layout" aria-label="View layout">
 <button type="button" class="xc-layout-btn is-active" data-layout="grid" aria-pressed="true" title="Grid view"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
 <button type="button" class="xc-layout-btn" data-layout="list" aria-pressed="false" title="List view"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+</div>
 </div>
 </div>
 <p class="xcount"><span id="x-count">${total}</span> floorplans</p>
