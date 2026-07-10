@@ -7,7 +7,7 @@ import {
   trailerTitle, trailerLabel, saveButton,
 } from './format.mjs';
 import { motorhomeAssetPaths, motorhomeFamilySlug, motorhomeOfficialUrl, motorhomeOfficialUrlBySlug } from './motorhome-data.mjs';
-import { catalogStats, rangePosition } from './data.mjs';
+import { catalogStats, rangePosition, towClass, waterAutonomy } from './data.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
 import {
   estimateOffGrid, formatNights,
@@ -177,12 +177,14 @@ function tagChips(tags) {
 
 /** Render the key-stats dashboard below the motorhome detail hero. */
 function renderMotorhomeKeyStats(m) {
+  const days = waterAutonomy(m.freshGal);
   const stats = [
     { icon: '📐', value: formatLength(m.lengthFt), label: 'Length' },
     { icon: '⚖️', value: formatWeight(m.weightLb), label: 'Base weight' },
     { icon: '🛏️', value: String(m.sleeps), label: 'Sleeps' },
     { icon: '💰', value: formatMsrpShort(m.msrp), label: 'Base MSRP' },
     m.offGridScore ? { icon: '🔋', value: `${m.offGridScore}/100`, label: 'Off-grid' } : null,
+    days ? { icon: '💧', value: `~${days}`, label: 'Water days (2 ppl)' } : null,
   ].filter(Boolean);
   return `<div class="key-stats" aria-label="Key specifications at a glance">${stats.map((s) =>
     `<div class="key-stat"><span class="key-stat-icon" aria-hidden="true">${s.icon}</span><span class="key-stat-value">${esc(s.value)}</span><span class="key-stat-label">${esc(s.label)}</span></div>`

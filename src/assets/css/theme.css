@@ -472,3 +472,8 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 }
 .lightbox.is-single .lightbox-counter { display: none; }
 .lightbox.is-single .lightbox-dots { display: none; }
+
+/* Tow class badges — dark mode */
+[data-theme="dark"] .tow-badge--half-ton { background: #16241a; color: #8fd494; }
+[data-theme="dark"] .tow-badge--three-quarter { background: #271f10; color: #e6bd5e; }
+[data-theme="dark"] .tow-badge--one-ton { background: #2a1813; color: #ef9a82; }

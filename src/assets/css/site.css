@@ -325,6 +325,19 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .fam-stats .spec dt { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; }
 .fam-stats .spec dd { margin: 2px 0 0; font-weight: 600; font-size: 14px; font-variant-numeric: tabular-nums; }
 
+/* Tow class badges — used on family cards and explore cards */
+.tow-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600; letter-spacing: .03em;
+  padding: 3px 10px; border-radius: 100px;
+  line-height: 1.3;
+}
+.tow-badge--half-ton { background: color-mix(in srgb, #2e7d32 14%, var(--surface, #fff)); color: #2e7d32; }
+.tow-badge--three-quarter { background: color-mix(in srgb, #e65100 12%, var(--surface, #fff)); color: #bf360c; }
+.tow-badge--one-ton { background: color-mix(in srgb, #b71c1c 12%, var(--surface, #fff)); color: #b71c1c; }
+.fam-body .tow-badge { margin-top: 8px; align-self: flex-start; }
+.xcard-tow { margin-top: 6px; }
+
 /* ---------- Family page hero ---------- */
 .fam-hero {
   position: relative; max-width: var(--maxw); margin: 12px auto 0; padding: 0 20px;

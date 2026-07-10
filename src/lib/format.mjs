@@ -67,6 +67,13 @@ export function formatLengthRange(min, max) {
   return formatLength(min) + ' – ' + formatLength(max);
 }
 
+/** A min–max dry weight range in lb. Equal ends collapse to one value. */
+export function formatWeightRange(min, max) {
+  if (min == null) return '—';
+  if (min === max || max == null) return formatWeight(min);
+  return formatWeight(min) + ' – ' + formatWeight(max);
+}
+
 /** Hitch (tongue) weight as a percent of GVWR, rounded — handling sweet spot is 10–15%. */
 export function hitchPctOfGvwr(hitchLb, gvwrLb) {
   if (!(hitchLb > 0) || !(gvwrLb > 0)) return null;

@@ -3,11 +3,11 @@
 
 import {
   formatMsrp, formatWeight, formatLength, formatGal, formatTanks,
-  formatPriceRange, formatLengthRange, formatMsrpShort,
+  formatPriceRange, formatLengthRange, formatWeightRange, formatMsrpShort,
   hitchPctOfGvwr,
   trailerTitle, trailerLabel, saveButton,
 } from './format.mjs';
-import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff } from './data.mjs';
+import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy } from './data.mjs';
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
@@ -249,12 +249,14 @@ function tagChips(tags) {
 
 /** Render the key-stats dashboard below the detail hero. */
 function renderKeyStats(t) {
+  const days = waterAutonomy(t.freshGal);
   const stats = [
     { icon: '📐', value: formatLength(t.lengthFt), label: 'Length', unit: 'length', raw: t.lengthFt },
     { icon: '⚖️', value: formatWeight(t.weightLb), label: 'Dry weight', unit: 'weight', raw: t.weightLb },
     { icon: '🛏️', value: String(t.sleeps), label: 'Sleeps' },
     { icon: '💰', value: formatMsrpShort(t.msrp), label: 'Base MSRP' },
     t.offGridScore ? { icon: '🔋', value: `${t.offGridScore}/100`, label: 'Off-grid' } : null,
+    days ? { icon: '💧', value: `~${days}`, label: 'Water days (2 ppl)' } : null,
   ].filter(Boolean);
   return `<div class="key-stats" aria-label="Key specifications at a glance">${stats.map((s) => {
     const unitAttr = s.unit && s.raw != null ? ` data-unit="${esc(s.unit)}" data-raw="${esc(String(s.raw))}"` : '';
@@ -289,9 +291,13 @@ function renderWeightBar(t) {
 export function renderFamilyCard(fam, linkPrefix = '') {
   const range = formatPriceRange(fam.priceMin, fam.priceMax);
   const len = formatLengthRange(fam.lengthMin, fam.lengthMax);
+  const wt = formatWeightRange(fam.weightMin, fam.weightMax);
   const plans = `${fam.floorplanCount} floorplan${fam.floorplanCount === 1 ? '' : 's'}`;
   const limited = fam.limited ? '<span class="fam-flag">Limited edition</span>' : '';
   const yrs = fam.years.join(' + ');
+  // Tow class badge based on the heaviest GVWR in the family
+  const tc = fam.gvwrMax ? towClass(fam.gvwrMax) : null;
+  const towBadge = tc ? `<span class="tow-badge tow-badge--${esc(tc.cls)}" aria-label="${esc(tc.label)}">${tc.icon} ${esc(tc.label)}</span>` : '';
   return `<a class="fam" href="${linkPrefix}f/${esc(fam.slug)}.html" data-family="${esc(fam.family)}">
 <div class="fam-media">
 <img src="${linkPrefix}${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" loading="lazy" width="800" height="500" style="view-transition-name:vt-hero-${esc(fam.slug)}">
@@ -303,9 +309,10 @@ ${limited}
 <p class="fam-range">${esc(range)}</p>
 <dl class="fam-stats">
 ${specRow('Length', len)}
+${specRow('Dry weight', wt)}
 ${specRow('Sleeps', 'up to ' + fam.sleepsMax)}
-${specRow('Years', yrs)}
 </dl>
+${towBadge}
 </div>
 </a>`;
 }
@@ -1892,6 +1899,7 @@ ${specRow('Dry weight', formatWeight(t.weightLb), { unit: 'weight', raw: t.weigh
 ${specRow('Sleeps', String(t.sleeps))}
 ${specRow('MSRP', formatMsrp(t.msrp))}${renderRangeBar(t.msrp, ranges.msrp, 'MSRP')}
 </dl>
+${(() => { const tc = towClass(t.gvwrLb); return `<span class="xcard-tow tow-badge tow-badge--${esc(tc.cls)}">${tc.icon} ${esc(tc.label)}</span>`; })()}
 </div>
 </a>
 <div class="xcard-foot">

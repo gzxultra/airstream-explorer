@@ -202,6 +202,8 @@ export function groupByFamily(trailers) {
     );
     const prices = rows.map((r) => r.msrp).filter((n) => n > 0);
     const lengths = rows.map((r) => r.lengthFt).filter((n) => n > 0);
+    const weights = rows.map((r) => r.weightLb).filter((n) => n > 0);
+    const gvwrs = rows.map((r) => r.gvwrLb).filter((n) => n > 0);
     const floorplans = new Set(rows.map((r) => r.floorplan));
     return {
       family,
@@ -214,6 +216,9 @@ export function groupByFamily(trailers) {
       priceMax: prices.length ? Math.max(...prices) : null,
       lengthMin: lengths.length ? Math.min(...lengths) : null,
       lengthMax: lengths.length ? Math.max(...lengths) : null,
+      weightMin: weights.length ? Math.min(...weights) : null,
+      weightMax: weights.length ? Math.max(...weights) : null,
+      gvwrMax: gvwrs.length ? Math.max(...gvwrs) : null,
       sleepsMax: Math.max(...rows.map((r) => r.sleeps || 0)),
       years: [...new Set(rows.map((r) => r.year))].sort((a, b) => b - a),
       limited: /\b(limited|special)\b.*edition/i.test(family),
@@ -607,4 +612,38 @@ export function computeYearDiff(trailer, allTrailers) {
   }
 
   return diffs.length > 0 ? { prev, diffs } : null;
+}
+
+// ---------------------------------------------------------------------------
+// TOW CLASS — categorize trailers by what class of tow vehicle they need
+// ---------------------------------------------------------------------------
+
+/**
+ * Tow class based on GVWR. Returns { cls, label, icon } where:
+ *   half-ton  : GVWR ≤ 7,500 lb — towable by F-150 / Ram 1500 / Silverado 1500
+ *   three-quarter : 7,500 < GVWR ≤ 10,000 — needs F-250 / Ram 2500 class
+ *   one-ton   : GVWR > 10,000 — needs F-350 / Ram 3500 class
+ *
+ * These thresholds align with typical manufacturer max-tow ratings for each
+ * truck class; they're conservative since GVWR must stay under the rating.
+ */
+export function towClass(gvwrLb) {
+  if (gvwrLb <= 7500) return { cls: 'half-ton', label: 'Half-ton towable', icon: '🛻' };
+  if (gvwrLb <= 10000) return { cls: 'three-quarter', label: '¾-ton required', icon: '🛻' };
+  return { cls: 'one-ton', label: '1-ton required', icon: '🚛' };
+}
+
+// ---------------------------------------------------------------------------
+// WATER AUTONOMY — estimated days of fresh water at typical RV usage
+// ---------------------------------------------------------------------------
+
+/**
+ * Estimate days of fresh water for a given number of people.
+ * Uses 3 gal/person/day (conservative RV usage: drinking, cooking, quick
+ * showers, basic washing). Returns null if no fresh tank data.
+ */
+export function waterAutonomy(freshGal, people = 2) {
+  if (!freshGal || freshGal <= 0 || people <= 0) return null;
+  const GAL_PER_PERSON_PER_DAY = 3;
+  return Math.round((freshGal / (GAL_PER_PERSON_PER_DAY * people)) * 10) / 10;
 }
