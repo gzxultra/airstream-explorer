@@ -727,7 +727,7 @@
     var towSummary = document.getElementById('tow-summary');
     var towPresets = Array.prototype.slice.call(document.querySelectorAll('.tow-preset'));
 
-    var state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all', price: 0, maxLength: 0, maxWeight: 0, layoutKeys: [] };
+    var state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all', price: 0, maxLength: 0, maxWeight: 0, axle: '', layoutKeys: [] };
 
     // Restore saved explore preferences (sort, year, sleeps, use-case tags, tow
     // rating). Search text stays transient.
@@ -744,10 +744,11 @@
       if (typeof p.price === 'number' && p.price > 0) state.price = p.price;
       if (typeof p.maxLength === 'number' && p.maxLength > 0) state.maxLength = p.maxLength;
       if (typeof p.maxWeight === 'number' && p.maxWeight > 0) state.maxWeight = p.maxWeight;
+      if (p.axle === 'single' || p.axle === 'dual') state.axle = p.axle;
       if (Array.isArray(p.layoutKeys)) state.layoutKeys = p.layoutKeys.filter(function (k) { return typeof k === 'string'; });
     })();
     function persistX() {
-      Store.set(X_PREFS, { sort: state.sort, year: state.year, sleeps: state.sleeps, tags: state.tags, tow: state.tow, type: state.type, price: state.price, maxLength: state.maxLength, maxWeight: state.maxWeight, layoutKeys: state.layoutKeys });
+      Store.set(X_PREFS, { sort: state.sort, year: state.year, sleeps: state.sleeps, tags: state.tags, tow: state.tow, type: state.type, price: state.price, maxLength: state.maxLength, maxWeight: state.maxWeight, axle: state.axle, layoutKeys: state.layoutKeys });
     }
 
     // Encode explore filter state into URL hash for shareable links.
@@ -763,6 +764,7 @@
       if (state.price) parts.push('price=' + state.price);
       if (state.maxLength) parts.push('len=' + state.maxLength);
       if (state.maxWeight) parts.push('wt=' + state.maxWeight);
+      if (state.axle) parts.push('axle=' + state.axle);
       if (state.tow) parts.push('tow=' + state.tow);
       if (state.sort && state.sort !== 'price-asc') parts.push('sort=' + state.sort);
       if (state.type && state.type !== 'all') parts.push('type=' + state.type);
@@ -790,6 +792,7 @@
       if (params.price) { state.price = parseInt(params.price, 10) || 0; hadParams = true; }
       if (params.len) { state.maxLength = parseInt(params.len, 10) || 0; hadParams = true; }
       if (params.wt) { state.maxWeight = parseInt(params.wt, 10) || 0; hadParams = true; }
+      if (params.axle === 'single' || params.axle === 'dual') { state.axle = params.axle; hadParams = true; }
       if (params.tow) { state.tow = parseInt(params.tow, 10) || 0; hadParams = true; }
       if (params.sort) { state.sort = params.sort; hadParams = true; }
       // type deep-link is already handled elsewhere (readTypeDeepLink)
@@ -837,6 +840,9 @@
         if (ok && state.maxWeight) {
           var weight = num(card, 'data-weight');
           if (weight > state.maxWeight) ok = false;
+        }
+        if (ok && state.axle) {
+          if ((card.getAttribute('data-axle') || '') !== state.axle) ok = false;
         }
         if (ok && state.tags.length) {
           for (var i = 0; i < state.tags.length; i++) {
@@ -964,6 +970,7 @@
         if (state.price) pills.push({ label: 'Under $' + Math.round(state.price / 1000) + 'k', kind: 'price' });
         if (state.maxLength) pills.push({ label: "Under " + state.maxLength + "'", kind: 'length' });
         if (state.maxWeight) pills.push({ label: 'Under ' + state.maxWeight.toLocaleString('en-US') + ' lb', kind: 'weight' });
+        if (state.axle) pills.push({ label: state.axle === 'single' ? 'Single axle' : 'Dual axle', kind: 'axle' });
         if (state.tow) pills.push({ label: 'Tow: ' + state.tow.toLocaleString('en-US') + ' lb', kind: 'tow' });
         state.tags.forEach(function (tag) { pills.push({ label: LABEL_MAP[tag] || tag, kind: 'tag', val: tag }); });
         state.layoutKeys.forEach(function (key) { pills.push({ label: LABEL_MAP[key] || key, kind: 'layout', val: key }); });
@@ -988,6 +995,8 @@
     if (elLength) elLength.addEventListener('change', function () { state.maxLength = parseInt(this.value, 10) || 0; persistX(); apply(); });
     var elWeight = document.getElementById('x-weight');
     if (elWeight) elWeight.addEventListener('change', function () { state.maxWeight = parseInt(this.value, 10) || 0; persistX(); apply(); });
+    var elAxle = document.getElementById('x-axle');
+    if (elAxle) elAxle.addEventListener('change', function () { state.axle = this.value; persistX(); apply(); });
     tagBtns.forEach(function (btn) {
       btn.addEventListener('click', function () {
         var tag = btn.getAttribute('data-tag');
@@ -1023,6 +1032,7 @@
         else if (kind === 'price') { state.price = 0; if (elPrice) elPrice.value = ''; }
         else if (kind === 'length') { state.maxLength = 0; if (elLength) elLength.value = ''; }
         else if (kind === 'weight') { state.maxWeight = 0; if (elWeight) elWeight.value = ''; }
+        else if (kind === 'axle') { state.axle = ''; if (elAxle) elAxle.value = ''; }
         else if (kind === 'tow') { setTow(0); if (towVehiclePick) towVehiclePick.value = ''; }
         else if (kind === 'tag' && val) {
           var ti = state.tags.indexOf(val);
@@ -1119,6 +1129,7 @@
       if (elPrice) elPrice.value = '';
       if (elLength) elLength.value = '';
       if (elWeight) elWeight.value = '';
+      if (elAxle) elAxle.value = '';
       tagBtns.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
       layoutBtns.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
       Store.del(X_PREFS);
@@ -1155,6 +1166,40 @@
       });
       if (cmpCount) cmpCount.textContent = sel.length;
       if (cmpBar) { if (sel.length) cmpBar.removeAttribute('hidden'); else cmpBar.setAttribute('hidden', ''); }
+      // Inline delta preview: when exactly 2 models are selected, show key spec differences
+      var deltaEl = document.getElementById('cmp-delta');
+      if (deltaEl) {
+        if (sel.length === 2) {
+          var cardA = null, cardB = null;
+          cards.forEach(function (c) {
+            if (c.getAttribute('data-slug') === sel[0]) cardA = c;
+            if (c.getAttribute('data-slug') === sel[1]) cardB = c;
+          });
+          if (cardA && cardB) {
+            var wA = Number(cardA.getAttribute('data-weight')) || 0;
+            var wB = Number(cardB.getAttribute('data-weight')) || 0;
+            var pA = Number(cardA.getAttribute('data-msrp')) || 0;
+            var pB = Number(cardB.getAttribute('data-msrp')) || 0;
+            var lA = Number(cardA.getAttribute('data-length')) || 0;
+            var lB = Number(cardB.getAttribute('data-length')) || 0;
+            var nameA = (cardA.getAttribute('data-model') || '') + ' ' + (cardA.getAttribute('data-floorplan') || '');
+            var nameB = (cardB.getAttribute('data-model') || '') + ' ' + (cardB.getAttribute('data-floorplan') || '');
+            var dW = Math.abs(wB - wA);
+            var dP = Math.abs(pB - pA);
+            var dL = Math.abs(lB - lA);
+            var parts = [];
+            if (dW) parts.push('Δ ' + dW.toLocaleString('en-US') + ' lb');
+            if (dP) parts.push('Δ $' + dP.toLocaleString('en-US'));
+            if (dL) parts.push('Δ ' + dL.toFixed(1) + "'");
+            deltaEl.textContent = nameA.trim() + ' vs ' + nameB.trim() + (parts.length ? ': ' + parts.join(' · ') : '');
+            deltaEl.removeAttribute('hidden');
+          } else {
+            deltaEl.setAttribute('hidden', '');
+          }
+        } else {
+          deltaEl.setAttribute('hidden', '');
+        }
+      }
     }
     boxes.forEach(function (b) {
       // tag each box with its card's type so compare can stay single-type
@@ -1212,6 +1257,7 @@
         b.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
       if (state.tow > 0) setTow(state.tow, { persist: false });
+      if (elAxle && state.axle) elAxle.value = state.axle;
     })();
 
     apply();
@@ -5568,7 +5614,7 @@
       }
       // Trigger a synthetic input event on the sort/year/sleeps/price selects
       // so the existing explore module picks up the changes
-      [elSort, elYear, elSleeps, elPrice, elLength, elWeight, towInput, elSearch].forEach(function (el) {
+      [elSort, elYear, elSleeps, elPrice, elLength, elWeight, elAxle, towInput, elSearch].forEach(function (el) {
         if (el) {
           try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) {}
           try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
@@ -5627,6 +5673,7 @@
         ['GVWR', fmtLb(d.gvwr)],
         ['Cargo (CCC)', fmtLb(d.ccc)],
         ['Sleeps', d.sleeps || '—'],
+        ['Axle', d.axle === 'single' ? 'Single' : d.axle === 'dual' ? 'Dual' : '—'],
         ['Off-grid', d.offgrid ? d.offgrid + '/100' : '—'],
         ['Fresh tank', fmtGal(d.fresh)],
         ['Solar', d.solar ? d.solar + ' W' : '—'],
@@ -6566,6 +6613,53 @@
     }
 
     render();
+
+    // Home page: render a compact horizontal strip of recently viewed trailers.
+    // We use the explore card grid's data-* attributes as our catalog source
+    // (no additional JSON needed — all pages embed the full card grid).
+    var homeRecentGrid = document.getElementById('home-recent-grid');
+    var homeRecentSection = document.getElementById('home-recent');
+    var homeRecentClear = document.getElementById('home-recent-clear');
+    if (homeRecentGrid && homeRecentSection) {
+      // Build a mini catalog from all explore cards on the page
+      var homeCatalog = {};
+      var xcards = document.querySelectorAll('.xcard');
+      for (var ci = 0; ci < xcards.length; ci++) {
+        var xc = xcards[ci];
+        homeCatalog[xc.getAttribute('data-slug')] = {
+          model: xc.getAttribute('data-model') || '',
+          floorplan: xc.getAttribute('data-floorplan') || '',
+          year: xc.getAttribute('data-year') || '',
+          type: xc.getAttribute('data-type') || 'trailer',
+          thumb: xc.getAttribute('data-thumb') || '',
+          msrp: xc.getAttribute('data-msrp') || ''
+        };
+      }
+      function renderHome() {
+        var items = read();
+        if (items.length === 0) { homeRecentSection.setAttribute('hidden', ''); return; }
+        homeRecentSection.removeAttribute('hidden');
+        var html = '';
+        var shown = 0;
+        for (var hi = 0; hi < items.length && shown < 6; hi++) {
+          var he = items[hi];
+          var hinfo = homeCatalog[he.slug];
+          if (!hinfo) continue;
+          var hdir = hinfo.type === 'motorhome' ? 'mm' : 'm';
+          html += '<a class="home-recent-card" href="' + hdir + '/' + he.slug + '.html">'
+            + (hinfo.thumb ? '<img class="home-recent-thumb" src="' + hinfo.thumb + '" alt="" loading="lazy" width="120" height="78">' : '')
+            + '<span class="home-recent-info"><span class="home-recent-model">' + hinfo.model + ' ' + hinfo.floorplan + '</span>'
+            + '<span class="home-recent-year">' + hinfo.year + '</span></span></a>';
+          shown++;
+        }
+        homeRecentGrid.innerHTML = html;
+        if (!html) homeRecentSection.setAttribute('hidden', '');
+      }
+      if (homeRecentClear) {
+        homeRecentClear.addEventListener('click', function () { write([]); renderHome(); });
+      }
+      renderHome();
+    }
   })();
 
   // =========================================================================

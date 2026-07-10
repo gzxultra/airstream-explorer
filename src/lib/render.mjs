@@ -7,7 +7,7 @@ import {
   hitchPctOfGvwr,
   trailerTitle, trailerLabel, saveButton,
 } from './format.mjs';
-import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy, computeFleetStandouts, generateGlanceSummary } from './data.mjs';
+import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy, computeFleetStandouts, generateGlanceSummary, deriveAxle } from './data.mjs';
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
@@ -211,6 +211,7 @@ const SPEC_GLOSSARY = {
   'Off-grid score': 'A 0–100 composite: battery kWh, solar watts, and tank sizes vs. the lineup.',
   'MSRP': 'Manufacturer\'s Suggested Retail Price — the base sticker price before options or dealer markup.',
   'Sleeps': 'Maximum sleeping positions from the factory floorplan layout.',
+  'Axle': 'Single-axle trailers are lighter and easier to maneuver; dual-axle adds stability for larger, heavier models.',
 };
 
 /** Render standout badges for a trailer detail page. */
@@ -528,6 +529,10 @@ export function renderIndex(families, trailers = [], resolve = assetPaths, motor
   const body = `${heroBand}
 ${viewToggle}
 ${renderQuiz()}
+<section class="home-recent" id="home-recent" hidden>
+<div class="home-recent-head"><h2 class="home-recent-title">Recently viewed</h2><button type="button" class="home-recent-clear" id="home-recent-clear">Clear</button></div>
+<div class="home-recent-strip" id="home-recent-grid"></div>
+</section>
 <section class="hub-view" id="view-families" data-view="families">
 <main class="fam-grid" id="families">
 ${cards}
@@ -2315,6 +2320,7 @@ ${specRow('GVWR', formatWeight(t.gvwrLb), { tip: true, unit: 'weight', raw: t.gv
 ${specRow('Cargo capacity (CCC)', formatWeight(t.cccLb), { tip: true, unit: 'weight', raw: t.cccLb, pctData: pctFor('cccLb') })}
 ${specRow('Hitch weight', formatWeight(t.hitchWeightLb), { tip: true, unit: 'weight', raw: t.hitchWeightLb, pctData: pctFor('hitchWeightLb') })}
 ${specRow('Sleeps', String(t.sleeps), { tip: true })}
+${specRow('Axle', deriveAxle(t) === 'single' ? 'Single axle' : deriveAxle(t) === 'dual' ? 'Dual axle' : '—', { tip: true })}
 ${specRow('Fresh / gray / black', formatTanks(t.freshGal, t.grayGal, t.blackGal), { tip: true, unit: 'tanks', raw: [t.freshGal, t.grayGal, t.blackGal].join(',') })}
 ${specRow('Solar', t.solarW ? `${t.solarW} W ${t.solarStandard ? '(standard)' : '(optional)'}` : '—', { tip: true })}
 ${specRow('Battery', t.batteryKwh ? `${t.batteryKwh} kWh` : '—', { tip: true })}
@@ -2396,7 +2402,7 @@ export function renderExploreCard(t, resolve = assetPaths, hidden = false, range
   const fleetBadgeHtml = fleetBadges.length
     ? `<div class="xcard-fleet-badges">${fleetBadges.map((b) => `<span class="fleet-badge fleet-badge--${esc(b.cls)}"><span class="fleet-badge-icon" aria-hidden="true">${b.icon}</span>${esc(b.label)}</span>`).join('')}</div>`
     : '';
-  return `<article class="xcard" data-slug="${esc(t.slug)}" data-type="trailer" data-model="${esc(t.model)}" data-floorplan="${esc(t.floorplan)}" data-year="${esc(t.year)}" data-msrp="${esc(t.msrp)}" data-weight="${esc(t.weightLb)}" data-gvwr="${esc(t.gvwrLb)}" data-length="${esc(t.lengthFt)}" data-sleeps="${esc(t.sleeps)}" data-offgrid="${esc(t.offGridScore)}" data-tags="${esc(tags)}" data-layout="${esc(layout)}" data-name="${esc((t.model + ' ' + t.floorplan).toLowerCase())}" data-ccc="${esc(t.cccLb || '')}" data-fresh="${esc(t.freshGal || '')}" data-gray="${esc(t.grayGal || '')}" data-black="${esc(t.blackGal || '')}" data-solar="${esc(t.solarW || '')}" data-hitch="${esc(t.hitchWeightLb || '')}" data-desc="${esc(t.description || '')}" data-thumb="${esc(a.thumb || '')}"${hidden ? ' hidden' : ''}>
+  return `<article class="xcard" data-slug="${esc(t.slug)}" data-type="trailer" data-model="${esc(t.model)}" data-floorplan="${esc(t.floorplan)}" data-year="${esc(t.year)}" data-msrp="${esc(t.msrp)}" data-weight="${esc(t.weightLb)}" data-gvwr="${esc(t.gvwrLb)}" data-length="${esc(t.lengthFt)}" data-sleeps="${esc(t.sleeps)}" data-offgrid="${esc(t.offGridScore)}" data-tags="${esc(tags)}" data-layout="${esc(layout)}" data-name="${esc((t.model + ' ' + t.floorplan).toLowerCase())}" data-ccc="${esc(t.cccLb || '')}" data-fresh="${esc(t.freshGal || '')}" data-gray="${esc(t.grayGal || '')}" data-black="${esc(t.blackGal || '')}" data-solar="${esc(t.solarW || '')}" data-hitch="${esc(t.hitchWeightLb || '')}" data-axle="${esc(deriveAxle(t) || '')}" data-desc="${esc(t.description || '')}" data-thumb="${esc(a.thumb || '')}"${hidden ? ' hidden' : ''}>
 <a class="xcard-link" href="m/${esc(t.slug)}.html">
 <div class="xcard-media">
 <img src="${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="400" height="260">
@@ -2548,6 +2554,10 @@ ${exploreTowVehicleOpts}
 <label for="x-weight">Max dry weight</label>
 <select id="x-weight"><option value="">Any</option><option value="4000">Under 4,000 lb</option><option value="5500">Under 5,500 lb</option><option value="7000">Under 7,000 lb</option><option value="8500">Under 8,500 lb</option></select>
 </div>
+<div class="xc-axle">
+<label for="x-axle">Axle</label>
+<select id="x-axle"><option value="">Any</option><option value="single">Single axle</option><option value="dual">Dual axle</option></select>
+</div>
 <button type="button" class="xc-reset" id="x-reset">Reset</button>
 </div>
 <div class="xc-row xc-row-3">
@@ -2572,6 +2582,7 @@ ${cards}
 <p class="xempty" id="x-empty" hidden>No floorplans match those filters. <button type="button" class="linklike" id="x-empty-reset">Reset filters</button></p>
 <div class="cmp-bar" id="cmp-bar" hidden>
 <span class="cmp-bar-text"><strong id="cmp-count">0</strong> selected</span>
+<span class="cmp-bar-delta" id="cmp-delta" hidden></span>
 <div class="cmp-bar-actions">
 <button type="button" class="cmp-bar-clear" id="cmp-clear">Clear</button>
 <a class="cmp-bar-go" id="cmp-go" href="compare.html">Compare →</a>

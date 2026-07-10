@@ -358,6 +358,9 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .recent-card { background: var(--card); border-color: var(--line); }
 [data-theme="dark"] .recent-card:hover { border-color: var(--copper); }
 [data-theme="dark"] .recent-clear { border-color: var(--line); color: var(--muted); }
+[data-theme="dark"] .home-recent-card { background: var(--card); border-color: var(--line); }
+[data-theme="dark"] .home-recent-card:hover { border-color: var(--copper); }
+[data-theme="dark"] .home-recent-clear { border-color: var(--line); color: var(--muted); }
 
 /* Dark mode: range bars */
 [data-theme="dark"] .range-bar-track { background: rgba(255,255,255,.08); }

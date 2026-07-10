@@ -834,3 +834,32 @@ export function generateGlanceSummary(t, allTrailers) {
   // Cap at 4 points
   return points.slice(0, 4);
 }
+
+// ---------------------------------------------------------------------------
+// AXLE TYPE — derived from Airstream's official product categorisation.
+// Source: airstream.com/explore-products/travel-trailers/ (single-axle vs
+// dual-axle URL paths, verified 2026-07-10). NOT guessed from weight.
+// ---------------------------------------------------------------------------
+
+const AXLE_MAP = {
+  bambi:        'single',
+  basecamp:     'single',
+  'basecamp-xe':'single',
+  caravel:      'single',
+  'world-traveler': 'single',
+  'flying-cloud':   'dual',
+  international:    'dual',
+  globetrotter:     'dual',
+  'trade-wind':     'dual',
+  classic:          'dual',
+  'frank-lloyd-wright-limited-edition': 'dual',
+  'stetson-6666-special-edition':       'dual',
+};
+
+/**
+ * Derive axle type for a trailer from the official Airstream classification.
+ * Returns 'single' | 'dual' | null if the family is unknown.
+ */
+export function deriveAxle(t) {
+  return AXLE_MAP[familySlug(t.model)] || null;
+}

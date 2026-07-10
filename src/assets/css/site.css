@@ -677,6 +677,9 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .cmp-bar-clear:hover { color: #fff; }
 .cmp-bar-go { font-size: 14px; font-weight: 700; background: var(--copper); color: #fff; border-radius: 999px; padding: 9px 18px; min-height: 40px; display: inline-flex; align-items: center; }
 .cmp-bar-go:hover { background: var(--copper-deep); text-decoration: none; }
+.cmp-bar-delta { display: block; font-size: 12px; color: rgba(255,255,255,.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.cmp-bar-delta[hidden] { display: none; }
+@media (max-width: 560px) { .cmp-bar { flex-wrap: wrap; border-radius: 16px; gap: 8px; } .cmp-bar-delta { white-space: normal; font-size: 11px; } }
 
 @media (max-width: 900px) { .xgrid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) {
@@ -3613,9 +3616,9 @@ noscript img[loading="lazy"], img[loading="lazy"][data-no-fade] { opacity: 1; }
 #tow-vehicle-pick { width: 100%; padding: 0.5rem 0.6rem; border: 1px solid var(--line); border-radius: 6px; font: inherit; font-size: 0.92rem; background: var(--bg); color: var(--ink); }
 
 /* Explore length/weight filter selects */
-.xc-length, .xc-weight { flex: 0 0 auto; }
-.xc-length select, .xc-weight select { padding: 0.35rem 0.5rem; border: 1px solid var(--line); border-radius: 6px; font: inherit; font-size: 0.88rem; background: var(--bg); color: var(--ink); }
-.xc-length label, .xc-weight label { font-size: 0.82rem; color: var(--muted); display: block; margin-bottom: 0.2rem; }
+.xc-length, .xc-weight, .xc-axle { flex: 0 0 auto; }
+.xc-length select, .xc-weight select, .xc-axle select { padding: 0.35rem 0.5rem; border: 1px solid var(--line); border-radius: 6px; font: inherit; font-size: 0.88rem; background: var(--bg); color: var(--ink); }
+.xc-length label, .xc-weight label, .xc-axle label { font-size: 0.82rem; color: var(--muted); display: block; margin-bottom: 0.2rem; }
 
 /* ==========================================================================
    Explore: Grid / List view toggle
@@ -3711,6 +3714,22 @@ noscript img[loading="lazy"], img[loading="lazy"][data-no-fade] { opacity: 1; }
 .recent-card-year { font-size: 12px; color: var(--muted); }
 .recent-clear { font: inherit; font-size: 13px; background: none; border: 1px solid var(--line); border-radius: 4px; padding: 5px 12px; color: var(--muted); cursor: pointer; float: right; margin-top: -32px; }
 .recent-clear:hover { border-color: var(--copper); color: var(--ink); }
+
+/* Home: recently viewed strip — compact horizontal scroll of recent models */
+.home-recent { max-width: var(--maxw); margin: 0 auto; padding: 24px 20px 8px; }
+.home-recent[hidden] { display: none; }
+.home-recent-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.home-recent-title { font-family: var(--ff-display); font-size: 18px; font-weight: 600; margin: 0; color: var(--ink); }
+.home-recent-clear { font: inherit; font-size: 12px; background: none; border: 1px solid var(--line); border-radius: 4px; padding: 4px 10px; color: var(--muted); cursor: pointer; }
+.home-recent-clear:hover { border-color: var(--copper); color: var(--ink); }
+.home-recent-strip { display: flex; gap: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 4px; }
+.home-recent-strip::-webkit-scrollbar { display: none; }
+.home-recent-card { flex: 0 0 auto; display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px 8px 8px; text-decoration: none; color: var(--ink); transition: border-color .15s ease, box-shadow .15s ease; }
+.home-recent-card:hover { border-color: var(--copper); box-shadow: 0 2px 10px rgba(31,27,22,.08); text-decoration: none; }
+.home-recent-thumb { width: 72px; height: 48px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--bg); }
+.home-recent-info { min-width: 0; }
+.home-recent-model { display: block; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.home-recent-year { display: block; font-size: 11px; color: var(--muted); }
 
 /* ==========================================================================
    EXPLORE CARD RANGE BARS — inline fleet-position indicators
