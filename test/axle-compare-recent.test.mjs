@@ -1,7 +1,14 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { deriveAxle } from '../src/lib/data.mjs';
+import { loadTrailers, groupByFamily, deriveAxle } from '../src/lib/data.mjs';
+import { renderDetail, renderIndex } from '../src/lib/render.mjs';
+
+const trailers = loadTrailers();
+const families = groupByFamily(trailers);
+const bambi16rb = trailers.find((t) => t.slug === 'bambi-16rb-2026');
+const classic33fb = trailers.find((t) => t.slug === 'classic-33fb-2026');
+const indexHtml = renderIndex(families, trailers);
 
 // ---------------------------------------------------------------------------
 // 1. Axle type derivation
@@ -47,7 +54,6 @@ describe('deriveAxle', () => {
     assert.equal(deriveAxle({ model: 'FakeModel', floorplan: '99Z' }), null);
   });
   it('covers all 59 trailers (no nulls)', () => {
-    const trailers = JSON.parse(readFileSync('src/data/trailers.json', 'utf8'));
     for (const t of trailers) {
       const axle = deriveAxle(t);
       assert.ok(axle === 'single' || axle === 'dual',
@@ -61,15 +67,15 @@ describe('deriveAxle', () => {
 // ---------------------------------------------------------------------------
 describe('axle in detail pages', () => {
   it('Bambi 16RB shows "Single axle" in spec table', () => {
-    const html = readFileSync('dist/m/bambi-16rb-2026.html', 'utf8');
+    const html = renderDetail(bambi16rb, undefined, null, null, trailers);
     assert.ok(html.includes('Single axle'), 'expected Single axle in Bambi spec');
   });
   it('Classic 33FB shows "Dual axle" in spec table', () => {
-    const html = readFileSync('dist/m/classic-33fb-2026.html', 'utf8');
+    const html = renderDetail(classic33fb, undefined, null, null, trailers);
     assert.ok(html.includes('Dual axle'), 'expected Dual axle in Classic spec');
   });
   it('Axle glossary tooltip is present', () => {
-    const html = readFileSync('dist/m/bambi-16rb-2026.html', 'utf8');
+    const html = renderDetail(bambi16rb, undefined, null, null, trailers);
     assert.ok(html.includes('Single-axle trailers are lighter'));
   });
 });
@@ -79,15 +85,13 @@ describe('axle in detail pages', () => {
 // ---------------------------------------------------------------------------
 describe('axle explore filter', () => {
   it('explore has axle filter dropdown', () => {
-    const html = readFileSync('dist/index.html', 'utf8');
-    assert.ok(html.includes('id="x-axle"'), 'expected x-axle select');
-    assert.ok(html.includes('Single axle'), 'expected Single axle option');
-    assert.ok(html.includes('Dual axle'), 'expected Dual axle option');
+    assert.ok(indexHtml.includes('id="x-axle"'), 'expected x-axle select');
+    assert.ok(indexHtml.includes('Single axle'), 'expected Single axle option');
+    assert.ok(indexHtml.includes('Dual axle'), 'expected Dual axle option');
   });
   it('explore cards carry data-axle attribute', () => {
-    const html = readFileSync('dist/index.html', 'utf8');
-    const singles = (html.match(/data-axle="single"/g) || []).length;
-    const duals = (html.match(/data-axle="dual"/g) || []).length;
+    const singles = (indexHtml.match(/data-axle="single"/g) || []).length;
+    const duals = (indexHtml.match(/data-axle="dual"/g) || []).length;
     assert.ok(singles > 0, 'expected some single-axle cards');
     assert.ok(duals > 0, 'expected some dual-axle cards');
     assert.equal(singles + duals, 59, 'all 59 cards should have data-axle');
@@ -104,8 +108,7 @@ describe('axle explore filter', () => {
 // ---------------------------------------------------------------------------
 describe('compare bar delta', () => {
   it('explore page has cmp-delta element', () => {
-    const html = readFileSync('dist/index.html', 'utf8');
-    assert.ok(html.includes('id="cmp-delta"'), 'expected cmp-delta element');
+    assert.ok(indexHtml.includes('id="cmp-delta"'), 'expected cmp-delta element');
   });
   it('app.js computes delta for 2 selected models', () => {
     const js = readFileSync('src/assets/js/app.js', 'utf8');
@@ -119,14 +122,12 @@ describe('compare bar delta', () => {
 // ---------------------------------------------------------------------------
 describe('recently viewed on home page', () => {
   it('home page has home-recent section', () => {
-    const html = readFileSync('dist/index.html', 'utf8');
-    assert.ok(html.includes('id="home-recent"'), 'expected home-recent section');
-    assert.ok(html.includes('id="home-recent-grid"'), 'expected home-recent-grid');
-    assert.ok(html.includes('id="home-recent-clear"'), 'expected home-recent-clear btn');
+    assert.ok(indexHtml.includes('id="home-recent"'), 'expected home-recent section');
+    assert.ok(indexHtml.includes('id="home-recent-grid"'), 'expected home-recent-grid');
+    assert.ok(indexHtml.includes('id="home-recent-clear"'), 'expected home-recent-clear btn');
   });
   it('home-recent starts hidden', () => {
-    const html = readFileSync('dist/index.html', 'utf8');
-    assert.match(html, /home-recent[^>]*hidden/);
+    assert.match(indexHtml, /home-recent[^>]*hidden/);
   });
   it('app.js populates home-recent from localStorage', () => {
     const js = readFileSync('src/assets/js/app.js', 'utf8');
