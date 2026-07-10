@@ -2393,6 +2393,81 @@
 
     render();
 
+    // ---- RADAR OVERLAY CHART ----
+    var radarWrap = document.getElementById('cmp-radar-wrap');
+    var radarChart = document.getElementById('cmp-radar-chart');
+    var radarLegend = document.getElementById('cmp-radar-legend');
+    var RADAR_COLORS = ['#B8763E', '#4A8C5C', '#5B7FBF'];
+    var RADAR_AXES = [
+      { key: 'offGridScore', label: 'Off-grid',  min: 35,  max: 95,  better: 'higher' },
+      { key: 'cccLb',        label: 'Cargo',     min: 300, max: 2300, better: 'higher' },
+      { key: 'sleeps',       label: 'Sleeps',    min: 2,   max: 8,    better: 'higher' },
+      { key: 'lengthFt',     label: 'Compact',   min: 16,  max: 34,   better: 'lower'  },
+      { key: 'weightLb',     label: 'Light',     min: 2600,max: 8500, better: 'lower'  },
+      { key: 'msrp',         label: 'Value',     min: 50000, max: 225000, better: 'lower' },
+    ];
+    function radarNorm(val, axis) {
+      if (val == null || val <= 0) return 0;
+      var clamped = Math.max(axis.min, Math.min(axis.max, val));
+      var ratio = (clamped - axis.min) / (axis.max - axis.min);
+      return axis.better === 'lower' ? 1 - ratio : ratio;
+    }
+    function buildRadarSvg(models) {
+      var cx = 120, cy = 120, R = 90, n = RADAR_AXES.length;
+      var step = (2 * Math.PI) / n, start = -Math.PI / 2;
+      // Guide rings
+      var rings = [0.33, 0.66, 1].map(function (frac) {
+        var r = R * frac, pts = [];
+        for (var i = 0; i < n; i++) {
+          var a = start + i * step;
+          pts.push((cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1));
+        }
+        return '<polygon points="' + pts.join(' ') + '" fill="none" stroke="var(--line,#E2DDD8)" stroke-width="0.5"/>';
+      }).join('');
+      // Spokes
+      var spokes = '';
+      for (var i = 0; i < n; i++) {
+        var a = start + i * step;
+        spokes += '<line x1="' + cx + '" y1="' + cy + '" x2="' + (cx + R * Math.cos(a)).toFixed(1) + '" y2="' + (cy + R * Math.sin(a)).toFixed(1) + '" stroke="var(--line,#E2DDD8)" stroke-width="0.5"/>';
+      }
+      // Labels
+      var labels = RADAR_AXES.map(function (axis, i) {
+        var a = start + i * step, lr = R + 22;
+        var x = cx + lr * Math.cos(a), y = cy + lr * Math.sin(a);
+        var anchor = Math.abs(Math.cos(a)) < 0.1 ? 'middle' : (Math.cos(a) > 0 ? 'start' : 'end');
+        var dy = Math.abs(Math.sin(a)) > 0.8 ? (Math.sin(a) > 0 ? '0.9em' : '-0.3em') : '0.35em';
+        return '<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="' + anchor + '" dy="' + dy + '" fill="var(--muted,#8C8579)" font-size="11" font-family="inherit">' + axis.label + '</text>';
+      }).join('');
+      // Overlay polygons
+      var polys = models.map(function (d, mi) {
+        var pts = RADAR_AXES.map(function (axis, ai) {
+          var v = radarNorm(d[axis.key], axis);
+          var r = Math.max(R * 0.05, R * v);
+          var a = start + ai * step;
+          return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1);
+        }).join(' ');
+        var color = RADAR_COLORS[mi] || '#888';
+        return '<polygon points="' + pts + '" fill="' + color + '" fill-opacity="0.15" stroke="' + color + '" stroke-width="2"/>';
+      }).join('');
+      return '<svg viewBox="0 0 240 240" width="280" height="280" role="img" aria-label="Comparison radar chart" style="max-width:100%;height:auto">' + rings + spokes + polys + labels + '</svg>';
+    }
+
+    var origRender = render;
+    render = function () {
+      origRender();
+      // Build radar overlay
+      if (radarWrap && radarChart && radarLegend) {
+        if (ids.length < 2) { radarWrap.hidden = true; return; }
+        var models = ids.map(function (s) { return bySlug[s]; }).filter(Boolean);
+        radarChart.innerHTML = buildRadarSvg(models);
+        radarLegend.innerHTML = models.map(function (d, i) {
+          return '<span class="cmp-radar-legend-item" style="color:' + (RADAR_COLORS[i] || '#888') + '"><span class="cmp-radar-legend-dot" style="background:' + (RADAR_COLORS[i] || '#888') + '"></span>' + d.model + ' ' + d.floorplan + '</span>';
+        }).join('');
+        radarWrap.hidden = false;
+      }
+    };
+    render();
+
     // Share comparison URL
     var shareBtn = document.getElementById('cmp-share');
     if (shareBtn) {
@@ -5255,6 +5330,27 @@
     for (var j = 0; j < sections.length; j++) {
       observer.observe(sections[j]);
     }
+  })();
+
+  // -----------------------------------------------------------------------
+  // STICKY DETAIL SUMMARY BAR — compact bar below nav on scroll
+  // -----------------------------------------------------------------------
+  (function detailStickyBar() {
+    var bar = document.getElementById('detail-sticky-summary');
+    var hero = document.querySelector('.detail-hero');
+    if (!bar || !hero || !('IntersectionObserver' in window)) return;
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          bar.hidden = true;
+          bar.setAttribute('aria-hidden', 'true');
+        } else {
+          bar.hidden = false;
+          bar.setAttribute('aria-hidden', 'false');
+        }
+      });
+    }, { threshold: 0, rootMargin: '0px 0px 0px 0px' });
+    observer.observe(hero);
   })();
 
   // 11. LAZY-LOAD IMAGE FADE-IN

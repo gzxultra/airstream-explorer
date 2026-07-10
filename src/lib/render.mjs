@@ -281,6 +281,58 @@ function renderWeightBar(t) {
 }
 
 // ---------------------------------------------------------------------------
+// WEIGHT BUDGET WATERFALL — shows how CCC gets consumed by fluids + propane
+// ---------------------------------------------------------------------------
+
+function renderWeightBudget(t) {
+  if (!(t.cccLb > 0) || !(t.gvwrLb > 0)) return '';
+  const WPG = 8.34; // lb per gallon of water
+  const freshLb = t.freshGal ? Math.round(t.freshGal * WPG) : 0;
+  const grayLb = t.grayGal ? Math.round(t.grayGal * WPG) : 0;
+  const blackLb = t.blackGal ? Math.round(t.blackGal * WPG) : 0;
+  const wasteLb = grayLb + blackLb;
+  const propaneLb = 40; // standard dual 20 lb tanks
+  const totalFluids = freshLb + wasteLb + propaneLb;
+  const gearLb = Math.max(0, t.cccLb - totalFluids);
+  const ccc = t.cccLb;
+  // When fluids exceed CCC (common on compact models), normalize to total
+  // so the bar stays at 100% and clearly shows the overshoot.
+  const overBudget = totalFluids > ccc;
+  const base = overBudget ? totalFluids : ccc;
+  const freshPct = Math.round((freshLb / base) * 100);
+  const wastePct = Math.round((wasteLb / base) * 100);
+  const propPct = Math.round((propaneLb / base) * 100);
+  const gearPct = overBudget ? 0 : Math.max(0, 100 - freshPct - wastePct - propPct);
+  const segments = [
+    freshLb > 0 ? { cls: 'wb-fresh', pct: freshPct, label: 'Fresh water', value: `${freshLb} lb (${t.freshGal} gal)` } : null,
+    wasteLb > 0 ? { cls: 'wb-waste', pct: wastePct, label: wasteLb === grayLb ? 'Gray tank' : (grayLb && blackLb ? 'Gray + black' : 'Waste tank'), value: `${wasteLb} lb` } : null,
+    { cls: 'wb-propane', pct: propPct, label: 'Propane (2×20 lb)', value: `${propaneLb} lb` },
+    !overBudget ? { cls: 'wb-gear', pct: gearPct, label: 'Your gear & supplies', value: `${formatWeight(gearLb)}` } : null,
+  ].filter(Boolean);
+  const bars = segments.map((s) =>
+    `<div class="wb-seg ${s.cls}" style="width:${Math.max(s.pct, 3)}%" aria-label="${esc(s.label)}: ${esc(s.value)}"><span class="wb-seg-pct">${s.pct}%</span></div>`
+  ).join('');
+  const legend = segments.map((s) =>
+    `<span class="wb-legend-item"><span class="wb-legend-dot ${s.cls}"></span>${esc(s.label)} <strong>${esc(s.value)}</strong></span>`
+  ).join('');
+  const overAmt = totalFluids - ccc;
+  const verdict = overBudget
+    ? `<p class="wb-verdict wb-verdict--tight">⚠ Full tanks + propane (${formatWeight(totalFluids)}) exceed your ${formatWeight(ccc)} CCC by ${formatWeight(overAmt)}. Travel with tanks partially filled or skip propane loading to leave room for personal gear.</p>`
+    : gearLb < 200
+    ? '<p class="wb-verdict wb-verdict--ok">Enough for essentials, but budget carefully for longer trips.</p>'
+    : '<p class="wb-verdict wb-verdict--good">Comfortable margin for gear, food, and supplies.</p>';
+  return `<div class="weight-budget collapsible" id="weight-budget" aria-label="Weight budget breakdown">
+<h3 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">Weight budget: where your ${esc(formatWeight(ccc))} goes<span class="collapsible-icon" aria-hidden="true"></span></h3>
+<div class="collapsible-body" hidden>
+<p class="wb-intro">When all tanks are full and propane is loaded, here\'s how your ${esc(formatWeight(ccc))} cargo capacity (CCC) breaks down.${overBudget ? ' <strong>On this model, full fluids exceed CCC — plan accordingly.</strong>' : ''}</p>
+<div class="wb-bar-wrap"><div class="wb-bar">${bars}</div></div>
+<div class="wb-legend">${legend}</div>
+${verdict}
+</div>
+</div>`;
+}
+
+// ---------------------------------------------------------------------------
 // HOME: family grid
 // ---------------------------------------------------------------------------
 
@@ -1779,6 +1831,18 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     + `<li aria-current="page">${esc(t.floorplan)}</li>`
     + `</ol></nav>`;
   const body = `<div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
+<div class="detail-sticky-summary" id="detail-sticky-summary" hidden aria-hidden="true">
+<div class="sticky-summary-inner">
+<span class="sticky-summary-title">${esc(t.model)} ${esc(t.floorplan)}</span>
+<span class="sticky-summary-sep" aria-hidden="true">·</span>
+<span class="sticky-summary-stat" data-unit="length" data-raw="${esc(String(t.lengthFt))}">${esc(formatLength(t.lengthFt))}</span>
+<span class="sticky-summary-sep" aria-hidden="true">·</span>
+<span class="sticky-summary-stat" data-unit="weight" data-raw="${esc(String(t.weightLb))}">${esc(formatWeight(t.weightLb))}</span>
+<span class="sticky-summary-sep" aria-hidden="true">·</span>
+<span class="sticky-summary-stat">${esc(formatMsrpShort(t.msrp))}</span>
+<a class="sticky-summary-cta" href="#specs">Specs ↓</a>
+</div>
+</div>
 ${breadcrumbHtml}
 ${sectionNav}
 <article class="detail" data-canonical="m/${esc(t.slug)}.html" data-spec-text="${esc(buildSpecText(t))}"${prevT ? ` data-prev-href="${esc(prevT.slug)}.html"` : ''}${nextT ? ` data-next-href="${esc(nextT.slug)}.html"` : ''}>
@@ -1822,6 +1886,7 @@ ${note}
 </section>
 ${renderYearDiff(t, allTrailers)}
 ${renderWeightBar(t)}
+${renderWeightBudget(t)}
 ${towCallout}
 ${renderTowTool(t)}
 ${renderCompatibleVehicles(t)}
@@ -2130,6 +2195,12 @@ export function renderCompare(trailers, resolve = assetPaths, motorhomes = []) {
 <div class="cmp-table-wrap" id="cmp-table-wrap" hidden>
 <div class="cmp-share-row"><button type="button" class="share-btn cmp-share-btn" id="cmp-share"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"></path></svg> Share comparison</button></div>
 <table class="cmp-table" id="cmp-table"></table>
+<div class="cmp-radar-wrap" id="cmp-radar-wrap" hidden>
+<h2 class="cmp-radar-title">Spec profile overlay</h2>
+<p class="cmp-radar-sub muted">Each axis runs from the catalog's worst to best. Bigger = stronger on that dimension.</p>
+<div class="cmp-radar-chart" id="cmp-radar-chart"></div>
+<div class="cmp-radar-legend" id="cmp-radar-legend"></div>
+</div>
 </div>
 <div class="cmp-placeholder" id="cmp-placeholder">
 <p class="cmp-empty-lead">Search above to add any floorplan, or start with one of these:</p>
