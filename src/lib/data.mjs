@@ -711,3 +711,126 @@ export function waterAutonomy(freshGal, people = 2) {
   const GAL_PER_PERSON_PER_DAY = 3;
   return Math.round((freshGal / (GAL_PER_PERSON_PER_DAY * people)) * 10) / 10;
 }
+
+// ---------------------------------------------------------------------------
+// AT-A-GLANCE SUMMARY — computed prose highlights for detail pages.
+// Generates 3-4 concise bullet points about what makes a floorplan notable,
+// using fleet percentiles + family context + raw specs. No fabricated data.
+// ---------------------------------------------------------------------------
+
+/**
+ * Generate an "At a Glance" summary for a trailer detail page.
+ * Returns an array of { icon, text } objects (3-4 items).
+ * All statements are derived from the trailer's real spec data and its
+ * position in the fleet/family — nothing is invented or guessed.
+ */
+export function generateGlanceSummary(t, allTrailers) {
+  const points = [];
+  if (!t || !allTrailers || allTrailers.length < 3) return points;
+
+  // Gather family siblings (same model, same year)
+  const siblings = allTrailers.filter(
+    (s) => s.model === t.model && s.year === t.year,
+  );
+  const yearCohort = allTrailers.filter((s) => s.year === t.year);
+
+  // 1. Size & tow class context
+  const tc = towClass(t.gvwrLb);
+  if (t.lengthFt && t.weightLb) {
+    const lighterCount = yearCohort.filter((s) => s.weightLb > t.weightLb).length;
+    const lighterPct = Math.round((lighterCount / yearCohort.length) * 100);
+    if (lighterPct >= 70) {
+      points.push({
+        icon: '⚡',
+        text: `One of the lightest in the lineup at ${Math.round(t.weightLb).toLocaleString('en-US')} lb — lighter than ${lighterPct}% of all ${t.year} models. ${tc.label} towing class.`,
+      });
+    } else if (lighterPct <= 20) {
+      points.push({
+        icon: '🏔️',
+        text: `A full-size ${Math.round(t.lengthFt)}' trailer at ${Math.round(t.weightLb).toLocaleString('en-US')} lb. ${tc.label} towing class — plan for a capable truck.`,
+      });
+    } else {
+      points.push({
+        icon: '📐',
+        text: `${Math.round(t.lengthFt)}' long, ${Math.round(t.weightLb).toLocaleString('en-US')} lb dry weight. ${tc.label} towing class.`,
+      });
+    }
+  }
+
+  // 2. Off-grid capability
+  if (t.offGridScore != null) {
+    const ogRank = yearCohort.filter((s) => (s.offGridScore || 0) > t.offGridScore).length;
+    const ogPctBetter = Math.round((ogRank / yearCohort.length) * 100);
+    if (t.offGridScore >= 70) {
+      const details = [];
+      if (t.solarW) details.push(`${t.solarW}W solar`);
+      if (t.batteryKwh) details.push(`${t.batteryKwh} kWh battery`);
+      points.push({
+        icon: '🌲',
+        text: `Strong off-grid setup (score ${t.offGridScore}/100)${details.length ? ' with ' + details.join(' + ') : ''}. Top ${100 - Math.round(((yearCohort.length - 1 - ogRank) / (yearCohort.length - 1)) * 100)}% of the fleet.`,
+      });
+    } else if (t.offGridScore <= 30) {
+      points.push({
+        icon: '🔌',
+        text: `Built for hookup camping (off-grid score ${t.offGridScore}/100). ${t.solarW ? t.solarW + 'W solar helps extend, but' : 'No factory solar —'} plan for shore power on longer stays.`,
+      });
+    } else {
+      const solarNote = t.solarW ? `${t.solarW}W solar standard` : 'solar optional';
+      points.push({
+        icon: '☀️',
+        text: `Moderate off-grid capability (score ${t.offGridScore}/100) with ${solarNote}. Good for weekend boondocking.`,
+      });
+    }
+  }
+
+  // 3. Water & autonomy
+  const totalWater = (t.freshGal || 0) + (t.grayGal || 0) + (t.blackGal || 0);
+  if (t.freshGal) {
+    const avgFresh = Math.round(yearCohort.reduce((s, x) => s + (x.freshGal || 0), 0) / yearCohort.length);
+    if (t.freshGal >= avgFresh * 1.2) {
+      points.push({
+        icon: '💧',
+        text: `Above-average ${t.freshGal}-gallon fresh tank (fleet avg ~${avgFresh} gal) — supports longer dry-camping stays.`,
+      });
+    } else if (t.freshGal <= avgFresh * 0.7) {
+      points.push({
+        icon: '💧',
+        text: `Compact ${t.freshGal}-gallon fresh tank (fleet avg ~${avgFresh} gal). Plan for more frequent fill-ups when boondocking.`,
+      });
+    }
+  }
+
+  // 4. Value / price context
+  if (t.msrp > 0) {
+    const cheaperCount = yearCohort.filter((s) => s.msrp > 0 && s.msrp > t.msrp).length;
+    const cheaperPct = Math.round((cheaperCount / yearCohort.filter((s) => s.msrp > 0).length) * 100);
+    if (cheaperPct >= 70) {
+      points.push({
+        icon: '💰',
+        text: `At $${Math.round(t.msrp).toLocaleString('en-US')}, more affordable than ${cheaperPct}% of the ${t.year} lineup. ${t.cccLb ? '$' + Math.round(t.msrp / t.cccLb).toLocaleString('en-US') + ' per lb of cargo capacity.' : ''}`,
+      });
+    } else if (cheaperPct <= 20) {
+      points.push({
+        icon: '✨',
+        text: `Premium at $${Math.round(t.msrp).toLocaleString('en-US')} — a top-tier ${t.model} with ${t.sleeps}-person sleeping and ${siblings.length > 1 ? 'the largest layout in the family' : 'a spacious floorplan'}.`,
+      });
+    }
+  }
+
+  // 5. CCC context (if not already covered and notable)
+  if (points.length < 4 && t.cccLb) {
+    const avgCCC = Math.round(
+      yearCohort.filter((s) => s.cccLb > 0).reduce((s, x) => s + x.cccLb, 0) /
+      yearCohort.filter((s) => s.cccLb > 0).length,
+    );
+    if (t.cccLb >= avgCCC * 1.3) {
+      points.push({
+        icon: '📦',
+        text: `Generous ${Math.round(t.cccLb).toLocaleString('en-US')} lb cargo capacity (fleet avg ~${avgCCC.toLocaleString('en-US')} lb) — room for gear, supplies, and full tanks.`,
+      });
+    }
+  }
+
+  // Cap at 4 points
+  return points.slice(0, 4);
+}

@@ -6666,3 +6666,61 @@
 
     observer.observe(nav, { attributes: true, attributeFilter: ['class'], subtree: true });
   })();
+
+  // =========================================================================
+  // PERSONAL NOTES — per-floorplan notes saved to localStorage.
+  //     Auto-saves on input with debounce. Shows a "Saved" indicator.
+  //     Reads/writes ae:notes:{slug} keys.
+  // =========================================================================
+  (function personalNotes() {
+    var textarea = document.getElementById('notes-input');
+    if (!textarea) return;
+    var slug = textarea.getAttribute('data-slug');
+    if (!slug) return;
+    var statusEl = document.getElementById('notes-status');
+    var KEY = 'ae:notes:' + slug;
+    var timer = null;
+
+    // Load existing note
+    try {
+      var saved = localStorage.getItem(KEY);
+      if (saved) {
+        textarea.value = saved;
+        if (statusEl) statusEl.textContent = '';
+      }
+    } catch (e) {}
+
+    function save() {
+      try {
+        var val = textarea.value.trim();
+        if (val) {
+          localStorage.setItem(KEY, val);
+          if (statusEl) {
+            statusEl.textContent = '✓ Saved';
+            statusEl.className = 'notes-status notes-status--saved';
+          }
+        } else {
+          localStorage.removeItem(KEY);
+          if (statusEl) {
+            statusEl.textContent = '';
+            statusEl.className = 'notes-status';
+          }
+        }
+      } catch (e) {}
+    }
+
+    textarea.addEventListener('input', function () {
+      if (statusEl) {
+        statusEl.textContent = 'Saving…';
+        statusEl.className = 'notes-status notes-status--saving';
+      }
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(save, 600);
+    });
+
+    // Save on blur immediately
+    textarea.addEventListener('blur', function () {
+      if (timer) { clearTimeout(timer); timer = null; }
+      save();
+    });
+  })();

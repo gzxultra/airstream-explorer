@@ -4416,3 +4416,356 @@ body:has(.cmp-bar:not([hidden])) .scroll-top.is-visible { bottom: 80px; }
 /* === Homepage hero animated counters === */
 .hero-stat { display: inline; }
 .hero-stat.is-counting { font-variant-numeric: tabular-nums; }
+
+/* ====================== AT A GLANCE — computed detail summary ====================== */
+.glance-summary {
+  margin: 1.5rem 0;
+  padding: 1.25rem 1.5rem;
+  background: color-mix(in srgb, var(--copper) 6%, var(--surface));
+  border-radius: 12px;
+  border-left: 3px solid var(--copper);
+}
+.glance-heading {
+  font: 600 0.75rem/1 var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--copper);
+  margin: 0 0 0.75rem;
+}
+.glance-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.glance-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.glance-icon {
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+.glance-text {
+  flex: 1;
+}
+
+/* ====================== PERSONAL NOTES ====================== */
+.personal-notes {
+  margin: 2.5rem 0;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.notes-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.notes-title {
+  font: 600 0.95rem/1.2 var(--sans);
+  color: var(--ink);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.notes-icon {
+  opacity: 0.6;
+}
+.notes-status {
+  font-size: 0.8rem;
+  color: var(--muted);
+  transition: color 0.2s;
+}
+.notes-status--saved {
+  color: #3a9a5c;
+}
+.notes-status--saving {
+  color: var(--copper);
+}
+.notes-input {
+  display: block;
+  width: 100%;
+  min-height: 80px;
+  max-height: 300px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink);
+  font: 0.9rem/1.5 var(--sans);
+  resize: vertical;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.notes-input:focus {
+  outline: none;
+  border-color: var(--copper);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--copper) 15%, transparent);
+}
+.notes-input::placeholder {
+  color: var(--muted);
+  opacity: 0.8;
+}
+.notes-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+}
+
+/* ====================== PRINT SPEC SHEET — professional layout ====================== */
+@media print {
+  /* Hide everything interactive and non-essential */
+  .topnav,
+  .site-footer,
+  .back-link,
+  .detail-nav,
+  .breadcrumb,
+  .secnav,
+  .detail-sticky-summary,
+  .reading-progress,
+  .share-actions,
+  .official-head,
+  .save-btn,
+  .standout-badges,
+  .tow-callout,
+  .tow-banner,
+  .collapsible-trigger .collapsible-icon,
+  .detail-pager,
+  .gallery,
+  .gallery-autoplay,
+  .lightbox,
+  .quick-view,
+  #back-to-top,
+  #scroll-top,
+  .scroll-to-top,
+  #kb-help,
+  .skip-link,
+  .next-steps,
+  .cross-family,
+  .related-section,
+  .trip-reset,
+  .quiz-overlay,
+  .cmp-bar,
+  .theme-toggle,
+  .unit-toggle,
+  .tow-tool,
+  .explore-controls,
+  .xc-layout,
+  .filter-pill,
+  .active-filters,
+  .xcount,
+  .x-stats,
+  .tagfilter,
+  .layoutfilter,
+  .xc-reset,
+  .fab,
+  .hero-zoom,
+  .gallery-zoom,
+  .floorplan-zoom-hint,
+  .floorplan-zoom-btn,
+  .detail-hero-btn,
+  .notes-hint {
+    display: none !important;
+  }
+
+  /* Reset page basics */
+  body {
+    font-size: 11pt;
+    color: #1a1a1a;
+    background: #fff;
+    margin: 0;
+    padding: 0;
+  }
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Detail page print layout */
+  .detail {
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+  .detail-head {
+    text-align: center;
+    padding-bottom: 0.5cm;
+    border-bottom: 2px solid #1a1a1a;
+    margin-bottom: 0.5cm;
+  }
+  .detail-head h1 {
+    font-size: 20pt;
+    margin: 0 0 2pt;
+  }
+  .eyebrow {
+    font-size: 9pt;
+    color: #666;
+  }
+
+  /* Hero image — full width, not too tall */
+  .detail-hero {
+    margin: 0.3cm 0;
+    text-align: center;
+  }
+  .detail-hero img {
+    max-width: 100%;
+    max-height: 7cm;
+    object-fit: contain;
+    border-radius: 0;
+  }
+
+  /* Overview + glance summary compact */
+  .detail-overview {
+    margin: 0.3cm 0;
+    page-break-inside: avoid;
+  }
+  .detail-desc {
+    font-size: 10pt;
+    margin: 0 0 0.3cm;
+  }
+  .glance-summary {
+    background: #f7f5f2;
+    border-left: 3px solid #a67c52;
+    padding: 0.3cm 0.5cm;
+    margin: 0.3cm 0;
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .glance-heading {
+    font-size: 8pt;
+    color: #a67c52;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .glance-item {
+    font-size: 9pt;
+    line-height: 1.4;
+  }
+
+  /* Specs table — compact 2-column */
+  .spec-table {
+    page-break-inside: avoid;
+    margin: 0.3cm 0;
+  }
+  .spec-table h2 {
+    font-size: 13pt;
+    margin: 0 0 0.2cm;
+  }
+  .specs-grid {
+    font-size: 10pt;
+  }
+  .spec {
+    padding: 3pt 0;
+    border-bottom: 0.5pt solid #ddd;
+  }
+  .spec dt { font-size: 9pt; }
+  .spec-tip-text { display: none !important; }
+  .spec-pct { display: none !important; }
+
+  /* Weight budget — keep it, compact */
+  .weight-budget {
+    page-break-inside: avoid;
+    margin: 0.3cm 0;
+  }
+  .wb-bar-wrap {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Collapsible sections: force all open for print */
+  .collapsible-body,
+  .section-collapse-body {
+    display: block !important;
+    max-height: none !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+  }
+  [hidden] {
+    /* Don't force all hidden elements visible — only collapsible bodies above */
+  }
+  .is-collapsed .section-collapse-body {
+    max-height: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Tool sections — hide interactive inputs, keep static output */
+  .est-head select,
+  .est-head input,
+  .tow-config,
+  .tow-sources,
+  .fuel-sub,
+  .own-slider-row,
+  .cn-slider-row,
+  .og-controls,
+  #payload-controls,
+  .payload-presets {
+    display: none !important;
+  }
+
+  /* Notes — show content but hide textarea chrome */
+  .personal-notes {
+    page-break-inside: avoid;
+    border: 1pt solid #ccc;
+    padding: 0.3cm;
+    margin: 0.3cm 0;
+  }
+  .notes-status { display: none !important; }
+
+  /* Key stats row */
+  .key-stats {
+    page-break-inside: avoid;
+    margin: 0.2cm 0;
+  }
+
+  /* Radar chart — keep, it's visual context */
+  .cmp-radar-wrap {
+    max-width: 8cm;
+    margin: 0.3cm auto;
+    page-break-inside: avoid;
+  }
+
+  /* Size scale diagram */
+  .size-scale {
+    page-break-inside: avoid;
+    margin: 0.3cm 0;
+  }
+
+  /* Floorplan — essential for print */
+  .floorplan {
+    page-break-inside: avoid;
+    margin: 0.3cm 0;
+  }
+  .floorplan-img {
+    max-height: 10cm;
+  }
+
+  /* Seasonal guide */
+  .seasonal-guide {
+    page-break-inside: avoid;
+  }
+
+  /* Pros/cons */
+  .proscons {
+    page-break-inside: avoid;
+  }
+
+  /* Page footer for print */
+  @page {
+    margin: 1.5cm;
+    @bottom-center {
+      content: "Airstream Explorer · airstream-explorer.pages.dev";
+      font-size: 8pt;
+      color: #999;
+    }
+  }
+}

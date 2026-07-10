@@ -7,7 +7,7 @@ import {
   hitchPctOfGvwr,
   trailerTitle, trailerLabel, saveButton,
 } from './format.mjs';
-import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy, computeFleetStandouts } from './data.mjs';
+import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy, computeFleetStandouts, generateGlanceSummary } from './data.mjs';
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
@@ -214,6 +214,37 @@ const SPEC_GLOSSARY = {
 };
 
 /** Render standout badges for a trailer detail page. */
+// ---------------------------------------------------------------------------
+// AT A GLANCE — computed prose summary for detail page hero section.
+// ---------------------------------------------------------------------------
+
+function renderGlanceSummary(t, allTrailers) {
+  const points = generateGlanceSummary(t, allTrailers);
+  if (!points.length) return '';
+  const items = points.map((p) =>
+    `<li class="glance-item"><span class="glance-icon" aria-hidden="true">${p.icon}</span><span class="glance-text">${esc(p.text)}</span></li>`
+  ).join('\n');
+  return `<aside class="glance-summary" aria-label="At a glance">
+<h3 class="glance-heading">At a glance</h3>
+<ul class="glance-list">${items}</ul>
+</aside>`;
+}
+
+// ---------------------------------------------------------------------------
+// PERSONAL NOTES — textarea with localStorage persistence per floorplan.
+// ---------------------------------------------------------------------------
+
+function renderNotes(slug) {
+  return `<section class="personal-notes" id="personal-notes" aria-label="Your notes">
+<div class="notes-head">
+<h3 class="notes-title"><svg class="notes-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Your notes</h3>
+<span class="notes-status" id="notes-status"></span>
+</div>
+<textarea class="notes-input" id="notes-input" data-slug="${esc(slug)}" rows="3" placeholder="Add personal notes — dealer quotes, impressions, questions to ask…" aria-label="Personal notes for this floorplan"></textarea>
+<p class="notes-hint muted">Saved on this device only. Visible here and on your Saved page.</p>
+</section>`;
+}
+
 function renderStandoutBadges(t, allTrailers) {
   const badges = computeStandouts(t, allTrailers);
   if (!badges.length) return '';
@@ -2080,6 +2111,7 @@ ${official ? `<p class="official-head"><a class="official-link" href="${esc(offi
 ${renderKeyStats(t)}
 <div class="detail-overview">
 <p class="detail-desc">${esc(t.description)}</p>
+${renderGlanceSummary(t, allTrailers)}
 ${renderRadarChart(t)}
 </div>
 <section class="spec-table" id="specs" aria-label="Specifications">
@@ -2123,6 +2155,7 @@ ${renderTripReady(t)}
 ${renderSeasonalGuide(t)}
 ${gallery ? `<section class="gallery" id="gallery" aria-label="Gallery"><div class="gallery-head"><h2>Gallery</h2><button type="button" class="gallery-autoplay" id="gallery-autoplay" aria-label="Auto-play slideshow" title="Auto-play slideshow"><svg viewBox="0 0 24 24" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Slideshow</button></div><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
 ${renderNextSteps(t)}
+${renderNotes(t.slug)}
 ${relatedSection}
 ${crossFamilySection}
 </article>
