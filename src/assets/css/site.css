@@ -337,6 +337,15 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .tow-badge--one-ton { background: color-mix(in srgb, #b71c1c 12%, var(--surface, #fff)); color: #b71c1c; }
 .fam-body .tow-badge { margin-top: 8px; align-self: flex-start; }
 .xcard-tow { margin-top: 6px; }
+.xcard-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.xcard-tag { font-size: 10px; font-weight: 600; letter-spacing: .04em; padding: 2px 7px; border-radius: 999px; line-height: 1.4; color: var(--muted); background: color-mix(in srgb, var(--line) 50%, transparent); }
+.xcard-tag--solo { color: #5b6abf; background: rgba(91,106,191,.10); }
+.xcard-tag--family { color: #b05c32; background: rgba(176,92,50,.10); }
+.xcard-tag--couples { color: #8b5a8b; background: rgba(139,90,139,.10); }
+.xcard-tag--off-grid { color: #3a7d44; background: rgba(58,125,68,.10); }
+.xcard-tag--luxury { color: #8b7632; background: rgba(139,118,50,.12); }
+.xcard-tag--full-time { color: #4a7c8b; background: rgba(74,124,139,.10); }
+.xcard-tag--national_parks { color: #6b7c3a; background: rgba(107,124,58,.10); }
 
 /* ---------- Family page hero ---------- */
 .fam-hero {
@@ -2524,7 +2533,51 @@ html { scroll-behavior: smooth; }
   /* Swipe hints + autocomplete hidden */
   .swipe-hint, .x-suggest { display: none !important; }
   /* Detail pager nav + cross-family recs — not useful on paper */
-  .detail-pager, .cross-family, .next-steps { display: none !important; }
+  .detail-pager, .cross-family, .seasonal-guide, .next-steps { display: none !important; }
+}
+
+/* ---------- Seasonal camping guide ---------- */
+.seasonal-guide {
+  padding: 40px 0 24px;
+  max-width: var(--reading, 880px);
+  margin: 0 auto;
+}
+.seasonal-guide h2 {
+  font-family: var(--display); font-size: clamp(20px, 2.4vw, 26px);
+  font-weight: 600; margin: 0 0 6px; color: var(--ink);
+}
+.season-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px; margin-top: 18px;
+}
+.season-card {
+  background: var(--surface, #fff); border: 1px solid var(--line);
+  border-radius: 10px; padding: 16px 18px;
+}
+.season-head {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.season-icon { font-size: 20px; line-height: 1; }
+.season-name { font-weight: 700; font-size: 15px; color: var(--ink); flex: 1; }
+.season-dots { display: flex; gap: 3px; }
+.season-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--line); transition: background .2s;
+}
+.season-dot--filled { background: var(--copper); }
+.season-tips {
+  list-style: none; margin: 0; padding: 0;
+  font-size: 12.5px; line-height: 1.55; color: var(--muted);
+}
+.season-tips li { padding: 3px 0 3px 14px; position: relative; }
+.season-tips li::before {
+  content: ''; position: absolute; left: 0; top: 10px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--copper); opacity: .5;
+}
+@media (max-width: 560px) {
+  .season-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .season-card { padding: 12px 14px; }
 }
 
 /* ---- Share / Copy / Print action buttons ---- */
@@ -2978,6 +3031,8 @@ html { scroll-behavior: smooth; }
 .fc-link:hover { text-decoration: underline; }
 .fc-best { color: var(--copper); font-weight: 600; }
 .fc-sub { font-weight: 400; font-size: .7rem; opacity: .65; }
+.fc-bar { display: block; height: 3px; background: var(--line); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+.fc-bar-fill { display: block; height: 100%; background: var(--copper); border-radius: 2px; transition: width .3s ease; }
 @media (max-width: 640px) {
   .fc-table th, .fc-table td { padding: .5rem .6rem; font-size: .8rem; }
   .fam-compare h2 { font-size: 1.25rem; }

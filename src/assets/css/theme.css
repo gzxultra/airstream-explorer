@@ -477,3 +477,18 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .tow-badge--half-ton { background: #16241a; color: #8fd494; }
 [data-theme="dark"] .tow-badge--three-quarter { background: #271f10; color: #e6bd5e; }
 [data-theme="dark"] .tow-badge--one-ton { background: #2a1813; color: #ef9a82; }
+
+/* Lifestyle tag pills — dark mode */
+[data-theme="dark"] .xcard-tag { color: var(--muted); background: color-mix(in srgb, var(--line) 40%, transparent); }
+[data-theme="dark"] .xcard-tag--solo { color: #a0adff; background: rgba(91,106,191,.18); }
+[data-theme="dark"] .xcard-tag--family { color: #e0a882; background: rgba(176,92,50,.18); }
+[data-theme="dark"] .xcard-tag--couples { color: #d4a0d4; background: rgba(139,90,139,.18); }
+[data-theme="dark"] .xcard-tag--off-grid { color: #82c88c; background: rgba(58,125,68,.18); }
+[data-theme="dark"] .xcard-tag--luxury { color: #d4c482; background: rgba(139,118,50,.20); }
+[data-theme="dark"] .xcard-tag--full-time { color: #82b8c8; background: rgba(74,124,139,.18); }
+[data-theme="dark"] .xcard-tag--national_parks { color: #b8c882; background: rgba(107,124,58,.18); }
+
+/* Seasonal guide — dark mode */
+[data-theme="dark"] .season-card { background: var(--surface); border-color: var(--line); }
+[data-theme="dark"] .season-dot { background: var(--line); }
+[data-theme="dark"] .season-dot--filled { background: var(--copper); }

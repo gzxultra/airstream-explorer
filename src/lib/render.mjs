@@ -557,6 +557,21 @@ function renderFamilyCompare(fam) {
   const bestOffGrid = Math.max(...plans.map((t) => t.offGridScore || 0));
   const lightestLb = Math.min(...plans.map((t) => t.weightLb));
   const mostCcc = Math.max(...plans.map((t) => t.cccLb || 0));
+  // Compute ranges for inline comparison bars
+  const ranges = {
+    lengthFt: { min: Math.min(...plans.map((t) => t.lengthFt)), max: Math.max(...plans.map((t) => t.lengthFt)) },
+    weightLb: { min: Math.min(...plans.map((t) => t.weightLb)), max: Math.max(...plans.map((t) => t.weightLb)) },
+    gvwrLb: { min: Math.min(...plans.map((t) => t.gvwrLb)), max: Math.max(...plans.map((t) => t.gvwrLb)) },
+    cccLb: { min: Math.min(...plans.filter((t) => t.cccLb).map((t) => t.cccLb)), max: Math.max(...plans.filter((t) => t.cccLb).map((t) => t.cccLb)) },
+    offGridScore: { min: Math.min(...plans.map((t) => t.offGridScore || 0)), max: Math.max(...plans.map((t) => t.offGridScore || 0)) },
+    msrp: { min: Math.min(...plans.map((t) => t.msrp)), max: Math.max(...plans.map((t) => t.msrp)) },
+  };
+  /** Inline bar: shows relative position within the family range. */
+  const fcBar = (value, range) => {
+    if (!range || !value || range.max === range.min) return '';
+    const pct = Math.round(((value - range.min) / (range.max - range.min)) * 100);
+    return `<span class="fc-bar" aria-hidden="true"><span class="fc-bar-fill" style="width:${pct}%"></span></span>`;
+  };
   const cols = plans.map((t) => {
     const isLightest = t.weightLb === lightestLb;
     const isBestOffGrid = (t.offGridScore || 0) === bestOffGrid && bestOffGrid > 0;
@@ -564,14 +579,14 @@ function renderFamilyCompare(fam) {
     return `<td>
 <a href="../m/${esc(t.slug)}.html" class="fc-link">${esc(t.floorplan)}</a>
 </td>
-<td data-unit="length" data-raw="${esc(String(t.lengthFt))}">${esc(formatLength(t.lengthFt))}</td>
-<td${isLightest ? ' class="fc-best"' : ''} data-unit="weight" data-raw="${esc(String(t.weightLb))}">${esc(formatWeight(t.weightLb))}</td>
-<td data-unit="weight" data-raw="${esc(String(t.gvwrLb))}">${esc(formatWeight(t.gvwrLb))}</td>
-<td${isMostCcc ? ' class="fc-best"' : ''}${t.cccLb ? ` data-unit="weight" data-raw="${esc(String(t.cccLb))}"` : ''}>${t.cccLb ? esc(formatWeight(t.cccLb)) : '—'}</td>
+<td data-unit="length" data-raw="${esc(String(t.lengthFt))}">${esc(formatLength(t.lengthFt))}${fcBar(t.lengthFt, ranges.lengthFt)}</td>
+<td${isLightest ? ' class="fc-best"' : ''} data-unit="weight" data-raw="${esc(String(t.weightLb))}">${esc(formatWeight(t.weightLb))}${fcBar(t.weightLb, ranges.weightLb)}</td>
+<td data-unit="weight" data-raw="${esc(String(t.gvwrLb))}">${esc(formatWeight(t.gvwrLb))}${fcBar(t.gvwrLb, ranges.gvwrLb)}</td>
+<td${isMostCcc ? ' class="fc-best"' : ''}${t.cccLb ? ` data-unit="weight" data-raw="${esc(String(t.cccLb))}"` : ''}>${t.cccLb ? esc(formatWeight(t.cccLb)) + fcBar(t.cccLb, ranges.cccLb) : '—'}</td>
 <td>${esc(String(t.sleeps))}</td>
 <td data-unit="tanks" data-raw="${esc([t.freshGal, t.grayGal, t.blackGal].join(','))}">${esc(formatTanks(t.freshGal, t.grayGal, t.blackGal))}</td>
-<td${isBestOffGrid ? ' class="fc-best"' : ''}>${t.offGridScore || '—'}</td>
-<td>${esc(formatMsrp(t.msrp))}</td>`;
+<td${isBestOffGrid ? ' class="fc-best"' : ''}>${t.offGridScore || '—'}${t.offGridScore ? fcBar(t.offGridScore, ranges.offGridScore) : ''}</td>
+<td>${esc(formatMsrp(t.msrp))}${fcBar(t.msrp, ranges.msrp)}</td>`;
   });
   const headerRow = `<tr><th>Floorplan</th><th>Length</th><th>Dry wt</th><th>GVWR</th><th>CCC</th><th>Sleeps</th><th>Tanks <span class="fc-sub">F/G/B gal</span></th><th>Off-grid</th><th>MSRP</th></tr>`;
   const bodyRows = cols.map((c) => `<tr>${c}</tr>`).join('\n');
@@ -1614,6 +1629,85 @@ Trip Ready Checklist
 </section>`;
 }
 
+// ---------------------------------------------------------------------------
+// SEASONAL CAMPING GUIDE — per-season suitability based on real specs.
+// Uses tank capacity, solar, battery, and weight to advise per-season.
+// ---------------------------------------------------------------------------
+function renderSeasonalGuide(t) {
+  // Derive season suitability from specs
+  const freshGal = t.freshGal || 0;
+  const solarW = t.solarW || 0;
+  const batteryKwh = t.batteryKwh || 0;
+  const weightLb = t.weightLb || 0;
+  const offGrid = t.offGridScore || 0;
+
+  // Score each season 1-5 based on real capabilities
+  const seasons = [
+    {
+      name: 'Spring',
+      icon: '🌱',
+      score: Math.min(5, 3 + (freshGal >= 30 ? 1 : 0) + (solarW >= 200 ? 1 : 0)),
+      tips: [
+        freshGal >= 30 ? `${freshGal}-gal fresh tank handles dispersed sites` : 'Top off water at established campgrounds',
+        solarW >= 200 ? `${solarW}W solar works well in spring sun (~4h peak)` : 'Plan for hookups — limited solar capacity',
+        'Check tire pressure after winter storage',
+      ],
+    },
+    {
+      name: 'Summer',
+      icon: '☀️',
+      score: Math.min(5, 3 + (solarW >= 300 ? 1 : 0) + (freshGal >= 40 ? 1 : 0)),
+      tips: [
+        solarW >= 300 ? `${solarW}W solar at peak output — 5+ sun hours/day` : 'Shore power recommended for A/C',
+        freshGal >= 40 ? 'Large tank supports extended dry camping' : 'Refill every 2–3 days at dispersed sites',
+        'A/C draws ~1,100W — requires shore power or generator',
+      ],
+    },
+    {
+      name: 'Fall',
+      icon: '🍂',
+      score: Math.min(5, 3 + (batteryKwh >= 2 ? 1 : 0) + (offGrid >= 50 ? 1 : 0)),
+      tips: [
+        batteryKwh >= 2 ? `${batteryKwh} kWh battery covers longer nights` : 'Shorter days mean less solar — watch battery',
+        offGrid >= 50 ? 'Strong off-grid score for shoulder season' : 'Hookup sites extend your comfort zone',
+        'Prepare tanks for first frost — insulate exposed lines',
+      ],
+    },
+    {
+      name: 'Winter',
+      icon: '❄️',
+      score: Math.min(5, 2 + (freshGal >= 40 ? 1 : 0) + (batteryKwh >= 2 ? 1 : 0) + (weightLb >= 5000 ? 1 : 0)),
+      tips: [
+        weightLb >= 5000 ? 'Heavier build provides better insulation mass' : 'Light build — add skirting for heat retention',
+        'Furnace runs on propane + 12V fan — no shore power needed',
+        freshGal >= 40 ? 'Keep tanks above freezing — use heat tape on exposed lines' : 'Small tanks need frequent refills in cold',
+        batteryKwh >= 2 ? 'Battery handles furnace fan through cold nights' : 'Monitor battery closely — furnace fan draws steady power',
+      ],
+    },
+  ];
+
+  const cards = seasons.map((s) => {
+    const dots = Array.from({ length: 5 }, (_, i) =>
+      `<span class="season-dot${i < s.score ? ' season-dot--filled' : ''}" aria-hidden="true"></span>`
+    ).join('');
+    const tipsList = s.tips.slice(0, 3).map((tip) => `<li>${esc(tip)}</li>`).join('');
+    return `<div class="season-card">
+<div class="season-head">
+<span class="season-icon" aria-hidden="true">${s.icon}</span>
+<span class="season-name">${esc(s.name)}</span>
+<span class="season-dots" aria-label="${s.score} of 5">${dots}</span>
+</div>
+<ul class="season-tips">${tipsList}</ul>
+</div>`;
+  }).join('');
+
+  return `<section class="seasonal-guide" id="seasonal" aria-label="Seasonal camping guide">
+<h2>Seasonal camping guide</h2>
+<p class="muted">How well the ${esc(t.model)} ${esc(t.floorplan)} handles each season, based on its real specs.</p>
+<div class="season-grid">${cards}</div>
+</section>`;
+}
+
 function renderNextSteps(t) {
   const official = officialUrl(t.model);
   const links = [];
@@ -1800,6 +1894,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     ['#offgrid', 'Off-grid'],
     a.floorplan ? ['#floorplan', 'Floor plan'] : null,
     ['#trip-ready', 'Trip Ready'],
+    ['#seasonal', 'Seasons'],
     galleryCount ? ['#gallery', 'Gallery'] : null,
   ].filter(Boolean));
   // Related floorplans: same family, different floorplan, prefer same year
@@ -1903,6 +1998,7 @@ ${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}
 ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
 </section>` : ''}
 ${renderTripReady(t)}
+${renderSeasonalGuide(t)}
 ${gallery ? `<section class="gallery" id="gallery" aria-label="Gallery"><h2>Gallery</h2><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
 ${renderNextSteps(t)}
 ${relatedSection}
@@ -1965,6 +2061,7 @@ ${specRow('Sleeps', String(t.sleeps))}
 ${specRow('MSRP', formatMsrp(t.msrp))}${renderRangeBar(t.msrp, ranges.msrp, 'MSRP')}
 </dl>
 ${(() => { const tc = towClass(t.gvwrLb); return `<span class="xcard-tow tow-badge tow-badge--${esc(tc.cls)}">${tc.icon} ${esc(tc.label)}</span>`; })()}
+${(t.tags || []).length ? `<div class="xcard-tags">${(t.tags || []).map((tag) => `<span class="xcard-tag xcard-tag--${esc(tag)}">${esc(tagLabel(tag))}</span>`).join('')}</div>` : ''}
 </div>
 </a>
 <div class="xcard-foot">
