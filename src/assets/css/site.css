@@ -4303,3 +4303,63 @@ body:has(.cmp-bar:not([hidden])) .scroll-top.is-visible { bottom: 80px; }
 .cmp-radar-legend-item { display: inline-flex; align-items: center; gap: 6px; }
 .cmp-radar-legend-dot { width: 12px; height: 12px; border-radius: 3px; }
 @media print { .cmp-radar-wrap { display: none !important; } }
+
+
+/* ======================================================================== */
+/* SIZE SCALE — visual length comparison                                    */
+/* ======================================================================== */
+.size-scale { max-width: var(--reading-w, 880px); margin: 36px auto; padding: 0 var(--page-px, 24px); }
+.size-scale h2 { font-family: var(--heading-font, 'Fraunces', serif); font-size: 24px; margin: 0 0 4px; }
+.size-scale-intro { color: var(--muted); font-size: 15px; margin: 0 0 20px; }
+.size-scale-chart { display: flex; flex-direction: column; gap: 10px; }
+.size-ref-row { display: grid; grid-template-columns: 140px 1fr 70px; align-items: center; gap: 10px; }
+.size-ref-label { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.size-ref-label--trailer { font-weight: 600; color: var(--ink); }
+.size-ref-ft { opacity: 0.6; }
+.size-ref-track { height: 22px; border-radius: 4px; background: color-mix(in srgb, var(--line) 50%, transparent); overflow: hidden; position: relative; }
+.size-ref-bar { height: 100%; border-radius: 4px; background: color-mix(in srgb, var(--ink) 15%, transparent); transition: width 0.6s ease; }
+.size-ref-bar--trailer { background: var(--copper); }
+.size-ref--fits .size-ref-bar { background: color-mix(in srgb, #4A8C5C 25%, transparent); }
+.size-ref-verdict { font-size: 12px; font-weight: 500; text-align: right; color: #4A8C5C; }
+.size-ref-verdict--no { color: var(--muted); opacity: 0.7; }
+@media (max-width: 560px) {
+  .size-ref-row { grid-template-columns: 110px 1fr 55px; gap: 6px; }
+  .size-ref-label { font-size: 12px; }
+  .size-ref-track { height: 18px; }
+}
+@media print { .size-scale { break-inside: avoid; } }
+
+/* ======================================================================== */
+/* COST PER NIGHT — camping vs hotel comparison                             */
+/* ======================================================================== */
+.cn-comparison { display: flex; align-items: center; justify-content: center; gap: 24px; margin: 16px 0 20px; flex-wrap: wrap; }
+.cn-side { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 20px 28px; border-radius: 12px; background: var(--surface); min-width: 160px; flex: 1; max-width: 240px; }
+.cn-side--airstream { border: 2px solid var(--copper); }
+.cn-side--hotel { border: 2px solid var(--line); }
+.cn-icon { font-size: 20px; margin: 0 0 6px; }
+.cn-amount { font-family: var(--heading-font, 'Fraunces', serif); font-size: 36px; font-weight: 700; line-height: 1.1; }
+.cn-side--airstream .cn-amount { color: var(--copper); }
+.cn-label { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+.cn-detail { font-size: 12px; color: var(--muted); opacity: 0.7; margin: 2px 0 0; }
+.cn-vs { font-family: var(--heading-font, 'Fraunces', serif); font-size: 16px; color: var(--muted); font-weight: 600; }
+.cn-verdict { text-align: center; font-size: 15px; padding: 12px 16px; border-radius: 8px; margin: 0 0 12px; }
+.cn-verdict--saves { background: rgba(74,140,92,0.08); color: #3a7a4e; }
+.cn-verdict--over { background: color-mix(in srgb, var(--ink) 5%, transparent); color: var(--muted); }
+@media (max-width: 480px) {
+  .cn-comparison { flex-direction: column; gap: 12px; }
+  .cn-side { max-width: 100%; width: 100%; padding: 16px 20px; }
+  .cn-amount { font-size: 30px; }
+}
+@media print { .cost-night { break-inside: avoid; } }
+
+
+/* ======================================================================== */
+/* TOW COMPATIBILITY BANNER — persistent context from explore selection     */
+/* ======================================================================== */
+.tow-banner { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.4; margin: 0 0 16px; max-width: var(--reading-w, 880px); margin-left: auto; margin-right: auto; position: relative; }
+.tow-banner--ok { background: rgba(74,140,92,0.08); color: #3a7a4e; border: 1px solid rgba(74,140,92,0.2); }
+.tow-banner--over { background: rgba(180,60,60,0.06); color: #a04040; border: 1px solid rgba(180,60,60,0.15); }
+.tow-banner-icon { font-size: 18px; flex-shrink: 0; }
+.tow-banner-dismiss { position: absolute; top: 6px; right: 8px; background: none; border: none; font-size: 18px; cursor: pointer; color: inherit; opacity: 0.5; padding: 2px 6px; line-height: 1; }
+.tow-banner-dismiss:hover { opacity: 1; }
+@media print { .tow-banner { break-inside: avoid; } }

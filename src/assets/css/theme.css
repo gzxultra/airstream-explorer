@@ -492,3 +492,22 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .season-card { background: var(--surface); border-color: var(--line); }
 [data-theme="dark"] .season-dot { background: var(--line); }
 [data-theme="dark"] .season-dot--filled { background: var(--copper); }
+
+
+/* Size scale — dark mode */
+[data-theme="dark"] .size-ref-track { background: color-mix(in srgb, var(--line) 30%, transparent); }
+[data-theme="dark"] .size-ref-bar { background: color-mix(in srgb, var(--ink) 25%, transparent); }
+[data-theme="dark"] .size-ref--fits .size-ref-bar { background: rgba(74,140,92,0.3); }
+[data-theme="dark"] .size-ref-verdict { color: #6fc687; }
+[data-theme="dark"] .size-ref-verdict--no { color: var(--muted); }
+
+/* Cost per night — dark mode */
+[data-theme="dark"] .cn-side--airstream { border-color: var(--copper); }
+[data-theme="dark"] .cn-side--hotel { border-color: var(--line); }
+[data-theme="dark"] .cn-verdict--saves { background: rgba(74,140,92,0.12); color: #6fc687; }
+[data-theme="dark"] .cn-verdict--over { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+
+
+/* Tow compatibility banner — dark mode */
+[data-theme="dark"] .tow-banner--ok { background: rgba(74,140,92,0.12); color: #6fc687; border-color: rgba(74,140,92,0.25); }
+[data-theme="dark"] .tow-banner--over { background: rgba(180,60,60,0.1); color: #e07070; border-color: rgba(180,60,60,0.2); }

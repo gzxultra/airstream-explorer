@@ -1055,6 +1055,17 @@
       towPresets.forEach(function (p) {
         p.classList.toggle('is-active', parseInt(p.getAttribute('data-tow'), 10) === v);
       });
+      // Persist tow vehicle globally so detail pages can show compatibility
+      if (v > 0) {
+        var vName = '';
+        if (towVehiclePick && towVehiclePick.value && towVehiclePick.value !== 'custom') {
+          var selOpt = towVehiclePick.options[towVehiclePick.selectedIndex];
+          if (selOpt) vName = selOpt.textContent.split(' \u2014')[0] || '';
+        }
+        try { localStorage.setItem('ae:towVehicle', JSON.stringify({ rating: v, name: vName })); } catch (e) {}
+      } else {
+        try { localStorage.removeItem('ae:towVehicle'); } catch (e) {}
+      }
       if (!opts || opts.persist !== false) persistX();
       apply();
     }
@@ -5353,6 +5364,41 @@
     observer.observe(hero);
   })();
 
+  // =========================================================================
+  // TOW COMPATIBILITY BANNER — persistent tow vehicle context on detail pages.
+  //     If the user picked a tow vehicle on the Explore page, show whether
+  //     this trailer is towable. Reads ae:towVehicle from localStorage.
+  //     Guarded by .tow-callout (only present on detail pages with GVWR).
+  // =========================================================================
+  (function towBanner() {
+    var callout = document.querySelector('.tow-callout');
+    if (!callout) return;
+    var gvwrEl = callout.querySelector('[data-unit="weight"]');
+    if (!gvwrEl) return;
+    var gvwr = parseInt(gvwrEl.getAttribute('data-raw'), 10);
+    if (!gvwr) return;
+    var stored;
+    try { stored = JSON.parse(localStorage.getItem('ae:towVehicle')); } catch (e) {}
+    if (!stored || !stored.rating) return;
+
+    var ok = stored.rating >= gvwr;
+    var name = stored.name || (stored.rating.toLocaleString('en-US') + ' lb rating');
+    var banner = document.createElement('div');
+    banner.className = 'tow-banner ' + (ok ? 'tow-banner--ok' : 'tow-banner--over');
+    banner.setAttribute('role', 'status');
+    banner.innerHTML = ok
+      ? '<span class="tow-banner-icon" aria-hidden="true">✓</span> <strong>' + name + '</strong> can tow this — ' + gvwr.toLocaleString('en-US') + ' lb GVWR is within your rating.'
+      : '<span class="tow-banner-icon" aria-hidden="true">⚠</span> <strong>' + name + '</strong> may not be enough — this trailer\'s ' + gvwr.toLocaleString('en-US') + ' lb GVWR exceeds your ' + stored.rating.toLocaleString('en-US') + ' lb rating.';
+    var dismiss = document.createElement('button');
+    dismiss.type = 'button';
+    dismiss.className = 'tow-banner-dismiss';
+    dismiss.setAttribute('aria-label', 'Dismiss');
+    dismiss.textContent = '×';
+    dismiss.addEventListener('click', function () { banner.remove(); });
+    banner.appendChild(dismiss);
+    callout.parentNode.insertBefore(banner, callout);
+  })();
+
   // 11. LAZY-LOAD IMAGE FADE-IN
   // Observe every lazy image; add .is-loaded when it finishes loading so CSS
   // can transition opacity smoothly. If the image is already complete (cached),
@@ -5941,6 +5987,59 @@
       var allLink = document.querySelector('[data-view-go="all"]');
       if (allLink) allLink.click();
     });
+  })();
+
+  // =========================================================================
+  // COST PER NIGHT CALCULATOR — interactive camping vs hotel comparison.
+  //     Guarded by #cn-trips (only present on detail pages with MSRP).
+  // =========================================================================
+  (function costPerNight() {
+    var tripsEl = document.getElementById('cn-trips');
+    if (!tripsEl) return;
+    var nightsEl = document.getElementById('cn-nights');
+    var hotelEl = document.getElementById('cn-hotel');
+    var tripsVal = document.getElementById('cn-trips-val');
+    var nightsVal = document.getElementById('cn-nights-val');
+    var hotelVal = document.getElementById('cn-hotel-val');
+    var costEl = document.getElementById('cn-cost');
+    var hotelCostEl = document.getElementById('cn-hotel-cost');
+    var totalNightsEl = document.getElementById('cn-total-nights');
+    var hotelYearEl = document.getElementById('cn-hotel-year');
+    var verdictEl = document.getElementById('cn-verdict');
+    var section = tripsEl.closest('.cost-night');
+    var annualOwn = parseInt(section.getAttribute('data-annual-own'), 10) || 0;
+
+    function fmtMoney(n) { return '$' + Number(n).toLocaleString('en-US'); }
+
+    function update() {
+      var trips = parseInt(tripsEl.value, 10) || 1;
+      var nights = parseInt(nightsEl.value, 10) || 1;
+      var hotel = parseInt(hotelEl.value, 10) || 150;
+      var totalNights = trips * nights;
+      var costNight = totalNights > 0 ? Math.round(annualOwn / totalNights) : 0;
+      var hotelYear = hotel * totalNights;
+      var savings = hotelYear - annualOwn;
+
+      tripsVal.textContent = trips + ' trip' + (trips > 1 ? 's' : '');
+      nightsVal.textContent = nights + ' night' + (nights > 1 ? 's' : '');
+      hotelVal.textContent = '$' + hotel + '/night';
+      costEl.textContent = '$' + costNight;
+      hotelCostEl.textContent = '$' + hotel;
+      totalNightsEl.textContent = totalNights + ' nights/year';
+      hotelYearEl.textContent = fmtMoney(hotelYear) + '/year';
+
+      if (savings > 0) {
+        verdictEl.className = 'cn-verdict cn-verdict--saves';
+        verdictEl.innerHTML = 'You save about <strong>' + fmtMoney(savings) + '/year</strong> vs hotel stays at this frequency.';
+      } else {
+        verdictEl.className = 'cn-verdict cn-verdict--over';
+        verdictEl.textContent = 'At this frequency, hotel stays cost about the same. Camp more to tip the balance.';
+      }
+    }
+
+    tripsEl.addEventListener('input', update);
+    nightsEl.addEventListener('input', update);
+    hotelEl.addEventListener('input', update);
   })();
 
   // =========================================================================

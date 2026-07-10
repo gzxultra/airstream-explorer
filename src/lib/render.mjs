@@ -1487,6 +1487,124 @@ export function renderOwnershipTool(t) {
 }
 
 
+// ---------------------------------------------------------------------------
+// SIZE SCALE — visual length comparison against everyday reference objects.
+// Helps users answer "will it fit in my garage / at the campsite?"
+// ---------------------------------------------------------------------------
+const SIZE_REFS = [
+  { label: 'Compact car',         ft: 15,  cls: 'size-ref--car'     },
+  { label: 'Standard parking',    ft: 18,  cls: 'size-ref--parking'  },
+  { label: 'Single garage',       ft: 20,  cls: 'size-ref--garage1'  },
+  { label: 'Double garage',       ft: 24,  cls: 'size-ref--garage2'  },
+  { label: 'School bus',          ft: 35,  cls: 'size-ref--bus'      },
+  { label: 'Typical RV site',     ft: 40,  cls: 'size-ref--site'     },
+];
+
+function renderSizeScale(t) {
+  if (!(t.lengthFt > 0)) return '';
+  // Use the longest reference as 100% scale
+  const maxFt = Math.max(SIZE_REFS[SIZE_REFS.length - 1].ft, t.lengthFt + 2);
+  const pct = (ft) => Math.round((ft / maxFt) * 1000) / 10;
+  const trailerPct = pct(t.lengthFt);
+  const wholeFt = Math.floor(t.lengthFt);
+  const inches = Math.round((t.lengthFt - wholeFt) * 12);
+  const lenLabel = inches ? `${wholeFt}'${inches}"` : `${wholeFt}'`;
+
+  const refs = SIZE_REFS.map((r) => {
+    const fit = t.lengthFt <= r.ft;
+    return `<div class="size-ref-row ${r.cls}${fit ? ' size-ref--fits' : ''}">
+<span class="size-ref-label">${esc(r.label)} <span class="size-ref-ft">${r.ft}'</span></span>
+<div class="size-ref-track"><div class="size-ref-bar" style="width:${pct(r.ft)}%"></div></div>
+${fit ? '<span class="size-ref-verdict">✓ fits</span>' : '<span class="size-ref-verdict size-ref-verdict--no">too short</span>'}
+</div>`;
+  }).join('\n');
+
+  return `<section class="size-scale" id="size-scale" aria-label="Size comparison">
+<h2>How big is ${esc(lenLabel)}?</h2>
+<p class="size-scale-intro">Your ${esc(t.model)} ${esc(t.floorplan)} is ${esc(lenLabel)} bumper to hitch. Here's how it measures up.</p>
+<div class="size-scale-chart">
+<div class="size-ref-row size-ref--trailer">
+<span class="size-ref-label size-ref-label--trailer">${esc(t.model)} ${esc(t.floorplan)} <span class="size-ref-ft">${esc(lenLabel)}</span></span>
+<div class="size-ref-track"><div class="size-ref-bar size-ref-bar--trailer" style="width:${trailerPct}%"></div></div>
+</div>
+${refs}
+</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
+// COST-PER-NIGHT — compares camping cost to hotel, key purchase justification.
+// ---------------------------------------------------------------------------
+const COST_NIGHT_DEFAULTS = {
+  tripsYear: 12,
+  nightsTrip: 3,
+  hotelNight: 200,
+};
+
+function renderCostPerNight(t) {
+  if (!(t.msrp > 0)) return '';
+  const d = COST_NIGHT_DEFAULTS;
+  const totalNights = d.tripsYear * d.nightsTrip;
+  // Rough annual cost: same formula as ownership tool (insurance + storage + maint + depreciation)
+  const annualOwn = Math.round(t.msrp * 0.012) + 100 * 12 + 800 + Math.round(t.msrp * 0.10);
+  const costNight = totalNights > 0 ? Math.round(annualOwn / totalNights) : 0;
+  const hotelYear = d.hotelNight * totalNights;
+  const savings = hotelYear - annualOwn;
+
+  const dataIsland = JSON.stringify({ msrp: t.msrp, annualOwn }).replace(/<\//g, '<\\/');
+
+  return `<section class="estimator cost-night" id="cost-night" aria-label="Cost per camping night"
+ data-annual-own="${annualOwn}">
+<script type="application/json" id="cost-night-data">${dataIsland}</script>
+<div class="est-head">
+<h2>Cost per camping night</h2>
+<p class="est-sub">How your ${esc(t.model)} ${esc(t.floorplan)} compares to hotel stays — adjust your camping frequency.</p>
+</div>
+<div class="est-controls">
+<div class="est-field">
+<label for="cn-trips">Trips per year</label>
+<div class="finance-slider-row">
+<input type="range" id="cn-trips" min="1" max="52" step="1" value="${d.tripsYear}" class="finance-range" aria-label="Trips per year">
+<span class="finance-range-val" id="cn-trips-val">${d.tripsYear} trips</span>
+</div>
+</div>
+<div class="est-field">
+<label for="cn-nights">Nights per trip</label>
+<div class="finance-slider-row">
+<input type="range" id="cn-nights" min="1" max="21" step="1" value="${d.nightsTrip}" class="finance-range" aria-label="Nights per trip">
+<span class="finance-range-val" id="cn-nights-val">${d.nightsTrip} nights</span>
+</div>
+</div>
+<div class="est-field">
+<label for="cn-hotel">Comparable hotel rate</label>
+<div class="finance-slider-row">
+<input type="range" id="cn-hotel" min="75" max="500" step="25" value="${d.hotelNight}" class="finance-range" aria-label="Hotel rate per night">
+<span class="finance-range-val" id="cn-hotel-val">$${d.hotelNight}/night</span>
+</div>
+</div>
+</div>
+<div class="est-result" id="cost-night-result" aria-live="polite" aria-atomic="true">
+<div class="cn-comparison">
+<div class="cn-side cn-side--airstream">
+<span class="cn-icon" aria-hidden="true">▲</span>
+<span class="cn-amount" id="cn-cost">$${costNight}</span>
+<span class="cn-label">per camping night</span>
+<span class="cn-detail" id="cn-total-nights">${totalNights} nights/year</span>
+</div>
+<div class="cn-vs" aria-hidden="true">vs</div>
+<div class="cn-side cn-side--hotel">
+<span class="cn-icon" aria-hidden="true">🏨</span>
+<span class="cn-amount" id="cn-hotel-cost">$${d.hotelNight}</span>
+<span class="cn-label">hotel per night</span>
+<span class="cn-detail" id="cn-hotel-year">${formatMsrp(hotelYear)}/year</span>
+</div>
+</div>
+<p class="cn-verdict ${savings > 0 ? 'cn-verdict--saves' : 'cn-verdict--over'}" id="cn-verdict">${savings > 0 ? `You save about <strong>${formatMsrp(savings)}/year</strong> vs hotel stays at this frequency.` : `At this frequency, hotel stays cost about the same. Camp more to tip the balance.`}</p>
+</div>
+<p class="est-caveat muted">Annual ownership cost is a rough estimate (insurance, storage, maintenance, depreciation). Actual costs vary. Campground fees ($20–$80/night) are not included — add them to refine your comparison.</p>
+</section>`;
+}
+
 /**
  * "You might also like" — spec-similar trailers from OTHER families.
  * Complements renderRelated() which stays within the same family.
@@ -1884,6 +2002,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
   const yearDiff = computeYearDiff(t, allTrailers);
   const sectionNav = buildSectionNav([
     ['#specs', 'Specs'],
+    ['#size-scale', 'Size'],
     yearDiff ? ['#year-diff', '2025→26'] : null,
     t.gvwrLb ? ['#tow', 'Tow'] : null,
     t.gvwrLb ? ['#fuel', 'Fuel'] : null,
@@ -1891,6 +2010,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     t.cccLb ? ['#payload', 'Payload'] : null,
     t.msrp > 0 ? ['#finance', 'Finance'] : null,
     t.msrp > 0 ? ['#ownership', 'Ownership'] : null,
+    t.msrp > 0 ? ['#cost-night', 'Cost/Night'] : null,
     ['#offgrid', 'Off-grid'],
     a.floorplan ? ['#floorplan', 'Floor plan'] : null,
     ['#trip-ready', 'Trip Ready'],
@@ -1980,6 +2100,7 @@ ${specRow('MSRP', formatMsrp(t.msrp), { tip: true, pctData: pctFor('msrp') })}
 ${note}
 </section>
 ${renderYearDiff(t, allTrailers)}
+${renderSizeScale(t)}
 ${renderWeightBar(t)}
 ${renderWeightBudget(t)}
 ${towCallout}
@@ -1989,6 +2110,7 @@ ${renderFuelTool(t)}
 ${renderPayloadTool(t)}
 ${renderFinancingTool(t)}
 ${renderOwnershipTool(t)}
+${renderCostPerNight(t)}
 ${renderOffGridTool(t)}
 ${floorplanSection}
 ${decorSection}
