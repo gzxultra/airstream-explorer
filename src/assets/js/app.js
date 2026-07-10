@@ -5736,6 +5736,157 @@
     observer.observe(container);
   })();
 
+  // =========================================================================
+  // GALLERY SLIDESHOW — auto-play button cycles gallery images in lightbox.
+  //     Pauses on any user interaction. 4-second interval per image.
+  // =========================================================================
+  (function gallerySlideshow() {
+    var btn = document.getElementById('gallery-autoplay');
+    if (!btn) return;
+    var playing = false;
+    var timer = null;
+    var INTERVAL = 4000;
+
+    // SVG icons
+    var playIcon = '<svg viewBox="0 0 24 24" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Slideshow';
+    var pauseIcon = '<svg viewBox="0 0 24 24" width="14" height="14"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Pause';
+
+    function getGalleryButtons() {
+      return Array.prototype.slice.call(document.querySelectorAll('[data-gallery] [data-lightbox]'));
+    }
+
+    function openAt(idx) {
+      var btns = getGalleryButtons();
+      if (btns[idx]) btns[idx].click();
+    }
+
+    function currentLbIndex() {
+      var counter = document.querySelector('.lb-counter');
+      if (!counter) return -1;
+      var m = counter.textContent.match(/^(\d+)/);
+      return m ? parseInt(m[1], 10) - 1 : -1;
+    }
+
+    function advance() {
+      var btns = getGalleryButtons();
+      if (!btns.length) { stop(); return; }
+      var lb = document.getElementById('lightbox');
+      if (!lb || lb.hidden) {
+        // Lightbox not open — open first gallery image
+        openAt(0);
+        return;
+      }
+      var cur = currentLbIndex();
+      // The lightbox counter counts from hero (idx 0), gallery images start after hero
+      // Find the "next" button and click it, or loop around
+      var btnNext = lb.querySelector('[data-lb-next]');
+      if (btnNext && btnNext.offsetParent !== null) {
+        btnNext.click();
+      } else {
+        // We're at the last image — loop to first gallery
+        stop();
+      }
+    }
+
+    function start() {
+      if (playing) return;
+      playing = true;
+      btn.classList.add('is-playing');
+      btn.innerHTML = pauseIcon;
+      // Open lightbox on first gallery image if not open
+      var lb = document.getElementById('lightbox');
+      if (!lb || lb.hidden) openAt(0);
+      timer = setInterval(advance, INTERVAL);
+    }
+
+    function stop() {
+      playing = false;
+      btn.classList.remove('is-playing');
+      btn.innerHTML = playIcon;
+      if (timer) { clearInterval(timer); timer = null; }
+    }
+
+    btn.addEventListener('click', function () {
+      if (playing) stop(); else start();
+    });
+
+    // Pause on any lightbox user interaction
+    document.addEventListener('keydown', function (e) {
+      if (!playing) return;
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Escape') stop();
+    });
+    document.addEventListener('click', function (e) {
+      if (!playing) return;
+      var lb = document.getElementById('lightbox');
+      if (!lb) return;
+      // If user clicked prev/next/close in lightbox, pause slideshow
+      if (e.target.closest('[data-lb-prev]') || e.target.closest('[data-lb-next]') || e.target.closest('[data-lb-close]')) {
+        stop();
+      }
+    });
+    // Pause when lightbox closes
+    var lbEl = document.getElementById('lightbox');
+    if (lbEl) {
+      var lbObs = new MutationObserver(function () {
+        if (lbEl.hidden && playing) stop();
+      });
+      lbObs.observe(lbEl, { attributes: true, attributeFilter: ['hidden'] });
+    }
+  })();
+
+  // =========================================================================
+  // HOMEPAGE HERO COUNTER — count-up animation for the hero stats on index.
+  //     Numbers animate from 0 to target on page load for a premium editorial
+  //     feel. Respects prefers-reduced-motion.
+  // =========================================================================
+  (function heroCountUp() {
+    var stats = Array.prototype.slice.call(document.querySelectorAll('[data-hero-num]'));
+    if (!stats.length) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var animated = false;
+    function animate() {
+      if (animated) return;
+      animated = true;
+      stats.forEach(function (el) {
+        var target = parseInt(el.getAttribute('data-hero-num'), 10);
+        if (!target || target <= 0) return;
+        var original = el.textContent;
+        var duration = 700;
+        var start = null;
+        el.classList.add('is-counting');
+
+        function step(ts) {
+          if (!start) start = ts;
+          var progress = Math.min((ts - start) / duration, 1);
+          var ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+          el.textContent = Math.round(target * ease);
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            el.textContent = original; // restore exact
+            el.classList.remove('is-counting');
+          }
+        }
+        requestAnimationFrame(step);
+      });
+    }
+
+    // Animate when hero scrolls into view (or immediately if visible)
+    var hero = document.querySelector('.home-hero') || document.querySelector('.hero-head');
+    if (!hero) { animate(); return; }
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) { animate(); observer.disconnect(); }
+        });
+      }, { threshold: 0.3 });
+      observer.observe(hero);
+    } else {
+      animate();
+    }
+  })();
+
 
   // =========================================================================
   // LIFESTYLE QUIZ — "Find Your Airstream" recommendation wizard.

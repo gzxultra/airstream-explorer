@@ -4363,3 +4363,56 @@ body:has(.cmp-bar:not([hidden])) .scroll-top.is-visible { bottom: 80px; }
 .tow-banner-dismiss { position: absolute; top: 6px; right: 8px; background: none; border: none; font-size: 18px; cursor: pointer; color: inherit; opacity: 0.5; padding: 2px 6px; line-height: 1; }
 .tow-banner-dismiss:hover { opacity: 1; }
 @media print { .tow-banner { break-inside: avoid; } }
+/* === Fleet-wide standout badges on explore cards === */
+.xcard-fleet-badges {
+  position: absolute; bottom: 8px; left: 8px;
+  display: flex; flex-wrap: wrap; gap: 4px;
+  z-index: 2; pointer-events: none;
+}
+.fleet-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 3px 8px; border-radius: 999px;
+  font: 600 11px/1 "DM Sans", system-ui, sans-serif;
+  letter-spacing: .02em; backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255,255,255,.88); color: var(--ink, #1F1B16);
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+.fleet-badge-icon { font-size: 12px; }
+.fleet-badge--fleet-lightest { background: rgba(74,140,92,.12); color: #2e6b3e; }
+.fleet-badge--fleet-affordable { background: rgba(184,118,62,.12); color: #8a5524; }
+.fleet-badge--fleet-offgrid { background: rgba(56,120,72,.12); color: #2e6b3e; }
+.fleet-badge--fleet-cargo { background: rgba(100,100,160,.10); color: #4a4a80; }
+.fleet-badge--fleet-value { background: rgba(184,118,62,.15); color: #8a5524; }
+.fleet-badge--fleet-tanks { background: rgba(60,130,180,.12); color: #2a6a8a; }
+[data-theme="dark"] .fleet-badge {
+  background: rgba(30,28,24,.82); color: #e8e0d4;
+  box-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+[data-theme="dark"] .fleet-badge--fleet-lightest { background: rgba(74,140,92,.22); color: #7bc68e; }
+[data-theme="dark"] .fleet-badge--fleet-affordable { background: rgba(184,118,62,.22); color: #d4a66a; }
+[data-theme="dark"] .fleet-badge--fleet-offgrid { background: rgba(56,120,72,.22); color: #7bc68e; }
+[data-theme="dark"] .fleet-badge--fleet-cargo { background: rgba(100,100,160,.20); color: #a8a8d0; }
+[data-theme="dark"] .fleet-badge--fleet-value { background: rgba(184,118,62,.25); color: #d4a66a; }
+[data-theme="dark"] .fleet-badge--fleet-tanks { background: rgba(60,130,180,.22); color: #7ab8d4; }
+@media (max-width: 560px) {
+  .fleet-badge { font-size: 10px; padding: 2px 6px; }
+}
+
+/* === Gallery slideshow autoplay === */
+.gallery-autoplay {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-left: auto; background: none; border: 1px solid var(--line, #E8E4DE);
+  color: var(--muted, #8C8580); padding: 5px 12px; border-radius: 999px;
+  font: 600 13px/1 "DM Sans", system-ui, sans-serif; cursor: pointer;
+  transition: color .15s ease, border-color .15s ease;
+}
+.gallery-autoplay:hover { color: var(--copper, #B8763E); border-color: var(--copper, #B8763E); }
+.gallery-autoplay.is-playing { color: var(--copper, #B8763E); border-color: var(--copper, #B8763E); }
+.gallery-autoplay svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.gallery-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.gallery-head h2 { margin: 0; }
+
+/* === Homepage hero animated counters === */
+.hero-stat { display: inline; }
+.hero-stat.is-counting { font-variant-numeric: tabular-nums; }

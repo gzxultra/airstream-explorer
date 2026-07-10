@@ -7,7 +7,7 @@ import {
   hitchPctOfGvwr,
   trailerTitle, trailerLabel, saveButton,
 } from './format.mjs';
-import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy } from './data.mjs';
+import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy, computeFleetStandouts } from './data.mjs';
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
@@ -476,7 +476,7 @@ export function renderIndex(families, trailers = [], resolve = assetPaths, motor
 <div class="home-hero-inner">
 <p class="eyebrow eyebrow-light">AIRSTREAM · 2026 + 2025</p>
 <h1>Every Airstream, by family</h1>
-<p class="lede">A cinematic, spec-accurate field guide to the current Airstream lineup — ${allFamilies} families, ${totalPlans} floorplans across travel trailers and motorhomes.</p>
+<p class="lede">A cinematic, spec-accurate field guide to the current Airstream lineup — <span class="hero-stat" data-hero-num="${allFamilies}">${allFamilies}</span> families, <span class="hero-stat" data-hero-num="${totalPlans}">${totalPlans}</span> floorplans across travel trailers and motorhomes.</p>
 <p class="home-hero-cta"><a class="home-hero-btn" href="#all" data-view-go="all">Explore all floorplans</a><button type="button" class="home-hero-ghost quiz-trigger" id="quiz-open">Find your Airstream →</button></p>
 </div>
 </header>`
@@ -2121,7 +2121,7 @@ ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
 </section>` : ''}
 ${renderTripReady(t)}
 ${renderSeasonalGuide(t)}
-${gallery ? `<section class="gallery" id="gallery" aria-label="Gallery"><h2>Gallery</h2><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
+${gallery ? `<section class="gallery" id="gallery" aria-label="Gallery"><div class="gallery-head"><h2>Gallery</h2><button type="button" class="gallery-autoplay" id="gallery-autoplay" aria-label="Auto-play slideshow" title="Auto-play slideshow"><svg viewBox="0 0 24 24" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Slideshow</button></div><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
 ${renderNextSteps(t)}
 ${relatedSection}
 ${crossFamilySection}
@@ -2162,10 +2162,13 @@ function renderRangeBar(value, range, label) {
   return `<span class="range-bar" aria-label="${esc(label)}: ${pos}th percentile in lineup" title="${esc(label)}: ${pos}th percentile"><span class="range-bar-track"><span class="range-bar-fill" style="width:${pos}%"></span></span></span>`;
 }
 
-export function renderExploreCard(t, resolve = assetPaths, hidden = false, ranges = {}) {
+export function renderExploreCard(t, resolve = assetPaths, hidden = false, ranges = {}, fleetBadges = []) {
   const a = resolve(t);
   const tags = (t.tags || []).join(' ');
   const layout = deriveLayoutFeatures(t).join(' ');
+  const fleetBadgeHtml = fleetBadges.length
+    ? `<div class="xcard-fleet-badges">${fleetBadges.map((b) => `<span class="fleet-badge fleet-badge--${esc(b.cls)}"><span class="fleet-badge-icon" aria-hidden="true">${b.icon}</span>${esc(b.label)}</span>`).join('')}</div>`
+    : '';
   return `<article class="xcard" data-slug="${esc(t.slug)}" data-type="trailer" data-model="${esc(t.model)}" data-floorplan="${esc(t.floorplan)}" data-year="${esc(t.year)}" data-msrp="${esc(t.msrp)}" data-weight="${esc(t.weightLb)}" data-gvwr="${esc(t.gvwrLb)}" data-length="${esc(t.lengthFt)}" data-sleeps="${esc(t.sleeps)}" data-offgrid="${esc(t.offGridScore)}" data-tags="${esc(tags)}" data-layout="${esc(layout)}" data-name="${esc((t.model + ' ' + t.floorplan).toLowerCase())}" data-ccc="${esc(t.cccLb || '')}" data-fresh="${esc(t.freshGal || '')}" data-gray="${esc(t.grayGal || '')}" data-black="${esc(t.blackGal || '')}" data-solar="${esc(t.solarW || '')}" data-hitch="${esc(t.hitchWeightLb || '')}" data-desc="${esc(t.description || '')}" data-thumb="${esc(a.thumb || '')}"${hidden ? ' hidden' : ''}>
 <a class="xcard-link" href="m/${esc(t.slug)}.html">
 <div class="xcard-media">
@@ -2173,6 +2176,7 @@ export function renderExploreCard(t, resolve = assetPaths, hidden = false, range
 <span class="xcard-year">${esc(t.year)}</span>
 ${a.gallery && a.gallery.length ? `<span class="xcard-photos" aria-label="${a.gallery.length} photos"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg> ${a.gallery.length}</span>` : ''}
 <button type="button" class="xcard-peek" data-peek aria-label="Quick view ${esc(trailerLabel(t))}" title="Quick view"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+${fleetBadgeHtml}
 </div>
 <div class="xcard-body">
 <h3 class="xcard-title">${esc(t.model)} <span>${esc(t.floorplan)}</span></h3>
@@ -2237,11 +2241,13 @@ export function renderExploreSections(trailers, resolve = assetPaths, motorhomes
   );
   // Compute fleet ranges for spec position bars on explore cards
   const fleetRanges = computeFleetRanges(trailers, motorhomes);
+  // Compute fleet-wide standout badges (best-in-class across all trailers)
+  const fleetStandoutMap = computeFleetStandouts(trailers);
   const cards = merged
     .map(({ item, type }) =>
       type === 'motorhome'
         ? renderMotorhomeExploreCard(item, motorhomeAssetPaths, item.year !== 2026, fleetRanges)
-        : renderExploreCard(item, resolve, item.year !== 2026, fleetRanges),
+        : renderExploreCard(item, resolve, item.year !== 2026, fleetRanges, fleetStandoutMap.get(item.slug) || []),
     )
     .join('\n');
   const total = merged.filter(({ item }) => item.year === 2026).length;

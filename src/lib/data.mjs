@@ -431,6 +431,70 @@ export function computeStandouts(trailer, allTrailers) {
 }
 
 // ---------------------------------------------------------------------------
+// FLEET-WIDE STANDOUTS — best-in-class across the entire catalog (not just
+// within a family). Returned as Map<slug, badge[]> so explore cards can show
+// them. Badges are mutually exclusive per dimension: only one slug per trait.
+// ---------------------------------------------------------------------------
+
+/**
+ * Compute fleet-wide standout badges across all trailers of the same year.
+ * Returns a Map<slug, Array<{ label, icon, cls }>> — entries are only created
+ * for slugs that earned at least one badge.
+ */
+export function computeFleetStandouts(trailers) {
+  const result = new Map();
+  if (!trailers || trailers.length < 3) return result;
+  // Group by year — badges are within a model-year cohort
+  const byYear = new Map();
+  for (const t of trailers) {
+    if (!byYear.has(t.year)) byYear.set(t.year, []);
+    byYear.get(t.year).push(t);
+  }
+  for (const [, pool] of byYear) {
+    if (pool.length < 3) continue;
+    const award = (slug, badge) => {
+      if (!result.has(slug)) result.set(slug, []);
+      result.get(slug).push(badge);
+    };
+    // Lightest overall
+    const sorted = [...pool].sort((a, b) => a.weightLb - b.weightLb);
+    if (sorted[0].weightLb < sorted[1].weightLb) {
+      award(sorted[0].slug, { label: 'Lightest', icon: '⚡', cls: 'fleet-lightest' });
+    }
+    // Most affordable overall
+    const byPrice = [...pool].sort((a, b) => a.msrp - b.msrp);
+    if (byPrice[0].msrp < byPrice[1].msrp) {
+      award(byPrice[0].slug, { label: 'Most affordable', icon: '💰', cls: 'fleet-affordable' });
+    }
+    // Best off-grid overall
+    const byOG = [...pool].filter((t) => t.offGridScore > 0).sort((a, b) => b.offGridScore - a.offGridScore);
+    if (byOG.length >= 2 && byOG[0].offGridScore > byOG[1].offGridScore) {
+      award(byOG[0].slug, { label: 'Best off-grid', icon: '🌲', cls: 'fleet-offgrid' });
+    }
+    // Best cargo capacity
+    const byCCC = [...pool].filter((t) => t.cccLb > 0).sort((a, b) => b.cccLb - a.cccLb);
+    if (byCCC.length >= 2 && byCCC[0].cccLb > byCCC[1].cccLb) {
+      award(byCCC[0].slug, { label: 'Most cargo', icon: '📦', cls: 'fleet-cargo' });
+    }
+    // Best value — lowest $ per lb of dry weight (practical value metric)
+    const byValue = [...pool]
+      .filter((t) => t.msrp > 0 && t.weightLb > 0)
+      .map((t) => ({ t, ratio: t.msrp / t.weightLb }))
+      .sort((a, b) => a.ratio - b.ratio);
+    if (byValue.length >= 2 && byValue[0].ratio < byValue[1].ratio) {
+      award(byValue[0].t.slug, { label: 'Best value', icon: '✨', cls: 'fleet-value' });
+    }
+    // Largest tanks (total water)
+    const totalWater = (t) => (t.freshGal || 0) + (t.grayGal || 0) + (t.blackGal || 0);
+    const byWater = [...pool].filter((t) => totalWater(t) > 0).sort((a, b) => totalWater(b) - totalWater(a));
+    if (byWater.length >= 2 && totalWater(byWater[0]) > totalWater(byWater[1])) {
+      award(byWater[0].slug, { label: 'Largest tanks', icon: '🚿', cls: 'fleet-tanks' });
+    }
+  }
+  return result;
+}
+
+// ---------------------------------------------------------------------------
 // SPEC PERCENTILE RANKINGS — where does this floorplan sit in the full lineup?
 // Computed at build time from the same-year catalog so the detail page can
 // show "Lighter than 85% of models" etc. without any client-side computation.
