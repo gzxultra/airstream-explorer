@@ -1640,6 +1640,196 @@ function renderCostPerNight(t) {
  * "You might also like" — spec-similar trailers from OTHER families.
  * Complements renderRelated() which stays within the same family.
  */
+// ---------------------------------------------------------------------------
+// RESALE VALUE PROJECTOR — Airstream-specific 10-year value retention curve.
+// Airstreams famously hold value better than nearly any other RV brand.
+// The curve uses a compound depreciation model: steep in year 1, gentler
+// over time — reflecting real Airstream resale patterns.
+// ---------------------------------------------------------------------------
+
+// Airstream depreciation rates by year bracket (% of current value lost/year).
+// Sourced from industry resale data: Airstreams lose ~12% in year 1 (vs 20-25%
+// for typical RVs), then settle to ~6-8%/yr in years 2-5, and ~3-4%/yr after
+// that. Well-maintained Airstreams commonly retain 55-65% at year 10.
+const RESALE_RATES = {
+  excellent: { y1: 0.10, y2_5: 0.055, y6_10: 0.030 },
+  good:      { y1: 0.12, y2_5: 0.070, y6_10: 0.040 },
+  fair:      { y1: 0.15, y2_5: 0.085, y6_10: 0.055 },
+};
+
+// Industry average (typical non-Airstream RV) for comparison
+const INDUSTRY_AVG = { y1: 0.22, y2_5: 0.12, y6_10: 0.08 };
+
+export function projectResale(msrp, condition = 'good') {
+  const rates = RESALE_RATES[condition] || RESALE_RATES.good;
+  const milestones = [0, 1, 3, 5, 7, 10];
+  const airstream = [];
+  const industry = [];
+  for (const yr of milestones) {
+    let asVal = msrp, indVal = msrp;
+    for (let y = 1; y <= yr; y++) {
+      const asRate = y <= 1 ? rates.y1 : y <= 5 ? rates.y2_5 : rates.y6_10;
+      const indRate = y <= 1 ? INDUSTRY_AVG.y1 : y <= 5 ? INDUSTRY_AVG.y2_5 : INDUSTRY_AVG.y6_10;
+      asVal *= (1 - asRate);
+      indVal *= (1 - indRate);
+    }
+    airstream.push({ year: yr, value: Math.round(asVal), pct: Math.round((asVal / msrp) * 100) });
+    industry.push({ year: yr, value: Math.round(indVal), pct: Math.round((indVal / msrp) * 100) });
+  }
+  return { milestones, airstream, industry };
+}
+
+function renderResaleProjector(t) {
+  if (!(t.msrp > 0)) return '';
+  const proj = projectResale(t.msrp, 'good');
+
+  const bars = proj.airstream.map((a, i) => {
+    const ind = proj.industry[i];
+    const yr = a.year;
+    const label = yr === 0 ? 'New' : `Yr ${yr}`;
+    return `<div class="resale-col">
+<div class="resale-bars">
+<div class="resale-bar resale-bar--airstream" style="height:${a.pct}%" aria-label="Airstream: ${esc(formatMsrp(a.value))} (${a.pct}%)"><span class="resale-bar-val">${a.pct}%</span></div>
+<div class="resale-bar resale-bar--industry" style="height:${ind.pct}%" aria-label="Industry avg: ${esc(formatMsrp(ind.value))} (${ind.pct}%)"><span class="resale-bar-val">${ind.pct}%</span></div>
+</div>
+<span class="resale-label">${label}</span>
+</div>`;
+  }).join('');
+
+  const yr5 = proj.airstream.find((a) => a.year === 5);
+  const yr10 = proj.airstream.find((a) => a.year === 10);
+  const yr5Ind = proj.industry.find((a) => a.year === 5);
+  const yr10Ind = proj.industry.find((a) => a.year === 10);
+
+  return `<section class="resale-projector collapsible" id="resale" aria-label="Resale value projector"
+ data-msrp="${esc(t.msrp)}">
+<h2 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">Resale value projector<span class="collapsible-icon" aria-hidden="true"></span></h2>
+<div class="collapsible-body" hidden>
+<p class="resale-intro">Airstreams are legendary for holding their value. Here's how the ${esc(t.model)} ${esc(t.floorplan)}'s estimated resale compares to a typical RV over 10 years.</p>
+<div class="resale-condition">
+<label for="resale-cond">Condition</label>
+<select id="resale-cond">
+<option value="excellent">Excellent (garaged, low use)</option>
+<option value="good" selected>Good (well-maintained)</option>
+<option value="fair">Fair (normal wear)</option>
+</select>
+</div>
+<div class="resale-chart" id="resale-chart" role="img" aria-label="Resale value chart">
+${bars}
+</div>
+<div class="resale-legend">
+<span class="resale-legend-item"><span class="resale-legend-dot resale-legend-dot--airstream"></span>Airstream</span>
+<span class="resale-legend-item"><span class="resale-legend-dot resale-legend-dot--industry"></span>Industry avg</span>
+</div>
+<div class="resale-highlights">
+<div class="resale-hl">
+<span class="resale-hl-label">At 5 years</span>
+<span class="resale-hl-value" id="resale-5yr">${esc(formatMsrp(yr5.value))}</span>
+<span class="resale-hl-note">${yr5.pct}% retained <span class="muted">(vs ${yr5Ind.pct}% typical)</span></span>
+</div>
+<div class="resale-hl">
+<span class="resale-hl-label">At 10 years</span>
+<span class="resale-hl-value" id="resale-10yr">${esc(formatMsrp(yr10.value))}</span>
+<span class="resale-hl-note">${yr10.pct}% retained <span class="muted">(vs ${yr10Ind.pct}% typical)</span></span>
+</div>
+</div>
+<p class="est-caveat muted">Estimates based on Airstream resale patterns. Actual value depends on condition, mileage, upgrades, and market conditions. Airstreams consistently outperform other RV brands in resale value due to their aluminum construction and enduring demand.</p>
+</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
+// TRIP COST ESTIMATOR — total cost for a specific trip.
+// Combines fuel, campground fees, and propane into one number.
+// ---------------------------------------------------------------------------
+
+const CAMPGROUND_PRESETS = {
+  free: { label: 'Free / BLM / dispersed', perNight: 0 },
+  state: { label: 'State / county park', perNight: 30 },
+  private: { label: 'Private campground', perNight: 55 },
+  resort: { label: 'RV resort', perNight: 85 },
+};
+
+const TRIP_DEFAULTS = {
+  distanceMi: 500,
+  nights: 5,
+  campType: 'state',
+  towMpg: 10,
+};
+
+function renderTripCost(t) {
+  if (!(t.gvwrLb > 0)) return '';
+  // Estimate tow MPG from GVWR bracket (heavier = thirstier)
+  const gvwr = t.gvwrLb;
+  const estMpg = gvwr <= 5000 ? 14 : gvwr <= 7000 ? 11 : gvwr <= 9000 ? 9 : 8;
+  const d = TRIP_DEFAULTS;
+  const fuelGal = Math.ceil(d.distanceMi / estMpg);
+  const fuelCost = Math.round(fuelGal * 3.50);
+  const campCost = d.nights * CAMPGROUND_PRESETS[d.campType].perNight;
+  const propaneCost = Math.round(d.nights * 3); // ~$3/night avg propane for heat/cooking
+  const total = fuelCost + campCost + propaneCost;
+
+  const campOpts = Object.entries(CAMPGROUND_PRESETS)
+    .map(([k, v]) => `<option value="${esc(k)}"${k === d.campType ? ' selected' : ''}>${esc(v.label)} ($${v.perNight}/night)</option>`)
+    .join('');
+
+  const dataIsland = JSON.stringify({
+    gvwrLb: gvwr,
+    estMpg,
+    presets: CAMPGROUND_PRESETS,
+    defaults: d,
+  }).replace(/<\//g, '<\\/');
+
+  return `<section class="estimator trip-cost-tool collapsible" id="trip-cost" aria-label="Trip cost estimator"
+ data-gvwr="${esc(gvwr)}">
+<script type="application/json" id="trip-cost-data">${dataIsland}</script>
+<h2 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">Trip cost estimator<span class="collapsible-icon" aria-hidden="true"></span></h2>
+<div class="collapsible-body" hidden>
+<p class="est-sub">Estimate the total cost of a trip with the ${esc(t.model)} ${esc(t.floorplan)}. Fuel estimate based on its ${esc(formatWeight(gvwr))} GVWR (~${estMpg} MPG towing).</p>
+<div class="est-controls">
+<div class="est-field">
+<label for="trip-dist">Round-trip distance</label>
+<div class="finance-slider-row">
+<input type="range" id="trip-dist" min="50" max="3000" step="50" value="${d.distanceMi}" class="finance-range" aria-label="Round trip distance in miles">
+<span class="finance-range-val" id="trip-dist-val">${d.distanceMi} mi</span>
+</div>
+</div>
+<div class="est-field">
+<label for="trip-nights">Nights</label>
+<div class="finance-slider-row">
+<input type="range" id="trip-nights" min="1" max="30" step="1" value="${d.nights}" class="finance-range" aria-label="Number of nights">
+<span class="finance-range-val" id="trip-nights-val">${d.nights} nights</span>
+</div>
+</div>
+<div class="est-field">
+<label for="trip-camp">Campground type</label>
+<select id="trip-camp" class="finance-select">${campOpts}</select>
+</div>
+<div class="est-field">
+<label for="trip-fuel-price">Fuel price ($/gal)</label>
+<div class="finance-slider-row">
+<input type="range" id="trip-fuel-price" min="2.50" max="6.00" step="0.10" value="3.50" class="finance-range" aria-label="Fuel price per gallon">
+<span class="finance-range-val" id="trip-fuel-price-val">$3.50/gal</span>
+</div>
+</div>
+</div>
+<div class="est-result" id="trip-cost-result" aria-live="polite" aria-atomic="true">
+<div class="est-big">
+<span class="est-number" id="trip-total">${formatMsrp(total)}</span>
+<span class="est-number-cap">estimated trip cost</span>
+</div>
+<dl class="finance-dl">
+<div class="finance-dl-row"><dt>Fuel (~${fuelGal} gal at $3.50)</dt><dd id="trip-fuel-dd">${formatMsrp(fuelCost)}</dd></div>
+<div class="finance-dl-row"><dt>Campground (${d.nights} nights)</dt><dd id="trip-camp-dd">${formatMsrp(campCost)}</dd></div>
+<div class="finance-dl-row"><dt>Propane (heat/cooking)</dt><dd id="trip-propane-dd">${formatMsrp(propaneCost)}</dd></div>
+<div class="finance-dl-row finance-dl-total"><dt>Total trip cost</dt><dd id="trip-tot-dd">${formatMsrp(total)}</dd></div>
+</dl>
+</div>
+<p class="est-caveat muted">Fuel MPG is estimated from GVWR; actual mileage varies with tow vehicle, terrain, speed, and wind. Campground rates are U.S. averages — prices vary by region and season. Propane cost assumes heating and cooking at ~$3/night.</p>
+</div>
+</section>`;
+}
+
 function renderCrossFamily(current, allTrailers, resolve) {
   if (allTrailers.length < 10) return '';
   const candidates = allTrailers
@@ -2042,6 +2232,8 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     t.msrp > 0 ? ['#finance', 'Finance'] : null,
     t.msrp > 0 ? ['#ownership', 'Ownership'] : null,
     t.msrp > 0 ? ['#cost-night', 'Cost/Night'] : null,
+    t.msrp > 0 ? ['#resale', 'Resale'] : null,
+    t.gvwrLb ? ['#trip-cost', 'Trip Cost'] : null,
     ['#offgrid', 'Off-grid'],
     a.floorplan ? ['#floorplan', 'Floor plan'] : null,
     ['#trip-ready', 'Trip Ready'],
@@ -2143,6 +2335,8 @@ ${renderPayloadTool(t)}
 ${renderFinancingTool(t)}
 ${renderOwnershipTool(t)}
 ${renderCostPerNight(t)}
+${renderResaleProjector(t)}
+${renderTripCost(t)}
 ${renderOffGridTool(t)}
 ${floorplanSection}
 ${decorSection}

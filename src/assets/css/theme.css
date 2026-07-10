@@ -533,3 +533,12 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 /* CSV export button — dark mode */
 [data-theme="dark"] .csv-export-btn { border-color: var(--line); color: var(--muted); }
 [data-theme="dark"] .csv-export-btn:hover { border-color: var(--copper); color: var(--ink); }
+
+
+/* Resale value projector — dark mode */
+[data-theme="dark"] .resale-condition select { background: var(--surface); color: var(--ink); border-color: var(--line); }
+[data-theme="dark"] .resale-chart { border-bottom-color: var(--line); }
+[data-theme="dark"] .resale-hl { background: var(--surface); }
+
+/* Trip cost estimator — dark mode */
+[data-theme="dark"] .trip-cost-tool .finance-select { background: var(--surface); color: var(--ink); border-color: var(--line); }

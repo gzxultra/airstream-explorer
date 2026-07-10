@@ -50,6 +50,7 @@ export const SORT_KEYS = {
   'ccc-desc': { label: 'Most cargo capacity', get: (t) => t.cccLb || 0, dir: -1 },
   'hitch-asc': { label: 'Lightest hitch', get: (t) => t.hitchWeightLb || Infinity, dir: 1 },
   'value-asc': { label: 'Best value ($/ft)', get: (t) => t.lengthFt > 0 ? t.msrp / t.lengthFt : Infinity, dir: 1 },
+  'value-lb-asc': { label: 'Best value ($/lb)', get: (t) => t.weightLb > 0 ? t.msrp / t.weightLb : Infinity, dir: 1 },
   'fresh-desc': { label: 'Most fresh water', get: (t) => t.freshGal || 0, dir: -1 },
 };
 

@@ -878,6 +878,7 @@
         'ccc-desc': ['data-ccc', -1],
         'hitch-asc': ['data-hitch', 1],
         'fresh-desc': ['data-fresh', -1],
+        'value-lb-asc': null, // handled below
       };
       var sk = keymap[state.sort] || keymap['price-asc'];
       var visible = cards.filter(function (c) { return !c.hasAttribute('hidden'); });
@@ -889,6 +890,12 @@
           var vA = lenA > 0 ? msrpA / lenA : Infinity;
           var vB = lenB > 0 ? msrpB / lenB : Infinity;
           d = vA - vB;
+        } else if (state.sort === 'value-lb-asc') {
+          var msrpA2 = num(a, 'data-msrp'), msrpB2 = num(b, 'data-msrp');
+          var wA = num(a, 'data-weight'), wB = num(b, 'data-weight');
+          var vwA = wA > 0 ? msrpA2 / wA : Infinity;
+          var vwB = wB > 0 ? msrpB2 / wB : Infinity;
+          d = vwA - vwB;
         } else {
           d = (num(a, sk[0]) - num(b, sk[0])) * sk[1];
         }
@@ -6201,6 +6208,130 @@
     tripsEl.addEventListener('input', update);
     nightsEl.addEventListener('input', update);
     hotelEl.addEventListener('input', update);
+  })();
+
+  // =========================================================================
+  // RESALE VALUE PROJECTOR — live updates when condition changes.
+  // =========================================================================
+  (function resaleProjector() {
+    var condEl = document.getElementById('resale-cond');
+    if (!condEl) return;
+    var section = condEl.closest('.resale-projector');
+    var msrp = parseInt(section.getAttribute('data-msrp'), 10) || 0;
+    if (!msrp) return;
+    var chartEl = document.getElementById('resale-chart');
+    var yr5El = document.getElementById('resale-5yr');
+    var yr10El = document.getElementById('resale-10yr');
+
+    var RATES = {
+      excellent: { y1: 0.10, y2_5: 0.055, y6_10: 0.030 },
+      good:      { y1: 0.12, y2_5: 0.070, y6_10: 0.040 },
+      fair:      { y1: 0.15, y2_5: 0.085, y6_10: 0.055 },
+    };
+    var INDUSTRY = { y1: 0.22, y2_5: 0.12, y6_10: 0.08 };
+    var MILESTONES = [0, 1, 3, 5, 7, 10];
+
+    function fmtMoney(n) { return '$' + Number(n).toLocaleString('en-US'); }
+
+    function project(cond) {
+      var rates = RATES[cond] || RATES.good;
+      var airstream = [], industry = [];
+      for (var mi = 0; mi < MILESTONES.length; mi++) {
+        var yr = MILESTONES[mi];
+        var asVal = msrp, indVal = msrp;
+        for (var y = 1; y <= yr; y++) {
+          var asRate = y <= 1 ? rates.y1 : y <= 5 ? rates.y2_5 : rates.y6_10;
+          var indRate = y <= 1 ? INDUSTRY.y1 : y <= 5 ? INDUSTRY.y2_5 : INDUSTRY.y6_10;
+          asVal *= (1 - asRate);
+          indVal *= (1 - indRate);
+        }
+        airstream.push({ year: yr, value: Math.round(asVal), pct: Math.round((asVal / msrp) * 100) });
+        industry.push({ year: yr, value: Math.round(indVal), pct: Math.round((indVal / msrp) * 100) });
+      }
+      return { airstream: airstream, industry: industry };
+    }
+
+    function update() {
+      var proj = project(condEl.value);
+      // Rebuild the bars
+      var html = '';
+      for (var i = 0; i < MILESTONES.length; i++) {
+        var a = proj.airstream[i], ind = proj.industry[i], yr = a.year;
+        var label = yr === 0 ? 'New' : 'Yr ' + yr;
+        html += '<div class="resale-col">' +
+          '<div class="resale-bars">' +
+          '<div class="resale-bar resale-bar--airstream" style="height:' + a.pct + '%"><span class="resale-bar-val">' + a.pct + '%</span></div>' +
+          '<div class="resale-bar resale-bar--industry" style="height:' + ind.pct + '%"><span class="resale-bar-val">' + ind.pct + '%</span></div>' +
+          '</div>' +
+          '<span class="resale-label">' + label + '</span></div>';
+      }
+      chartEl.innerHTML = html;
+      // Update highlights
+      var a5 = proj.airstream[3], a10 = proj.airstream[5]; // index 3=year5, 5=year10
+      var i5 = proj.industry[3], i10 = proj.industry[5];
+      yr5El.textContent = fmtMoney(a5.value);
+      yr5El.closest('.resale-hl').querySelector('.resale-hl-note').innerHTML = a5.pct + '% retained <span class="muted">(vs ' + i5.pct + '% typical)</span>';
+      yr10El.textContent = fmtMoney(a10.value);
+      yr10El.closest('.resale-hl').querySelector('.resale-hl-note').innerHTML = a10.pct + '% retained <span class="muted">(vs ' + i10.pct + '% typical)</span>';
+    }
+
+    condEl.addEventListener('change', update);
+  })();
+
+  // =========================================================================
+  // TRIP COST ESTIMATOR — live updates when inputs change.
+  // =========================================================================
+  (function tripCostCalc() {
+    var dataEl = document.getElementById('trip-cost-data');
+    if (!dataEl) return;
+    var data = JSON.parse(dataEl.textContent);
+    var distEl = document.getElementById('trip-dist');
+    var nightsEl = document.getElementById('trip-nights');
+    var campEl = document.getElementById('trip-camp');
+    var fuelPriceEl = document.getElementById('trip-fuel-price');
+    var distVal = document.getElementById('trip-dist-val');
+    var nightsVal = document.getElementById('trip-nights-val');
+    var fuelPriceVal = document.getElementById('trip-fuel-price-val');
+    var totalEl = document.getElementById('trip-total');
+    var fuelDd = document.getElementById('trip-fuel-dd');
+    var campDd = document.getElementById('trip-camp-dd');
+    var propDd = document.getElementById('trip-propane-dd');
+    var totDd = document.getElementById('trip-tot-dd');
+
+    function fmtMoney(n) { return '$' + Number(n).toLocaleString('en-US'); }
+
+    function update() {
+      var dist = parseInt(distEl.value, 10) || 500;
+      var nights = parseInt(nightsEl.value, 10) || 5;
+      var campType = campEl.value;
+      var fuelPrice = parseFloat(fuelPriceEl.value) || 3.50;
+
+      var mpg = data.estMpg;
+      var fuelGal = Math.ceil(dist / mpg);
+      var fuelCost = Math.round(fuelGal * fuelPrice);
+      var campRate = data.presets[campType] ? data.presets[campType].perNight : 30;
+      var campCost = nights * campRate;
+      var propaneCost = Math.round(nights * 3);
+      var total = fuelCost + campCost + propaneCost;
+
+      distVal.textContent = dist + ' mi';
+      nightsVal.textContent = nights + ' night' + (nights > 1 ? 's' : '');
+      fuelPriceVal.textContent = '$' + fuelPrice.toFixed(2) + '/gal';
+      totalEl.textContent = fmtMoney(total);
+      fuelDd.textContent = fmtMoney(fuelCost);
+      campDd.textContent = fmtMoney(campCost);
+      propDd.textContent = fmtMoney(propaneCost);
+      totDd.textContent = fmtMoney(total);
+
+      // Update fuel row label
+      fuelDd.closest('.finance-dl-row').querySelector('dt').textContent = 'Fuel (~' + fuelGal + ' gal at $' + fuelPrice.toFixed(2) + ')';
+      campDd.closest('.finance-dl-row').querySelector('dt').textContent = 'Campground (' + nights + ' nights)';
+    }
+
+    distEl.addEventListener('input', update);
+    nightsEl.addEventListener('input', update);
+    campEl.addEventListener('change', update);
+    fuelPriceEl.addEventListener('input', update);
   })();
 
   // =========================================================================

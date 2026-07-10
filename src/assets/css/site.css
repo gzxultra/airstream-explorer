@@ -4780,3 +4780,66 @@ body:has(.cmp-bar:not([hidden])) .scroll-top.is-visible { bottom: 80px; }
     }
   }
 }
+
+/* =========================================================================
+   RESALE VALUE PROJECTOR
+   ========================================================================= */
+.resale-projector { margin-top: var(--space-lg, 2.5rem); }
+.resale-intro { margin-bottom: 1rem; }
+.resale-condition { margin-bottom: 1.5rem; }
+.resale-condition label { font-size: 0.85rem; font-weight: 600; margin-right: 0.5rem; }
+.resale-condition select { font-size: 0.9rem; padding: 0.3rem 0.6rem; border: 1px solid var(--line, #ddd); border-radius: 6px; background: var(--surface, #fff); color: var(--ink, #1F1B16); }
+
+.resale-chart {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 0.5rem;
+  height: 180px;
+  padding-bottom: 1.5rem;
+  position: relative;
+  border-bottom: 1px solid var(--line, #ddd);
+  margin-bottom: 1rem;
+}
+.resale-col { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; }
+.resale-bars { display: flex; gap: 3px; align-items: flex-end; flex: 1; width: 100%; }
+.resale-bar {
+  flex: 1;
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 4px;
+  transition: height 0.4s ease;
+  position: relative;
+}
+.resale-bar--airstream { background: var(--copper, #B87333); }
+.resale-bar--industry { background: var(--muted, #999); opacity: 0.5; }
+.resale-bar-val { font-size: 0.65rem; font-weight: 700; padding-top: 3px; color: #fff; white-space: nowrap; }
+.resale-label { font-size: 0.75rem; color: var(--muted, #666); margin-top: 0.35rem; font-weight: 500; }
+
+.resale-legend { display: flex; gap: 1.5rem; margin-bottom: 1.25rem; }
+.resale-legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--muted, #666); }
+.resale-legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+.resale-legend-dot--airstream { background: var(--copper, #B87333); }
+.resale-legend-dot--industry { background: var(--muted, #999); opacity: 0.5; }
+
+.resale-highlights { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.resale-hl { text-align: center; padding: 1rem; border-radius: 10px; background: var(--surface, rgba(0,0,0,0.02)); }
+.resale-hl-label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted, #666); margin-bottom: 0.25rem; }
+.resale-hl-value { display: block; font-family: var(--ff-display, 'Fraunces', serif); font-size: 1.5rem; font-weight: 700; color: var(--copper, #B87333); }
+.resale-hl-note { display: block; font-size: 0.8rem; color: var(--ink, #1F1B16); margin-top: 0.25rem; }
+
+/* =========================================================================
+   TRIP COST ESTIMATOR
+   ========================================================================= */
+.trip-cost-tool { margin-top: var(--space-lg, 2.5rem); }
+.trip-cost-tool .finance-select {
+  font-size: 0.9rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--line, #ddd);
+  border-radius: 6px;
+  background: var(--surface, #fff);
+  color: var(--ink, #1F1B16);
+  width: 100%;
+}
