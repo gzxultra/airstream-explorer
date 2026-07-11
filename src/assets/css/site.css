@@ -5371,3 +5371,28 @@ h2:hover .section-anchor,
   width: 100%; max-width: 200px; height: auto; border: 1px solid var(--line, #e8e4de);
   border-radius: 6px; background: var(--card, #fff);
 }
+
+/* --- Clearance Fit section --- */
+.clearance-fit { max-width: 880px; margin: 2.5rem auto; }
+.clearance-intro { color: var(--muted); margin-bottom: 1.25rem; }
+.clearance-chart { display: flex; flex-direction: column; gap: 0.625rem; }
+.clearance-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1rem; border-radius: 10px;
+  background: var(--surface, #fafaf8); border: 1px solid var(--line, #e8e5df);
+  gap: 1rem;
+}
+.clearance-row--fits { border-color: #c3e6cb; background: #f0f9f2; }
+.clearance-row--blocked { border-color: #f5c6cb; background: #fdf2f2; }
+.clearance-ref { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.clearance-ref-name { font-weight: 600; font-size: 0.95rem; }
+.clearance-ref-dims { font-size: 0.82rem; }
+.clearance-verdict { font-size: 0.85rem; font-weight: 500; white-space: nowrap; text-align: right; }
+.clearance-verdict--yes { color: #2a7f3f; }
+.clearance-verdict--no { color: #c0392b; }
+.clearance-note { margin-top: 1rem; font-size: 0.82rem; }
+@media (max-width: 560px) {
+  .clearance-row { flex-direction: column; align-items: flex-start; gap: 0.35rem; }
+  .clearance-verdict { text-align: left; }
+}
+@media print { .clearance-fit { break-inside: avoid; } }

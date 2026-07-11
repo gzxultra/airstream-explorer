@@ -6,6 +6,7 @@ import {
   formatPriceRange, formatLengthRange, formatWeightRange, formatMsrpShort,
   hitchPctOfGvwr,
   trailerTitle, trailerLabel, saveButton,
+  formatDimFt,
 } from './format.mjs';
 import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy, computeFleetStandouts, generateGlanceSummary, deriveAxle, towDifficulty, winterizationGuide } from './data.mjs';
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
@@ -201,6 +202,9 @@ ${scripts}</body>
 // Each key matches the label used in specRow(); only detail-page rows get tips.
 const SPEC_GLOSSARY = {
   'Length': 'Overall bumper-to-hitch length, including the tongue.',
+  'Ext. width': 'Widest point of the exterior shell — determines lane fit and campsite clearance.',
+  'Ext. height': 'Overall height with A/C unit — the clearance you need for bridges, tunnels, and covered campsites.',
+  'Interior height': 'Standing headroom inside with A/C unit — measured at the tallest point.',
   'Dry weight': 'Empty weight from the factory — no water, propane, or personal gear.',
   'GVWR': 'Gross Vehicle Weight Rating — the maximum safe total weight when fully loaded.',
   'Cargo capacity (CCC)': 'GVWR minus dry weight. Everything you add (water, propane, gear) must fit within this.',
@@ -1326,6 +1330,9 @@ function buildSpecText(t) {
   const lines = [
     `${trailerTitle(t)}`,
     `Length: ${formatLength(t.lengthFt)}`,
+    t.extWidthFt ? `Ext. width: ${formatDimFt(t.extWidthFt)}` : null,
+    t.extHeightFt ? `Ext. height: ${formatDimFt(t.extHeightFt)} (with A/C)` : null,
+    t.intHeightFt ? `Interior height: ${formatDimFt(t.intHeightFt)} (with A/C)` : null,
     `Dry weight: ${formatWeight(t.weightLb)}`,
     `GVWR: ${formatWeight(t.gvwrLb)}`,
     t.cccLb ? `Cargo capacity (CCC): ${formatWeight(t.cccLb)}` : null,
@@ -1662,6 +1669,58 @@ ${refs}
 
 // ---------------------------------------------------------------------------
 // COST-PER-NIGHT — compares camping cost to hotel, key purchase justification.
+
+// ---------------------------------------------------------------------------
+// CLEARANCE FIT — shows whether the trailer clears common height/width gates.
+// Uses the trailer's real exterior height (with A/C) and width from official
+// Airstream specs. Reference clearances are sourced from standard dimensions.
+// ---------------------------------------------------------------------------
+const CLEARANCE_REFS = [
+  { label: 'Standard garage door', heightFt: 7, widthFt: 9, note: '7\' × 9\' single-car' },
+  { label: 'Tall garage door', heightFt: 8, widthFt: 9, note: '8\' × 9\' residential' },
+  { label: 'RV garage door', heightFt: 12, widthFt: 12, note: '12\' × 12\' RV bay' },
+  { label: 'Standard overpass', heightFt: 14, widthFt: 12, note: '14\' federal minimum' },
+  { label: 'Covered campsite', heightFt: 12, widthFt: 14, note: '~12\' typical clearance' },
+];
+
+function renderClearanceFit(t) {
+  const h = t.extHeightFt;
+  const w = t.extWidthFt;
+  if (!h || !w) return '';
+
+  const rows = CLEARANCE_REFS.map((ref) => {
+    const hFits = h <= ref.heightFt;
+    const wFits = w <= ref.widthFt;
+    const fits = hFits && wFits;
+    const hMargin = ref.heightFt - h;
+    const wMargin = ref.widthFt - w;
+    const hMarginIn = Math.round(hMargin * 12);
+    const wMarginIn = Math.round(wMargin * 12);
+    const verdictCls = fits ? 'clearance-verdict--yes' : 'clearance-verdict--no';
+    const verdict = fits
+      ? `✓ Clears — ${hMarginIn}" height, ${wMarginIn}" width to spare`
+      : !hFits && !wFits
+        ? `✗ Too tall (${Math.abs(hMarginIn)}") and too wide (${Math.abs(wMarginIn)}")`
+        : !hFits
+          ? `✗ Too tall by ${Math.abs(hMarginIn)}"`
+          : `✗ Too wide by ${Math.abs(wMarginIn)}"`;
+
+    return `<div class="clearance-row ${fits ? 'clearance-row--fits' : 'clearance-row--blocked'}">
+<div class="clearance-ref">
+<span class="clearance-ref-name">${esc(ref.label)}</span>
+<span class="clearance-ref-dims muted">${esc(ref.note)}</span>
+</div>
+<span class="clearance-verdict ${verdictCls}">${verdict}</span>
+</div>`;
+  }).join('\n');
+
+  return `<section class="clearance-fit" id="clearance-fit" aria-label="Clearance fit">
+<h2>Will it fit?</h2>
+<p class="clearance-intro">Your ${esc(t.model)} ${esc(t.floorplan)} is ${esc(formatDimFt(h))} tall (with A/C) and ${esc(formatDimFt(w))} wide. Here\u2019s how it measures against common openings.</p>
+<div class="clearance-chart">${rows}</div>
+<p class="clearance-note muted">Height includes rooftop A/C. Without A/C the trailer is ~2\u20133\u2033 shorter. Always measure your specific unit before a tight clearance.</p>
+</section>`;
+}
 // ---------------------------------------------------------------------------
 const COST_NIGHT_DEFAULTS = {
   tripsYear: 12,
@@ -2941,6 +3000,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
   const sectionNav = buildSectionNav([
     ['#specs', 'Specs'],
     ['#size-scale', 'Size'],
+    (t.extHeightFt && t.extWidthFt) ? ['#clearance-fit', 'Clearance'] : null,
     ['#weight-context', 'Weight'],
     yearDiff ? ['#year-diff', '2025→26'] : null,
     t.gvwrLb ? ['#tow', 'Tow'] : null,
@@ -3037,6 +3097,9 @@ ${renderRadarChart(t)}
 <h2>Specifications</h2>
 <dl class="specs-grid">
 ${specRow('Length', formatLength(t.lengthFt), { tip: true, unit: 'length', raw: t.lengthFt, pctData: pctFor('lengthFt') })}
+${specRow('Ext. width', formatDimFt(t.extWidthFt), { tip: true, unit: 'dimft', raw: t.extWidthFt })}
+${specRow('Ext. height', formatDimFt(t.extHeightFt) + (t.extHeightFt ? ' (with A/C)' : ''), { tip: true, unit: 'dimft', raw: t.extHeightFt })}
+${specRow('Interior height', formatDimFt(t.intHeightFt) + (t.intHeightFt ? ' (with A/C)' : ''), { tip: true, unit: 'dimft', raw: t.intHeightFt })}
 ${specRow('Dry weight', formatWeight(t.weightLb), { tip: true, unit: 'weight', raw: t.weightLb, pctData: pctFor('weightLb') })}
 ${specRow('GVWR', formatWeight(t.gvwrLb), { tip: true, unit: 'weight', raw: t.gvwrLb })}
 ${specRow('Cargo capacity (CCC)', formatWeight(t.cccLb), { tip: true, unit: 'weight', raw: t.cccLb, pctData: pctFor('cccLb') })}
@@ -3054,6 +3117,7 @@ ${renderBrowseLinks(t)}
 </section>
 ${renderYearDiff(t, allTrailers)}
 ${renderSizeScale(t)}
+${renderClearanceFit(t)}
 ${renderWeightBar(t)}
 ${renderWeightContext(t)}
 ${renderWeightBudget(t)}
@@ -3369,6 +3433,7 @@ export function renderCompare(trailers, resolve = assetPaths, motorhomes = []) {
         cccLb: t.cccLb, hitchWeightLb: t.hitchWeightLb, sleeps: t.sleeps,
         freshGal: t.freshGal, grayGal: t.grayGal, blackGal: t.blackGal,
         solarW: t.solarW, batteryKwh: t.batteryKwh, offGridScore: t.offGridScore, msrp: t.msrp,
+        extWidthFt: t.extWidthFt || null, extHeightFt: t.extHeightFt || null, intHeightFt: t.intHeightFt || null,
       };
     }),
     ...motorhomes.map((m) => {

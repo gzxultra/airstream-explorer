@@ -102,3 +102,13 @@ export function saveButton(slug, type, label, variant = 'card') {
   const cls = variant === 'detail' ? 'save-btn save-btn--detail' : 'save-btn save-btn--card';
   return `<button type="button" class="${cls}" data-save data-slug="${e(slug)}" data-type="${e(type)}" aria-pressed="false" aria-label="Save ${e(label)}" title="Save this floorplan">${heart}${text}</button>`;
 }
+
+/** Format height/width as ft + in. 9.42 -> "9' 5\"". Handles "with A/C" note. */
+export function formatDimFt(ft) {
+  if (ft == null || Number.isNaN(ft)) return '—';
+  const whole = Math.floor(ft);
+  const inches = Math.round((ft - whole) * 12);
+  if (inches === 0) return `${whole}'`;
+  if (inches === 12) return `${whole + 1}'`;
+  return `${whole}' ${inches}"`;
+}

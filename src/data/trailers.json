@@ -34,7 +34,10 @@
     "cons": [
       "Compact storage"
     ],
-    "heroFamily": "bambi"
+    "heroFamily": "bambi",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.33
   },
   {
     "slug": "bambi-16rb-2026",
@@ -71,7 +74,10 @@
     "cons": [
       "Compact storage"
     ],
-    "heroFamily": "bambi"
+    "heroFamily": "bambi",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.33
   },
   {
     "slug": "bambi-20fb-2025",
@@ -108,7 +114,10 @@
     "cons": [
       "Compact storage"
     ],
-    "heroFamily": "bambi"
+    "heroFamily": "bambi",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.33
   },
   {
     "slug": "bambi-20fb-2026",
@@ -145,7 +154,10 @@
     "cons": [
       "Compact storage"
     ],
-    "heroFamily": "bambi"
+    "heroFamily": "bambi",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.33
   },
   {
     "slug": "bambi-22fb-2025",
@@ -182,7 +194,10 @@
     "cons": [
       "Compact storage"
     ],
-    "heroFamily": "bambi"
+    "heroFamily": "bambi",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.33
   },
   {
     "slug": "bambi-22fb-2026",
@@ -219,7 +234,10 @@
     "cons": [
       "Compact storage"
     ],
-    "heroFamily": "bambi"
+    "heroFamily": "bambi",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.33
   },
   {
     "slug": "basecamp-16x-2025",
@@ -255,7 +273,10 @@
     "cons": [
       "Compact storage"
     ],
-    "heroFamily": "basecamp"
+    "heroFamily": "basecamp",
+    "extWidthFt": 7.0,
+    "extHeightFt": 9.0,
+    "intHeightFt": 6.29
   },
   {
     "slug": "basecamp-16x-2026",
@@ -291,7 +312,10 @@
     "cons": [
       "Compact storage"
     ],
-    "heroFamily": "basecamp"
+    "heroFamily": "basecamp",
+    "extWidthFt": 7.0,
+    "extHeightFt": 9.0,
+    "intHeightFt": 6.29
   },
   {
     "slug": "basecamp-20x-2025",
@@ -328,7 +352,10 @@
     "cons": [
       "Compact storage"
     ],
-    "heroFamily": "basecamp"
+    "heroFamily": "basecamp",
+    "extWidthFt": 7.79,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.58
   },
   {
     "slug": "basecamp-20x-2026",
@@ -365,7 +392,10 @@
     "cons": [
       "Compact storage"
     ],
-    "heroFamily": "basecamp"
+    "heroFamily": "basecamp",
+    "extWidthFt": 7.79,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.58
   },
   {
     "slug": "basecamp-xe-20xe-2025",
@@ -402,7 +432,10 @@
     "cons": [
       "Compact storage"
     ],
-    "heroFamily": "basecampxe"
+    "heroFamily": "basecampxe",
+    "extWidthFt": 7.79,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.58
   },
   {
     "slug": "basecamp-xe-20xe-2026",
@@ -439,7 +472,10 @@
     "cons": [
       "Compact storage"
     ],
-    "heroFamily": "basecampxe"
+    "heroFamily": "basecampxe",
+    "extWidthFt": 7.79,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.58
   },
   {
     "slug": "caravel-16rb-2025",
@@ -476,7 +512,10 @@
     "cons": [
       "Compact storage"
     ],
-    "heroFamily": "caravel"
+    "heroFamily": "caravel",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.5
   },
   {
     "slug": "caravel-16rb-2026",
@@ -513,7 +552,10 @@
     "cons": [
       "Compact storage"
     ],
-    "heroFamily": "caravel"
+    "heroFamily": "caravel",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.5
   },
   {
     "slug": "caravel-20fb-2025",
@@ -549,7 +591,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "caravel"
+    "heroFamily": "caravel",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.5
   },
   {
     "slug": "caravel-20fb-2026",
@@ -585,7 +630,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "caravel"
+    "heroFamily": "caravel",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.5
   },
   {
     "slug": "caravel-22fb-2025",
@@ -620,7 +668,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "caravel"
+    "heroFamily": "caravel",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.5
   },
   {
     "slug": "caravel-22fb-2026",
@@ -655,7 +706,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "caravel"
+    "heroFamily": "caravel",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.42,
+    "intHeightFt": 6.5
   },
   {
     "slug": "classic-28rb-2025",
@@ -693,7 +747,10 @@
       "Requires heavy-duty tow vehicle",
       "Premium price point"
     ],
-    "heroFamily": "classic"
+    "heroFamily": "classic",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "classic-28rb-2026",
@@ -731,7 +788,10 @@
       "Requires heavy-duty tow vehicle",
       "Premium price point"
     ],
-    "heroFamily": "classic"
+    "heroFamily": "classic",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "classic-30rb-2025",
@@ -769,7 +829,10 @@
       "Requires heavy-duty tow vehicle",
       "Premium price point"
     ],
-    "heroFamily": "classic"
+    "heroFamily": "classic",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "classic-30rb-2026",
@@ -807,7 +870,10 @@
       "Requires heavy-duty tow vehicle",
       "Premium price point"
     ],
-    "heroFamily": "classic"
+    "heroFamily": "classic",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "classic-33fb-2025",
@@ -845,7 +911,10 @@
       "Requires heavy-duty tow vehicle",
       "Premium price point"
     ],
-    "heroFamily": "classic"
+    "heroFamily": "classic",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "classic-33fb-2026",
@@ -883,7 +952,10 @@
       "Requires heavy-duty tow vehicle",
       "Premium price point"
     ],
-    "heroFamily": "classic"
+    "heroFamily": "classic",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "flying-cloud-23fb-2025",
@@ -918,7 +990,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "flyingcloud"
+    "heroFamily": "flyingcloud",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.5,
+    "intHeightFt": 6.5
   },
   {
     "slug": "flying-cloud-23fb-2026",
@@ -953,7 +1028,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "flyingcloud"
+    "heroFamily": "flyingcloud",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.5,
+    "intHeightFt": 6.5
   },
   {
     "slug": "flying-cloud-25fb-2025",
@@ -988,7 +1066,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "flyingcloud"
+    "heroFamily": "flyingcloud",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "flying-cloud-25fb-2026",
@@ -1023,7 +1104,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "flyingcloud"
+    "heroFamily": "flyingcloud",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "flying-cloud-27fb-2025",
@@ -1059,7 +1143,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "flyingcloud"
+    "heroFamily": "flyingcloud",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "flying-cloud-27fb-2026",
@@ -1095,7 +1182,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "flyingcloud"
+    "heroFamily": "flyingcloud",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "flying-cloud-28rb-2025",
@@ -1131,7 +1221,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "flyingcloud"
+    "heroFamily": "flyingcloud",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "flying-cloud-28rb-2026",
@@ -1167,7 +1260,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "flyingcloud"
+    "heroFamily": "flyingcloud",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "flying-cloud-30fb-bunk-2025",
@@ -1203,7 +1299,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "flyingcloud"
+    "heroFamily": "flyingcloud",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "flying-cloud-30fb-bunk-2026",
@@ -1239,7 +1338,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "flyingcloud"
+    "heroFamily": "flyingcloud",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "frank-lloyd-wright-limited-edition-28rb-2026",
@@ -1276,7 +1378,10 @@
       "Plan payload carefully",
       "Premium price point"
     ],
-    "heroFamily": "flw"
+    "heroFamily": "flw",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "globetrotter-25fb-2025",
@@ -1311,7 +1416,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "globetrotter"
+    "heroFamily": "globetrotter",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "globetrotter-25fb-2026",
@@ -1346,7 +1454,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "globetrotter"
+    "heroFamily": "globetrotter",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "globetrotter-27fb-2025",
@@ -1382,7 +1493,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "globetrotter"
+    "heroFamily": "globetrotter",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "globetrotter-27fb-2026",
@@ -1418,7 +1532,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "globetrotter"
+    "heroFamily": "globetrotter",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "globetrotter-30rb-2025",
@@ -1456,7 +1573,10 @@
       "Plan payload carefully",
       "Premium price point"
     ],
-    "heroFamily": "globetrotter"
+    "heroFamily": "globetrotter",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "globetrotter-30rb-2026",
@@ -1494,7 +1614,10 @@
       "Plan payload carefully",
       "Premium price point"
     ],
-    "heroFamily": "globetrotter"
+    "heroFamily": "globetrotter",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "international-23fb-2025",
@@ -1529,7 +1652,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "international"
+    "heroFamily": "international",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.5,
+    "intHeightFt": 6.5
   },
   {
     "slug": "international-23fb-2026",
@@ -1564,7 +1690,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "international"
+    "heroFamily": "international",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.5,
+    "intHeightFt": 6.5
   },
   {
     "slug": "international-25fb-2025",
@@ -1599,7 +1728,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "international"
+    "heroFamily": "international",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "international-25fb-2026",
@@ -1634,7 +1766,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "international"
+    "heroFamily": "international",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "international-27fb-2025",
@@ -1670,7 +1805,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "international"
+    "heroFamily": "international",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "international-27fb-2026",
@@ -1708,7 +1846,10 @@
       "Plan payload carefully",
       "Premium price point"
     ],
-    "heroFamily": "international"
+    "heroFamily": "international",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "international-28rb-2025",
@@ -1744,7 +1885,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "international"
+    "heroFamily": "international",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "international-28rb-2026",
@@ -1780,7 +1924,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "international"
+    "heroFamily": "international",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "international-30rb-2025",
@@ -1816,7 +1963,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "international"
+    "heroFamily": "international",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "international-30rb-2026",
@@ -1854,7 +2004,10 @@
       "Plan payload carefully",
       "Premium price point"
     ],
-    "heroFamily": "international"
+    "heroFamily": "international",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "stetson-6666-special-edition-27fb-2026",
@@ -1892,7 +2045,10 @@
       "Plan payload carefully",
       "Premium price point"
     ],
-    "heroFamily": "stetson"
+    "heroFamily": "stetson",
+    "extWidthFt": 8.42,
+    "extHeightFt": 9.58,
+    "intHeightFt": 6.58
   },
   {
     "slug": "trade-wind-23fb-2025",
@@ -1927,7 +2083,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "tradewind"
+    "heroFamily": "tradewind",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.83,
+    "intHeightFt": 6.5
   },
   {
     "slug": "trade-wind-23fb-2026",
@@ -1962,7 +2121,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "tradewind"
+    "heroFamily": "tradewind",
+    "extWidthFt": 8.0,
+    "extHeightFt": 9.83,
+    "intHeightFt": 6.5
   },
   {
     "slug": "trade-wind-25fb-2025",
@@ -1997,7 +2159,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "tradewind"
+    "heroFamily": "tradewind",
+    "extWidthFt": 8.0,
+    "extHeightFt": 10.0,
+    "intHeightFt": 6.58
   },
   {
     "slug": "trade-wind-25fb-2026",
@@ -2032,7 +2197,10 @@
     "cons": [
       "Plan payload carefully"
     ],
-    "heroFamily": "tradewind"
+    "heroFamily": "tradewind",
+    "extWidthFt": 8.0,
+    "extHeightFt": 10.0,
+    "intHeightFt": 6.58
   },
   {
     "slug": "trade-wind-27fb-2025",
@@ -2070,7 +2238,10 @@
       "Requires heavy-duty tow vehicle",
       "Premium price point"
     ],
-    "heroFamily": "tradewind"
+    "heroFamily": "tradewind",
+    "extWidthFt": 8.42,
+    "extHeightFt": 10.0,
+    "intHeightFt": 6.58
   },
   {
     "slug": "trade-wind-27fb-2026",
@@ -2108,7 +2279,10 @@
       "Requires heavy-duty tow vehicle",
       "Premium price point"
     ],
-    "heroFamily": "tradewind"
+    "heroFamily": "tradewind",
+    "extWidthFt": 8.42,
+    "extHeightFt": 10.0,
+    "intHeightFt": 6.58
   },
   {
     "slug": "world-traveler-22rb-2026",
@@ -2144,6 +2318,9 @@
     "cons": [
       "Compact storage"
     ],
-    "heroFamily": "worldtraveler"
+    "heroFamily": "worldtraveler",
+    "extWidthFt": 7.5,
+    "extHeightFt": 9.0,
+    "intHeightFt": 6.5
   }
 ]

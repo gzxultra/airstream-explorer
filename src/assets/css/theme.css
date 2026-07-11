@@ -640,3 +640,9 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 
 /* Compare floor plan dark theme */
 [data-theme="dark"] .cmp-floorplan-img { border-color: var(--line); background: var(--surface); }
+
+/* Clearance fit dark theme */
+[data-theme="dark"] .clearance-row--fits { border-color: rgba(46,125,50,.35); background: rgba(46,125,50,.12); }
+[data-theme="dark"] .clearance-row--blocked { border-color: rgba(198,40,40,.35); background: rgba(198,40,40,.12); }
+[data-theme="dark"] .clearance-verdict--yes { color: #6dba7d; }
+[data-theme="dark"] .clearance-verdict--no { color: #e74c3c; }

@@ -2377,6 +2377,9 @@
     // value (1=higher better, -1=lower better, 0=none).
     var ROWS_TRAILER = [
       ['Length', function (d) { return d.lengthFt; }, function (v) { return fmtLen2(v); }, -1],
+      ['Ext. width', function (d) { return d.extWidthFt; }, function (v) { return v ? fmtLen2(v) : '\u2014'; }, -1],
+      ['Ext. height', function (d) { return d.extHeightFt; }, function (v) { return v ? fmtLen2(v) : '\u2014'; }, -1],
+      ['Interior height', function (d) { return d.intHeightFt; }, function (v) { return v ? fmtLen2(v) : '\u2014'; }, 1],
       ['Dry weight', function (d) { return d.weightLb; }, fmtLb, -1],
       ['GVWR', function (d) { return d.gvwrLb; }, fmtLb, 0],
       ['Cargo capacity', function (d) { return d.cccLb; }, fmtLb, 1],
