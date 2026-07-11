@@ -1026,7 +1026,7 @@ export function renderFuelTool(t) {
 // ---------------------------------------------------------------------------
 
 /** Default financing assumptions — reasonable RV loan terms. */
-const FINANCE_DEFAULTS = { downPct: 20, apr: 6.99, termYears: 15 };
+export const FINANCE_DEFAULTS = { downPct: 20, apr: 6.99, termYears: 15 };
 
 /** Calculate monthly payment using standard amortization formula. */
 export function calculateMonthly(msrp, downPct, apr, termYears) {
@@ -2418,6 +2418,7 @@ ${specRow('Length', formatLength(t.lengthFt), { unit: 'length', raw: t.lengthFt 
 ${specRow('Dry weight', formatWeight(t.weightLb), { unit: 'weight', raw: t.weightLb })}${renderRangeBar(t.weightLb, ranges.weightLb, 'Dry weight')}
 ${specRow('Sleeps', String(t.sleeps))}
 ${specRow('MSRP', formatMsrp(t.msrp))}${renderRangeBar(t.msrp, ranges.msrp, 'MSRP')}
+${t.msrp > 0 ? `<div class="spec"><dt class="spec-monthly-label">Est. payment</dt><dd class="spec-monthly-val">~${esc(formatMsrpShort(calculateMonthly(t.msrp, FINANCE_DEFAULTS.downPct, FINANCE_DEFAULTS.apr, FINANCE_DEFAULTS.termYears).monthly))}/mo</dd></div>` : ''}
 </dl>
 ${(() => { const tc = towClass(t.gvwrLb); return `<span class="xcard-tow tow-badge tow-badge--${esc(tc.cls)}">${tc.icon} ${esc(tc.label)}</span>`; })()}
 ${(t.tags || []).length ? `<div class="xcard-tags">${(t.tags || []).map((tag) => `<span class="xcard-tag xcard-tag--${esc(tag)}">${esc(tagLabel(tag))}</span>`).join('')}</div>` : ''}

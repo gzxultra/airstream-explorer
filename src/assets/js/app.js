@@ -864,9 +864,11 @@
         if (verdict && fitEl) {
           card.classList.add('is-' + verdict);
           fitEl.removeAttribute('hidden');
-          if (verdict === 'comfortable') { fitEl.textContent = '\u2713 Comfortable tow'; }
-          else if (verdict === 'within') { fitEl.textContent = '\u25b3 Within limit'; }
-          else { fitEl.textContent = '\u2715 Over your rating'; }
+          var headroom = state.tow - gvwr;
+          var fmtH = Math.abs(headroom).toLocaleString('en-US');
+          if (verdict === 'comfortable') { fitEl.textContent = '\u2713 ' + fmtH + ' lb headroom'; }
+          else if (verdict === 'within') { fitEl.textContent = '\u25b3 ' + fmtH + ' lb margin'; }
+          else { fitEl.textContent = '\u2715 ' + fmtH + ' lb over'; }
           fitEl.className = 'xcard-fit fit-' + verdict;
         } else if (fitEl) {
           fitEl.setAttribute('hidden', '');
@@ -6957,6 +6959,51 @@
     textarea.addEventListener('blur', function () {
       if (timer) { clearTimeout(timer); timer = null; }
       save();
+    });
+  })();
+
+// ===========================================================================
+  // =========================================================================
+  // SECTION ANCHOR LINKS — adds a clickable # icon to detail-page section
+  //     headings (any <h2> inside a section[id]). Clicking copies the
+  //     permalink to the clipboard and shows a brief "Copied!" tooltip.
+  //     Progressive enhancement: invisible without JS, no-op without
+  //     clipboard API.
+  // =========================================================================
+  (function sectionAnchors() {
+    var article = document.querySelector('.detail');
+    if (!article) return;
+    var sections = article.querySelectorAll('section[id] > h2, section[id] > .est-head > h2, section[id] > .collapsible-trigger');
+    if (!sections.length) return;
+
+    function showToast(anchor) {
+      var tip = anchor.querySelector('.anchor-toast');
+      if (!tip) return;
+      tip.textContent = 'Copied!';
+      tip.classList.add('is-visible');
+      setTimeout(function () { tip.classList.remove('is-visible'); tip.textContent = ''; }, 1500);
+    }
+
+    Array.prototype.slice.call(sections).forEach(function (heading) {
+      var section = heading.closest('section[id]');
+      if (!section) return;
+      var id = section.id;
+      var anchor = document.createElement('a');
+      anchor.href = '#' + id;
+      anchor.className = 'section-anchor';
+      anchor.setAttribute('aria-label', 'Copy link to this section');
+      anchor.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg><span class="anchor-toast"></span>';
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        var url = location.origin + location.pathname + '#' + id;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(function () { showToast(anchor); });
+        } else {
+          // Fallback: update URL hash
+          try { history.replaceState(null, '', '#' + id); } catch (ex) {}
+        }
+      });
+      heading.appendChild(anchor);
     });
   })();
 

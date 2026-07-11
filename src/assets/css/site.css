@@ -4862,3 +4862,35 @@ body:has(.cmp-bar:not([hidden])) .scroll-top.is-visible { bottom: 80px; }
   color: var(--ink, #1F1B16);
   width: 100%;
 }
+
+/* -----------------------------------------------------------------------
+   MONTHLY PAYMENT ESTIMATE on explore cards
+   ----------------------------------------------------------------------- */
+.spec-monthly-label { font-size: 11px; color: var(--muted); letter-spacing: .02em; }
+.spec-monthly-val { font-size: 12px; color: var(--muted); font-weight: 500; }
+.xgrid.is-list .spec-monthly-label,
+.xgrid.is-list .spec-monthly-val { font-size: 11px; }
+
+/* -----------------------------------------------------------------------
+   SECTION ANCHOR LINKS — detail page heading permalinks
+   ----------------------------------------------------------------------- */
+.section-anchor {
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-left: 8px; vertical-align: middle;
+  opacity: 0; transition: opacity .2s;
+  color: var(--muted); text-decoration: none;
+  position: relative;
+}
+.section-anchor:hover { color: var(--copper); }
+h2:hover .section-anchor,
+.collapsible-trigger:hover .section-anchor,
+.section-anchor:focus-visible { opacity: 1; }
+@media (hover: none) { .section-anchor { opacity: .4; } }
+.anchor-toast {
+  position: absolute; top: -28px; left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: var(--bg); font-size: 11px; font-weight: 500;
+  padding: 3px 8px; border-radius: 4px; white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.anchor-toast.is-visible { opacity: 1; }
+@media print { .section-anchor { display: none !important; } }

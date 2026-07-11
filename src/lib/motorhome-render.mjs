@@ -8,6 +8,7 @@ import {
 } from './format.mjs';
 import { motorhomeAssetPaths, motorhomeFamilySlug, motorhomeOfficialUrl, motorhomeOfficialUrlBySlug } from './motorhome-data.mjs';
 import { catalogStats, rangePosition, towClass, waterAutonomy } from './data.mjs';
+import { calculateMonthly, FINANCE_DEFAULTS } from './render.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
 import {
   estimateOffGrid, formatNights,
@@ -643,6 +644,7 @@ ${specRow('Length', formatLength(m.lengthFt))}${renderRangeBar(m.lengthFt, range
 ${specRow('Base weight', formatWeight(m.weightLb))}${renderRangeBar(m.weightLb, ranges.weightLb, 'Base weight')}
 ${specRow('Sleeps', String(m.sleeps))}
 ${specRow('MSRP', formatMsrp(m.msrp))}${renderRangeBar(m.msrp, ranges.msrp, 'MSRP')}
+${m.msrp > 0 ? `<div class="spec"><dt class="spec-monthly-label">Est. payment</dt><dd class="spec-monthly-val">~${esc(formatMsrpShort(calculateMonthly(m.msrp, FINANCE_DEFAULTS.downPct, FINANCE_DEFAULTS.apr, FINANCE_DEFAULTS.termYears).monthly))}/mo</dd></div>` : ''}
 </dl>
 </div>
 </a>
