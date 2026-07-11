@@ -340,6 +340,71 @@ function renderWeightBar(t) {
 }
 
 // ---------------------------------------------------------------------------
+// WEIGHT CONTEXT — translates abstract weight into relatable everyday objects.
+// Uses real, verifiable reference weights so buyers can intuit what the number
+// means. Only the closest 3 references are shown so it stays concise.
+// ---------------------------------------------------------------------------
+
+const WEIGHT_REFS = [
+  { label: 'grand piano', lb: 800, icon: '🎹' },
+  { label: 'smart car', lb: 1850, icon: '🚗' },
+  { label: 'Honda Civic', lb: 3100, icon: '🚙' },
+  { label: 'Ford F-150', lb: 4700, icon: '🛻' },
+  { label: 'Ford Expedition', lb: 5700, icon: '🚐' },
+  { label: 'African elephant', lb: 13000, icon: '🐘' },
+];
+
+export function renderWeightContext(t) {
+  if (!(t.weightLb > 0)) return '';
+  const w = t.weightLb;
+
+  const comparisons = WEIGHT_REFS
+    .map((r) => {
+      const ratio = w / r.lb;
+      let text;
+      if (ratio >= 0.95 && ratio <= 1.05) {
+        text = `About the same as one ${r.label}`;
+      } else if (ratio > 1.05) {
+        const rounded = Math.round(ratio * 10) / 10;
+        const plural = rounded === 1 ? r.label : r.label + 's';
+        text = `About ${rounded}× a ${r.label}`;
+        if (rounded === Math.round(rounded)) {
+          text = `About ${Math.round(rounded)} ${plural}`;
+        }
+      } else {
+        const pct = Math.round(ratio * 100);
+        text = `About ${pct}% of a ${r.label}`;
+      }
+      return { ...r, ratio, text, distance: Math.abs(Math.log(ratio)) };
+    })
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, 3);
+
+  const items = comparisons
+    .map((c) => {
+      const barPct = Math.min(100, Math.max(4, Math.round((w / c.lb) * 50)));
+      const refPct = Math.min(100, Math.max(4, 50));
+      return `<div class="wctx-item">
+<span class="wctx-icon" aria-hidden="true">${c.icon}</span>
+<div class="wctx-detail">
+<span class="wctx-text">${esc(c.text)}</span>
+<div class="wctx-bars">
+<div class="wctx-bar wctx-bar--trailer" style="width:${barPct}%"><span class="wctx-bar-label">${esc(formatWeight(w))}</span></div>
+<div class="wctx-bar wctx-bar--ref" style="width:${refPct}%"><span class="wctx-bar-label">${esc(c.label)} ${esc(formatWeight(c.lb))}</span></div>
+</div>
+</div>
+</div>`;
+    })
+    .join('\n');
+
+  return `<section class="weight-context" id="weight-context" aria-label="Weight in context">
+<h2>How heavy is ${esc(formatWeight(w))}?</h2>
+<p class="wctx-intro muted">Your ${esc(t.model)} ${esc(t.floorplan)} weighs ${esc(formatWeight(w))} dry — here's how that compares to everyday objects.</p>
+<div class="wctx-grid">${items}</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
 // WEIGHT BUDGET WATERFALL — shows how CCC gets consumed by fluids + propane
 // ---------------------------------------------------------------------------
 
@@ -2256,6 +2321,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
   const sectionNav = buildSectionNav([
     ['#specs', 'Specs'],
     ['#size-scale', 'Size'],
+    ['#weight-context', 'Weight'],
     yearDiff ? ['#year-diff', '2025→26'] : null,
     t.gvwrLb ? ['#tow', 'Tow'] : null,
     t.gvwrLb ? ['#fuel', 'Fuel'] : null,
@@ -2360,6 +2426,7 @@ ${renderBrowseLinks(t)}
 ${renderYearDiff(t, allTrailers)}
 ${renderSizeScale(t)}
 ${renderWeightBar(t)}
+${renderWeightContext(t)}
 ${renderWeightBudget(t)}
 ${towCallout}
 ${renderTowTool(t)}

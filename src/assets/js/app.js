@@ -4790,12 +4790,28 @@
       heading.setAttribute('aria-expanded', collapsed[id] ? 'false' : 'true');
       heading.setAttribute('tabindex', '0');
 
+      // Set initial max-height for smooth CSS transitions
+      if (!collapsed[id]) {
+        wrapper.style.maxHeight = wrapper.scrollHeight + 'px';
+      }
+
       function toggle() {
         var isNowCollapsed = section.classList.toggle('is-collapsed');
         heading.setAttribute('aria-expanded', isNowCollapsed ? 'false' : 'true');
         if (isNowCollapsed) {
+          wrapper.style.maxHeight = wrapper.scrollHeight + 'px';
+          void wrapper.offsetHeight;
+          wrapper.style.maxHeight = '0';
           collapsed[id] = true;
         } else {
+          wrapper.style.maxHeight = wrapper.scrollHeight + 'px';
+          var onEnd = function () {
+            wrapper.removeEventListener('transitionend', onEnd);
+            if (!section.classList.contains('is-collapsed')) {
+              wrapper.style.maxHeight = 'none';
+            }
+          };
+          wrapper.addEventListener('transitionend', onEnd);
           delete collapsed[id];
         }
         try { localStorage.setItem(STORE_KEY, JSON.stringify(collapsed)); } catch (e) { /* noop */ }
@@ -4909,13 +4925,26 @@
       try { localStorage.setItem(STORE_KEY, JSON.stringify(st)); } catch (e) {}
     }
 
-    // Toggle collapsible
+    // Toggle collapsible with smooth animation
     if (trigger && body) {
       trigger.addEventListener('click', function () {
         var expanded = trigger.getAttribute('aria-expanded') === 'true';
         trigger.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-        if (expanded) body.setAttribute('hidden', '');
-        else body.removeAttribute('hidden');
+        if (expanded) {
+          body.style.maxHeight = body.scrollHeight + 'px';
+          void body.offsetHeight;
+          body.setAttribute('hidden', '');
+        } else {
+          body.removeAttribute('hidden');
+          body.style.maxHeight = body.scrollHeight + 'px';
+          var onEnd = function () {
+            body.removeEventListener('transitionend', onEnd);
+            if (!body.hasAttribute('hidden')) {
+              body.style.maxHeight = 'none';
+            }
+          };
+          body.addEventListener('transitionend', onEnd);
+        }
       });
       trigger.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trigger.click(); }
@@ -4952,6 +4981,39 @@
         updateProgress();
       });
     }
+  })();
+
+  // =========================================================================
+  // 9e-b. GENERIC COLLAPSIBLE — handles any .collapsible sections not already
+  //       wired (e.g. weight-budget). Smooth animated expand/collapse.
+  // =========================================================================
+  (function genericCollapsible() {
+    var triggers = Array.prototype.slice.call(document.querySelectorAll('.collapsible .collapsible-trigger'));
+    triggers.forEach(function (trig) {
+      if (trig.closest('.trip-ready')) return;
+      var body = trig.parentElement.querySelector('.collapsible-body');
+      if (!body) return;
+      trig.addEventListener('click', function () {
+        var expanded = trig.getAttribute('aria-expanded') === 'true';
+        trig.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+        if (expanded) {
+          body.style.maxHeight = body.scrollHeight + 'px';
+          void body.offsetHeight;
+          body.setAttribute('hidden', '');
+        } else {
+          body.removeAttribute('hidden');
+          body.style.maxHeight = body.scrollHeight + 'px';
+          var onEnd = function () {
+            body.removeEventListener('transitionend', onEnd);
+            if (!body.hasAttribute('hidden')) body.style.maxHeight = 'none';
+          };
+          body.addEventListener('transitionend', onEnd);
+        }
+      });
+      trig.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trig.click(); }
+      });
+    });
   })();
 
   // =========================================================================
@@ -6526,6 +6588,37 @@
   //     Performance: uses requestAnimationFrame, only active while hero is
   //     in viewport, and uses CSS transform (GPU-composited, no reflow).
   // =========================================================================
+
+  // =========================================================================
+  // 9f. SCROLL REVEAL — sections on detail pages fade+slide up as they enter
+  //     the viewport. CLS-safe: elements keep their natural height, only
+  //     opacity and transform change. Respects prefers-reduced-motion via CSS.
+  // =========================================================================
+  (function scrollReveal() {
+    var detail = document.querySelector('.detail');
+    if (!detail) return;
+    var sections = Array.prototype.slice.call(detail.querySelectorAll(
+      ':scope > section, :scope > .weight-bar, :scope > .weight-budget, ' +
+      ':scope > .weight-context, :scope > .tow-callout, :scope > .detail-overview, ' +
+      ':scope > .proscons, :scope > .cross-family'
+    ));
+    if (!sections.length) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      sections.forEach(function (s) { s.classList.add('reveal-section', 'is-revealed'); });
+      return;
+    }
+    sections.forEach(function (s) { s.classList.add('reveal-section'); });
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    sections.forEach(function (s) { observer.observe(s); });
+  })();
+
   (function heroParallax() {
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var hero = document.querySelector('.detail-hero');

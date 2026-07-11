@@ -4357,6 +4357,27 @@ body:has(.cmp-bar:not([hidden])) .scroll-top.is-visible { bottom: 80px; }
 }
 @media print { .size-scale { break-inside: avoid; } }
 
+/* ── Weight context ─────────────────────────────────────────────────────── */
+.weight-context { max-width: var(--reading-w, 880px); margin: 36px auto; padding: 0 var(--page-px, 24px); }
+.weight-context h2 { font-family: var(--heading-font, 'Fraunces', serif); font-size: 24px; margin: 0 0 4px; }
+.wctx-intro { font-size: 15px; margin: 0 0 20px; }
+.wctx-grid { display: flex; flex-direction: column; gap: 18px; }
+.wctx-item { display: flex; align-items: flex-start; gap: 14px; }
+.wctx-icon { font-size: 28px; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+.wctx-detail { flex: 1; min-width: 0; }
+.wctx-text { display: block; font-size: 15px; font-weight: 500; margin-bottom: 8px; color: var(--ink); }
+.wctx-bars { display: flex; flex-direction: column; gap: 4px; }
+.wctx-bar { height: 22px; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; font-size: 11px; font-weight: 500; white-space: nowrap; overflow: hidden; transition: width .6s ease; }
+.wctx-bar--trailer { background: var(--copper); color: #fff; }
+.wctx-bar--ref { background: color-mix(in srgb, var(--ink) 12%, transparent); color: var(--muted); }
+.wctx-bar-label { overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 560px) {
+  .wctx-icon { font-size: 22px; }
+  .wctx-text { font-size: 14px; }
+  .wctx-bar { height: 18px; font-size: 10px; }
+}
+@media print { .weight-context { break-inside: avoid; } }
+
 /* ======================================================================== */
 /* COST PER NIGHT — camping vs hotel comparison                             */
 /* ======================================================================== */
@@ -4971,4 +4992,51 @@ h2:hover .section-anchor,
 .browse-link:hover {
   background: color-mix(in srgb, var(--copper, #B8763E) 8%, transparent);
   border-color: var(--copper, #B8763E);
+}
+
+
+/* ── Scroll-reveal animations ───────────────────────────────────────────── */
+.reveal-section {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .55s cubic-bezier(.16,1,.3,1), transform .55s cubic-bezier(.16,1,.3,1);
+  will-change: opacity, transform;
+}
+.reveal-section.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-section:nth-child(2n) { transition-delay: .06s; }
+.reveal-section:nth-child(3n) { transition-delay: .12s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-section { opacity: 1; transform: none; transition: none; will-change: auto; }
+}
+
+/* ── Smooth collapsible transitions ─────────────────────────────────────── */
+.section-collapse-body {
+  overflow: hidden;
+  opacity: 1;
+  transition: max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s ease;
+}
+[data-collapsible].is-collapsed .section-collapse-body {
+  max-height: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+}
+.collapsible .collapsible-body {
+  overflow: hidden;
+  opacity: 1;
+  transition: max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s ease;
+}
+.collapsible .collapsible-body[hidden] {
+  display: block !important;
+  max-height: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-collapse-body,
+  .collapsible .collapsible-body { transition: none; }
 }

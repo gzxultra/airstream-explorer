@@ -503,6 +503,7 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .size-ref--fits .size-ref-bar { background: rgba(74,140,92,0.3); }
 [data-theme="dark"] .size-ref-verdict { color: #6fc687; }
 [data-theme="dark"] .size-ref-verdict--no { color: var(--muted); }
+[data-theme="dark"] .wctx-bar--ref { background: color-mix(in srgb, var(--ink) 20%, transparent); }
 
 /* Cost per night — dark mode */
 [data-theme="dark"] .cn-side--airstream { border-color: var(--copper); }
