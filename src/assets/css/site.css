@@ -5484,3 +5484,81 @@ h2:hover .section-anchor,
   .payload-presets { gap: 0.4rem; }
   .payload-preset { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
 }
+
+/* ===== AMENITY SUMMARY CHIPS ===== */
+.amenity-summary {
+  display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0 0.5rem;
+}
+.amenity-chip {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.82rem; padding: 0.3rem 0.7rem; border-radius: 20px;
+  background: var(--card, #fff); border: 1px solid var(--line, #e0dcd6);
+  color: var(--ink, #1F1B16); font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+}
+.amenity-icon { font-size: 0.9rem; line-height: 1; }
+@media (max-width: 560px) {
+  .amenity-chip { font-size: 0.76rem; padding: 0.25rem 0.55rem; }
+}
+
+/* ===== LIFESTYLE FIT METER ===== */
+.lifestyle-fit { margin-top: 2rem; }
+.lf-grid { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
+.lf-row {
+  display: flex; align-items: flex-start; gap: 0.85rem;
+  padding: 0.75rem 1rem; border-radius: 10px;
+  background: var(--card, #fff); border: 1px solid var(--line, #e0dcd6);
+}
+.lf-icon { font-size: 1.3rem; line-height: 1; flex-shrink: 0; margin-top: 0.1rem; }
+.lf-info { flex: 1; min-width: 0; }
+.lf-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.lf-label { font-weight: 600; font-size: 0.92rem; color: var(--ink, #1F1B16); }
+.lf-dots { display: flex; gap: 0.25rem; flex-shrink: 0; }
+.lf-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1.5px solid var(--copper, #c49a6c);
+  background: transparent;
+  transition: background 0.2s ease;
+}
+.lf-dot--filled { background: var(--copper, #c49a6c); border-color: var(--copper, #c49a6c); }
+.lf-reason { font-size: 0.82rem; color: var(--muted, #8c8478); margin: 0.25rem 0 0; line-height: 1.4; }
+@media (max-width: 560px) {
+  .lf-row { padding: 0.6rem 0.75rem; }
+  .lf-label { font-size: 0.85rem; }
+  .lf-reason { font-size: 0.78rem; }
+  .lf-dot { width: 9px; height: 9px; }
+}
+
+/* ===== STORAGE & PARKING GUIDE ===== */
+.storage-guide { margin-top: 2rem; }
+.sg-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+  margin-top: 1rem;
+}
+.sg-card {
+  padding: 1rem 1.1rem; border-radius: 10px;
+  background: var(--card, #fff); border: 1px solid var(--line, #e0dcd6);
+}
+.sg-card-icon { display: block; margin-bottom: 0.5rem; color: var(--copper, #c49a6c); }
+.sg-card-icon svg { display: block; }
+.sg-card-title {
+  font-size: 0.82rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--muted, #8c8478);
+  margin: 0 0 0.4rem;
+}
+.sg-card-value {
+  font-size: 0.92rem; color: var(--ink, #1F1B16); margin: 0 0 0.3rem;
+  line-height: 1.4;
+}
+.sg-card-note { font-size: 0.78rem; margin: 0; }
+@media (max-width: 768px) {
+  .sg-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .sg-card { padding: 0.75rem 0.85rem; }
+  .sg-card-value { font-size: 0.85rem; }
+}
+
+@media print {
+  .lifestyle-fit, .storage-guide { break-inside: avoid; }
+}

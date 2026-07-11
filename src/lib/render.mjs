@@ -12,6 +12,7 @@ import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, co
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
+import { lifestyleFit, deriveAmenities, storageGuide } from './lifestyle.mjs';
 import { SORT_KEYS, exploreTags, tagLabel, SMART_PRESETS } from './explore.mjs';
 import { renderCampgroundFit } from './campgrounds-render.mjs';
 import { renderFloorplanZones, renderFloorplanLegend } from './floorplan-zones.mjs';
@@ -2898,6 +2899,90 @@ ${rows}
 }
 
 
+// ---------------------------------------------------------------------------
+// LIFESTYLE FIT METER — how well a trailer matches common camping lifestyles
+// ---------------------------------------------------------------------------
+function renderLifestyleFit(t) {
+  const fit = lifestyleFit(t);
+  const categories = [
+    { key: 'boondocking', label: 'Boondocking', icon: '⛺', score: fit.boondocking, reason: fit.boondockReason },
+    { key: 'family', label: 'Family camping', icon: '👨‍👩‍👧‍👦', score: fit.family, reason: fit.familyReason },
+    { key: 'weekend', label: 'Weekend getaway', icon: '🚗', score: fit.weekend, reason: fit.weekendReason },
+    { key: 'fulltime', label: 'Full-time living', icon: '🏡', score: fit.fulltime, reason: fit.fulltimeReason },
+    { key: 'easyTow', label: 'Easy towing', icon: '🪢', score: fit.easyTow, reason: fit.easyTowReason },
+  ];
+  const rows = categories.map((c) => {
+    const dots = Array.from({ length: 5 }, (_, i) =>
+      `<span class="lf-dot${i < c.score ? ' lf-dot--filled' : ''}" aria-hidden="true"></span>`
+    ).join('');
+    return `<div class="lf-row">
+<span class="lf-icon" aria-hidden="true">${c.icon}</span>
+<div class="lf-info">
+<div class="lf-header"><span class="lf-label">${esc(c.label)}</span><span class="lf-dots" aria-label="${c.score} out of 5">${dots}</span></div>
+<p class="lf-reason">${esc(c.reason)}</p>
+</div>
+</div>`;
+  }).join('\n');
+
+  return `<section class="lifestyle-fit collapsible" id="lifestyle-fit" aria-label="Lifestyle fit">
+<h2 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">
+Lifestyle fit<span class="collapsible-icon" aria-hidden="true"></span>
+</h2>
+<div class="collapsible-body">
+<p class="muted">How well the ${esc(t.model)} ${esc(t.floorplan)} matches common camping styles, based on its real specs.</p>
+<div class="lf-grid">${rows}</div>
+</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
+// AMENITY SUMMARY — visual chips showing key floorplan features
+// ---------------------------------------------------------------------------
+function renderAmenitySummary(t) {
+  const amenities = deriveAmenities(t);
+  if (!amenities.length) return '';
+  const chips = amenities.map((a) =>
+    `<span class="amenity-chip"><span class="amenity-icon" aria-hidden="true">${a.icon}</span>${esc(a.label)}</span>`
+  ).join('');
+  return `<div class="amenity-summary" aria-label="Key features">${chips}</div>`;
+}
+
+// ---------------------------------------------------------------------------
+// STORAGE & PARKING GUIDE — practical dimension-based recommendations
+// ---------------------------------------------------------------------------
+function renderStorageGuide(t) {
+  if (!t.lengthFt) return '';
+  const guide = storageGuide(t);
+  return `<section class="storage-guide collapsible" id="storage" aria-label="Storage &amp; parking guide">
+<h2 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">
+Storage &amp; parking<span class="collapsible-icon" aria-hidden="true"></span>
+</h2>
+<div class="collapsible-body">
+<p class="muted">Practical sizing for storing and maneuvering your ${esc(t.model)} ${esc(t.floorplan)} (${esc(String(Math.ceil(t.lengthFt)))}' long${t.extHeightFt ? `, ${esc(String(t.extHeightFt))}' tall` : ''}).</p>
+<div class="sg-grid">
+<div class="sg-card">
+<span class="sg-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="15" rx="2"/><path d="M1 10h22"/></svg></span>
+<h3 class="sg-card-title">Storage unit</h3>
+<p class="sg-card-value">${esc(guide.storageUnit)}</p>
+<p class="sg-card-note muted">Need ${guide.recommendedSlotFt}' minimum slot length</p>
+</div>
+<div class="sg-card">
+<span class="sg-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M3 7v14"/><path d="M21 7v14"/><path d="M3 7l9-4 9 4"/></svg></span>
+<h3 class="sg-card-title">Garage fit</h3>
+<p class="sg-card-value">${esc(guide.garageNote)}</p>
+<p class="sg-card-note muted">${guide.clearanceHeight ? `${guide.clearanceHeight}' clearance needed (with A/C)` : ''}</p>
+</div>
+<div class="sg-card">
+<span class="sg-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></span>
+<h3 class="sg-card-title">Maneuvering</h3>
+<p class="sg-card-value">${esc(guide.maneuverNote)}</p>
+<p class="sg-card-note muted">${guide.parkingLength}' overall parking footprint</p>
+</div>
+</div>
+</div>
+</section>`;
+}
+
 function renderNextSteps(t) {
   const official = officialUrl(t.model);
   const links = [];
@@ -3139,7 +3224,9 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     a.floorplan ? ['#floorplan', 'Floor plan'] : null,
     ['#trip-ready', 'Trip Ready'],
     ['#seasonal', 'Seasons'],
-    ['#winterization', 'Storage'],
+    ['#lifestyle-fit', 'Lifestyle'],
+    ['#winterization', 'Winterize'],
+    ['#storage', 'Storage'],
     ['#maintenance-ref', 'Maint.'],
     galleryCount ? ['#gallery', 'Gallery'] : null,
   ].filter(Boolean));
@@ -3208,6 +3295,7 @@ ${official ? `<p class="official-head"><a class="official-link" href="${esc(offi
 ${renderKeyStats(t)}
 <div class="detail-overview">
 <p class="detail-desc">${esc(t.description)}</p>
+${renderAmenitySummary(t)}
 ${renderGlanceSummary(t, allTrailers)}
 ${renderRadarChart(t)}
 </div>
@@ -3264,7 +3352,9 @@ ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
 </section>` : ''}
 ${renderTripReady(t)}
 ${renderSeasonalGuide(t)}
+${renderLifestyleFit(t)}
 ${renderWinterization(t)}
+${renderStorageGuide(t)}
 ${renderMaintenanceQuickRef(t)}
 ${gallery ? `<section class="gallery" id="gallery" aria-label="Gallery"><div class="gallery-head"><h2>Gallery</h2><button type="button" class="gallery-autoplay" id="gallery-autoplay" aria-label="Auto-play slideshow" title="Auto-play slideshow"><svg viewBox="0 0 24 24" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Slideshow</button></div><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
 ${renderNextSteps(t)}

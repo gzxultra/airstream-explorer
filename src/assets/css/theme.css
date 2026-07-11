@@ -661,3 +661,16 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .payload-preset { background: var(--surface); border-color: var(--line); color: var(--ink); }
 [data-theme="dark"] .payload-preset:hover { background: rgba(212,160,74,.12); border-color: #d4a04a; }
 [data-theme="dark"] .payload-preset.is-active { background: #d4a04a; color: #1a1714; border-color: #d4a04a; }
+
+
+/* Amenity chips dark */
+[data-theme="dark"] .amenity-chip { background: var(--surface); border-color: var(--line); }
+
+/* Lifestyle fit dark */
+[data-theme="dark"] .lf-row { background: var(--surface); border-color: var(--line); }
+[data-theme="dark"] .lf-dot { border-color: #d4a04a; }
+[data-theme="dark"] .lf-dot--filled { background: #d4a04a; border-color: #d4a04a; }
+
+/* Storage guide dark */
+[data-theme="dark"] .sg-card { background: var(--surface); border-color: var(--line); }
+[data-theme="dark"] .sg-card-icon { color: #d4a04a; }
