@@ -7420,3 +7420,107 @@
     setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
   });
 })();
+
+  // =========================================================================
+  // WATER AUTONOMY CALCULATOR — interactive tank-days estimator.
+  //     Reads tank capacities from the section data-* attributes and lets
+  //     the visitor adjust people count and usage level. Recalculates days
+  //     until fresh runs out or waste fills up.
+  //     Guarded by #water-autonomy.
+  // =========================================================================
+  (function waterAutonomyCalc() {
+    var section = document.getElementById('water-autonomy');
+    if (!section) return;
+
+    var dataEl = document.getElementById('water-calc-data');
+    if (!dataEl) return;
+    var data;
+    try { data = JSON.parse(dataEl.textContent); } catch (e) { return; }
+
+    var freshGal = data.freshGal || 0;
+    var grayGal  = data.grayGal  || 0;
+    var blackGal = data.blackGal || 0;
+    var combined = data.combined;
+    var USAGE    = data.usage;
+
+    var peopleSlider = document.getElementById('wc-people');
+    var peopleVal    = document.getElementById('wc-people-val');
+    var usageBtns    = Array.prototype.slice.call(section.querySelectorAll('.wc-usage-btn'));
+    var totalDaysEl  = document.getElementById('wc-total-days');
+    var limitNoteEl  = document.getElementById('wc-limit-note');
+    var usageDetailEl = document.getElementById('wc-usage-detail');
+
+    var state = { people: 2, usage: 'moderate' };
+
+    function calcDays(gal, gpd, people) {
+      if (!gal || gal <= 0 || gpd <= 0 || people <= 0) return null;
+      return Math.round((gal / (gpd * people)) * 10) / 10;
+    }
+
+    function update() {
+      var u = USAGE[state.usage] || USAGE.moderate;
+      var p = state.people;
+
+      var freshDays = calcDays(freshGal, u.freshGpd, p);
+      var grayDays  = grayGal ? calcDays(grayGal, u.grayGpd, p) : null;
+      var blackDays = blackGal ? calcDays(blackGal, u.blackGpd, p) : null;
+
+      var allDays = [freshDays, grayDays, blackDays].filter(function(d) { return d != null && d > 0; });
+      var minDays = allDays.length ? Math.min.apply(null, allDays) : null;
+      var maxDays = allDays.length ? Math.max.apply(null, allDays) : 1;
+      var limitLabel = minDays === freshDays ? 'fresh water' : minDays === grayDays ? 'gray tank' : 'waste tank';
+
+      if (totalDaysEl) totalDaysEl.textContent = minDays != null ? minDays.toFixed(1) : '—';
+      if (limitNoteEl) limitNoteEl.textContent = minDays != null ? 'Limited by ' + limitLabel : '';
+      if (peopleVal) peopleVal.textContent = p + (p === 1 ? ' person' : ' people');
+      if (usageDetailEl) {
+        usageDetailEl.textContent = 'At ' + u.label.toLowerCase() + ' usage: ' +
+          u.freshGpd + ' gal fresh / ' + u.grayGpd + ' gal gray / ' + u.blackGpd +
+          ' gal black per person per day. ' + u.desc + '.';
+      }
+
+      // Update tank bars
+      var tanks = [
+        { cls: 'wc-fresh', days: freshDays },
+        { cls: 'wc-gray',  days: grayDays },
+        { cls: 'wc-black', days: blackDays },
+      ];
+      tanks.forEach(function(tank) {
+        var dayEl = document.getElementById(tank.cls + '-days');
+        var fillEl = dayEl ? dayEl.parentElement : null;
+        if (!dayEl || !fillEl) return;
+        dayEl.textContent = tank.days != null ? tank.days.toFixed(1) + ' days' : '—';
+        var pct = tank.days && maxDays ? Math.min(100, (tank.days / maxDays) * 100) : 0;
+        fillEl.style.width = Math.round(pct) + '%';
+        if (tank.days === minDays) {
+          fillEl.classList.add('wc-tank-fill--limiting');
+        } else {
+          fillEl.classList.remove('wc-tank-fill--limiting');
+        }
+        // Update limiting factor indicator
+        var limitEl = fillEl.parentElement.parentElement.querySelector('.wc-tank-limit');
+        if (limitEl) {
+          if (tank.days === minDays) { limitEl.style.display = ''; }
+          else { limitEl.style.display = 'none'; }
+        }
+      });
+    }
+
+    if (peopleSlider) {
+      peopleSlider.addEventListener('input', function() {
+        state.people = parseInt(peopleSlider.value, 10) || 2;
+        update();
+      });
+    }
+    usageBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        state.usage = btn.getAttribute('data-usage') || 'moderate';
+        usageBtns.forEach(function(b) {
+          var on = b === btn;
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        update();
+      });
+    });
+  })();

@@ -5157,3 +5157,85 @@ h2:hover .section-anchor,
   background: color-mix(in srgb, var(--copper) 12%, transparent);
   border-color: var(--copper); color: var(--copper);
 }
+
+/* ===================================================================
+   SPEC DELTAS — comparison chips on related / cross-family cards
+   =================================================================== */
+.spec-deltas { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
+.delta-chip {
+  display:inline-block; font-size:.72rem; font-weight:500;
+  padding:2px 6px; border-radius:3px; white-space:nowrap;
+  line-height:1.4;
+}
+.delta-better { background:var(--delta-better-bg, rgba(46,125,50,.12)); color:var(--delta-better, #2e7d32); }
+.delta-more   { background:var(--delta-more-bg, rgba(183,28,28,.10));   color:var(--delta-more, #b71c1c); }
+.delta-shorter { background:var(--delta-shorter-bg, rgba(46,125,50,.10)); color:var(--delta-shorter, #2e7d32); }
+.delta-longer  { background:var(--delta-longer-bg, rgba(33,33,33,.08));   color:var(--delta-longer, #666); }
+
+/* ===================================================================
+   WATER AUTONOMY CALCULATOR
+   =================================================================== */
+.water-calc .wc-headline {
+  text-align:center; margin-bottom:1.5rem;
+}
+.water-calc .wc-limit-note {
+  display:block; font-size:.82rem; color:var(--muted, #888); margin-top:.25rem;
+}
+.wc-usage-btns {
+  display:flex; gap:6px; flex-wrap:wrap;
+}
+.wc-usage-btn {
+  flex:1; min-width:100px; padding:8px 12px; border:1px solid var(--line, #e0d8cf);
+  border-radius:6px; background:var(--surface, #faf8f5); color:var(--ink, #1F1B16);
+  font-size:.82rem; cursor:pointer; text-align:center; transition:all .2s;
+}
+.wc-usage-btn.is-active {
+  border-color:var(--copper, #b87333); background:var(--copper-wash, rgba(184,115,51,.08));
+  font-weight:600;
+}
+.wc-tanks { display:flex; flex-direction:column; gap:12px; margin-top:1rem; }
+.wc-tank-head {
+  display:flex; align-items:center; gap:6px; margin-bottom:4px; font-size:.85rem;
+}
+.wc-tank-label { font-weight:600; }
+.wc-tank-cap { color:var(--muted, #888); margin-left:auto; }
+.wc-tank-bar {
+  height:28px; background:var(--line, #e0d8cf); border-radius:4px; overflow:hidden;
+  position:relative;
+}
+.wc-tank-fill {
+  height:100%; border-radius:4px; display:flex; align-items:center; justify-content:flex-end;
+  padding-right:8px; transition:width .4s ease;
+  min-width:60px;
+}
+.wc-fresh .wc-tank-fill { background:var(--wc-fresh, #4fc3f7); }
+.wc-gray .wc-tank-fill  { background:var(--wc-gray, #aed581); }
+.wc-black .wc-tank-fill { background:var(--wc-black, #90a4ae); }
+.wc-tank-fill--limiting { opacity:.85; }
+.wc-tank-days { font-size:.75rem; font-weight:600; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.3); }
+.wc-tank-limit { font-size:.72rem; color:var(--copper, #b87333); font-weight:500; margin-top:2px; }
+.wc-usage-detail { font-size:.8rem; color:var(--muted, #888); margin-top:.75rem; }
+
+/* ===================================================================
+   MAINTENANCE QUICK-REF TABLE
+   =================================================================== */
+.maint-quickref { margin-top:2rem; }
+.maint-intro { margin-bottom:1rem; font-size:.9rem; color:var(--muted, #888); }
+.maint-table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.maint-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+.maint-table th { text-align:left; padding:8px 10px; border-bottom:2px solid var(--line, #e0d8cf); font-weight:600; font-size:.78rem; text-transform:uppercase; letter-spacing:.03em; color:var(--muted, #888); }
+.maint-table td { padding:8px 10px; border-bottom:1px solid var(--line, #e0d8cf); vertical-align:middle; }
+.maint-icon { font-size:1.1rem; width:28px; text-align:center; }
+.maint-task { font-weight:500; }
+.maint-interval { white-space:nowrap; color:var(--muted, #888); }
+.maint-cost { white-space:nowrap; }
+.maint-badge {
+  display:inline-block; font-size:.7rem; font-weight:600; padding:2px 8px;
+  border-radius:3px; text-transform:uppercase; letter-spacing:.04em;
+}
+.maint-badge--safety  { background:rgba(211,47,47,.1); color:#c62828; }
+.maint-badge--routine { background:rgba(46,125,50,.1); color:#2e7d32; }
+.maint-badge--seasonal { background:rgba(25,118,210,.1); color:#1565c0; }
+.maint-link { margin-top:1rem; font-size:.88rem; }
+.maint-link a { color:var(--copper, #b87333); text-decoration:none; }
+.maint-link a:hover { text-decoration:underline; }

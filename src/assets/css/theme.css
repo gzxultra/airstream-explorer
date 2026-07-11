@@ -595,3 +595,13 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .share-btn.is-compared {
   background: color-mix(in srgb, var(--copper) 15%, transparent);
 }
+
+/* DARK MODE — spec deltas, water calc, maintenance ref */
+[data-theme="dark"] .delta-better { --delta-better-bg:rgba(102,187,106,.15); --delta-better:#81c784; }
+[data-theme="dark"] .delta-more   { --delta-more-bg:rgba(239,83,80,.12);     --delta-more:#ef9a9a; }
+[data-theme="dark"] .delta-shorter { --delta-shorter-bg:rgba(102,187,106,.12); --delta-shorter:#81c784; }
+[data-theme="dark"] .delta-longer  { --delta-longer-bg:rgba(255,255,255,.06);  --delta-longer:#aaa; }
+[data-theme="dark"] .wc-usage-btn { border-color:var(--line); background:var(--surface); color:var(--ink); }
+[data-theme="dark"] .maint-badge--safety  { background:rgba(239,83,80,.15); color:#ef9a9a; }
+[data-theme="dark"] .maint-badge--routine { background:rgba(102,187,106,.15); color:#81c784; }
+[data-theme="dark"] .maint-badge--seasonal { background:rgba(100,181,246,.15); color:#64b5f6; }

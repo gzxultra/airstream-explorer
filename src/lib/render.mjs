@@ -1957,6 +1957,7 @@ function renderCrossFamily(current, allTrailers, resolve) {
 <div class="xfam-body">
 <p class="xfam-title">${esc(t.model)} <span>${esc(t.floorplan)}</span></p>
 <p class="xfam-specs">${esc(formatLength(t.lengthFt))} · ${esc(formatWeight(t.weightLb))} · ${esc(formatMsrp(t.msrp))}</p>
+${specDelta(current, t)}
 ${traitStr ? `<p class="xfam-traits">${esc(traitStr)}</p>` : ''}
 </div>
 </a>`;
@@ -1974,6 +1975,103 @@ ${traitStr ? `<p class="xfam-traits">${esc(traitStr)}</p>` : ''}
 // ---------------------------------------------------------------------------
 // TRIP READY CHECKLIST — model-specific pre-departure checklist using real specs
 // ---------------------------------------------------------------------------
+
+
+// ---------------------------------------------------------------------------
+// WATER & TANK AUTONOMY CALCULATOR — interactive calculator showing how many
+// days of camping before needing to refill fresh or dump waste tanks. Uses
+// real tank capacities and adjustable daily usage assumptions.
+// ---------------------------------------------------------------------------
+const WATER_USAGE = {
+  conservative: { label: 'Conservative', freshGpd: 4, grayGpd: 3, blackGpd: 1.5, desc: 'Navy showers, careful cooking' },
+  moderate:     { label: 'Moderate',     freshGpd: 6, grayGpd: 5, blackGpd: 2,   desc: 'Normal showers, regular cooking' },
+  heavy:        { label: 'Heavy',        freshGpd: 10, grayGpd: 8, blackGpd: 3,  desc: 'Long showers, laundry, dishwasher' },
+};
+
+function computeTankDays(tankGal, gpd, people) {
+  if (!tankGal || tankGal <= 0 || gpd <= 0 || people <= 0) return null;
+  return Math.round((tankGal / (gpd * people)) * 10) / 10;
+}
+
+export function renderWaterAutonomy(t) {
+  if (!t.freshGal && !t.blackGal && !t.grayGal) return '';
+  const people = 2;
+  const usage = WATER_USAGE.moderate;
+  const freshDays = computeTankDays(t.freshGal, usage.freshGpd, people);
+  const grayDays = t.grayGal ? computeTankDays(t.grayGal, usage.grayGpd, people) : null;
+  const blackDays = t.blackGal ? computeTankDays(t.blackGal, usage.blackGpd, people) : null;
+  const combined = !t.grayGal && t.blackGal; // combined waste tank
+
+  // Find the constraining factor
+  const allDays = [freshDays, grayDays, blackDays].filter(d => d != null && d > 0);
+  const minDays = allDays.length ? Math.min(...allDays) : null;
+  const minLabel = minDays === freshDays ? 'Fresh water' : minDays === grayDays ? 'Gray tank' : 'Waste tank';
+
+  const dataIsland = JSON.stringify({
+    freshGal: t.freshGal || 0,
+    grayGal: t.grayGal || 0,
+    blackGal: t.blackGal || 0,
+    combined: combined,
+    usage: WATER_USAGE,
+  }).replace(/<\//g, '<\\/');
+
+  const tankBar = (label, gal, days, icon, cls) => {
+    if (!gal || gal <= 0) return '';
+    const pct = days && minDays ? Math.min(100, (days / Math.max(...allDays)) * 100) : 0;
+    const isMin = days === minDays;
+    return `<div class="wc-tank ${cls}">
+<div class="wc-tank-head">
+<span class="wc-tank-icon" aria-hidden="true">${icon}</span>
+<span class="wc-tank-label">${label}</span>
+<span class="wc-tank-cap">${gal} gal</span>
+</div>
+<div class="wc-tank-bar"><div class="wc-tank-fill${isMin ? ' wc-tank-fill--limiting' : ''}" style="width:${Math.round(pct)}%"><span class="wc-tank-days" id="wc-${cls}-days">${days != null ? days.toFixed(1) : '—'} days</span></div></div>
+${isMin ? '<p class="wc-tank-limit">← Limiting factor</p>' : ''}
+</div>`;
+  };
+
+  return `<section class="estimator water-calc" id="water-autonomy" aria-label="Water autonomy calculator"
+ data-fresh-gal="${t.freshGal || 0}" data-gray-gal="${t.grayGal || 0}" data-black-gal="${t.blackGal || 0}" data-combined="${combined ? '1' : '0'}">
+<script type="application/json" id="water-calc-data">${dataIsland}</script>
+<div class="est-head">
+<h2>Water autonomy</h2>
+<p class="est-sub">How many days can the ${esc(t.model)} ${esc(t.floorplan)} camp before needing a refill or dump? Adjust people and usage below.</p>
+</div>
+<div class="est-controls">
+<div class="est-field">
+<label for="wc-people">People</label>
+<div class="finance-slider-row">
+<input type="range" id="wc-people" min="1" max="6" step="1" value="2" class="finance-range" aria-label="Number of people">
+<span class="finance-range-val" id="wc-people-val">2 people</span>
+</div>
+</div>
+<div class="est-field">
+<label>Daily usage</label>
+<div class="wc-usage-btns" role="radiogroup" aria-label="Water usage level">
+<button type="button" class="wc-usage-btn" data-usage="conservative" aria-pressed="false">🪣 Conservative</button>
+<button type="button" class="wc-usage-btn is-active" data-usage="moderate" aria-pressed="true">🚿 Moderate</button>
+<button type="button" class="wc-usage-btn" data-usage="heavy" aria-pressed="false">🛁 Heavy</button>
+</div>
+</div>
+</div>
+<div class="wc-result" id="wc-result" aria-live="polite" aria-atomic="true">
+<div class="wc-headline">
+<span class="est-number" id="wc-total-days">${minDays != null ? minDays.toFixed(1) : '—'}</span>
+<span class="est-number-cap">days of camping</span>
+<span class="wc-limit-note" id="wc-limit-note">${minDays != null ? 'Limited by ' + minLabel.toLowerCase() : ''}</span>
+</div>
+<div class="wc-tanks" id="wc-tanks">
+${tankBar('Fresh water', t.freshGal, freshDays, '💧', 'wc-fresh')}
+${combined
+  ? tankBar('Waste (combined)', t.blackGal, blackDays, '🚽', 'wc-black')
+  : (tankBar('Gray water', t.grayGal, grayDays, '🚿', 'wc-gray') + tankBar('Black water', t.blackGal, blackDays, '🚽', 'wc-black'))
+}
+</div>
+<p class="wc-usage-detail" id="wc-usage-detail">At moderate usage: ${usage.freshGpd} gal fresh / ${usage.grayGpd} gal gray / ${usage.blackGpd} gal black per person per day. ${usage.desc}.</p>
+</div>
+<p class="est-caveat muted">Estimates assume typical RV usage patterns. Actual consumption depends on shower habits, cooking, laundry, toilet type, and climate. Gray includes sink and shower drain; black is toilet only. ${combined ? 'This model has a single combined waste tank.' : ''}</p>
+</section>`;
+}
 
 function renderTripReady(t) {
   // Build checklist items using the trailer's real specs
@@ -2217,6 +2315,65 @@ function renderTowDifficultyBadge(t, context = 'detail') {
   return `<div class="tow-diff tow-diff--detail ${cls}" title="${esc(diff.tip)}"><span class="tow-diff-dots">${dots}</span><span class="tow-diff-label">${esc(diff.label)}</span><span class="tow-diff-tip">${esc(diff.tip)}</span></div>`;
 }
 
+
+// ---------------------------------------------------------------------------
+// MAINTENANCE QUICK-REF — shows key maintenance items with timing and est.
+// costs for this trailer, linking to the full maintenance page for details.
+// ---------------------------------------------------------------------------
+function renderMaintenanceQuickRef(t) {
+  const items = [
+    { task: 'Tire pressure check', interval: 'Before every trip', cost: 'Free', icon: '🛞', priority: 'safety' },
+    { task: 'Lug nut torque', interval: 'Before every trip', cost: 'Free', icon: '🔧', priority: 'safety' },
+    { task: 'LP & CO detector test', interval: 'Before every trip', cost: 'Free', icon: '🚨', priority: 'safety' },
+    { task: 'Roof seam inspection', interval: 'Every 6 months', cost: '$0–50 DIY', icon: '🏠', priority: 'routine' },
+    { task: 'Wheel bearing service', interval: 'Every 12 months / 12k mi', cost: '$150–400 pro', icon: '⚙️', priority: 'routine' },
+  ];
+
+  if (t.solarW) {
+    items.push({ task: 'Solar panel cleaning', interval: 'Every 3 months', cost: 'Free', icon: '☀️', priority: 'routine' });
+  }
+  if (t.batteryKwh) {
+    items.push({ task: 'Battery health check', interval: 'Every 6 months', cost: 'Free', icon: '🔋', priority: 'routine' });
+  }
+  items.push({ task: 'Water heater anode rod', interval: 'Annually', cost: '$10–30 DIY', icon: '♨️', priority: 'routine' });
+  items.push({ task: 'Winterization / de-winterization', interval: 'Seasonal', cost: '$50–150', icon: '❄️', priority: 'seasonal' });
+  items.push({ task: 'Fire extinguisher inspection', interval: 'Annually', cost: 'Free', icon: '🧯', priority: 'safety' });
+
+  const priorityMeta = {
+    safety: { label: 'Safety', cls: 'maint-safety' },
+    routine: { label: 'Routine', cls: 'maint-routine' },
+    seasonal: { label: 'Seasonal', cls: 'maint-seasonal' },
+  };
+
+  const rows = items.map(item => {
+    const meta = priorityMeta[item.priority] || priorityMeta.routine;
+    return `<tr class="${meta.cls}">
+<td class="maint-icon" aria-hidden="true">${item.icon}</td>
+<td class="maint-task">${esc(item.task)}</td>
+<td class="maint-interval">${esc(item.interval)}</td>
+<td class="maint-cost">${esc(item.cost)}</td>
+<td class="maint-priority"><span class="maint-badge maint-badge--${item.priority}">${esc(meta.label)}</span></td>
+</tr>`;
+  }).join('\n');
+
+  return `<section class="maint-quickref collapsible" id="maintenance-ref" aria-label="Maintenance quick reference">
+<h2 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">
+Maintenance schedule
+<span class="collapsible-icon" aria-hidden="true"></span>
+</h2>
+<div class="collapsible-body" hidden>
+<p class="maint-intro">Key maintenance items for the ${esc(t.model)} ${esc(t.floorplan)}. Intervals follow Airstream's published schedule and appliance manufacturer recommendations.</p>
+<div class="maint-table-wrap">
+<table class="maint-table">
+<thead><tr><th></th><th>Task</th><th>Interval</th><th>Est. cost</th><th>Type</th></tr></thead>
+<tbody>${rows}</tbody>
+</table>
+</div>
+<p class="maint-link"><a href="../maintenance.html">View full maintenance guide with detailed instructions →</a></p>
+</div>
+</section>`;
+}
+
 function renderNextSteps(t) {
   const official = officialUrl(t.model);
   const links = [];
@@ -2243,6 +2400,48 @@ function renderNextSteps(t) {
 // ---------------------------------------------------------------------------
 // RELATED FLOORPLANS: cross-discovery cards at the bottom of detail pages
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// SPEC DELTA — compact comparison chip showing how a trailer differs from
+// a reference trailer. Used by related & cross-family recommendation cards.
+// ---------------------------------------------------------------------------
+function specDelta(current, other) {
+  const parts = [];
+  const dw = other.weightLb - current.weightLb;
+  if (dw !== 0) {
+    const sign = dw > 0 ? '+' : '';
+    const cls = dw < 0 ? 'delta-better' : 'delta-more';
+    parts.push(`<span class="delta-chip ${cls}">${sign}${Math.round(dw).toLocaleString('en-US')} lb</span>`);
+  }
+  const dp = other.msrp - current.msrp;
+  if (dp !== 0 && current.msrp > 0 && other.msrp > 0) {
+    const sign = dp > 0 ? '+' : '';
+    const cls = dp < 0 ? 'delta-better' : 'delta-more';
+    const dK = Math.round(dp / 1000);
+    parts.push(`<span class="delta-chip ${cls}">${sign}${dK}k</span>`);
+  }
+  const dl = other.lengthFt - current.lengthFt;
+  if (Math.abs(dl) >= 0.5) {
+    const sign = dl > 0 ? '+' : '';
+    const cls = dl < 0 ? 'delta-shorter' : 'delta-longer';
+    parts.push(`<span class="delta-chip ${cls}">${sign}${Math.round(dl)}' long</span>`);
+  }
+  const ds = other.sleeps - current.sleeps;
+  if (ds !== 0) {
+    const sign = ds > 0 ? '+' : '';
+    const cls = ds > 0 ? 'delta-better' : 'delta-more';
+    parts.push(`<span class="delta-chip ${cls}">${sign}${ds} sleeps</span>`);
+  }
+  const dog = (other.offGridScore || 0) - (current.offGridScore || 0);
+  if (Math.abs(dog) >= 5 && current.offGridScore && other.offGridScore) {
+    const sign = dog > 0 ? '+' : '';
+    const cls = dog > 0 ? 'delta-better' : 'delta-more';
+    parts.push(`<span class="delta-chip ${cls}">${sign}${dog} off-grid</span>`);
+  }
+  if (!parts.length) return '';
+  return `<p class="spec-deltas" aria-label="Compared to current trailer">${parts.join('')}</p>`;
+}
+
 function renderRelated(current, allTrailers, resolve) {
   if (!allTrailers.length) return '';
   // Same family, same year, different floorplan
@@ -2276,6 +2475,7 @@ function renderRelated(current, allTrailers, resolve) {
 <div class="rel-body">
 <p class="rel-title">${esc(t.model)} <span>${esc(t.floorplan)}</span></p>
 <p class="rel-specs">${esc(formatLength(t.lengthFt))} · ${esc(formatWeight(t.weightLb))} · ${esc(formatMsrp(t.msrp))}</p>
+${specDelta(current, t)}
 </div>
 </a>`;
   }).join('\n');
@@ -2406,10 +2606,12 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     t.msrp > 0 ? ['#resale', 'Resale'] : null,
     t.gvwrLb ? ['#trip-cost', 'Trip Cost'] : null,
     ['#offgrid', 'Off-grid'],
+    (t.freshGal || t.blackGal) ? ['#water-autonomy', 'Water'] : null,
     a.floorplan ? ['#floorplan', 'Floor plan'] : null,
     ['#trip-ready', 'Trip Ready'],
     ['#seasonal', 'Seasons'],
     ['#winterization', 'Storage'],
+    ['#maintenance-ref', 'Maint.'],
     galleryCount ? ['#gallery', 'Gallery'] : null,
   ].filter(Boolean));
   // Related floorplans: same family, different floorplan, prefer same year
@@ -2515,6 +2717,7 @@ ${renderCostPerNight(t)}
 ${renderResaleProjector(t)}
 ${renderTripCost(t)}
 ${renderOffGridTool(t)}
+${renderWaterAutonomy(t)}
 ${floorplanSection}
 ${decorSection}
 ${campgrounds ? renderCampgroundFit(t, campgrounds) : ''}
@@ -2525,6 +2728,7 @@ ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
 ${renderTripReady(t)}
 ${renderSeasonalGuide(t)}
 ${renderWinterization(t)}
+${renderMaintenanceQuickRef(t)}
 ${gallery ? `<section class="gallery" id="gallery" aria-label="Gallery"><div class="gallery-head"><h2>Gallery</h2><button type="button" class="gallery-autoplay" id="gallery-autoplay" aria-label="Auto-play slideshow" title="Auto-play slideshow"><svg viewBox="0 0 24 24" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Slideshow</button></div><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
 ${renderNextSteps(t)}
 ${renderNotes(t.slug)}
