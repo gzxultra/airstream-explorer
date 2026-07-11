@@ -568,3 +568,30 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .browse-link:hover {
   background: color-mix(in srgb, var(--copper) 10%, transparent);
 }
+
+/* Winterization guide — dark mode */
+[data-theme="dark"] .wz-label:hover { background: color-mix(in srgb, var(--copper) 10%, transparent); }
+[data-theme="dark"] .wz-check { border-color: var(--line); }
+[data-theme="dark"] .wz-check:checked { background: #4a8a5a; border-color: #4a8a5a; }
+[data-theme="dark"] .wz-progress { background: var(--surface); }
+[data-theme="dark"] .wz-progress-fill { background: linear-gradient(90deg, #5a9a6a, #4a8a5a); }
+[data-theme="dark"] .wz-reset { border-color: var(--line); color: var(--muted); }
+[data-theme="dark"] .wz-reset:hover { border-color: var(--copper); color: var(--copper); }
+[data-theme="dark"] .wz-cat--water .wz-group-title { color: #6ab0c4; }
+[data-theme="dark"] .wz-cat--electrical .wz-group-title { color: #d4a05b; }
+[data-theme="dark"] .wz-cat--gas .wz-group-title { color: #d07c5a; }
+[data-theme="dark"] .wz-cat--exterior .wz-group-title { color: #8aab94; }
+[data-theme="dark"] .wz-cat--interior .wz-group-title { color: #a09080; }
+
+/* Tow difficulty — dark mode dot overrides */
+[data-theme="dark"] .tow-diff-dot { background: var(--surface); }
+[data-theme="dark"] .tow-diff--1 .tow-diff-dot.is-filled { background: #5ac05a; }
+[data-theme="dark"] .tow-diff--2 .tow-diff-dot.is-filled { background: #7aab84; }
+[data-theme="dark"] .tow-diff--3 .tow-diff-dot.is-filled { background: #d4a05b; }
+[data-theme="dark"] .tow-diff--4 .tow-diff-dot.is-filled { background: #e09060; }
+[data-theme="dark"] .tow-diff--5 .tow-diff-dot.is-filled { background: #d07c5a; }
+
+/* Compare button dark mode */
+[data-theme="dark"] .share-btn.is-compared {
+  background: color-mix(in srgb, var(--copper) 15%, transparent);
+}

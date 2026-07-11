@@ -7,7 +7,7 @@ import {
   hitchPctOfGvwr,
   trailerTitle, trailerLabel, saveButton,
 } from './format.mjs';
-import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy, computeFleetStandouts, generateGlanceSummary, deriveAxle } from './data.mjs';
+import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy, computeFleetStandouts, generateGlanceSummary, deriveAxle, towDifficulty, winterizationGuide } from './data.mjs';
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
@@ -2144,6 +2144,79 @@ function renderSeasonalGuide(t) {
 </section>`;
 }
 
+// ---------------------------------------------------------------------------
+// WINTERIZATION / STORAGE PREP — model-specific guide built from real specs
+// ---------------------------------------------------------------------------
+function renderWinterization(t) {
+  const guide = winterizationGuide(t);
+  if (!guide.items.length) return '';
+
+  const catMeta = {
+    water: { label: 'Water System', cls: 'wz-cat--water' },
+    electrical: { label: 'Battery & Electrical', cls: 'wz-cat--electrical' },
+    gas: { label: 'Propane & Gas', cls: 'wz-cat--gas' },
+    exterior: { label: 'Exterior', cls: 'wz-cat--exterior' },
+    interior: { label: 'Interior', cls: 'wz-cat--interior' },
+  };
+
+  const groups = {};
+  for (const item of guide.items) {
+    if (!groups[item.cat]) groups[item.cat] = [];
+    groups[item.cat].push(item);
+  }
+
+  let html = '';
+  for (const [cat, meta] of Object.entries(catMeta)) {
+    if (!groups[cat]) continue;
+    html += `<div class="wz-group ${meta.cls}">
+<h3 class="wz-group-title">${meta.label}</h3>
+<ul class="wz-list">`;
+    for (const item of groups[cat]) {
+      html += `<li class="wz-item">
+<label class="wz-label"><input type="checkbox" class="wz-check" data-wz-item="${esc(item.text)}"><span class="wz-icon" aria-hidden="true">${item.icon}</span><span class="wz-text">${esc(item.text)}</span></label>
+<p class="wz-detail">${esc(item.detail)}</p>
+</li>`;
+    }
+    html += `</ul></div>`;
+  }
+
+  const drainNote = guide.drainPoints
+    ? `This ${esc(t.model)} ${esc(t.floorplan)} has ${guide.drainPoints} tank${guide.drainPoints > 1 ? 's' : ''} to drain.`
+    : '';
+
+  return `<section class="winterization collapsible" id="winterization" aria-label="Winterization &amp; storage guide">
+<h2 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">
+Winterization &amp; Storage Guide
+<span class="wz-count" id="wz-count"></span>
+<span class="collapsible-icon" aria-hidden="true"></span>
+</h2>
+<div class="collapsible-body" hidden>
+<p class="wz-intro">End-of-season storage checklist for the ${esc(t.model)} ${esc(t.floorplan)}, using its real specs. ${drainNote} Check off items as you go — progress saves on this device.</p>
+<div class="wz-progress"><div class="wz-progress-fill" id="wz-progress-fill"></div></div>
+<div class="wz-groups">${html}</div>
+<div class="wz-actions">
+<button type="button" class="wz-reset" id="wz-reset">Reset checklist</button>
+</div>
+</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
+// TOW DIFFICULTY BADGE — visual indicator for explore cards and detail pages
+// ---------------------------------------------------------------------------
+function renderTowDifficultyBadge(t, context = 'detail') {
+  const diff = towDifficulty(t);
+  if (!diff) return '';
+  const cls = `tow-diff--${diff.score}`;
+  const dots = Array.from({ length: 5 }, (_, i) =>
+    `<span class="tow-diff-dot${i < diff.score ? ' is-filled' : ''}" aria-hidden="true"></span>`
+  ).join('');
+  if (context === 'card') {
+    return `<span class="tow-diff tow-diff--card ${cls}" title="${esc(diff.tip)}"><span class="tow-diff-dots">${dots}</span><span class="tow-diff-label">${esc(diff.label)}</span></span>`;
+  }
+  return `<div class="tow-diff tow-diff--detail ${cls}" title="${esc(diff.tip)}"><span class="tow-diff-dots">${dots}</span><span class="tow-diff-label">${esc(diff.label)}</span><span class="tow-diff-tip">${esc(diff.tip)}</span></div>`;
+}
+
 function renderNextSteps(t) {
   const official = officialUrl(t.model);
   const links = [];
@@ -2336,6 +2409,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     a.floorplan ? ['#floorplan', 'Floor plan'] : null,
     ['#trip-ready', 'Trip Ready'],
     ['#seasonal', 'Seasons'],
+    ['#winterization', 'Storage'],
     galleryCount ? ['#gallery', 'Gallery'] : null,
   ].filter(Boolean));
   // Related floorplans: same family, different floorplan, prefer same year
@@ -2390,10 +2464,12 @@ ${saveButton(t.slug, 'trailer', trailerLabel(t), 'detail')}
 </div>
 ${tagChips(t.tags)}
 ${renderStandoutBadges(t, allTrailers)}
+${renderTowDifficultyBadge(t, 'detail')}
 <div class="share-actions" data-share-actions>
 <button type="button" class="share-btn" id="detail-share" aria-label="Share this page" title="Share this page"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg> Share</button>
 <button type="button" class="share-btn" id="detail-copy-specs" aria-label="Copy specs to clipboard" title="Copy specs to clipboard"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg> Copy specs</button>
 <button type="button" class="share-btn" id="detail-print" aria-label="Print spec sheet" title="Print spec sheet"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> Print</button>
+<button type="button" class="share-btn" id="detail-compare" data-compare-slug="${esc(t.slug)}" data-compare-type="trailer" aria-label="Add to comparison" title="Add to comparison"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Compare</button>
 </div>
 ${official ? `<p class="official-head"><a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">Official ${esc(t.model)} page on airstream.com ↗</a></p>` : ''}
 </header>
@@ -2448,6 +2524,7 @@ ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
 </section>` : ''}
 ${renderTripReady(t)}
 ${renderSeasonalGuide(t)}
+${renderWinterization(t)}
 ${gallery ? `<section class="gallery" id="gallery" aria-label="Gallery"><div class="gallery-head"><h2>Gallery</h2><button type="button" class="gallery-autoplay" id="gallery-autoplay" aria-label="Auto-play slideshow" title="Auto-play slideshow"><svg viewBox="0 0 24 24" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Slideshow</button></div><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
 ${renderNextSteps(t)}
 ${renderNotes(t.slug)}
@@ -2516,6 +2593,7 @@ ${specRow('MSRP', formatMsrp(t.msrp))}${renderRangeBar(t.msrp, ranges.msrp, 'MSR
 ${t.msrp > 0 ? `<div class="spec"><dt class="spec-monthly-label">Est. payment</dt><dd class="spec-monthly-val">~${esc(formatMsrpShort(calculateMonthly(t.msrp, FINANCE_DEFAULTS.downPct, FINANCE_DEFAULTS.apr, FINANCE_DEFAULTS.termYears).monthly))}/mo</dd></div>` : ''}
 </dl>
 ${(() => { const tc = towClass(t.gvwrLb); return `<span class="xcard-tow tow-badge tow-badge--${esc(tc.cls)}">${tc.icon} ${esc(tc.label)}</span>`; })()}
+${renderTowDifficultyBadge(t, 'card')}
 ${(t.tags || []).length ? `<div class="xcard-tags">${(t.tags || []).map((tag) => `<span class="xcard-tag xcard-tag--${esc(tag)}">${esc(tagLabel(tag))}</span>`).join('')}</div>` : ''}
 </div>
 </a>

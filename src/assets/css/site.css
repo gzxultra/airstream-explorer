@@ -5040,3 +5040,120 @@ h2:hover .section-anchor,
   .section-collapse-body,
   .collapsible .collapsible-body { transition: none; }
 }
+
+/* =========================================================================
+   WINTERIZATION / STORAGE GUIDE
+   Mirrors trip-ready structure with distinct category colors
+   ========================================================================= */
+
+.winterization { margin: 2rem 0; }
+.winterization .collapsible-trigger { display: flex; align-items: center; gap: 0.5em; }
+.wz-count {
+  font-size: 0.75rem; font-weight: 400; color: var(--muted);
+  margin-left: 0.25em;
+}
+.wz-intro { color: var(--muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem; }
+.wz-progress {
+  height: 6px; border-radius: 3px; background: var(--line);
+  overflow: hidden; margin-bottom: 1.5rem;
+}
+.wz-progress-fill {
+  height: 100%; border-radius: 3px; width: 0%;
+  background: linear-gradient(90deg, #6D8B74, #3D6B4F);
+  transition: width 0.4s ease;
+}
+.wz-groups { display: grid; gap: 1.5rem; }
+.wz-group-title {
+  font-size: 0.85rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem; border-bottom: 1px solid var(--line);
+}
+.wz-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
+.wz-item { position: relative; }
+.wz-label {
+  display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;
+  padding: 0.5rem 0.75rem; border-radius: 8px; transition: background 0.2s;
+}
+.wz-label:hover { background: color-mix(in srgb, var(--copper) 6%, transparent); }
+.wz-check {
+  appearance: none; -webkit-appearance: none; width: 18px; height: 18px;
+  border: 2px solid var(--line); border-radius: 4px; flex-shrink: 0;
+  margin-top: 1px; cursor: pointer; transition: all 0.2s;
+  position: relative;
+}
+.wz-check:checked {
+  background: #3D6B4F; border-color: #3D6B4F;
+}
+.wz-check:checked::after {
+  content: ''; position: absolute; left: 4px; top: 1px;
+  width: 6px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.wz-check:checked ~ .wz-text { text-decoration: line-through; color: var(--muted); }
+.wz-icon { font-size: 1rem; flex-shrink: 0; }
+.wz-text { font-size: 0.95rem; line-height: 1.4; }
+.wz-detail {
+  font-size: 0.82rem; color: var(--muted); line-height: 1.4;
+  padding-left: 3.25rem; margin-top: -0.25rem; margin-bottom: 0.25rem;
+}
+.wz-actions { margin-top: 1rem; text-align: right; }
+.wz-reset {
+  font-size: 0.85rem; color: var(--muted); background: none; border: 1px solid var(--line);
+  padding: 0.4em 1em; border-radius: 6px; cursor: pointer; transition: all 0.2s;
+}
+.wz-reset:hover { border-color: var(--copper); color: var(--copper); }
+
+/* Category accents */
+.wz-cat--water .wz-group-title { color: #4A90A4; }
+.wz-cat--electrical .wz-group-title { color: #C4873B; }
+.wz-cat--gas .wz-group-title { color: #B85C3A; }
+.wz-cat--exterior .wz-group-title { color: #6D8B74; }
+.wz-cat--interior .wz-group-title { color: #8B7B6B; }
+
+@media print { .winterization { break-inside: avoid; } }
+
+/* =========================================================================
+   TOW DIFFICULTY BADGE
+   ========================================================================= */
+
+.tow-diff { display: inline-flex; align-items: center; gap: 0.4em; }
+.tow-diff-dots { display: inline-flex; gap: 3px; align-items: center; }
+.tow-diff-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--line); transition: background 0.2s;
+}
+.tow-diff-dot.is-filled { background: var(--copper); }
+.tow-diff--1 .tow-diff-dot.is-filled { background: #4CAF50; }
+.tow-diff--2 .tow-diff-dot.is-filled { background: #6D8B74; }
+.tow-diff--3 .tow-diff-dot.is-filled { background: #C4873B; }
+.tow-diff--4 .tow-diff-dot.is-filled { background: #D17A3E; }
+.tow-diff--5 .tow-diff-dot.is-filled { background: #B85C3A; }
+.tow-diff-label {
+  font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+/* Detail page: full badge with tip text */
+.tow-diff--detail {
+  margin: 0.5rem 0 0; flex-wrap: wrap; gap: 0.5em 0.75em;
+}
+.tow-diff-tip {
+  font-size: 0.82rem; color: var(--muted); font-weight: 400;
+  display: block; width: 100%; margin-top: 0.15em;
+}
+
+/* Card: compact inline */
+.tow-diff--card {
+  font-size: 0.75rem; margin-top: 0.35em;
+}
+.tow-diff--card .tow-diff-dot { width: 6px; height: 6px; }
+
+@media print { .tow-diff-tip { display: none; } }
+
+/* =========================================================================
+   DETAIL COMPARE BUTTON — active state
+   ========================================================================= */
+.share-btn.is-compared {
+  background: color-mix(in srgb, var(--copper) 12%, transparent);
+  border-color: var(--copper); color: var(--copper);
+}

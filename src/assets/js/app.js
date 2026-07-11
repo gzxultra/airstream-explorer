@@ -4984,6 +4984,158 @@
   })();
 
   // =========================================================================
+  // WINTERIZATION CHECKLIST — mirrors tripReady with its own localStorage
+  // =========================================================================
+  (function winterization() {
+    var root = document.querySelector('.winterization');
+    if (!root) return;
+
+    var trigger = root.querySelector('.collapsible-trigger');
+    var body = root.querySelector('.collapsible-body');
+    var fill = document.getElementById('wz-progress-fill');
+    var countEl = document.getElementById('wz-count');
+    var resetBtn = document.getElementById('wz-reset');
+    var checks = Array.prototype.slice.call(root.querySelectorAll('.wz-check'));
+    if (!checks.length) return;
+
+    var article = document.querySelector('.detail[data-canonical]');
+    var slug = '';
+    if (article) {
+      var can = article.getAttribute('data-canonical') || '';
+      var m = can.match(/m\/(.+)\.html$/);
+      if (m) slug = m[1];
+    }
+    var STORE_KEY = 'ae:wz:' + slug;
+
+    function readState() {
+      try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; }
+    }
+    function writeState(st) {
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(st)); } catch (e) {}
+    }
+
+    // Collapsible toggle
+    if (trigger && body) {
+      trigger.addEventListener('click', function () {
+        var expanded = trigger.getAttribute('aria-expanded') === 'true';
+        trigger.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+        if (expanded) {
+          body.style.maxHeight = body.scrollHeight + 'px';
+          void body.offsetHeight;
+          body.setAttribute('hidden', '');
+        } else {
+          body.removeAttribute('hidden');
+          body.style.maxHeight = body.scrollHeight + 'px';
+          var onEnd = function () {
+            body.removeEventListener('transitionend', onEnd);
+            if (!body.hasAttribute('hidden')) body.style.maxHeight = 'none';
+          };
+          body.addEventListener('transitionend', onEnd);
+        }
+      });
+      trigger.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trigger.click(); }
+      });
+    }
+
+    function updateProgress() {
+      var done = 0;
+      checks.forEach(function (cb) { if (cb.checked) done++; });
+      var pct = Math.round(done / checks.length * 100);
+      if (fill) fill.style.width = pct + '%';
+      if (countEl) countEl.textContent = done + '/' + checks.length;
+    }
+
+    var state = readState();
+    checks.forEach(function (cb) {
+      var key = cb.getAttribute('data-wz-item');
+      if (state[key]) cb.checked = true;
+      cb.addEventListener('change', function () {
+        var st = readState();
+        if (cb.checked) st[key] = true;
+        else delete st[key];
+        writeState(st);
+        updateProgress();
+      });
+    });
+    updateProgress();
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        checks.forEach(function (cb) { cb.checked = false; });
+        writeState({});
+        updateProgress();
+      });
+    }
+  })();
+
+  // =========================================================================
+  // DETAIL COMPARE BUTTON — add/remove from compare selection on detail page
+  // =========================================================================
+  (function detailCompare() {
+    var btn = document.getElementById('detail-compare');
+    if (!btn) return;
+    var slug = btn.getAttribute('data-compare-slug');
+    var type = btn.getAttribute('data-compare-type') || 'trailer';
+    if (!slug) return;
+
+    var CMP_KEY = 'ae:compare';
+
+    function readSet() {
+      try {
+        var raw = localStorage.getItem(CMP_KEY);
+        if (!raw) return [];
+        var parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) { return []; }
+    }
+    function writeSet(arr) {
+      try { localStorage.setItem(CMP_KEY, JSON.stringify(arr)); } catch (e) {}
+    }
+
+    function updateUI() {
+      var set = readSet();
+      var inSet = set.some(function (item) {
+        return typeof item === 'string' ? item === slug : (item && item.slug === slug);
+      });
+      if (inSet) {
+        btn.classList.add('is-compared');
+        btn.setAttribute('aria-label', 'Remove from comparison');
+        btn.title = 'Remove from comparison';
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> In compare';
+      } else {
+        btn.classList.remove('is-compared');
+        btn.setAttribute('aria-label', 'Add to comparison');
+        btn.title = 'Add to comparison';
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Compare';
+      }
+    }
+
+    btn.addEventListener('click', function () {
+      var set = readSet();
+      var idx = -1;
+      set.forEach(function (item, i) {
+        var s = typeof item === 'string' ? item : (item && item.slug);
+        if (s === slug) idx = i;
+      });
+      if (idx >= 0) {
+        set.splice(idx, 1);
+      } else {
+        set.push({ slug: slug, type: type });
+      }
+      writeSet(set);
+      updateUI();
+      // Update nav badge if present
+      var badge = document.getElementById('nav-saved-count');
+      if (badge && set.length > 0) {
+        badge.removeAttribute('hidden');
+      }
+    });
+
+    updateUI();
+  })();
+
+  // =========================================================================
   // 9e-b. GENERIC COLLAPSIBLE — handles any .collapsible sections not already
   //       wired (e.g. weight-budget). Smooth animated expand/collapse.
   // =========================================================================
@@ -4991,6 +5143,7 @@
     var triggers = Array.prototype.slice.call(document.querySelectorAll('.collapsible .collapsible-trigger'));
     triggers.forEach(function (trig) {
       if (trig.closest('.trip-ready')) return;
+      if (trig.closest('.winterization')) return;
       var body = trig.parentElement.querySelector('.collapsible-body');
       if (!body) return;
       trig.addEventListener('click', function () {

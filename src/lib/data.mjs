@@ -863,3 +863,107 @@ const AXLE_MAP = {
 export function deriveAxle(t) {
   return AXLE_MAP[familySlug(t.model)] || null;
 }
+
+// ---------------------------------------------------------------------------
+// TOW DIFFICULTY — beginner-friendliness rating based on weight, length, axle
+// ---------------------------------------------------------------------------
+
+/**
+ * Compute a tow difficulty rating for a trailer.
+ * Uses weight (primary), length, and axle type to produce a 1-5 score:
+ *   1-2 = Easy (small, light, single-axle — good for first-timers)
+ *   3   = Moderate (mid-range, manageable with a half-ton truck)
+ *   4   = Challenging (heavy or long, needs experience + ¾-ton)
+ *   5   = Expert (heaviest class, 1-ton truck, experienced tower)
+ * Returns { score, label, tip } or null if missing data.
+ */
+export function towDifficulty(t) {
+  if (!t || !t.weightLb || !t.lengthFt) return null;
+  const axle = deriveAxle(t);
+  let score = 0;
+  // Weight scoring (dominant factor)
+  if (t.weightLb <= 3500) score += 1;
+  else if (t.weightLb <= 5000) score += 2;
+  else if (t.weightLb <= 6500) score += 3;
+  else if (t.weightLb <= 8000) score += 4;
+  else score += 5;
+  // Length scoring
+  if (t.lengthFt <= 20) score += 1;
+  else if (t.lengthFt <= 25) score += 2;
+  else if (t.lengthFt <= 30) score += 3;
+  else score += 4;
+  // Axle: dual adds stability but signals size
+  if (axle === 'dual') score += 1;
+  // Normalize to 1-5 (raw range is 2-10)
+  const norm = Math.max(1, Math.min(5, Math.round((score - 2) / 1.6) + 1));
+  const LABELS = {
+    1: { label: 'Easy tow', tip: 'Light and compact — great for first-time towers and smaller tow vehicles.' },
+    2: { label: 'Beginner-friendly', tip: 'Manageable for most half-ton trucks. Good for newer towers with some practice.' },
+    3: { label: 'Moderate', tip: 'Mid-range weight and length. Comfortable for experienced half-ton towers.' },
+    4: { label: 'Experienced', tip: 'Heavy and/or long — requires a capable tow vehicle and confident driver.' },
+    5: { label: 'Heavy hauler', tip: 'The biggest class. Demands a ¾-ton or 1-ton truck and experienced towing skills.' },
+  };
+  return { score: norm, ...LABELS[norm] };
+}
+
+// ---------------------------------------------------------------------------
+// WINTERIZATION GUIDE — model-specific storage/winterization data
+// ---------------------------------------------------------------------------
+
+/**
+ * Generate winterization checklist items tailored to a specific trailer's specs.
+ * Returns { items: [{cat, text, icon, detail}], drainPoints } where each item
+ * references the trailer's actual tank capacities, battery, and solar.
+ */
+export function winterizationGuide(t) {
+  if (!t) return { items: [], drainPoints: 0 };
+  const items = [];
+  let drainPoints = 0;
+
+  // Water system draining
+  if (t.freshGal) {
+    items.push({ cat: 'water', text: `Drain ${t.freshGal}-gallon fresh water tank`, icon: '💧', detail: 'Open the low-point drain valve until the tank is fully empty.' });
+    drainPoints++;
+  }
+  if (t.grayGal) {
+    items.push({ cat: 'water', text: `Drain ${t.grayGal}-gallon gray water tank`, icon: '🚿', detail: 'Open the gray valve and let it drain completely at a dump station.' });
+    drainPoints++;
+  }
+  if (t.blackGal) {
+    const label = t.grayGal ? 'black' : 'waste (combined)';
+    items.push({ cat: 'water', text: `Drain ${t.blackGal}-gallon ${label} tank`, icon: '🚽', detail: 'Flush thoroughly before draining. Use a tank rinse wand if available.' });
+    drainPoints++;
+  }
+  items.push({ cat: 'water', text: 'Bypass water heater before adding antifreeze', icon: '♨️', detail: 'Set the bypass valve so antifreeze flows through the lines, not the heater tank.' });
+  items.push({ cat: 'water', text: 'Add RV antifreeze to all drains and toilet', icon: '🧊', detail: 'Pour non-toxic RV antifreeze into each P-trap: kitchen, bathroom sink, shower, and toilet bowl.' });
+  items.push({ cat: 'water', text: 'Open all faucets to relieve pressure', icon: '🔧', detail: 'Turn on hot and cold at each faucet, then leave slightly open during storage.' });
+
+  // Battery & electrical
+  if (t.batteryKwh) {
+    items.push({ cat: 'electrical', text: `Disconnect ${t.batteryKwh} kWh house battery`, icon: '🔋', detail: 'Disconnect the negative terminal. Store fully charged and on a trickle charger if possible.' });
+  }
+  if (t.solarW) {
+    items.push({ cat: 'electrical', text: `Cover or disconnect ${t.solarW}W solar panel${t.solarW > 200 ? 's' : ''}`, icon: '☀️', detail: 'If disconnecting the battery, cover panels to prevent charge buildup with no load.' });
+  }
+  items.push({ cat: 'electrical', text: 'Turn off all breakers and disconnect shore power', icon: '⚡', detail: 'Switch off the main breaker and unplug shore power cord.' });
+
+  // Propane & gas
+  items.push({ cat: 'gas', text: 'Turn off propane at the tank valve', icon: '🔥', detail: 'Close the main propane valve on each tank.' });
+  items.push({ cat: 'gas', text: 'Run appliances briefly to clear lines', icon: '💨', detail: 'Run the stove burners until they go out to purge propane from the lines.' });
+
+  // Exterior
+  items.push({ cat: 'exterior', text: 'Inspect and clean roof seals', icon: '🏠', detail: 'Check all roof seams, vents, and antenna bases for cracks. Reseal with Dicor if needed.' });
+  items.push({ cat: 'exterior', text: 'Cover tires or move periodically', icon: '🛞', detail: 'UV and flat-spotting damage tires in storage. Use covers or move the trailer monthly.' });
+  items.push({ cat: 'exterior', text: 'Retract awning and secure all openings', icon: '🏕️', detail: 'Retract fully, ensure no moisture is trapped. Close all vents and windows.' });
+  if (t.weightLb) {
+    const wtStr = Math.round(t.weightLb).toLocaleString('en-US') + ' lb';
+    items.push({ cat: 'exterior', text: 'Level and stabilize on solid surface', icon: '📐', detail: `Support the ${wtStr} dry weight on leveling blocks — avoid soft ground.` });
+  }
+
+  // Interior
+  items.push({ cat: 'interior', text: 'Clean thoroughly and remove all food', icon: '🧹', detail: 'Wipe all surfaces, empty the fridge (leave door propped open), remove perishables.' });
+  items.push({ cat: 'interior', text: 'Open cabinet doors for air circulation', icon: '🗄️', detail: 'Prevents mold and mildew buildup. Consider moisture absorbers in enclosed spaces.' });
+  items.push({ cat: 'interior', text: 'Place moisture absorbers throughout', icon: '💨', detail: 'DampRid or similar in the bathroom, under dinette, and in closets.' });
+
+  return { items, drainPoints };
+}
