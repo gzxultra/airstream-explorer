@@ -11,7 +11,7 @@ import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, co
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
-import { SORT_KEYS, exploreTags, tagLabel } from './explore.mjs';
+import { SORT_KEYS, exploreTags, tagLabel, SMART_PRESETS } from './explore.mjs';
 import { renderCampgroundFit } from './campgrounds-render.mjs';
 import { renderFloorplanZones, renderFloorplanLegend } from './floorplan-zones.mjs';
 import {
@@ -253,6 +253,33 @@ function renderStandoutBadges(t, allTrailers) {
     `<span class="standout-badge"><span class="standout-icon" aria-hidden="true">${b.icon}</span>${esc(b.label)}</span>`
   ).join('');
   return `<div class="standout-badges" aria-label="Standout traits">${pills}</div>`;
+}
+
+// ---------------------------------------------------------------------------
+// BROWSE-SIMILAR LINKS — deep-link back to explore with this trailer's specs
+// as filter bounds, creating a natural browse loop.
+// ---------------------------------------------------------------------------
+function renderBrowseLinks(t) {
+  const links = [];
+  // Price bracket: ±$20K rounded to nearest $10K
+  if (t.msrp > 0) {
+    const lo = Math.max(0, Math.floor((t.msrp - 20000) / 10000) * 10000);
+    const hi = Math.ceil((t.msrp + 20000) / 10000) * 10000;
+    const loK = Math.round(lo / 1000);
+    const hiK = Math.round(hi / 1000);
+    links.push(`<a href="../index.html#all&price=${hi}&year=" class="browse-link">$${loK}K–$${hiK}K range →</a>`);
+  }
+  // Weight class
+  if (t.weightLb) {
+    const wCeil = Math.ceil(t.weightLb / 1000) * 1000 + 1000;
+    links.push(`<a href="../index.html#all&weight=${wCeil}&year=" class="browse-link">Under ${wCeil.toLocaleString('en-US')} lb →</a>`);
+  }
+  // Sleeps
+  if (t.sleeps >= 4) {
+    links.push(`<a href="../index.html#all&sleeps=${t.sleeps}&year=" class="browse-link">Sleeps ${t.sleeps}+ →</a>`);
+  }
+  if (!links.length) return '';
+  return `<div class="browse-links"><span class="browse-links-label">Browse similar:</span>${links.join('')}</div>`;
 }
 
 function specRow(label, value, { tip = false, unit = null, raw = null, pctData = null } = {}) {
@@ -2328,6 +2355,7 @@ ${specRow('Off-grid score', `${t.offGridScore} / 100`, { tip: true, pctData: pct
 ${specRow('MSRP', formatMsrp(t.msrp), { tip: true, pctData: pctFor('msrp') })}
 </dl>
 ${note}
+${renderBrowseLinks(t)}
 </section>
 ${renderYearDiff(t, allTrailers)}
 ${renderSizeScale(t)}
@@ -2500,6 +2528,7 @@ export function renderExploreSections(trailers, resolve = assetPaths, motorhomes
 <p class="lede">Search, sort and filter all ${totalPlans} floorplans${hasMotorhomes ? ' — travel trailers and motorhomes' : ''} — match a trailer to your tow vehicle, or browse by size, sleeping capacity or off-grid capability.</p>
 ${typeSeg}
 </header>
+<div class="smart-presets" aria-label="Quick start">${SMART_PRESETS.map((p) => `<button type="button" class="smart-preset" data-preset="${esc(p.id)}" data-filters="${esc(JSON.stringify(p.filters))}"><span class="smart-preset-icon" aria-hidden="true">${p.icon}</span><span class="smart-preset-text"><span class="smart-preset-label">${esc(p.label)}</span><span class="smart-preset-desc">${esc(p.desc)}</span></span></button>`).join('')}</div>
 <section class="tow-tool" aria-label="Tow vehicle matcher">
 <div class="tow-tool-inner">
 <div class="tow-field tow-field-wide">
@@ -2581,6 +2610,10 @@ ${exploreTowVehicleOpts}
 ${cards}
 </main>
 <p class="xempty" id="x-empty" hidden>No floorplans match those filters. <button type="button" class="linklike" id="x-empty-reset">Reset filters</button></p>
+<div class="x-nearest" id="x-nearest" hidden>
+<p class="x-nearest-title">Closest matches:</p>
+<div class="x-nearest-grid" id="x-nearest-grid"></div>
+</div>
 <div class="cmp-bar" id="cmp-bar" hidden>
 <span class="cmp-bar-text"><strong id="cmp-count">0</strong> selected</span>
 <span class="cmp-bar-delta" id="cmp-delta" hidden></span>

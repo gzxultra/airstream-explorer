@@ -137,3 +137,127 @@ export function tagLabel(tag) {
   if (special[tag]) return special[tag];
   return tag.charAt(0).toUpperCase() + tag.slice(1);
 }
+
+// ---------------------------------------------------------------------------
+// SMART PRESETS — one-click filter combinations for common buyer scenarios.
+// Each preset names filters that map directly to the explore state keys.
+// ---------------------------------------------------------------------------
+export const SMART_PRESETS = [
+  {
+    id: 'first-timer',
+    label: 'First-timer',
+    icon: '🌱',
+    desc: 'Easy to tow, budget-friendly',
+    filters: { maxWeight: 5500, msrpMax: 120000, axle: 'single' },
+  },
+  {
+    id: 'family-adventure',
+    label: 'Family',
+    icon: '👨‍👩‍👧‍👦',
+    desc: 'Sleeps 5+, room for everyone',
+    filters: { sleepsMin: 5, tags: ['family'] },
+  },
+  {
+    id: 'couples-escape',
+    label: 'Couples',
+    icon: '💑',
+    desc: 'Cozy for two',
+    filters: { tags: ['couples'], sort: 'value-asc' },
+  },
+  {
+    id: 'off-grid',
+    label: 'Off-grid',
+    icon: '⛺',
+    desc: 'Max boondocking endurance',
+    filters: { sort: 'offgrid-desc' },
+  },
+  {
+    id: 'luxury',
+    label: 'Luxury',
+    icon: '✨',
+    desc: 'Premium everything',
+    filters: { tags: ['luxury'], sort: 'price-desc' },
+  },
+  {
+    id: 'lightweight',
+    label: 'Lightweight',
+    icon: '🪶',
+    desc: 'Under 4,000 lb dry',
+    filters: { maxWeight: 4000, sort: 'weight-asc' },
+  },
+];
+
+// ---------------------------------------------------------------------------
+// NEAREST MATCHES — when filters return 0 results, find the closest trailers
+// by relaxing one filter at a time and scoring how close each is.
+// ---------------------------------------------------------------------------
+
+/**
+ * Given the current filter state and the full trailer list, find the N trailers
+ * closest to matching. Returns [{trailer, reason}] explaining which filter
+ * each just barely misses.
+ */
+export function nearestMatches(list, opts = {}, count = 3) {
+  const { year, q, sleepsMin, msrpMax, tags, towRating, maxWeight, maxLength, axle } = opts;
+  const needle = (q || '').trim().toLowerCase();
+  const wantTags = tags && tags.length ? tags : null;
+
+  // Score each trailer: 0 = passes all, higher = further from matching
+  const scored = list.map((t) => {
+    let penalty = 0;
+    const reasons = [];
+
+    if (year && t.year !== Number(year)) {
+      penalty += 0.3; // light penalty — year is a soft preference
+      reasons.push(`${t.year} model (showing ${year})`);
+    }
+    if (needle) {
+      const hay = `${t.model} ${t.floorplan}`.toLowerCase();
+      if (!hay.includes(needle)) { penalty += 5; reasons.push('name mismatch'); }
+    }
+    if (sleepsMin && t.sleeps < sleepsMin) {
+      penalty += (sleepsMin - t.sleeps) * 0.5;
+      reasons.push(`sleeps ${t.sleeps} (need ${sleepsMin}+)`);
+    }
+    if (msrpMax && t.msrp > msrpMax) {
+      const over = (t.msrp - msrpMax) / msrpMax;
+      penalty += over * 2;
+      reasons.push(`$${Math.round((t.msrp - msrpMax) / 1000)}K over budget`);
+    }
+    if (towRating && t.gvwrLb > towRating) {
+      const over = (t.gvwrLb - towRating) / towRating;
+      penalty += over * 2;
+      reasons.push(`${t.gvwrLb - towRating} lb over tow rating`);
+    }
+    if (maxWeight && t.weightLb > maxWeight) {
+      const over = (t.weightLb - maxWeight) / maxWeight;
+      penalty += over * 2;
+      reasons.push(`${t.weightLb - maxWeight} lb over weight limit`);
+    }
+    if (maxLength && t.lengthFt > maxLength) {
+      penalty += (t.lengthFt - maxLength) / maxLength;
+      reasons.push(`${(t.lengthFt - maxLength).toFixed(0)}' over length limit`);
+    }
+    if (wantTags) {
+      const missing = wantTags.filter((tag) => !(t.tags || []).includes(tag));
+      if (missing.length) {
+        penalty += missing.length * 0.5;
+        reasons.push(`missing: ${missing.map(tagLabel).join(', ')}`);
+      }
+    }
+    if (axle) {
+      const tAxle = t.weightLb >= 4000 || t.lengthFt >= 25 ? 'dual' : 'single';
+      if (tAxle !== axle) {
+        penalty += 0.5;
+        reasons.push(`${tAxle} axle (want ${axle})`);
+      }
+    }
+    return { trailer: t, penalty, reasons };
+  });
+
+  return scored
+    .filter((s) => s.penalty > 0 && s.penalty < 10) // exclude total mismatches
+    .sort((a, b) => a.penalty - b.penalty)
+    .slice(0, count)
+    .map((s) => ({ trailer: s.trailer, reason: s.reasons[0] || 'close match' }));
+}

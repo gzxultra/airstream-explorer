@@ -545,3 +545,25 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 
 /* Trip cost estimator — dark mode */
 [data-theme="dark"] .trip-cost-tool .finance-select { background: var(--surface); color: var(--ink); border-color: var(--line); }
+
+/* Smart presets / nearest matches / browse links — dark theme */
+[data-theme="dark"] .smart-preset {
+  background: var(--surface); border-color: var(--line); color: var(--ink);
+}
+[data-theme="dark"] .smart-preset:hover {
+  border-color: var(--copper); box-shadow: 0 2px 8px rgba(212,160,100,.15);
+}
+[data-theme="dark"] .smart-preset.is-active {
+  background: color-mix(in srgb, var(--copper) 12%, var(--surface));
+  border-color: var(--copper);
+}
+[data-theme="dark"] .x-nearest-card {
+  background: var(--surface); border-color: var(--line); color: var(--ink);
+}
+[data-theme="dark"] .x-nearest-card:hover { border-color: var(--copper); }
+[data-theme="dark"] .browse-link {
+  color: var(--copper); border-color: color-mix(in srgb, var(--copper) 30%, transparent);
+}
+[data-theme="dark"] .browse-link:hover {
+  background: color-mix(in srgb, var(--copper) 10%, transparent);
+}

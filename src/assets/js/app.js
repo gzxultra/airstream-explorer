@@ -915,6 +915,62 @@
       if (elCount) elCount.textContent = shown;
       if (elEmpty) { if (shown === 0) elEmpty.removeAttribute('hidden'); else elEmpty.setAttribute('hidden', ''); }
 
+      // Nearest-match suggestions when 0 results
+      var nearestEl = document.getElementById('x-nearest');
+      var nearestGrid = document.getElementById('x-nearest-grid');
+      if (nearestEl && nearestGrid) {
+        if (shown === 0) {
+          // Find closest matches from ALL cards, scoring how close each is
+          var candidates = cards.map(function (c) {
+            var penalty = 0;
+            var reasons = [];
+            var cy = c.getAttribute('data-year');
+            var cs = num(c, 'data-sleeps');
+            var cm = num(c, 'data-msrp');
+            var cw = num(c, 'data-weight');
+            var cl = num(c, 'data-length');
+            var cg = num(c, 'data-gvwr');
+            var ca = c.getAttribute('data-axle') || '';
+            var ct = c.getAttribute('data-type');
+            var cTags = (c.getAttribute('data-tags') || '').split(' ');
+            if (state.type !== 'all' && ct !== state.type) { penalty += 5; }
+            if (state.year && cy !== state.year) { penalty += 0.3; reasons.push(cy + ' model'); }
+            if (state.q && (c.getAttribute('data-name') || '').indexOf(state.q) === -1) { penalty += 5; }
+            if (state.sleeps && cs < state.sleeps) { penalty += (state.sleeps - cs) * 0.5; reasons.push('sleeps ' + cs); }
+            if (state.price && cm > state.price) { penalty += ((cm - state.price) / state.price) * 2; reasons.push('$' + Math.round((cm - state.price) / 1000) + 'K over budget'); }
+            if (state.maxWeight && cw > state.maxWeight) { penalty += ((cw - state.maxWeight) / state.maxWeight) * 2; reasons.push((cw - state.maxWeight) + ' lb over'); }
+            if (state.maxLength && cl > state.maxLength) { penalty += (cl - state.maxLength) / state.maxLength; reasons.push(Math.round(cl - state.maxLength) + "' over length"); }
+            if (state.tow && cg > state.tow) { penalty += ((cg - state.tow) / state.tow) * 2; reasons.push((cg - state.tow) + ' lb over tow'); }
+            if (state.axle && ca !== state.axle) { penalty += 0.5; reasons.push(ca + ' axle'); }
+            if (state.tags.length) {
+              for (var ti = 0; ti < state.tags.length; ti++) {
+                if (cTags.indexOf(state.tags[ti]) === -1) { penalty += 0.5; }
+              }
+            }
+            return { card: c, penalty: penalty, reason: reasons[0] || 'close match' };
+          }).filter(function (x) { return x.penalty > 0 && x.penalty < 8; });
+          candidates.sort(function (a, b) { return a.penalty - b.penalty; });
+          var top3 = candidates.slice(0, 3);
+          if (top3.length) {
+            nearestGrid.innerHTML = top3.map(function (m) {
+              var slug = m.card.getAttribute('data-slug');
+              var thumb = m.card.getAttribute('data-thumb') || '';
+              var model = m.card.getAttribute('data-model') || '';
+              var fp = m.card.getAttribute('data-floorplan') || '';
+              return '<a class="x-nearest-card" href="m/' + slug + '.html">' +
+                (thumb ? '<img class="x-nearest-thumb" src="' + thumb + '" alt="" loading="lazy">' : '') +
+                '<div class="x-nearest-info"><p class="x-nearest-name">' + model + ' ' + fp + '</p>' +
+                '<p class="x-nearest-reason">' + m.reason + '</p></div></a>';
+            }).join('');
+            nearestEl.removeAttribute('hidden');
+          } else {
+            nearestEl.setAttribute('hidden', '');
+          }
+        } else {
+          nearestEl.setAttribute('hidden', '');
+        }
+      }
+
       // Live aggregate stats for visible cards
       var statsEl = document.getElementById('x-stats');
       if (statsEl) {
@@ -1123,7 +1179,7 @@
     });
 
     function resetAll() {
-      state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all', price: 0, maxLength: 0, maxWeight: 0, layoutKeys: [] };
+      state = { q: '', sort: 'price-asc', year: '2026', sleeps: 0, tags: [], tow: 0, type: 'all', price: 0, maxLength: 0, maxWeight: 0, axle: '', layoutKeys: [] };
       if (elSearch) elSearch.value = '';
       if (elSort) elSort.value = 'price-asc';
       if (elYear) elYear.value = '2026';
@@ -1134,6 +1190,9 @@
       if (elAxle) elAxle.value = '';
       tagBtns.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
       layoutBtns.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+      // Clear active preset
+      activePreset = null;
+      presetBtns.forEach(function (b) { b.classList.remove('is-active'); });
       Store.del(X_PREFS);
       setType('all', { persist: false });
       setTow(0, { persist: false });
@@ -1141,6 +1200,51 @@
     if (elReset) elReset.addEventListener('click', resetAll);
     var emptyReset = document.getElementById('x-empty-reset');
     if (emptyReset) emptyReset.addEventListener('click', resetAll);
+
+    // ---- Smart presets — one-click filter combinations --------------------
+    var presetBtns = Array.prototype.slice.call(document.querySelectorAll('.smart-preset'));
+    var activePreset = null;
+    presetBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-preset');
+        var filters;
+        try { filters = JSON.parse(btn.getAttribute('data-filters')); } catch (e) { return; }
+        // Toggle: clicking active preset deactivates it
+        if (activePreset === id) {
+          activePreset = null;
+          presetBtns.forEach(function (b) { b.classList.remove('is-active'); });
+          resetAll();
+          return;
+        }
+        // Reset first, then apply preset filters
+        state.q = ''; state.sort = 'price-asc'; state.year = '2026'; state.sleeps = 0;
+        state.tags = []; state.tow = 0; state.price = 0; state.maxLength = 0;
+        state.maxWeight = 0; state.axle = ''; state.layoutKeys = [];
+        if (filters.msrpMax) state.price = filters.msrpMax;
+        if (filters.maxWeight) state.maxWeight = filters.maxWeight;
+        if (filters.sleepsMin) state.sleeps = filters.sleepsMin;
+        if (filters.axle) state.axle = filters.axle;
+        if (filters.sort) state.sort = filters.sort;
+        if (filters.tags) state.tags = filters.tags.slice();
+        // Sync UI controls
+        if (elSearch) elSearch.value = '';
+        if (elSort) elSort.value = state.sort;
+        if (elYear) elYear.value = state.year;
+        if (elSleeps) elSleeps.value = state.sleeps || '';
+        if (elPrice) elPrice.value = state.price || '';
+        if (elLength) elLength.value = '';
+        if (elWeight) elWeight.value = state.maxWeight || '';
+        if (elAxle) elAxle.value = state.axle;
+        tagBtns.forEach(function (tb) {
+          var pressed = state.tags.indexOf(tb.getAttribute('data-tag')) !== -1;
+          tb.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+          tb.classList.toggle('is-active', pressed);
+        });
+        activePreset = id;
+        presetBtns.forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-preset') === id); });
+        persistX(); apply();
+      });
+    });
 
     // ---- Compare selection on explore cards -------------------------------
     var boxes = Array.prototype.slice.call(grid.querySelectorAll('.cmp-box'));
@@ -5568,7 +5672,7 @@
       controls[c].addEventListener('change', scheduleHashUpdate);
     }
     // Tag + type button clicks
-    var clickables = document.querySelectorAll('.tagfilter, .layoutfilter, #x-type .xc-type-btn, .tow-preset, #x-reset, #x-empty-reset, #tow-clear');
+    var clickables = document.querySelectorAll('.tagfilter, .layoutfilter, #x-type .xc-type-btn, .tow-preset, .smart-preset, #x-reset, #x-empty-reset, #tow-clear');
     for (var d = 0; d < clickables.length; d++) {
       clickables[d].addEventListener('click', function () { setTimeout(scheduleHashUpdate, 50); });
     }
