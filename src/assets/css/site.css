@@ -5396,3 +5396,77 @@ h2:hover .section-anchor,
   .clearance-verdict { text-align: left; }
 }
 @media print { .clearance-fit { break-inside: avoid; } }
+
+
+/* ===== EDITOR'S PICKS — curated recommendation strips on home page ===== */
+.editors-picks { max-width: 1120px; margin: 3.5rem auto 2rem; padding: 0 1.5rem; }
+.picks-heading { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 500; letter-spacing: 0.02em; margin: 0 0 0.3rem; }
+.picks-sub { font-size: 0.88rem; margin: 0 0 2rem; }
+.pick-strip { margin-bottom: 2.2rem; }
+.pick-strip-head { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.9rem; }
+.pick-strip-icon { font-size: 1.35rem; line-height: 1; }
+.pick-strip-text { display: flex; flex-direction: column; }
+.pick-strip-title { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500; }
+.pick-strip-sub { font-size: 0.8rem; }
+.pick-strip-scroll {
+  display: flex; gap: 1.1rem; overflow-x: auto; scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 0.5rem;
+  mask-image: linear-gradient(to right, transparent 0, #000 1rem, #000 calc(100% - 2.5rem), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 1rem, #000 calc(100% - 2.5rem), transparent 100%);
+}
+.pick-strip-scroll::-webkit-scrollbar { display: none; }
+.pick-card {
+  flex: 0 0 260px; scroll-snap-align: start; border-radius: 10px;
+  overflow: hidden; text-decoration: none; color: inherit;
+  background: var(--card, #fff); box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.pick-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.10); }
+.pick-card-img { width: 100%; height: 150px; object-fit: cover; display: block; }
+.pick-card-body { padding: 0.65rem 0.8rem 0.7rem; }
+.pick-card-name { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 500; display: block; margin-bottom: 0.15rem; }
+.pick-card-stat { font-size: 0.78rem; display: block; }
+@media (max-width: 560px) {
+  .editors-picks { padding: 0 1rem; margin-top: 2.5rem; }
+  .picks-heading { font-size: 1.35rem; }
+  .pick-card { flex: 0 0 220px; }
+  .pick-card-img { height: 128px; }
+}
+
+/* ===== ANIMATED HERO COUNTERS ===== */
+.hero-stat { display: inline-block; font-variant-numeric: tabular-nums; }
+.hero-stat.is-counting { transition: none; }
+
+/* ===== SCROLL FADE INDICATORS on horizontal scroll containers ===== */
+.snav-list, .xcard-tags, .home-recent-strip, .cmp-starter {
+  mask-image: linear-gradient(to right, transparent 0, #000 0.8rem, #000 calc(100% - 1.5rem), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 0.8rem, #000 calc(100% - 1.5rem), transparent 100%);
+}
+.snav-list.scroll-start, .xcard-tags.scroll-start, .home-recent-strip.scroll-start, .cmp-starter.scroll-start {
+  mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 1.5rem), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 1.5rem), transparent 100%);
+}
+.snav-list.scroll-end, .xcard-tags.scroll-end, .home-recent-strip.scroll-end, .cmp-starter.scroll-end {
+  mask-image: linear-gradient(to right, transparent 0, #000 0.8rem, #000 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 0.8rem, #000 100%);
+}
+.snav-list.scroll-both-end, .xcard-tags.scroll-both-end, .home-recent-strip.scroll-both-end, .cmp-starter.scroll-both-end {
+  mask-image: none; -webkit-mask-image: none;
+}
+
+/* ===== PAYLOAD PACKING PRESETS ===== */
+.payload-presets { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.payload-preset {
+  font-size: 0.82rem; padding: 0.4rem 0.85rem; border-radius: 20px;
+  border: 1px solid var(--line, #e0dcd6); background: var(--card, #fff);
+  color: var(--ink, #1F1B16); cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+.payload-preset:hover { background: #f5f0ea; border-color: #c49a6c; }
+.payload-preset:active { transform: scale(0.96); }
+.payload-preset.is-active { background: #c49a6c; color: #fff; border-color: #c49a6c; }
+.payload-preset--clear { border-style: dashed; }
+@media (max-width: 560px) {
+  .payload-presets { gap: 0.4rem; }
+  .payload-preset { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
+}

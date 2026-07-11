@@ -7785,3 +7785,139 @@
       });
     });
   })();
+
+
+  // =========================================================================
+  // ANIMATED HERO COUNTERS — cinematic count-up on home page hero stats.
+  //     Uses IntersectionObserver to trigger once, eased count-up via rAF.
+  // =========================================================================
+  (function heroCounters() {
+    var stats = document.querySelectorAll('.hero-stat[data-hero-num]');
+    if (!stats.length) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
+
+    function animateCounter(el) {
+      var target = parseInt(el.getAttribute('data-hero-num'), 10);
+      if (!target || target <= 0) return;
+      el.classList.add('is-counting');
+      var duration = Math.min(1200, 400 + target * 15);
+      var start = null;
+      function step(ts) {
+        if (!start) start = ts;
+        var elapsed = ts - start;
+        var progress = Math.min(1, elapsed / duration);
+        var value = Math.round(easeOutQuart(progress) * target);
+        el.textContent = value;
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          el.textContent = target;
+          el.classList.remove('is-counting');
+        }
+      }
+      el.textContent = '0';
+      requestAnimationFrame(step);
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    stats.forEach(function (el) { observer.observe(el); });
+  })();
+
+  // =========================================================================
+  // SCROLL FADE INDICATORS — adds/removes CSS classes on horizontally
+  //     scrollable containers so CSS mask-image gradients show contextual
+  //     fade edges indicating more content is available to scroll.
+  // =========================================================================
+  (function scrollFades() {
+    var containers = document.querySelectorAll('.snav-list, .xcard-tags, .home-recent-strip, .cmp-starter, .pick-strip-scroll');
+    if (!containers.length) return;
+
+    function update(el) {
+      var scrollLeft = el.scrollLeft;
+      var scrollRight = el.scrollWidth - el.clientWidth - scrollLeft;
+      var atStart = scrollLeft < 4;
+      var atEnd = scrollRight < 4;
+      el.classList.toggle('scroll-start', atStart && !atEnd);
+      el.classList.toggle('scroll-end', !atStart && atEnd);
+      el.classList.toggle('scroll-both-end', atStart && atEnd);
+    }
+
+    containers.forEach(function (el) {
+      update(el);
+      el.addEventListener('scroll', function () { update(el); }, { passive: true });
+    });
+    // Re-check after fonts load (may change widths)
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () {
+        containers.forEach(update);
+      }).catch(function () {});
+    }
+  })();
+
+  // =========================================================================
+  // PAYLOAD PACKING PRESETS — one-click trip profiles that check gear boxes.
+  // =========================================================================
+  (function payloadPresets() {
+    var container = document.getElementById('payload-presets');
+    if (!container) return;
+    var gearSection = document.getElementById('payload-gear');
+    if (!gearSection) return;
+    var checks = Array.prototype.slice.call(gearSection.querySelectorAll('.payload-gear-check'));
+    if (!checks.length) return;
+
+    var PRESETS = {
+      weekend:  ['bedding', 'kitchen', 'outdoor'],
+      weeklong: ['bedding', 'kitchen', 'clothing', 'food', 'outdoor', 'electronics'],
+      fullload: checks.map(function (c) { return c.getAttribute('data-key'); })
+    };
+
+    var buttons = Array.prototype.slice.call(container.querySelectorAll('.payload-preset'));
+
+    function setChecks(keys) {
+      var keySet = {};
+      keys.forEach(function (k) { keySet[k] = true; });
+      checks.forEach(function (c) {
+        var shouldCheck = !!keySet[c.getAttribute('data-key')];
+        if (c.checked !== shouldCheck) {
+          c.checked = shouldCheck;
+          c.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    }
+
+    function updateActiveState(activePreset) {
+      buttons.forEach(function (btn) {
+        btn.classList.toggle('is-active', btn.getAttribute('data-preset') === activePreset);
+      });
+    }
+
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var preset = btn.getAttribute('data-preset');
+        if (preset === 'clear') {
+          setChecks([]);
+          updateActiveState('clear');
+        } else if (PRESETS[preset]) {
+          setChecks(PRESETS[preset]);
+          updateActiveState(preset);
+        }
+      });
+    });
+
+    // Clear active preset indicator when user manually toggles a checkbox
+    checks.forEach(function (c) {
+      c.addEventListener('click', function () {
+        updateActiveState('');
+      });
+    });
+  })();

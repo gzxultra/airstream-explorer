@@ -579,6 +579,95 @@ function renderQuiz() {
 </div>`;
 }
 
+// ---------------------------------------------------------------------------
+// EDITOR'S PICKS — curated "best for" recommendation strips on the home page.
+// Computed from real spec data, 2026 models only, deduplicated per family.
+// ---------------------------------------------------------------------------
+function computeEditorsPicks(trailers, resolve) {
+  const current = trailers.filter((t) => t.year === 2026);
+  if (current.length < 6) return '';
+
+  // Helper: pick the best N trailers by a scoring function, max 1 per family
+  function bestBy(arr, scoreFn, n = 3) {
+    const scored = arr
+      .filter((t) => scoreFn(t) != null && Number.isFinite(scoreFn(t)))
+      .map((t) => ({ t, score: scoreFn(t) }))
+      .sort((a, b) => b.score - a.score);
+    const seen = new Set();
+    const picks = [];
+    for (const { t } of scored) {
+      const fam = familySlug(t.model);
+      if (seen.has(fam)) continue;
+      seen.add(fam);
+      picks.push(t);
+      if (picks.length >= n) break;
+    }
+    return picks;
+  }
+
+  const categories = [
+    {
+      id: 'easy-tow',
+      icon: '🚗',
+      title: 'Easiest to tow',
+      sub: 'Lightest GVWR — more vehicle choices',
+      picks: bestBy(current, (t) => t.gvwrLb > 0 ? -t.gvwrLb : null),
+      stat: (t) => formatWeight(t.gvwrLb) + ' GVWR',
+    },
+    {
+      id: 'off-grid',
+      icon: '⛺',
+      title: 'Best off-grid',
+      sub: 'Highest self-sufficiency score',
+      picks: bestBy(current, (t) => t.offGridScore || 0),
+      stat: (t) => (t.offGridScore || 0) + '/100 off-grid',
+    },
+    {
+      id: 'spacious',
+      icon: '🛋️',
+      title: 'Most spacious',
+      sub: 'Maximum sleeping capacity & length',
+      picks: bestBy(current, (t) => (t.sleeps || 0) * 10 + (t.lengthFt || 0)),
+      stat: (t) => 'Sleeps ' + t.sleeps + ' · ' + formatLength(t.lengthFt),
+    },
+    {
+      id: 'value',
+      icon: '💎',
+      title: 'Best value',
+      sub: 'Most space per dollar',
+      picks: bestBy(current, (t) => t.msrp > 0 && t.lengthFt > 0 ? (t.lengthFt * (t.sleeps || 1)) / t.msrp * 100000 : null),
+      stat: (t) => formatMsrp(t.msrp) + ' · sleeps ' + t.sleeps,
+    },
+  ];
+
+  const strips = categories.map((cat) => {
+    if (cat.picks.length < 2) return '';
+    const cards = cat.picks.map((t) => {
+      const a = resolve(t);
+      return `<a class="pick-card" href="m/${esc(t.slug)}.html">
+<img class="pick-card-img" src="${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="280" height="182">
+<div class="pick-card-body">
+<span class="pick-card-name">${esc(t.model)} ${esc(t.floorplan)}</span>
+<span class="pick-card-stat muted">${cat.stat(t)}</span>
+</div></a>`;
+    }).join('\n');
+    return `<div class="pick-strip" data-pick="${esc(cat.id)}">
+<div class="pick-strip-head">
+<span class="pick-strip-icon" aria-hidden="true">${cat.icon}</span>
+<div class="pick-strip-text"><span class="pick-strip-title">${esc(cat.title)}</span><span class="pick-strip-sub muted">${esc(cat.sub)}</span></div>
+</div>
+<div class="pick-strip-scroll">${cards}</div>
+</div>`;
+  }).filter(Boolean).join('\n');
+
+  if (!strips) return '';
+  return `<section class="editors-picks" id="editors-picks" aria-label="Editor's picks">
+<h2 class="picks-heading">Editor's picks</h2>
+<p class="picks-sub muted">Curated from the 2026 lineup — ranked by real specs, not marketing.</p>
+${strips}
+</section>`;
+}
+
 export function renderIndex(families, trailers = [], resolve = assetPaths, motorhomes = [], motorhomeFamilies = []) {
   // Unified family grid: trailer families + motorhome families in one .fam-grid.
   const cards = [
@@ -622,6 +711,7 @@ export function renderIndex(families, trailers = [], resolve = assetPaths, motor
 <a class="viewseg-btn is-active" href="#families" data-view="families" aria-current="page"><span class="viewseg-label">By family</span><span class="viewseg-sub">${allFamilies} model lines</span></a>
 <a class="viewseg-btn" href="#all" data-view="all"><span class="viewseg-label">All floorplans</span><span class="viewseg-sub">${trailers.length + motorhomes.length} by the numbers</span></a>
 </nav>`;
+  const editorsPicks = computeEditorsPicks(trailers, resolve);
   const body = `${heroBand}
 ${viewToggle}
 ${renderQuiz()}
@@ -633,6 +723,7 @@ ${renderQuiz()}
 <main class="fam-grid" id="families">
 ${cards}
 </main>
+${editorsPicks}
 </section>
 <section class="hub-view" id="view-all" data-view="all" hidden>
 ${renderExploreSections(trailers, resolve, motorhomes, { headingLevel: 'h2' })}
@@ -1270,6 +1361,12 @@ export function renderPayloadTool(t) {
 </div>
 <div class="payload-gear" id="payload-gear">
 <p class="payload-gear-title">Add common gear to see the impact:</p>
+<div class="payload-presets" id="payload-presets">
+<button type="button" class="payload-preset" data-preset="weekend" title="Bedding, kitchen, outdoor gear">🏖️ Weekend trip</button>
+<button type="button" class="payload-preset" data-preset="weeklong" title="Bedding, kitchen, clothing, food, outdoor, electronics">🛣️ Week-long road trip</button>
+<button type="button" class="payload-preset" data-preset="fullload" title="Everything — all gear categories checked">🏠 Full load</button>
+<button type="button" class="payload-preset payload-preset--clear" data-preset="clear" title="Uncheck all gear">✕ Clear</button>
+</div>
 <div class="payload-gear-grid">${gearChecks}</div>
 </div>
 <details class="est-method">

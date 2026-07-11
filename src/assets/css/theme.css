@@ -646,3 +646,13 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .clearance-row--blocked { border-color: rgba(198,40,40,.35); background: rgba(198,40,40,.12); }
 [data-theme="dark"] .clearance-verdict--yes { color: #6dba7d; }
 [data-theme="dark"] .clearance-verdict--no { color: #e74c3c; }
+
+
+/* Editor's picks dark */
+[data-theme="dark"] .pick-card { background: var(--surface); box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+[data-theme="dark"] .pick-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.35); }
+
+/* Payload presets dark */
+[data-theme="dark"] .payload-preset { background: var(--surface); border-color: var(--line); color: var(--ink); }
+[data-theme="dark"] .payload-preset:hover { background: rgba(212,160,74,.12); border-color: #d4a04a; }
+[data-theme="dark"] .payload-preset.is-active { background: #d4a04a; color: #1a1714; border-color: #d4a04a; }
