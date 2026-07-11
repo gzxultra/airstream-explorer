@@ -624,3 +624,19 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .view-toggle { background: var(--line); }
 [data-theme="dark"] .view-btn.is-active { background: var(--surface); color: var(--ink); }
 [data-theme="dark"] .xgrid--list .xcard { border-bottom-color: var(--line); }
+
+
+/* Grade climbing dark theme */
+[data-theme="dark"] .grade-pass-btn { background: var(--surface); border-color: var(--line); color: var(--ink); }
+[data-theme="dark"] .grade-pass-btn.is-active { border-color: #d4a04a; background: rgba(212,160,74,.12); }
+[data-theme="dark"] .grade-badge--grade-ok { background: rgba(46,125,50,.2); color: #6dba7d; }
+[data-theme="dark"] .grade-badge--grade-warn { background: rgba(230,81,0,.2); color: #d4a04a; }
+[data-theme="dark"] .grade-badge--grade-severe { background: rgba(198,40,40,.2); color: #e74c3c; }
+[data-theme="dark"] .grade-tip { background: rgba(212,160,74,.08); border-left-color: #d4a04a; }
+
+/* Hitch guide dark theme */
+[data-theme="dark"] .hitch-item { background: var(--surface); border-color: var(--line); }
+[data-theme="dark"] .hitch-item--recommended { border-color: #d4a04a; }
+
+/* Compare floor plan dark theme */
+[data-theme="dark"] .cmp-floorplan-img { border-color: var(--line); background: var(--surface); }

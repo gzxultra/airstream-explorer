@@ -2516,6 +2516,29 @@
         tbody.appendChild(tr);
       });
 
+      // Floor plan image row (trailers only)
+      if (cols[0] && cols[0].type === 'trailer' && cols.some(function (d) { return d.floorplanImg; })) {
+        var fptr = document.createElement('tr');
+        fptr.className = 'cmp-floorplan-row';
+        var fpth = document.createElement('th');
+        fpth.scope = 'row'; fpth.textContent = 'Floor plan';
+        fptr.appendChild(fpth);
+        cols.forEach(function (d) {
+          var fptd = document.createElement('td');
+          if (d.floorplanImg) {
+            var fpimg = document.createElement('img');
+            fpimg.src = d.floorplanImg; fpimg.alt = d.model + ' ' + d.floorplan + ' floor plan';
+            fpimg.loading = 'lazy'; fpimg.className = 'cmp-floorplan-img';
+            fpimg.width = 200; fpimg.height = 325;
+            fptd.appendChild(fpimg);
+          } else {
+            fptd.textContent = '\u2014';
+          }
+          fptr.appendChild(fptd);
+        });
+        tbody.appendChild(fptr);
+      }
+
       // Verdict row: show which model leads the most specs
       if (cols.length >= 2) {
         var maxWins = 0;
@@ -7632,6 +7655,86 @@
     checks.forEach(function (c) {
       c.addEventListener('change', recalc);
     });
+  })();
+
+  // =========================================================================
+  // GRADE CLIMBING CALCULATOR — interactive grade/mountain-pass towing tool.
+  //     Slider adjusts grade %, pass buttons jump to real grades. Recalculates
+  //     grade resistance, recommended speed, and severity rating. Uses same
+  //     physics as the server render (GVWR × sin(arctan(grade/100))).
+  // =========================================================================
+  (function gradeClimb() {
+    var section = document.getElementById('grade-climb');
+    if (!section) return;
+    var dataEl = document.getElementById('grade-climb-data');
+    if (!dataEl) return;
+    var data;
+    try { data = JSON.parse(dataEl.textContent); } catch (e) { return; }
+
+    var slider = document.getElementById('grade-pct');
+    var sliderVal = document.getElementById('grade-pct-val');
+    var passGrid = document.getElementById('grade-passes');
+    var badgeEl = document.getElementById('grade-badge');
+    var speedEl = document.getElementById('grade-speed');
+    var forceEl = document.getElementById('grade-force-dd');
+    var rollEl = document.getElementById('grade-roll-dd');
+    var totalEl = document.getElementById('grade-total-dd');
+    var tipEl = document.getElementById('grade-tip');
+    if (!slider) return;
+
+    var RATING = {
+      moderate:    { label: 'Moderate',                    cls: 'grade-ok' },
+      challenging: { label: 'Challenging',                 cls: 'grade-warn' },
+      severe:      { label: 'Severe — use low gear',       cls: 'grade-severe' }
+    };
+
+    function calc(gradePct) {
+      var theta = Math.atan(gradePct / 100);
+      var gradeForce = Math.round(data.gvwrLb * Math.sin(theta));
+      var rollResist = Math.round(data.gvwrLb * 0.015);
+      var totalForce = gradeForce + rollResist;
+      var maxSpeed = gradePct <= 3 ? 65 : gradePct <= 5 ? 55 : gradePct <= 7 ? 45 : gradePct <= 9 ? 35 : 25;
+      var rating = gradePct <= 4 ? 'moderate' : gradePct <= 7 ? 'challenging' : 'severe';
+      return { gradeForce: gradeForce, rollResist: rollResist, totalForce: totalForce, maxSpeed: maxSpeed, rating: rating };
+    }
+
+    function update(gradePct, passName) {
+      var r = calc(gradePct);
+      var rm = RATING[r.rating];
+      if (sliderVal) sliderVal.textContent = gradePct + '%';
+      if (badgeEl) { badgeEl.textContent = rm.label; badgeEl.className = 'grade-badge grade-badge--' + rm.cls; }
+      if (speedEl) speedEl.textContent = 'Recommended max: ' + r.maxSpeed + ' mph';
+      if (forceEl) forceEl.textContent = r.gradeForce.toLocaleString() + ' lb';
+      if (rollEl) rollEl.textContent = r.rollResist.toLocaleString() + ' lb';
+      if (totalEl) totalEl.textContent = r.totalForce.toLocaleString() + ' lb';
+      if (tipEl) {
+        var nameStr = passName ? ' (' + passName + ')' : '';
+        tipEl.innerHTML = '<p class="grade-tip-text">On a ' + gradePct + '% grade' + nameStr + ', your engine must overcome an extra <strong>' + r.gradeForce.toLocaleString() + ' lb</strong> of gravity pulling the trailer back. Use a low gear, keep speed at or below <strong>' + r.maxSpeed + ' mph</strong>, and monitor transmission temperature.</p>';
+      }
+      // Highlight active pass button
+      if (passGrid) {
+        var btns = passGrid.querySelectorAll('.grade-pass-btn');
+        for (var i = 0; i < btns.length; i++) {
+          var pg = parseFloat(btns[i].getAttribute('data-grade'));
+          btns[i].classList.toggle('is-active', pg === gradePct);
+        }
+      }
+    }
+
+    slider.addEventListener('input', function () {
+      update(parseFloat(this.value), '');
+    });
+
+    if (passGrid) {
+      passGrid.addEventListener('click', function (e) {
+        var btn = e.target.closest('.grade-pass-btn');
+        if (!btn) return;
+        var grade = parseFloat(btn.getAttribute('data-grade'));
+        var name = btn.getAttribute('data-name') || '';
+        slider.value = grade;
+        update(grade, name);
+      });
+    }
   })();
 
   // =========================================================================

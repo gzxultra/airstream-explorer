@@ -1847,6 +1847,183 @@ const CAMPGROUND_PRESETS = {
   resort: { label: 'RV resort', perNight: 85 },
 };
 
+// ---------------------------------------------------------------------------
+// GRADE CLIMBING PERFORMANCE CALCULATOR
+// ---------------------------------------------------------------------------
+
+const MOUNTAIN_PASSES = [
+  { id: 'cajon', name: 'Cajon Pass, CA', grade: 3.5, elev: 4190 },
+  { id: 'lookout', name: 'Lookout Pass, ID/MT', grade: 5.0, elev: 4725 },
+  { id: 'stevens', name: 'Stevens Pass, WA', grade: 5.0, elev: 4061 },
+  { id: 'raton', name: 'Raton Pass, CO/NM', grade: 5.5, elev: 7834 },
+  { id: 'grapevine', name: 'Grapevine (Tejon), CA', grade: 6.0, elev: 4144 },
+  { id: 'eisenhower', name: 'Eisenhower Tunnel, CO', grade: 6.5, elev: 11158 },
+  { id: 'donner', name: 'Donner Pass, CA', grade: 7.0, elev: 7056 },
+  { id: 'vail', name: 'Vail Pass, CO', grade: 7.0, elev: 10662 },
+  { id: 'teton', name: 'Teton Pass, WY', grade: 10.0, elev: 8431 },
+];
+
+/**
+ * Compute grade climbing forces for a given trailer GVWR and grade %.
+ * Physics: grade resistance ≈ GVWR × sin(arctan(grade/100)).
+ * For < ~15% grades, sin(arctan(g/100)) ≈ g/100 within 1%.
+ */
+export function computeGradeForces(gvwrLb, gradePct) {
+  const theta = Math.atan(gradePct / 100);
+  const gradeForce = Math.round(gvwrLb * Math.sin(theta));
+  // Rolling resistance at ~1.5% of total weight
+  const rollResist = Math.round(gvwrLb * 0.015);
+  // Total resistance on grade
+  const totalForce = gradeForce + rollResist;
+  // Speed where most engines run out of reserve power towing (rule of thumb):
+  // > 4% → 45-55 mph, > 7% → 35-45 mph, > 9% → 25-35 mph
+  const maxSpeed = gradePct <= 3 ? 65 : gradePct <= 5 ? 55 : gradePct <= 7 ? 45 : gradePct <= 9 ? 35 : 25;
+  // Grade rating: comfortable/challenging/severe
+  const rating = gradePct <= 4 ? 'moderate' : gradePct <= 7 ? 'challenging' : 'severe';
+  return { gradeForce, rollResist, totalForce, maxSpeed, rating, gradePct, gvwrLb };
+}
+
+function renderGradeClimb(t) {
+  if (!(t.gvwrLb > 0)) return '';
+  const defGrade = 6;
+  const def = computeGradeForces(t.gvwrLb, defGrade);
+
+  const passButtons = MOUNTAIN_PASSES.map((p) =>
+    `<button type="button" class="grade-pass-btn${p.grade === defGrade ? ' is-active' : ''}" data-grade="${p.grade}" data-name="${esc(p.name)}" data-elev="${p.elev}" title="${esc(p.name)} — ${p.grade}% grade, ${p.elev.toLocaleString()} ft">${esc(p.name.split(',')[0])}<span class="grade-pass-pct">${p.grade}%</span></button>`
+  ).join('\n');
+
+  const RATING_META = {
+    moderate: { label: 'Moderate', cls: 'grade-ok' },
+    challenging: { label: 'Challenging', cls: 'grade-warn' },
+    severe: { label: 'Severe — use low gear', cls: 'grade-severe' },
+  };
+  const rm = RATING_META[def.rating];
+
+  const dataIsland = JSON.stringify({
+    gvwrLb: t.gvwrLb,
+    passes: MOUNTAIN_PASSES,
+  }).replace(/<\//g, '<\\/');
+
+  return `<section class="estimator grade-climb collapsible" id="grade-climb" aria-label="Grade climbing performance"
+ data-gvwr="${esc(t.gvwrLb)}">
+<script type="application/json" id="grade-climb-data">${dataIsland}</script>
+<h2 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">Mountain &amp; grade performance<span class="collapsible-icon" aria-hidden="true"></span></h2>
+<div class="collapsible-body" hidden>
+<p class="est-sub">How this ${esc(t.model)} ${esc(t.floorplan)} (${esc(formatWeight(t.gvwrLb))} loaded) performs on steep grades. Pick a grade or choose a famous mountain pass.</p>
+<div class="est-controls">
+<div class="est-field">
+<label for="grade-pct">Road grade</label>
+<div class="finance-slider-row">
+<input type="range" id="grade-pct" min="1" max="10" step="0.5" value="${defGrade}" class="finance-range" aria-label="Road grade percentage">
+<span class="finance-range-val" id="grade-pct-val">${defGrade}%</span>
+</div>
+</div>
+</div>
+<div class="grade-passes" aria-label="Famous mountain passes">
+<p class="grade-passes-label muted">Or pick a mountain pass:</p>
+<div class="grade-passes-grid" id="grade-passes">${passButtons}</div>
+</div>
+<div class="est-result" id="grade-result" aria-live="polite" aria-atomic="true">
+<div class="grade-verdict">
+<span class="grade-badge grade-badge--${esc(rm.cls)}" id="grade-badge">${esc(rm.label)}</span>
+<span class="grade-speed" id="grade-speed">Recommended max: ${def.maxSpeed} mph</span>
+</div>
+<dl class="finance-dl">
+<div class="finance-dl-row"><dt>Grade resistance</dt><dd id="grade-force-dd">${def.gradeForce.toLocaleString()} lb</dd></div>
+<div class="finance-dl-row"><dt>Rolling resistance</dt><dd id="grade-roll-dd">${def.rollResist.toLocaleString()} lb</dd></div>
+<div class="finance-dl-row finance-dl-total"><dt>Total pull force on grade</dt><dd id="grade-total-dd">${def.totalForce.toLocaleString()} lb</dd></div>
+</dl>
+<div class="grade-tip" id="grade-tip">
+<p class="grade-tip-text">On a ${defGrade}% grade, your engine must overcome an extra <strong>${def.gradeForce.toLocaleString()} lb</strong> of gravity pulling the trailer back. Use a low gear, keep speed at or below <strong>${def.maxSpeed} mph</strong>, and monitor transmission temperature.</p>
+</div>
+</div>
+<p class="est-caveat muted">Grade forces are physics-based (GVWR × sin of grade angle). Speed recommendations are conservative rules of thumb — actual performance depends on your tow vehicle's power, gearing, altitude, and temperature. Always use tow/haul mode and downshift on sustained grades.</p>
+</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
+// HITCH & WEIGHT DISTRIBUTION GUIDE
+// ---------------------------------------------------------------------------
+
+const HITCH_CLASSES = [
+  { cls: 'I', maxLb: 2000, hitchLb: 200 },
+  { cls: 'II', maxLb: 3500, hitchLb: 350 },
+  { cls: 'III', maxLb: 8000, hitchLb: 800 },
+  { cls: 'IV', maxLb: 10000, hitchLb: 1000 },
+  { cls: 'V', maxLb: 17000, hitchLb: 1700 },
+];
+
+export function recommendHitch(gvwrLb, hitchWeightLb) {
+  const hitchClass = HITCH_CLASSES.find((h) => h.maxLb >= gvwrLb) || HITCH_CLASSES[HITCH_CLASSES.length - 1];
+  const needsWdh = gvwrLb > 5000 || (hitchWeightLb && hitchWeightLb > 300);
+  const needsAntiSway = gvwrLb > 6000;
+  return { hitchClass, needsWdh, needsAntiSway };
+}
+
+function renderHitchGuide(t) {
+  if (!(t.gvwrLb > 0)) return '';
+  const rec = recommendHitch(t.gvwrLb, t.hitchWeightLb);
+  const hc = rec.hitchClass;
+  const tongueW = t.hitchWeightLb ? formatWeight(t.hitchWeightLb) : '~' + formatWeight(Math.round(t.gvwrLb * 0.13));
+  const tongueNote = t.hitchWeightLb ? '(official dry hitch weight)' : '(estimated at 13% of GVWR)';
+
+  const items = [
+    `<div class="hitch-item">
+<span class="hitch-item-icon" aria-hidden="true">🔗</span>
+<div class="hitch-item-body">
+<strong>Class ${esc(hc.cls)} hitch receiver</strong>
+<p class="muted">Rated for up to ${hc.maxLb.toLocaleString()} lb trailer weight / ${hc.hitchLb.toLocaleString()} lb tongue weight. Your ${esc(t.model)} ${esc(t.floorplan)} at ${esc(formatWeight(t.gvwrLb))} GVWR needs at least this class.</p>
+</div>
+</div>`,
+  ];
+
+  if (rec.needsWdh) {
+    items.push(`<div class="hitch-item hitch-item--recommended">
+<span class="hitch-item-icon" aria-hidden="true">⚖️</span>
+<div class="hitch-item-body">
+<strong>Weight distribution hitch (WDH) — recommended</strong>
+<p class="muted">With ${esc(tongueW)} tongue weight ${tongueNote}, a WDH redistributes load across all axles for level towing and better braking. Many states require one above 5,000 lb GVWR.</p>
+</div>
+</div>`);
+  }
+
+  if (rec.needsAntiSway) {
+    items.push(`<div class="hitch-item hitch-item--recommended">
+<span class="hitch-item-icon" aria-hidden="true">🛡️</span>
+<div class="hitch-item-body">
+<strong>Anti-sway control — recommended</strong>
+<p class="muted">At ${esc(formatWeight(t.gvwrLb))} loaded, wind gusts and passing trucks can induce sway. A friction or dual-cam anti-sway device keeps things stable — often integrated into the WDH.</p>
+</div>
+</div>`);
+  }
+
+  items.push(`<div class="hitch-item">
+<span class="hitch-item-icon" aria-hidden="true">🔌</span>
+<div class="hitch-item-body">
+<strong>7-pin trailer connector</strong>
+<p class="muted">Standard for all Airstream travel trailers — carries running lights, turn signals, brakes, 12V charge, and electric brake signal. Your tow vehicle needs a matching 7-pin socket.</p>
+</div>
+</div>`);
+
+  items.push(`<div class="hitch-item">
+<span class="hitch-item-icon" aria-hidden="true">🛑</span>
+<div class="hitch-item-body">
+<strong>Brake controller</strong>
+<p class="muted">Required — all Airstream trailers have electric brakes. An in-cab brake controller syncs trailer braking with your vehicle. Proportional (vs. time-delayed) gives smoother stops.</p>
+</div>
+</div>`);
+
+  return `<section class="hitch-guide collapsible" id="hitch-guide" aria-label="Hitch and towing setup guide">
+<h2 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">Hitch &amp; towing setup<span class="collapsible-icon" aria-hidden="true"></span></h2>
+<div class="collapsible-body" hidden>
+<p class="est-sub">What you need to tow the ${esc(t.model)} ${esc(t.floorplan)} safely — based on its ${esc(formatWeight(t.gvwrLb))} GVWR and ${esc(tongueW)} tongue weight.</p>
+<div class="hitch-items">${items.join('\n')}</div>
+<p class="est-caveat muted">Hitch class is the minimum required. Always verify your specific tow vehicle's hitch receiver rating — some vehicles come with a lower-rated receiver than their tow rating allows. WDH and anti-sway recommendations follow industry best practices for this weight class.</p>
+</div>
+</section>`;
+}
+
 const TRIP_DEFAULTS = {
   distanceMi: 500,
   nights: 5,
@@ -2768,6 +2945,8 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     yearDiff ? ['#year-diff', '2025→26'] : null,
     t.gvwrLb ? ['#tow', 'Tow'] : null,
     t.gvwrLb ? ['#fuel', 'Fuel'] : null,
+    t.gvwrLb ? ['#grade-climb', 'Grades'] : null,
+    t.gvwrLb ? ['#hitch-guide', 'Hitch'] : null,
     t.gvwrLb ? ['#vehicles', 'Vehicles'] : null,
     t.cccLb ? ['#payload', 'Payload'] : null,
     t.msrp > 0 ? ['#finance', 'Finance'] : null,
@@ -2882,6 +3061,8 @@ ${towCallout}
 ${renderTowTool(t)}
 ${renderCompatibleVehicles(t)}
 ${renderFuelTool(t)}
+${renderGradeClimb(t)}
+${renderHitchGuide(t)}
 ${renderPayloadTool(t)}
 ${renderFinancingTool(t)}
 ${renderOwnershipTool(t)}
@@ -3184,7 +3365,7 @@ export function renderCompare(trailers, resolve = assetPaths, motorhomes = []) {
       return {
         type: 'trailer', linkDir: 'm',
         slug: t.slug, model: t.model, floorplan: t.floorplan, year: t.year,
-        thumb: a.thumb, lengthFt: t.lengthFt, weightLb: t.weightLb, gvwrLb: t.gvwrLb,
+        thumb: a.thumb, floorplanImg: a.floorplan || '', lengthFt: t.lengthFt, weightLb: t.weightLb, gvwrLb: t.gvwrLb,
         cccLb: t.cccLb, hitchWeightLb: t.hitchWeightLb, sleeps: t.sleeps,
         freshGal: t.freshGal, grayGal: t.grayGal, blackGal: t.blackGal,
         solarW: t.solarW, batteryKwh: t.batteryKwh, offGridScore: t.offGridScore, msrp: t.msrp,
