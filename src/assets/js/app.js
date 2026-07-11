@@ -5590,6 +5590,26 @@
     }
     window.addEventListener('scroll', update, { passive: true });
     update();
+
+    // Auto-expand collapsed sections when clicking a secnav link
+    nav.addEventListener('click', function (e) {
+      var link = e.target.closest('.secnav-link');
+      if (!link) return;
+      var href = link.getAttribute('href');
+      if (!href || href.charAt(0) !== '#') return;
+      var target = document.getElementById(href.slice(1));
+      if (!target) return;
+      // Check for collapsible pattern: section.is-collapsed or .collapsible with hidden body
+      var section = target.closest('.is-collapsed') || target;
+      if (section.classList.contains('is-collapsed')) {
+        // Find the heading/trigger and simulate a click to expand
+        var trigger = section.querySelector('[role="button"][aria-expanded="false"]');
+        if (trigger) trigger.click();
+      }
+      // Also handle the collapsible-trigger/collapsible-body pattern
+      var collTrigger = target.querySelector('.collapsible-trigger[aria-expanded="false"]');
+      if (collTrigger) collTrigger.click();
+    });
   })();
 
   // =========================================================================
@@ -5974,7 +5994,7 @@
 })();
 
   // -----------------------------------------------------------------------
-  // QUICK VIEW — spec popover on explore cards (no navigation needed)
+  // QUICK VIEW — spec popover on explore cards with prev/next navigation
   // -----------------------------------------------------------------------
   (function quickView() {
     var qv = document.getElementById('quick-view');
@@ -5985,7 +6005,11 @@
     var descEl = document.getElementById('qv-desc');
     var specsEl = document.getElementById('qv-specs');
     var linkEl = document.getElementById('qv-detail-link');
+    var prevBtn = document.getElementById('qv-prev');
+    var nextBtn = document.getElementById('qv-next');
+    var counterEl = document.getElementById('qv-counter');
     var savedFocus = null;
+    var currentCard = null;
 
     function fmtMoney(n) {
       if (!n || n <= 0) return '—';
@@ -6003,7 +6027,14 @@
     }
     function fmtGal(n) { return n ? n + ' gal' : '—'; }
 
-    function open(card) {
+    /** Get all currently visible explore cards in DOM order. */
+    function getVisibleCards() {
+      return Array.prototype.slice.call(document.querySelectorAll('.xcard')).filter(function (c) {
+        return !c.hidden && c.offsetParent !== null;
+      });
+    }
+
+    function populate(card) {
       var d = card.dataset;
       img.src = d.thumb || card.querySelector('img').src;
       img.alt = d.model + ' ' + d.floorplan;
@@ -6031,7 +6062,34 @@
         return '<div class="qv-spec-item"><span class="qv-spec-label">' + s[0] + '</span><span class="qv-spec-value">' + s[1] + '</span></div>';
       }).join('');
 
+      currentCard = card;
+      updateNav();
+    }
+
+    function updateNav() {
+      var cards = getVisibleCards();
+      var idx = cards.indexOf(currentCard);
+      var hasPrev = idx > 0;
+      var hasNext = idx >= 0 && idx < cards.length - 1;
+      if (prevBtn) { prevBtn.style.display = hasPrev ? '' : 'none'; }
+      if (nextBtn) { nextBtn.style.display = hasNext ? '' : 'none'; }
+      if (counterEl && idx >= 0) {
+        counterEl.textContent = (idx + 1) + ' / ' + cards.length;
+      }
+    }
+
+    function go(delta) {
+      var cards = getVisibleCards();
+      var idx = cards.indexOf(currentCard);
+      if (idx < 0) return;
+      var next = idx + delta;
+      if (next < 0 || next >= cards.length) return;
+      populate(cards[next]);
+    }
+
+    function open(card) {
       savedFocus = document.activeElement;
+      populate(card);
       qv.hidden = false;
       qv.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
@@ -6042,8 +6100,12 @@
       qv.hidden = true;
       qv.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
+      currentCard = null;
       if (savedFocus) { savedFocus.focus(); savedFocus = null; }
     }
+
+    if (prevBtn) prevBtn.addEventListener('click', function () { go(-1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { go(1); });
 
     // Delegate click on all peek buttons
     document.addEventListener('click', function (e) {
@@ -6063,6 +6125,8 @@
     document.addEventListener('keydown', function (e) {
       if (qv.hidden) return;
       if (e.key === 'Escape') { close(); e.preventDefault(); }
+      if (e.key === 'ArrowLeft') { go(-1); e.preventDefault(); }
+      if (e.key === 'ArrowRight') { go(1); e.preventDefault(); }
     });
   })();
 
@@ -6560,9 +6624,11 @@
     if (!tripsEl) return;
     var nightsEl = document.getElementById('cn-nights');
     var hotelEl = document.getElementById('cn-hotel');
+    var campFeeEl = document.getElementById('cn-camp-fee');
     var tripsVal = document.getElementById('cn-trips-val');
     var nightsVal = document.getElementById('cn-nights-val');
     var hotelVal = document.getElementById('cn-hotel-val');
+    var campFeeValEl = document.getElementById('cn-camp-fee-val');
     var costEl = document.getElementById('cn-cost');
     var hotelCostEl = document.getElementById('cn-hotel-cost');
     var totalNightsEl = document.getElementById('cn-total-nights');
@@ -6570,6 +6636,7 @@
     var verdictEl = document.getElementById('cn-verdict');
     var section = tripsEl.closest('.cost-night');
     var annualOwn = parseInt(section.getAttribute('data-annual-own'), 10) || 0;
+    var feePresets = Array.prototype.slice.call(document.querySelectorAll('.cn-fee-preset'));
 
     function fmtMoney(n) { return '$' + Number(n).toLocaleString('en-US'); }
 
@@ -6577,18 +6644,29 @@
       var trips = parseInt(tripsEl.value, 10) || 1;
       var nights = parseInt(nightsEl.value, 10) || 1;
       var hotel = parseInt(hotelEl.value, 10) || 150;
+      var campFee = campFeeEl ? parseInt(campFeeEl.value, 10) || 0 : 0;
       var totalNights = trips * nights;
-      var costNight = totalNights > 0 ? Math.round(annualOwn / totalNights) : 0;
+      var campFeeYear = campFee * totalNights;
+      var totalAnnual = annualOwn + campFeeYear;
+      var costNight = totalNights > 0 ? Math.round(totalAnnual / totalNights) : 0;
       var hotelYear = hotel * totalNights;
-      var savings = hotelYear - annualOwn;
+      var savings = hotelYear - totalAnnual;
 
       tripsVal.textContent = trips + ' trip' + (trips > 1 ? 's' : '');
       nightsVal.textContent = nights + ' night' + (nights > 1 ? 's' : '');
       hotelVal.textContent = '$' + hotel + '/night';
+      if (campFeeValEl) campFeeValEl.textContent = '$' + campFee + '/night';
       costEl.textContent = '$' + costNight;
       hotelCostEl.textContent = '$' + hotel;
       totalNightsEl.textContent = totalNights + ' nights/year';
       hotelYearEl.textContent = fmtMoney(hotelYear) + '/year';
+
+      // Update preset active states
+      feePresets.forEach(function (btn) {
+        var val = parseInt(btn.getAttribute('data-fee'), 10);
+        if (val === campFee) btn.classList.add('is-active');
+        else btn.classList.remove('is-active');
+      });
 
       if (savings > 0) {
         verdictEl.className = 'cn-verdict cn-verdict--saves';
@@ -6602,6 +6680,15 @@
     tripsEl.addEventListener('input', update);
     nightsEl.addEventListener('input', update);
     hotelEl.addEventListener('input', update);
+    if (campFeeEl) campFeeEl.addEventListener('input', update);
+    // Campground fee preset buttons
+    feePresets.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var fee = parseInt(btn.getAttribute('data-fee'), 10);
+        if (campFeeEl) { campFeeEl.value = fee; }
+        update();
+      });
+    });
   })();
 
   // =========================================================================

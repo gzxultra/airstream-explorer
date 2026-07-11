@@ -159,6 +159,9 @@ ${body}
 <div class="qv-backdrop" data-qv-close></div>
 <div class="qv-panel">
 <button type="button" class="qv-close" data-qv-close aria-label="Close">&times;</button>
+<button type="button" class="qv-nav qv-nav--prev" id="qv-prev" aria-label="Previous floorplan"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 19 8 12 15 5"></polyline></svg></button>
+<button type="button" class="qv-nav qv-nav--next" id="qv-next" aria-label="Next floorplan"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 5 16 12 9 19"></polyline></svg></button>
+<div class="qv-counter" id="qv-counter" aria-hidden="true"></div>
 <div class="qv-media"><img class="qv-img" id="qv-img" alt="" width="400" height="260"></div>
 <div class="qv-body">
 <p class="qv-year" id="qv-year"></p>
@@ -181,6 +184,7 @@ ${body}
 <div class="kb-row"><kbd>/</kbd><span>Focus search</span></div>
 <div class="kb-row"><kbd>j</kbd> / <kbd>k</kbd><span>Next / previous card</span></div>
 <div class="kb-row"><kbd>Enter</kbd><span>Open focused card</span></div>
+<div class="kb-row"><kbd>←</kbd> / <kbd>→</kbd><span>Prev / next in Quick View</span></div>
 <div class="kb-row"><kbd>Esc</kbd><span>Close overlay</span></div>
 </div>
 <div class="kb-group"><h3>Actions</h3>
@@ -1823,6 +1827,7 @@ const COST_NIGHT_DEFAULTS = {
   tripsYear: 12,
   nightsTrip: 3,
   hotelNight: 200,
+  campFee: 40,
 };
 
 function renderCostPerNight(t) {
@@ -1831,9 +1836,11 @@ function renderCostPerNight(t) {
   const totalNights = d.tripsYear * d.nightsTrip;
   // Rough annual cost: same formula as ownership tool (insurance + storage + maint + depreciation)
   const annualOwn = Math.round(t.msrp * 0.012) + 100 * 12 + 800 + Math.round(t.msrp * 0.10);
-  const costNight = totalNights > 0 ? Math.round(annualOwn / totalNights) : 0;
+  const campFeeYear = d.campFee * totalNights;
+  const totalAnnual = annualOwn + campFeeYear;
+  const costNight = totalNights > 0 ? Math.round(totalAnnual / totalNights) : 0;
   const hotelYear = d.hotelNight * totalNights;
-  const savings = hotelYear - annualOwn;
+  const savings = hotelYear - totalAnnual;
 
   const dataIsland = JSON.stringify({ msrp: t.msrp, annualOwn }).replace(/<\//g, '<\\/');
 
@@ -1842,7 +1849,7 @@ function renderCostPerNight(t) {
 <script type="application/json" id="cost-night-data">${dataIsland}</script>
 <div class="est-head">
 <h2>Cost per camping night</h2>
-<p class="est-sub">How your ${esc(t.model)} ${esc(t.floorplan)} compares to hotel stays — adjust your camping frequency.</p>
+<p class="est-sub">How your ${esc(t.model)} ${esc(t.floorplan)} compares to hotel stays — adjust your camping frequency and campground fees.</p>
 </div>
 <div class="est-controls">
 <div class="est-field">
@@ -1866,6 +1873,20 @@ function renderCostPerNight(t) {
 <span class="finance-range-val" id="cn-hotel-val">$${d.hotelNight}/night</span>
 </div>
 </div>
+<div class="est-field">
+<label for="cn-camp-fee">Campground fee</label>
+<div class="finance-slider-row">
+<input type="range" id="cn-camp-fee" min="0" max="150" step="5" value="${d.campFee}" class="finance-range" aria-label="Campground fee per night">
+<span class="finance-range-val" id="cn-camp-fee-val">$${d.campFee}/night</span>
+</div>
+<div class="cn-fee-presets" id="cn-fee-presets">
+<button type="button" class="cn-fee-preset" data-fee="0">Free / BLM</button>
+<button type="button" class="cn-fee-preset" data-fee="30">State park</button>
+<button type="button" class="cn-fee-preset is-active" data-fee="40">Average</button>
+<button type="button" class="cn-fee-preset" data-fee="55">Private</button>
+<button type="button" class="cn-fee-preset" data-fee="85">RV resort</button>
+</div>
+</div>
 </div>
 <div class="est-result" id="cost-night-result" aria-live="polite" aria-atomic="true">
 <div class="cn-comparison">
@@ -1885,7 +1906,7 @@ function renderCostPerNight(t) {
 </div>
 <p class="cn-verdict ${savings > 0 ? 'cn-verdict--saves' : 'cn-verdict--over'}" id="cn-verdict">${savings > 0 ? `You save about <strong>${formatMsrp(savings)}/year</strong> vs hotel stays at this frequency.` : `At this frequency, hotel stays cost about the same. Camp more to tip the balance.`}</p>
 </div>
-<p class="est-caveat muted">Annual ownership cost is a rough estimate (insurance, storage, maintenance, depreciation). Actual costs vary. Campground fees ($20–$80/night) are not included — add them to refine your comparison.</p>
+<p class="est-caveat muted">Annual ownership cost is a rough estimate (insurance, storage, maintenance, depreciation). Actual costs vary. Campground fees range from free (BLM/dispersed) to $80+/night (full-hookup RV resorts).</p>
 </section>`;
 }
 
