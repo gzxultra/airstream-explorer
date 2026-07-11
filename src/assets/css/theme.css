@@ -674,3 +674,14 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 /* Storage guide dark */
 [data-theme="dark"] .sg-card { background: var(--surface); border-color: var(--line); }
 [data-theme="dark"] .sg-card-icon { color: #d4a04a; }
+
+/* Ideal-for & advisor dark overrides */
+[data-theme="dark"] .ideal-chip,
+[data-theme="dark"] .advisor-pick {
+  background: var(--surface); border-color: var(--line);
+}
+[data-theme="dark"] .ideal-label,
+[data-theme="dark"] .advisor-fp { color: var(--ink); }
+[data-theme="dark"] .ideal-desc,
+[data-theme="dark"] .advisor-why { color: var(--muted); }
+[data-theme="dark"] .advisor-q { color: var(--copper); }

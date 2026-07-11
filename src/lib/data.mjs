@@ -967,3 +967,75 @@ export function winterizationGuide(t) {
 
   return { items, drainPoints };
 }
+
+// ---------------------------------------------------------------------------
+// IDEAL-FOR BADGES — computed buyer-persona badges from specs. Each badge
+// has clear, deterministic criteria so they are reproducible and testable.
+// ---------------------------------------------------------------------------
+
+const IDEAL_FOR_RULES = [
+  {
+    id: 'first-timer',
+    label: 'First-timer friendly',
+    icon: '🌱',
+    desc: 'Easy to tow & maneuver for new RVers',
+    test: (t) => t.weightLb <= 5500 && deriveAxle(t) === 'single' && t.lengthFt <= 25,
+  },
+  {
+    id: 'couples',
+    label: 'Couples retreat',
+    icon: '💑',
+    desc: 'Cozy layout sized for two',
+    test: (t) => t.sleeps <= 3 && t.lengthFt <= 25,
+  },
+  {
+    id: 'family',
+    label: 'Family adventure',
+    icon: '👨‍👩‍👧‍👦',
+    desc: 'Room to sleep 5+ with cargo to match',
+    test: (t) => t.sleeps >= 5 && (t.cccLb || 0) >= 1200,
+  },
+  {
+    id: 'full-timer',
+    label: 'Full-time ready',
+    icon: '🏡',
+    desc: 'Spacious enough for extended living',
+    test: (t) => t.freshGal >= 39 && t.sleeps >= 4 && t.lengthFt >= 27,
+  },
+  {
+    id: 'boondocker',
+    label: 'Boondocking champ',
+    icon: '⛺',
+    desc: 'Built for dry camping off the grid',
+    test: (t) => (t.offGridScore || 0) >= 55 && t.solarW >= 200,
+  },
+  {
+    id: 'lightweight',
+    label: 'Lightweight tow',
+    icon: '🪶',
+    desc: 'Under 4,000 lb — SUV-towable',
+    test: (t) => t.weightLb <= 4000,
+  },
+  {
+    id: 'weekend',
+    label: 'Weekend warrior',
+    icon: '🏕️',
+    desc: 'Quick getaway without the hassle',
+    test: (t) => t.lengthFt <= 22 && t.weightLb <= 5000,
+  },
+  {
+    id: 'luxury',
+    label: 'Premium touring',
+    icon: '✨',
+    desc: 'Top-tier comfort & appointments',
+    test: (t) => t.msrp >= 150000 && t.lengthFt >= 28,
+  },
+];
+
+/**
+ * Compute "Ideal For" badges for a trailer. Returns an array of
+ * { id, label, icon, desc } for each matching persona.
+ */
+export function computeIdealFor(t) {
+  return IDEAL_FOR_RULES.filter((r) => r.test(t)).map(({ id, label, icon, desc }) => ({ id, label, icon, desc }));
+}

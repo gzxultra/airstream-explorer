@@ -8,7 +8,7 @@ import {
   trailerTitle, trailerLabel, saveButton,
   formatDimFt,
 } from './format.mjs';
-import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy, computeFleetStandouts, generateGlanceSummary, deriveAxle, towDifficulty, winterizationGuide } from './data.mjs';
+import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy, computeFleetStandouts, generateGlanceSummary, deriveAxle, towDifficulty, winterizationGuide, computeIdealFor } from './data.mjs';
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
@@ -877,7 +877,8 @@ ${yearSeg}
 <main class="cards" id="cards">
 ${cards}
 </main>
-${renderFamilyCompare(fam)}`;
+${renderFamilyCompare(fam)}
+${renderFamilyAdvisor(fam)}`;
   // Breadcrumb trail: Home → Family
   const famBreadcrumbItems = [
     { name: 'Airstream Explorer', path: 'index.html' },
@@ -2983,6 +2984,68 @@ Storage &amp; parking<span class="collapsible-icon" aria-hidden="true"></span>
 </section>`;
 }
 
+// ---------------------------------------------------------------------------
+// IDEAL-FOR BADGES — buyer persona badges computed from specs
+// ---------------------------------------------------------------------------
+
+function renderIdealFor(t) {
+  const badges = computeIdealFor(t);
+  if (!badges.length) return '';
+  const chips = badges.map((b) =>
+    `<div class="ideal-chip"><span class="ideal-icon" aria-hidden="true">${b.icon}</span><div class="ideal-text"><span class="ideal-label">${esc(b.label)}</span><span class="ideal-desc">${esc(b.desc)}</span></div></div>`
+  ).join('\n');
+  return `<section class="ideal-for" id="ideal-for" aria-label="Ideal for">
+<h2>Ideal for</h2>
+<div class="ideal-grid">${chips}</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
+// FAMILY ADVISOR — "Which one should I pick?" quick-pick recommendations
+// ---------------------------------------------------------------------------
+
+function renderFamilyAdvisor(fam) {
+  const latest = fam.years[0];
+  const plans = fam.trailers.filter((t) => t.year === latest);
+  if (plans.length < 2) return '';
+
+  const picks = [];
+  // Lightest
+  const lightest = plans.reduce((a, b) => a.weightLb < b.weightLb ? a : b);
+  picks.push({ q: 'Easiest to tow?', fp: lightest.floorplan, slug: lightest.slug, why: `Lightest at ${lightest.weightLb.toLocaleString()} lb dry` });
+  // Most space
+  const longest = plans.reduce((a, b) => a.lengthFt > b.lengthFt ? a : b);
+  if (longest.slug !== lightest.slug) {
+    picks.push({ q: 'Most living space?', fp: longest.floorplan, slug: longest.slug, why: `Longest at ${Math.round(longest.lengthFt)}'` });
+  }
+  // Best off-grid
+  const bestOg = plans.reduce((a, b) => (a.offGridScore || 0) > (b.offGridScore || 0) ? a : b);
+  if (bestOg.slug !== lightest.slug && bestOg.slug !== longest.slug && (bestOg.offGridScore || 0) > 0) {
+    picks.push({ q: 'Best off-grid?', fp: bestOg.floorplan, slug: bestOg.slug, why: `Off-grid score ${bestOg.offGridScore}/100` });
+  }
+  // Most cargo
+  const mostCargo = plans.reduce((a, b) => (a.cccLb || 0) > (b.cccLb || 0) ? a : b);
+  if (mostCargo.slug !== lightest.slug && mostCargo.slug !== longest.slug && mostCargo.slug !== bestOg.slug && (mostCargo.cccLb || 0) > 0) {
+    picks.push({ q: 'Most cargo capacity?', fp: mostCargo.floorplan, slug: mostCargo.slug, why: `${mostCargo.cccLb.toLocaleString()} lb CCC` });
+  }
+  // Best value
+  const bestVal = plans.reduce((a, b) => a.msrp < b.msrp ? a : b);
+  if (bestVal.slug !== lightest.slug && bestVal.slug !== longest.slug) {
+    picks.push({ q: 'Best value?', fp: bestVal.floorplan, slug: bestVal.slug, why: `Starting at $${(bestVal.msrp / 1000).toFixed(0)}k` });
+  }
+
+  if (picks.length < 2) return '';
+
+  const items = picks.slice(0, 4).map((p) =>
+    `<a class="advisor-pick" href="../m/${esc(p.slug)}.html"><span class="advisor-q">${esc(p.q)}</span><span class="advisor-fp">${esc(p.fp)}</span><span class="advisor-why">${esc(p.why)}</span></a>`
+  ).join('\n');
+
+  return `<section class="fam-advisor" id="advisor" aria-label="Which one to pick">
+<h2>Which ${esc(fam.family)} should I pick?</h2>
+<p class="muted">Quick picks based on what matters most to you.</p>
+<div class="advisor-grid">${items}</div>
+</section>`;
+}
 function renderNextSteps(t) {
   const official = officialUrl(t.model);
   const links = [];
@@ -3351,6 +3414,7 @@ ${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}
 ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
 </section>` : ''}
 ${renderTripReady(t)}
+${renderIdealFor(t)}
 ${renderSeasonalGuide(t)}
 ${renderLifestyleFit(t)}
 ${renderWinterization(t)}
