@@ -2374,6 +2374,176 @@ Maintenance schedule
 </section>`;
 }
 
+
+// ---------------------------------------------------------------------------
+// PROPANE DURATION ESTIMATOR — calculates how long LP gas will last based on
+// appliance usage. Standard Airstream has dual 20 lb tanks = 40 lb LP gas.
+// 1 lb LP = 21,594 BTU. 40 lb = 863,760 BTU total capacity.
+// ---------------------------------------------------------------------------
+const BTU_PER_LB_LP = 21594;
+const PROPANE_APPLIANCE_PROFILES = {
+  furnace: { label: 'Furnace', icon: '🔥', btuPerHr: 25000, defaultHrsPerDay: 4, desc: 'BTU rating varies 20–35k; uses ~25k avg' },
+  waterHeater: { label: 'Water heater', icon: '♨️', btuPerHr: 12000, defaultHrsPerDay: 1, desc: '6-gal tank heater, ~12k BTU' },
+  stove: { label: 'Stovetop', icon: '🍳', btuPerHr: 9000, defaultHrsPerDay: 0.5, desc: 'Two burners avg ~9k BTU combined' },
+  oven: { label: 'Oven', icon: '🥧', btuPerHr: 8000, defaultHrsPerDay: 0, desc: '~8k BTU when in use' },
+  fridge: { label: 'Fridge (LP mode)', icon: '🧊', btuPerHr: 1500, defaultHrsPerDay: 0, desc: '~1.5k BTU, runs 24/7 on LP if no hookup' },
+};
+
+export function computePropaneDuration(lbCapacity, appliances) {
+  const totalBtu = lbCapacity * BTU_PER_LB_LP;
+  let dailyBtu = 0;
+  for (const [key, hrs] of Object.entries(appliances)) {
+    const profile = PROPANE_APPLIANCE_PROFILES[key];
+    if (profile && hrs > 0) dailyBtu += profile.btuPerHr * hrs;
+  }
+  if (dailyBtu <= 0) return { days: Infinity, dailyBtu: 0, dailyLb: 0, totalBtu };
+  const days = totalBtu / dailyBtu;
+  const dailyLb = dailyBtu / BTU_PER_LB_LP;
+  return { days, dailyBtu, dailyLb, totalBtu };
+}
+
+function renderPropaneEstimator(t) {
+  const propaneLb = 40; // standard dual 20 lb tanks
+  // Default scenario: moderate winter use
+  const defaults = { furnace: 4, waterHeater: 1, stove: 0.5, oven: 0, fridge: 0 };
+  const result = computePropaneDuration(propaneLb, defaults);
+  const daysStr = result.days === Infinity ? '∞' : result.days.toFixed(1);
+
+  const dataIsland = JSON.stringify({
+    propaneLb,
+    btuPerLb: BTU_PER_LB_LP,
+    appliances: PROPANE_APPLIANCE_PROFILES,
+    defaults,
+  }).replace(/<\//g, '<\\/');
+
+  const sliders = Object.entries(PROPANE_APPLIANCE_PROFILES).map(([key, a]) => {
+    const max = key === 'fridge' ? 24 : 8;
+    const step = key === 'fridge' ? 24 : 0.5;
+    const defaultVal = defaults[key] || 0;
+    const valLabel = key === 'fridge'
+      ? (defaultVal > 0 ? 'On (24 hr)' : 'Off / electric')
+      : defaultVal + ' hr/day';
+    return `<div class="est-field prop-field">
+<label for="prop-${key}"><span class="prop-icon" aria-hidden="true">${a.icon}</span> ${a.label}</label>
+<div class="finance-slider-row">
+<input type="range" id="prop-${key}" min="0" max="${max}" step="${step}" value="${defaultVal}" class="finance-range" data-prop-key="${key}" aria-label="${a.label} hours per day">
+<span class="finance-range-val" id="prop-${key}-val">${valLabel}</span>
+</div>
+<p class="prop-detail muted">${a.desc}</p>
+</div>`;
+  }).join('\n');
+
+  return `<section class="estimator propane-tool collapsible" id="propane" aria-label="Propane duration estimator"
+ data-propane-lb="${propaneLb}">
+<script type="application/json" id="propane-data">${dataIsland}</script>
+<h2 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">
+Propane duration
+<span class="collapsible-icon" aria-hidden="true"></span>
+</h2>
+<div class="collapsible-body" hidden>
+<p class="est-sub">How long will ${propaneLb} lb of LP gas (standard dual 20 lb tanks) last on the ${esc(t.model)} ${esc(t.floorplan)}? Adjust each appliance below.</p>
+<div class="est-controls prop-controls">
+${sliders}
+</div>
+<div class="est-result" aria-live="polite" aria-atomic="true">
+<div class="est-result-main">
+<span class="est-number" id="prop-days">${daysStr}</span>
+<span class="est-number-cap">days of propane</span>
+</div>
+<div class="prop-stats">
+<div class="prop-stat"><span class="prop-stat-val" id="prop-daily-btu">${Math.round(result.dailyBtu).toLocaleString('en-US')}</span><span class="prop-stat-label">BTU/day</span></div>
+<div class="prop-stat"><span class="prop-stat-val" id="prop-daily-lb">${result.dailyLb.toFixed(1)}</span><span class="prop-stat-label">lb LP/day</span></div>
+<div class="prop-stat"><span class="prop-stat-val" id="prop-total-btu">${Math.round(result.totalBtu).toLocaleString('en-US')}</span><span class="prop-stat-label">total BTU</span></div>
+</div>
+</div>
+<p class="est-caveat muted">Standard Airstream travel trailers carry dual 20 lb (DOT) propane tanks — ${propaneLb} lb total LP capacity. 1 lb LP = ${BTU_PER_LB_LP.toLocaleString('en-US')} BTU (EIA). Furnace BTU ratings vary by model (20k–35k); we use 25k as a mid-range estimate. Actual duration depends on thermostat settings, altitude, wind, and outside temperature.</p>
+</div>
+</section>`;
+}
+
+
+// ---------------------------------------------------------------------------
+// ELECTRICAL LOAD PLANNER — shows shore power capacity and what you can run.
+// Airstream trailers are typically 30A service (smaller models) or 50A
+// (Classic and some larger models). 30A @ 120V = 3,600W max; 50A @ 120V×2
+// legs = 12,000W max. Shows common appliances with their wattage and a visual
+// breaker budget bar so users understand what they can run simultaneously.
+// ---------------------------------------------------------------------------
+const RV_APPLIANCES = [
+  { id: 'ac', name: 'Rooftop A/C', watts: 1350, icon: '❄️', note: 'Running watts; ~2800W startup surge', defaultOn: true },
+  { id: 'microwave', name: 'Microwave', watts: 1000, icon: '📡', note: '1000W cooking power', defaultOn: false },
+  { id: 'waterHeater', name: 'Water heater (electric)', watts: 1440, icon: '♨️', note: '120V element, alternative to LP gas', defaultOn: false },
+  { id: 'fridge', name: 'Refrigerator (AC mode)', watts: 150, icon: '🧊', note: '120V auto mode ~150W average', defaultOn: true },
+  { id: 'tv', name: 'TV', watts: 100, icon: '📺', note: 'LED TV ~60–120W', defaultOn: false },
+  { id: 'charger', name: 'Converter / battery charger', watts: 600, icon: '🔋', note: 'Charges house batteries from shore', defaultOn: true },
+  { id: 'lights', name: 'LED lights', watts: 50, icon: '💡', note: 'All interior lights ~50W LED', defaultOn: true },
+  { id: 'hair', name: 'Hair dryer', watts: 1500, icon: '💨', note: 'High-draw — watch the breaker', defaultOn: false },
+  { id: 'heater', name: 'Space heater', watts: 1500, icon: '🔥', note: 'Ceramic heater, alternative to furnace', defaultOn: false },
+];
+
+function deriveAmpService(t) {
+  // Classic and larger models typically have 50A; most others are 30A
+  const name = (t.model || '').toLowerCase();
+  if (name.includes('classic') || (t.gvwrLb && t.gvwrLb >= 10000)) return 50;
+  return 30;
+}
+
+function renderElectricalPlanner(t) {
+  const amps = deriveAmpService(t);
+  const maxWatts = amps === 50 ? 12000 : 3600;
+  const defaultOn = RV_APPLIANCES.filter(a => a.defaultOn);
+  const defaultLoad = defaultOn.reduce((sum, a) => sum + a.watts, 0);
+  const pct = Math.min(100, Math.round((defaultLoad / maxWatts) * 100));
+  const remaining = maxWatts - defaultLoad;
+
+  const dataIsland = JSON.stringify({
+    amps, maxWatts, appliances: RV_APPLIANCES,
+  }).replace(/<\//g, '<\\/');
+
+  const rows = RV_APPLIANCES.map(a => {
+    const barPct = Math.round((a.watts / maxWatts) * 100);
+    return `<div class="elec-row" data-elec-id="${a.id}">
+<label class="elec-label">
+<input type="checkbox" class="elec-check" data-watts="${a.watts}" ${a.defaultOn ? 'checked' : ''}>
+<span class="elec-icon" aria-hidden="true">${a.icon}</span>
+<span class="elec-name">${a.name}</span>
+</label>
+<span class="elec-watts">${a.watts.toLocaleString()}W</span>
+<div class="elec-bar"><div class="elec-bar-fill" style="width:${barPct}%"></div></div>
+</div>`;
+  }).join('\n');
+
+  const verdictCls = pct > 95 ? 'elec-over' : pct > 75 ? 'elec-tight' : 'elec-ok';
+
+  return `<section class="estimator electrical-planner collapsible" id="electrical" aria-label="Electrical load planner"
+ data-amp-service="${amps}">
+<script type="application/json" id="elec-data">${dataIsland}</script>
+<h2 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">
+Shore power planner
+<span class="collapsible-icon" aria-hidden="true"></span>
+</h2>
+<div class="collapsible-body" hidden>
+<p class="est-sub">The ${esc(t.model)} ${esc(t.floorplan)} has <strong>${amps}A shore power</strong> service (${(maxWatts).toLocaleString()}W max). Check the appliances you plan to run simultaneously.</p>
+<div class="elec-appliances" id="elec-appliances">
+${rows}
+</div>
+<div class="est-result ${verdictCls}" id="elec-result" aria-live="polite" aria-atomic="true">
+<div class="elec-budget">
+<div class="elec-budget-bar"><div class="elec-budget-fill" id="elec-fill" style="width:${pct}%"></div></div>
+<div class="elec-budget-labels">
+<span id="elec-used">${defaultLoad.toLocaleString()}W used</span>
+<span id="elec-remaining">${remaining.toLocaleString()}W available</span>
+<span class="elec-max">${maxWatts.toLocaleString()}W max (${amps}A)</span>
+</div>
+</div>
+<p class="elec-verdict" id="elec-verdict">${pct > 95 ? '⚠ Over or at capacity — risk of tripped breaker' : pct > 75 ? '⚡ Getting tight — adding more could trip the breaker' : '✓ Comfortable headroom'}</p>
+</div>
+<p class="est-caveat muted">${amps}A service at 120V = ${maxWatts.toLocaleString()}W continuous${amps === 50 ? ' (two 50A legs × 120V)' : ''}. Startup surges (especially A/C compressors) can briefly draw 2–3× running watts. If your campsite has only 20A (2,400W), reduce load accordingly. Wattages shown are typical running draws — check your appliance labels for exact ratings.</p>
+</div>
+</section>`;
+}
+
+
 function renderNextSteps(t) {
   const official = officialUrl(t.model);
   const links = [];
@@ -2607,6 +2777,8 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     t.gvwrLb ? ['#trip-cost', 'Trip Cost'] : null,
     ['#offgrid', 'Off-grid'],
     (t.freshGal || t.blackGal) ? ['#water-autonomy', 'Water'] : null,
+    ['#propane', 'Propane'],
+    ['#electrical', 'Power'],
     a.floorplan ? ['#floorplan', 'Floor plan'] : null,
     ['#trip-ready', 'Trip Ready'],
     ['#seasonal', 'Seasons'],
@@ -2718,6 +2890,8 @@ ${renderResaleProjector(t)}
 ${renderTripCost(t)}
 ${renderOffGridTool(t)}
 ${renderWaterAutonomy(t)}
+${renderPropaneEstimator(t)}
+${renderElectricalPlanner(t)}
 ${floorplanSection}
 ${decorSection}
 ${campgrounds ? renderCampgroundFit(t, campgrounds) : ''}

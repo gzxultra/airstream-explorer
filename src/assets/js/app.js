@@ -7524,3 +7524,158 @@
       });
     });
   })();
+
+  // =========================================================================
+  // PROPANE DURATION ESTIMATOR — interactive sliders recalculate how long LP
+  //     gas will last based on per-appliance hours/day settings.
+  // =========================================================================
+  (function propaneEstimator() {
+    var section = document.getElementById('propane');
+    if (!section) return;
+    var dataEl = document.getElementById('propane-data');
+    if (!dataEl) return;
+    var config;
+    try { config = JSON.parse(dataEl.textContent); } catch (e) { return; }
+    var propaneLb = config.propaneLb || 40;
+    var btuPerLb = config.btuPerLb || 21594;
+    var totalBtu = propaneLb * btuPerLb;
+    var appliances = config.appliances || {};
+
+    var sliders = Array.prototype.slice.call(section.querySelectorAll('[data-prop-key]'));
+    var daysEl = document.getElementById('prop-days');
+    var dailyBtuEl = document.getElementById('prop-daily-btu');
+    var dailyLbEl = document.getElementById('prop-daily-lb');
+
+    function recalc() {
+      var dailyBtu = 0;
+      sliders.forEach(function (s) {
+        var key = s.getAttribute('data-prop-key');
+        var hrs = parseFloat(s.value) || 0;
+        var profile = appliances[key];
+        if (profile) dailyBtu += profile.btuPerHr * hrs;
+        // Update label
+        var label = document.getElementById('prop-' + key + '-val');
+        if (label) {
+          if (key === 'fridge') {
+            label.textContent = hrs > 0 ? 'On (24 hr)' : 'Off / electric';
+          } else {
+            label.textContent = hrs + ' hr/day';
+          }
+        }
+      });
+      if (dailyBtu <= 0) {
+        if (daysEl) daysEl.textContent = '∞';
+        if (dailyBtuEl) dailyBtuEl.textContent = '0';
+        if (dailyLbEl) dailyLbEl.textContent = '0.0';
+      } else {
+        var days = totalBtu / dailyBtu;
+        var dailyLb = dailyBtu / btuPerLb;
+        if (daysEl) daysEl.textContent = days.toFixed(1);
+        if (dailyBtuEl) dailyBtuEl.textContent = Math.round(dailyBtu).toLocaleString('en-US');
+        if (dailyLbEl) dailyLbEl.textContent = dailyLb.toFixed(1);
+      }
+    }
+
+    sliders.forEach(function (s) {
+      s.addEventListener('input', recalc);
+    });
+  })();
+
+  // =========================================================================
+  // ELECTRICAL LOAD PLANNER — checkbox toggles recalculate total wattage and
+  //     visual breaker budget bar for shore power planning.
+  // =========================================================================
+  (function electricalPlanner() {
+    var section = document.getElementById('electrical');
+    if (!section) return;
+    var dataEl = document.getElementById('elec-data');
+    if (!dataEl) return;
+    var config;
+    try { config = JSON.parse(dataEl.textContent); } catch (e) { return; }
+    var maxWatts = config.maxWatts || 3600;
+    var amps = config.amps || 30;
+
+    var checks = Array.prototype.slice.call(section.querySelectorAll('.elec-check'));
+    var fillEl = document.getElementById('elec-fill');
+    var usedEl = document.getElementById('elec-used');
+    var remainEl = document.getElementById('elec-remaining');
+    var verdictEl = document.getElementById('elec-verdict');
+    var resultEl = document.getElementById('elec-result');
+
+    function recalc() {
+      var total = 0;
+      checks.forEach(function (c) {
+        if (c.checked) total += parseInt(c.getAttribute('data-watts'), 10) || 0;
+      });
+      var pct = Math.min(100, Math.round((total / maxWatts) * 100));
+      var remaining = maxWatts - total;
+
+      if (fillEl) fillEl.style.width = pct + '%';
+      if (usedEl) usedEl.textContent = total.toLocaleString() + 'W used';
+      if (remainEl) remainEl.textContent = (remaining > 0 ? remaining.toLocaleString() : '0') + 'W available';
+      if (resultEl) {
+        resultEl.className = 'est-result ' + (pct > 95 ? 'elec-over' : pct > 75 ? 'elec-tight' : 'elec-ok');
+      }
+      if (verdictEl) {
+        if (total > maxWatts) {
+          verdictEl.textContent = '⚠ Over capacity by ' + (total - maxWatts).toLocaleString() + 'W — breaker will trip';
+        } else if (pct > 95) {
+          verdictEl.textContent = '⚠ At capacity — risk of tripped breaker';
+        } else if (pct > 75) {
+          verdictEl.textContent = '⚡ Getting tight — adding more could trip the breaker';
+        } else {
+          verdictEl.textContent = '✓ Comfortable headroom';
+        }
+      }
+    }
+
+    checks.forEach(function (c) {
+      c.addEventListener('change', recalc);
+    });
+  })();
+
+  // =========================================================================
+  // EXPLORE LIST VIEW — toggles between card grid and compact list view.
+  //     Adds a density toggle (grid | list) to the explore controls bar.
+  // =========================================================================
+  (function exploreListView() {
+    var grid = document.getElementById('xgrid');
+    if (!grid) return;
+    var controls = document.querySelector('.xc-head');
+    if (!controls) return;
+
+    // Create toggle button
+    var toggleWrap = document.createElement('div');
+    toggleWrap.className = 'view-toggle';
+    toggleWrap.innerHTML =
+      '<button type="button" class="view-btn view-btn--grid is-active" data-view-mode="grid" aria-label="Grid view" title="Grid view">' +
+      '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>' +
+      '</button>' +
+      '<button type="button" class="view-btn view-btn--list" data-view-mode="list" aria-label="List view" title="List view">' +
+      '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>' +
+      '</button>';
+    controls.appendChild(toggleWrap);
+
+    var btns = Array.prototype.slice.call(toggleWrap.querySelectorAll('.view-btn'));
+    var savedMode;
+    try { savedMode = localStorage.getItem('ae:viewMode'); } catch (e) {}
+    if (savedMode === 'list') {
+      grid.classList.add('xgrid--list');
+      btns[0].classList.remove('is-active');
+      btns[1].classList.add('is-active');
+    }
+
+    btns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var mode = btn.getAttribute('data-view-mode');
+        btns.forEach(function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        if (mode === 'list') {
+          grid.classList.add('xgrid--list');
+        } else {
+          grid.classList.remove('xgrid--list');
+        }
+        try { localStorage.setItem('ae:viewMode', mode); } catch (e) {}
+      });
+    });
+  })();

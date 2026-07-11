@@ -5239,3 +5239,79 @@ h2:hover .section-anchor,
 .maint-link { margin-top:1rem; font-size:.88rem; }
 .maint-link a { color:var(--copper, #b87333); text-decoration:none; }
 .maint-link a:hover { text-decoration:underline; }
+
+/* ========================================================================= */
+/* PROPANE DURATION ESTIMATOR                                                */
+/* ========================================================================= */
+.propane-tool .prop-controls { display: grid; gap: 1rem; }
+.prop-field { padding: 0.5rem 0; }
+.prop-field label { display: flex; align-items: center; gap: 0.5rem; font-weight: 500; }
+.prop-icon { font-size: 1.1em; }
+.prop-detail { margin: 0.25rem 0 0 1.75rem; font-size: 0.8rem; }
+.prop-stats { display: flex; gap: 1.5rem; margin-top: 1rem; flex-wrap: wrap; }
+.prop-stat { text-align: center; }
+.prop-stat-val { display: block; font-size: 1.1rem; font-weight: 600; color: var(--copper, #C4873B); }
+.prop-stat-label { font-size: 0.75rem; color: var(--muted, #8a8578); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ========================================================================= */
+/* ELECTRICAL LOAD PLANNER                                                   */
+/* ========================================================================= */
+.elec-appliances { display: grid; gap: 0.5rem; margin-bottom: 1.5rem; }
+.elec-row { display: grid; grid-template-columns: 1fr auto 80px; align-items: center; gap: 0.75rem; padding: 0.4rem 0; border-bottom: 1px solid var(--line, #e8e4de); }
+.elec-label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem; }
+.elec-check { accent-color: var(--copper, #C4873B); }
+.elec-icon { font-size: 1.1em; }
+.elec-name { font-weight: 500; }
+.elec-watts { font-size: 0.85rem; color: var(--muted, #8a8578); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.elec-bar { height: 6px; background: var(--line, #e8e4de); border-radius: 3px; overflow: hidden; }
+.elec-bar-fill { height: 100%; background: var(--copper, #C4873B); border-radius: 3px; transition: width 0.3s ease; }
+.elec-budget { margin-bottom: 0.75rem; }
+.elec-budget-bar { height: 12px; background: var(--line, #e8e4de); border-radius: 6px; overflow: hidden; position: relative; }
+.elec-budget-fill { height: 100%; border-radius: 6px; transition: width 0.3s ease; background: linear-gradient(90deg, #4a9d5b, #C4873B); }
+.elec-ok .elec-budget-fill { background: linear-gradient(90deg, #4a9d5b, #6dba7d); }
+.elec-tight .elec-budget-fill { background: linear-gradient(90deg, #C4873B, #d4943f); }
+.elec-over .elec-budget-fill { background: linear-gradient(90deg, #c0392b, #e74c3c); }
+.elec-budget-labels { display: flex; justify-content: space-between; margin-top: 0.4rem; font-size: 0.8rem; color: var(--muted, #8a8578); flex-wrap: wrap; gap: 0.25rem; }
+.elec-max { font-weight: 600; }
+.elec-verdict { font-weight: 600; font-size: 0.95rem; margin: 0; }
+.elec-ok .elec-verdict { color: #4a9d5b; }
+.elec-tight .elec-verdict { color: #C4873B; }
+.elec-over .elec-verdict { color: #c0392b; }
+
+/* ========================================================================= */
+/* EXPLORE LIST VIEW TOGGLE                                                  */
+/* ========================================================================= */
+.view-toggle { display: flex; gap: 2px; background: var(--line, #e8e4de); border-radius: 6px; padding: 2px; margin-left: auto; }
+.view-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 28px; border: none; background: transparent; border-radius: 4px; cursor: pointer; color: var(--muted, #8a8578); transition: background 0.15s, color 0.15s; }
+.view-btn.is-active { background: var(--bg, #FDFBF7); color: var(--ink, #1F1B16); box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+.view-btn:hover:not(.is-active) { color: var(--ink, #1F1B16); }
+
+/* List view mode — compact horizontal rows instead of cards */
+.xgrid--list { display: flex !important; flex-direction: column; gap: 0 !important; }
+.xgrid--list .xcard { display: grid; grid-template-columns: 80px 1fr auto; grid-template-rows: auto; border-radius: 0; border-bottom: 1px solid var(--line, #e8e4de); }
+.xgrid--list .xcard-link { display: contents; }
+.xgrid--list .xcard-media { width: 80px; height: 56px; border-radius: 4px; overflow: hidden; margin: 0.5rem 0 0.5rem 0.5rem; }
+.xgrid--list .xcard-media img { width: 100%; height: 100%; object-fit: cover; }
+.xgrid--list .xcard-year,
+.xgrid--list .xcard-photos,
+.xgrid--list .xcard-peek,
+.xgrid--list .xcard-fleet-badges,
+.xgrid--list .xcard-tags,
+.xgrid--list .range-bar { display: none !important; }
+.xgrid--list .xcard-body { padding: 0.5rem 0.75rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.xgrid--list .xcard-title { font-size: 0.9rem; margin: 0; white-space: nowrap; min-width: 160px; }
+.xgrid--list .xcard-specs { display: flex; gap: 1rem; margin: 0; font-size: 0.8rem; }
+.xgrid--list .xcard-specs .spec { display: flex; gap: 0.3rem; }
+.xgrid--list .xcard-specs .spec dt { font-weight: 400; color: var(--muted, #8a8578); }
+.xgrid--list .xcard-specs .spec dd { font-weight: 500; margin: 0; }
+.xgrid--list .spec-monthly-label,
+.xgrid--list .spec-monthly-val { display: none; }
+.xgrid--list .xcard-tow { font-size: 0.75rem; }
+.xgrid--list .tow-diff--card { display: none; }
+.xgrid--list .xcard-foot { grid-column: 3; display: flex; align-items: center; padding-right: 0.75rem; }
+.xgrid--list .xcard-fit { display: none; }
+@media (max-width: 640px) {
+  .xgrid--list .xcard { grid-template-columns: 60px 1fr; }
+  .xgrid--list .xcard-media { width: 60px; height: 44px; }
+  .xgrid--list .xcard-foot { grid-column: 1 / -1; padding: 0 0.5rem 0.5rem; }
+}

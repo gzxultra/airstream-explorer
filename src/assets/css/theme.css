@@ -605,3 +605,22 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .maint-badge--safety  { background:rgba(239,83,80,.15); color:#ef9a9a; }
 [data-theme="dark"] .maint-badge--routine { background:rgba(102,187,106,.15); color:#81c784; }
 [data-theme="dark"] .maint-badge--seasonal { background:rgba(100,181,246,.15); color:#64b5f6; }
+
+/* Propane estimator dark theme */
+[data-theme="dark"] .prop-stat-val { color: #d4a04a; }
+[data-theme="dark"] .prop-detail { color: var(--muted); }
+
+/* Electrical planner dark theme */
+[data-theme="dark"] .elec-row { border-bottom-color: var(--line); }
+[data-theme="dark"] .elec-check { accent-color: #d4a04a; }
+[data-theme="dark"] .elec-bar { background: var(--line); }
+[data-theme="dark"] .elec-bar-fill { background: #d4a04a; }
+[data-theme="dark"] .elec-budget-bar { background: var(--line); }
+[data-theme="dark"] .elec-ok .elec-verdict { color: #6dba7d; }
+[data-theme="dark"] .elec-tight .elec-verdict { color: #d4a04a; }
+[data-theme="dark"] .elec-over .elec-verdict { color: #e74c3c; }
+
+/* View toggle dark theme */
+[data-theme="dark"] .view-toggle { background: var(--line); }
+[data-theme="dark"] .view-btn.is-active { background: var(--surface); color: var(--ink); }
+[data-theme="dark"] .xgrid--list .xcard { border-bottom-color: var(--line); }
