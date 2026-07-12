@@ -17,7 +17,15 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { esc } from './render.mjs';
-import { photoProxy } from './campgrounds.mjs';
+// Inline photo proxy (was in campgrounds.mjs)
+const REC_PHOTO_PREFIX = 'https://cdn.recreation.gov/';
+const REC_PHOTO_PROXY = '/cdn/';
+function photoProxy(ref) {
+  if (!ref) return undefined;
+  if (ref.startsWith(REC_PHOTO_PREFIX)) return REC_PHOTO_PROXY + ref.slice(REC_PHOTO_PREFIX.length);
+  if (/^https?:\/\//.test(ref)) return ref;
+  return REC_PHOTO_PROXY + ref.replace(/^\/+/, '');
+}
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

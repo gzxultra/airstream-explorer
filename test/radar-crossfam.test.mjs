@@ -3,15 +3,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { renderDetail } from '../src/lib/render.mjs';
 import { loadTrailers, assetPaths } from '../src/lib/data.mjs';
-import { loadCampgrounds } from '../src/lib/campgrounds.mjs';
 
 const trailers = loadTrailers();
-const campgrounds = loadCampgrounds();
 const t2026 = trailers.filter((t) => t.year === 2026);
 
 test('detail page contains a radar chart SVG with 6 axes', () => {
   const t = t2026.find((t) => t.slug === 'classic-33fb-2026');
-  const html = renderDetail(t, assetPaths, campgrounds, null, trailers);
+  const html = renderDetail(t, assetPaths, null, trailers);
   assert.ok(html.includes('radar-chart'), 'radar-chart wrapper present');
   assert.ok(html.includes('radar-svg'), 'radar SVG present');
   // 6 axis labels
@@ -30,7 +28,7 @@ test('detail page contains a radar chart SVG with 6 axes', () => {
 
 test('radar chart labels include expected axis names', () => {
   const t = t2026.find((t) => t.slug === 'bambi-16rb-2026');
-  const html = renderDetail(t, assetPaths, campgrounds, null, trailers);
+  const html = renderDetail(t, assetPaths, null, trailers);
   const expectedLabels = ['Off-grid', 'Cargo', 'Sleeps', 'Compact', 'Light', 'Value'];
   for (const label of expectedLabels) {
     assert.ok(html.includes(`>${label}<`), `radar has axis label "${label}"`);
@@ -39,7 +37,7 @@ test('radar chart labels include expected axis names', () => {
 
 test('detail page contains detail-overview wrapper with desc + radar', () => {
   const t = t2026.find((t) => t.slug === 'flying-cloud-25fb-2026');
-  const html = renderDetail(t, assetPaths, campgrounds, null, trailers);
+  const html = renderDetail(t, assetPaths, null, trailers);
   assert.ok(html.includes('detail-overview'), 'detail-overview wrapper present');
   // desc and radar are siblings inside the wrapper
   const overviewIdx = html.indexOf('detail-overview');
@@ -51,7 +49,7 @@ test('detail page contains detail-overview wrapper with desc + radar', () => {
 
 test('cross-family section shows recommendations from OTHER families', () => {
   const t = t2026.find((t) => t.slug === 'classic-33fb-2026');
-  const html = renderDetail(t, assetPaths, campgrounds, null, trailers);
+  const html = renderDetail(t, assetPaths, null, trailers);
   assert.ok(html.includes('cross-family'), 'cross-family section present');
   assert.ok(html.includes('You might also like'), 'heading present');
   // Should have at least 2 recommendation cards
@@ -66,7 +64,7 @@ test('cross-family section shows recommendations from OTHER families', () => {
 
 test('cross-family shows only one floorplan per family (deduplication)', () => {
   const t = t2026.find((t) => t.slug === 'basecamp-16x-2026');
-  const html = renderDetail(t, assetPaths, campgrounds, null, trailers);
+  const html = renderDetail(t, assetPaths, null, trailers);
   const titleMatches = html.match(/xfam-title">([^<]+)/g) || [];
   // Extract model names (before the <span>)
   const models = titleMatches.map((m) => m.replace('xfam-title">', '').split(' <')[0].trim());
@@ -76,7 +74,7 @@ test('cross-family shows only one floorplan per family (deduplication)', () => {
 
 test('small trailer gets similar small cross-family picks', () => {
   const t = t2026.find((t) => t.slug === 'bambi-16rb-2026');
-  const html = renderDetail(t, assetPaths, campgrounds, null, trailers);
+  const html = renderDetail(t, assetPaths, null, trailers);
   // Should recommend other small trailers, not 33ft flagships
   const xfamSection = html.slice(html.indexOf('cross-family'));
   // At least one recommendation should be a compact trailer
@@ -88,7 +86,7 @@ test('small trailer gets similar small cross-family picks', () => {
 
 test('cross-family cards have xfam-traits badges for similar specs', () => {
   const t = t2026.find((t) => t.slug === 'flying-cloud-25fb-2026');
-  const html = renderDetail(t, assetPaths, campgrounds, null, trailers);
+  const html = renderDetail(t, assetPaths, null, trailers);
   // At least some cards should have trait badges (Similar weight, Similar price, etc.)
   const traitCount = (html.match(/xfam-traits/g) || []).length;
   assert.ok(traitCount >= 1, `at least 1 card with trait badges, got ${traitCount}`);
@@ -97,14 +95,14 @@ test('cross-family cards have xfam-traits badges for similar specs', () => {
 test('all detail pages render without error', () => {
   for (const t of trailers) {
     // Should not throw
-    const html = renderDetail(t, assetPaths, campgrounds, null, trailers);
+    const html = renderDetail(t, assetPaths, null, trailers);
     assert.ok(html.includes('radar-chart'), `${t.slug} has radar chart`);
   }
 });
 
 test('section nav has data-secnav attribute for scroll spy', () => {
   const t = t2026.find((t) => t.slug === 'classic-33fb-2026');
-  const html = renderDetail(t, assetPaths, campgrounds, null, trailers);
+  const html = renderDetail(t, assetPaths, null, trailers);
   assert.ok(html.includes('data-secnav'), 'section nav has data-secnav');
   assert.ok(html.includes('secnav-link'), 'section nav has links');
 });

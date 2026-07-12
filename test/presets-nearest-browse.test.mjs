@@ -114,7 +114,7 @@ test('renderExploreSections includes nearest-match container', () => {
 
 test('detail page includes browse-similar links for a typical trailer', () => {
   const t = trailers.find((x) => x.slug === 'bambi-16rb-2026') || trailers[0];
-  const html = renderDetail(t, undefined, null, null, trailers);
+  const html = renderDetail(t, undefined, null, trailers);
   assert.ok(html.includes('browse-links'), 'should have browse-links container');
   assert.ok(html.includes('browse-link'), 'should have at least one browse link');
   assert.ok(html.includes('Browse similar'), 'should have browse-similar label');
@@ -122,7 +122,7 @@ test('detail page includes browse-similar links for a typical trailer', () => {
 
 test('browse-similar links contain valid explore deep-link hashes', () => {
   const t = trailers.find((x) => x.msrp > 60000 && x.sleeps >= 4) || trailers[0];
-  const html = renderDetail(t, undefined, null, null, trailers);
+  const html = renderDetail(t, undefined, null, trailers);
   // Links should point to ../index.html#all with filter params
   const linkMatch = html.match(/href="\.\.\/index\.html#all&[^"]+"/g);
   assert.ok(linkMatch && linkMatch.length > 0, 'should have deep-link hrefs');

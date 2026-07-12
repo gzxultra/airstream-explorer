@@ -8,7 +8,7 @@ const trailers = loadTrailers();
 
 describe('spec glossary tooltips', () => {
   const t = trailers.find((r) => r.slug === 'flying-cloud-25fb-2026');
-  const html = renderDetail(t, assetPaths, null, null, trailers);
+  const html = renderDetail(t, assetPaths, null, trailers);
 
   it('renders spec-tip wrapper on detail page spec labels', () => {
     assert.ok(html.includes('class="spec-tip"'), 'should have spec-tip class');
@@ -58,14 +58,14 @@ describe('standout badges', () => {
 
   it('renders badges in detail page HTML when earned', () => {
     const fc23 = trailers.find((t) => t.slug === 'flying-cloud-23fb-2026');
-    const html = renderDetail(fc23, assetPaths, null, null, trailers);
+    const html = renderDetail(fc23, assetPaths, null, trailers);
     assert.ok(html.includes('standout-badges'), 'should render badges container');
     assert.ok(html.includes('Lightest in family'), 'should show lightest badge');
   });
 
   it('does not render badges container when none earned', () => {
     const classic33 = trailers.find((t) => t.slug === 'classic-33fb-2026');
-    const html = renderDetail(classic33, assetPaths, null, null, trailers);
+    const html = renderDetail(classic33, assetPaths, null, trailers);
     assert.ok(!html.includes('standout-badges'), 'classic-33fb should have no badge container');
   });
 });

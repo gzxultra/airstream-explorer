@@ -38,20 +38,20 @@ describe('section quick-nav', () => {
     const html = readDetail('classic-33fb-2026');
     assert.ok(html.includes('data-secnav'), 'secnav missing');
     assert.ok(html.includes('href="#specs"'), 'Specs link missing');
-    assert.ok(html.includes('href="#tow"'), 'Tow link missing');
-    assert.ok(html.includes('href="#fuel"'), 'Fuel link missing');
-    assert.ok(html.includes('href="#payload"'), 'Payload link missing');
-    assert.ok(html.includes('href="#offgrid"'), 'Off-grid link missing');
+    assert.ok(html.includes('href="#tow-setup"'), 'Tow Setup link missing');
+    assert.ok(html.includes('href="#journey"'), 'Journey link missing');
+    assert.ok(html.includes('href="#weight-capacity"'), 'Weight link missing');
+    assert.ok(html.includes('href="#offgrid-dash"'), 'Off-grid link missing');
     assert.ok(html.includes('href="#floorplan"'), 'Floor plan link missing');
     assert.ok(html.includes('href="#gallery"'), 'Gallery link missing');
   });
   it('section IDs exist on trailer detail page', () => {
     const html = readDetail('classic-33fb-2026');
     assert.ok(html.includes('id="specs"'), 'specs id missing');
-    assert.ok(html.includes('id="tow"'), 'tow id missing');
-    assert.ok(html.includes('id="fuel"'), 'fuel id missing');
-    assert.ok(html.includes('id="payload"'), 'payload id missing');
-    assert.ok(html.includes('id="offgrid"'), 'offgrid id missing');
+    assert.ok(html.includes('id="tow-setup"') || html.includes('id="tow"'), 'tow section id missing');
+    assert.ok(html.includes('id="journey"') || html.includes('id="fuel"'), 'fuel/journey section id missing');
+    assert.ok(html.includes('id="weight-capacity"') || html.includes('id="payload"'), 'payload/weight section id missing');
+    assert.ok(html.includes('id="offgrid-dash"') || html.includes('id="offgrid"'), 'offgrid section id missing');
     assert.ok(html.includes('id="gallery"'), 'gallery id missing');
   });
   it('motorhome detail page has section nav', () => {

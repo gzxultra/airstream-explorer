@@ -108,7 +108,7 @@ describe('expand-all / collapse-all toggle', () => {
       galleryCutout: [],
       floorplan: null,
     });
-    const html = renderDetail(t, resolve, null, null, [t]);
+    const html = renderDetail(t, resolve, null, [t]);
     assert.ok(html.includes('id="secnav-expand-all"'), 'expand-all button missing from section nav');
     assert.ok(html.includes('secnav-expand-all'), 'expand-all class missing');
   });

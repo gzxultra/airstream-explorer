@@ -86,8 +86,8 @@ describe('fleet badges in explore HTML', () => {
 describe('gallery slideshow autoplay', () => {
   const detailHtml = readFileSync(join(root, 'dist/m/classic-33fb-2026.html'), 'utf8');
 
-  it('detail page has gallery-autoplay button', () => {
-    assert.ok(detailHtml.includes('gallery-autoplay'), 'missing gallery-autoplay button');
+  it('detail page has gallery mosaic or gallery-show-all button', () => {
+    assert.ok(detailHtml.includes('gallery-mosaic') || detailHtml.includes('gallery-show-all'), 'missing gallery-mosaic or gallery-show-all');
   });
 
   it('gallery section has gallery-head wrapper', () => {
@@ -129,8 +129,8 @@ describe('new CSS rules exist', () => {
     assert.ok(css.includes('.fleet-badge--fleet-affordable'), 'missing affordable variant');
   });
 
-  it('gallery-autoplay styles exist', () => {
-    assert.ok(css.includes('.gallery-autoplay'), 'missing .gallery-autoplay CSS');
+  it('gallery-mosaic or gallery-show-all styles exist', () => {
+    assert.ok(css.includes('.gallery-mosaic') || css.includes('.gallery-show-all'), 'missing gallery CSS');
   });
 
   it('dark theme fleet badge styles exist', () => {

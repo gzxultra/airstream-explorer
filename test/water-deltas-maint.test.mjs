@@ -13,14 +13,14 @@ const basecamp16 = trailers.find(t => t.slug === 'basecamp-16x-2026');
 // ---------------------------------------------------------------------------
 describe('spec deltas on recommendation cards', () => {
   it('related section contains delta chips', () => {
-    const html = renderDetail(classic33, undefined, null, null, trailers);
+    const html = renderDetail(classic33, undefined, null, trailers);
     // Related cards should have spec-deltas with delta-chip spans
     assert.ok(html.includes('spec-deltas'), 'has spec-deltas container');
     assert.ok(html.includes('delta-chip'), 'has delta chips');
   });
 
   it('cross-family section contains delta chips', () => {
-    const html = renderDetail(classic33, undefined, null, null, trailers);
+    const html = renderDetail(classic33, undefined, null, trailers);
     // Cross-family "you might also like" should also show deltas
     const crossIdx = html.indexOf('cross-family');
     if (crossIdx > 0) {
@@ -30,14 +30,14 @@ describe('spec deltas on recommendation cards', () => {
   });
 
   it('delta chips show +/- values', () => {
-    const html = renderDetail(bambi16, undefined, null, null, trailers);
+    const html = renderDetail(bambi16, undefined, null, trailers);
     // Should have some positive and negative deltas since Bambi 16RB is small
     const deltaMatches = html.match(/delta-chip/g) || [];
     assert.ok(deltaMatches.length >= 2, `expected at least 2 delta chips, got ${deltaMatches.length}`);
   });
 
   it('delta chips include weight and price', () => {
-    const html = renderDetail(classic33, undefined, null, null, trailers);
+    const html = renderDetail(classic33, undefined, null, trailers);
     // Classic 33FB is the heaviest/most expensive, so related cards should show - deltas
     const relSection = html.slice(html.indexOf('class="related"'));
     // Should contain lb and $k references in delta chips
@@ -98,9 +98,9 @@ describe('water autonomy calculator', () => {
     assert.ok(html.includes('days of camping'), 'has days label');
   });
 
-  it('appears in detail page section nav', () => {
-    const html = renderDetail(classic33, undefined, null, null, trailers);
-    assert.ok(html.includes('#water-autonomy'), 'section nav links to water autonomy');
+  it('appears in detail page section nav (via off-grid dashboard)', () => {
+    const html = renderDetail(classic33, undefined, null, trailers);
+    assert.ok(html.includes('#offgrid-dash'), 'section nav links to off-grid dashboard');
   });
 
   it('usage buttons have correct aria attributes', () => {
@@ -116,13 +116,13 @@ describe('water autonomy calculator', () => {
 // ---------------------------------------------------------------------------
 describe('maintenance quick reference', () => {
   it('renders on every detail page', () => {
-    const html = renderDetail(classic33, undefined, null, null, trailers);
+    const html = renderDetail(classic33, undefined, null, trailers);
     assert.ok(html.includes('maintenance-ref'), 'has maintenance section id');
     assert.ok(html.includes('maint-table'), 'has maintenance table');
   });
 
   it('includes core maintenance items', () => {
-    const html = renderDetail(classic33, undefined, null, null, trailers);
+    const html = renderDetail(classic33, undefined, null, trailers);
     assert.ok(html.includes('Tire pressure check'), 'has tire pressure');
     assert.ok(html.includes('Wheel bearing service'), 'has wheel bearings');
     assert.ok(html.includes('Winterization'), 'has winterization');
@@ -132,32 +132,32 @@ describe('maintenance quick reference', () => {
   it('includes solar maintenance for solar-equipped trailers', () => {
     // Classic 33FB has solar
     if (classic33.solarW) {
-      const html = renderDetail(classic33, undefined, null, null, trailers);
+      const html = renderDetail(classic33, undefined, null, trailers);
       assert.ok(html.includes('Solar panel cleaning'), 'has solar maintenance');
     }
   });
 
   it('includes battery check for battery-equipped trailers', () => {
     if (classic33.batteryKwh) {
-      const html = renderDetail(classic33, undefined, null, null, trailers);
+      const html = renderDetail(classic33, undefined, null, trailers);
       assert.ok(html.includes('Battery health check'), 'has battery maintenance');
     }
   });
 
   it('has priority badges', () => {
-    const html = renderDetail(classic33, undefined, null, null, trailers);
+    const html = renderDetail(classic33, undefined, null, trailers);
     assert.ok(html.includes('maint-badge--safety'), 'has safety badges');
     assert.ok(html.includes('maint-badge--routine'), 'has routine badges');
     assert.ok(html.includes('maint-badge--seasonal'), 'has seasonal badges');
   });
 
   it('links to full maintenance page', () => {
-    const html = renderDetail(classic33, undefined, null, null, trailers);
+    const html = renderDetail(classic33, undefined, null, trailers);
     assert.ok(html.includes('maintenance.html'), 'links to full maintenance guide');
   });
 
   it('is collapsible', () => {
-    const html = renderDetail(classic33, undefined, null, null, trailers);
+    const html = renderDetail(classic33, undefined, null, trailers);
     const maintIdx = html.indexOf('id="maintenance-ref"');
     const maintSection = html.slice(maintIdx, maintIdx + 500);
     assert.ok(maintSection.includes('collapsible'), 'has collapsible class');
@@ -165,7 +165,7 @@ describe('maintenance quick reference', () => {
   });
 
   it('appears in section nav', () => {
-    const html = renderDetail(classic33, undefined, null, null, trailers);
+    const html = renderDetail(classic33, undefined, null, trailers);
     assert.ok(html.includes('#maintenance-ref'), 'section nav has maintenance link');
   });
 });

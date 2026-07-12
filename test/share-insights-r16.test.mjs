@@ -6,7 +6,7 @@ import { renderDetail, renderExplore } from '../src/lib/render.mjs';
 
 const trailers = loadTrailers();
 const trailer = trailers.find((t) => t.slug === 'classic-33fb-2026');
-const html = renderDetail(trailer, undefined, null, null, trailers);
+const html = renderDetail(trailer, undefined, null, trailers);
 const exploreHtml = renderExplore(trailers);
 
 // --- Change 1: Explore Share View button ---

@@ -17,7 +17,7 @@ const motorhomes = loadMotorhomes();
 
 describe('key stats dashboard', () => {
   const t = trailers.find((t) => t.slug === 'classic-33fb-2026');
-  const html = renderDetail(t, resolve, null, null, trailers);
+  const html = renderDetail(t, resolve, null, trailers);
 
   it('renders key-stats container on trailer detail', () => {
     assert.ok(html.includes('class="key-stats"'));
@@ -48,7 +48,7 @@ describe('key stats dashboard', () => {
 
 describe('weight capacity bar', () => {
   const t = trailers.find((t) => t.slug === 'classic-33fb-2026');
-  const html = renderDetail(t, resolve, null, null, trailers);
+  const html = renderDetail(t, resolve, null, trailers);
 
   it('renders weight-bar on trailer detail', () => {
     assert.ok(html.includes('class="weight-bar"'));
@@ -84,7 +84,7 @@ describe('weight capacity bar', () => {
 
   it('omits weight bar when data is missing', () => {
     const noWeight = { ...t, weightLb: 0, gvwrLb: 0 };
-    const html2 = renderDetail(noWeight, resolve, null, null, trailers);
+    const html2 = renderDetail(noWeight, resolve, null, trailers);
     assert.ok(!html2.includes('class="weight-bar"'));
   });
 });

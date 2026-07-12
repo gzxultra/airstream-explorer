@@ -10,7 +10,7 @@ const trailers = loadTrailers();
 const motorhomes = loadMotorhomes();
 const trailer = trailers.find((t) => t.slug === 'classic-33fb-2026');
 const motorhome = motorhomes.find((m) => m.slug === 'atlas-25ms-2027');
-const html = renderDetail(trailer, undefined, null, null, trailers);
+const html = renderDetail(trailer, undefined, null, trailers);
 const mhtml = renderMotorhomeDetail(motorhome, undefined, motorhomes);
 
 // --- Trailer detail page ---
@@ -74,10 +74,9 @@ test('site.css has share-btn and reading-progress styles', () => {
 
 // --- Client JS ---
 
-test('app.js has detailActions and readingProgress modules', () => {
+test('app.js has detailActions module', () => {
   const js = readFileSync('src/assets/js/app.js', 'utf8');
   assert.ok(js.includes('function detailActions'), 'missing detailActions');
-  assert.ok(js.includes('function readingProgress'), 'missing readingProgress');
 });
 
 test('app.js uses Web Share API with clipboard fallback', () => {

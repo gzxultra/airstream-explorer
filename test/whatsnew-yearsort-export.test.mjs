@@ -18,7 +18,7 @@ describe('renderWhatsNew2026', () => {
   });
 
   it('contains the section wrapper with correct id', () => {
-    assert.ok(html.includes('id="whats-new-2026"'), 'should have whats-new-2026 id');
+    assert.ok(html.includes('id="whats-new"'), 'should have whats-new id');
     assert.ok(html.includes('wn26-section'), 'should have wn26-section class');
   });
 
@@ -39,7 +39,7 @@ describe('renderWhatsNew2026', () => {
 
   it('is present in the home page index output', () => {
     const indexHtml = renderIndex(families, trailers);
-    assert.ok(indexHtml.includes('id="whats-new-2026"'), 'home page should include whats-new-2026 section');
+    assert.ok(indexHtml.includes('id="whats-new"'), 'home page should include whats-new section');
   });
 });
 

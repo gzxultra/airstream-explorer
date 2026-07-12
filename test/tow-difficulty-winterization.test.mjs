@@ -142,7 +142,7 @@ describe('winterizationGuide', () => {
 describe('render integration', () => {
   it('detail page includes winterization section with wz-check inputs', () => {
     const t = trailers.find((x) => x.slug === 'bambi-16rb-2026');
-    const html = renderDetail(t, assetPaths, null, null, trailers);
+    const html = renderDetail(t, assetPaths, null, trailers);
     assert.ok(html.includes('id="winterization"'), 'winterization section missing');
     assert.ok(html.includes('wz-check'), 'winterization checkboxes missing');
     assert.ok(html.includes('wz-progress'), 'winterization progress bar missing');
@@ -151,14 +151,14 @@ describe('render integration', () => {
 
   it('detail page includes winterization in section nav', () => {
     const t = trailers.find((x) => x.slug === 'flying-cloud-25fb-2026');
-    const html = renderDetail(t, assetPaths, null, null, trailers);
+    const html = renderDetail(t, assetPaths, null, trailers);
     assert.ok(html.includes('#winterization'), 'winterization nav link missing');
     assert.ok(html.includes('Storage'), 'Storage label in section nav missing');
   });
 
   it('detail page includes tow difficulty badge', () => {
     const t = trailers.find((x) => x.slug === 'bambi-16rb-2026');
-    const html = renderDetail(t, assetPaths, null, null, trailers);
+    const html = renderDetail(t, assetPaths, null, trailers);
     assert.ok(html.includes('tow-diff--detail'), 'detail tow difficulty badge missing');
     assert.ok(html.includes('tow-diff-dot'), 'tow difficulty dots missing');
     assert.ok(html.includes('tow-diff-label'), 'tow difficulty label missing');
@@ -174,7 +174,7 @@ describe('render integration', () => {
 
   it('detail page includes compare button', () => {
     const t = trailers.find((x) => x.slug === 'bambi-16rb-2026');
-    const html = renderDetail(t, assetPaths, null, null, trailers);
+    const html = renderDetail(t, assetPaths, null, trailers);
     assert.ok(html.includes('id="detail-compare"'), 'compare button missing');
     assert.ok(html.includes('data-compare-slug="bambi-16rb-2026"'), 'compare slug attr missing');
   });
@@ -182,7 +182,7 @@ describe('render integration', () => {
   it('winterization references real tank sizes from the trailer', () => {
     const t = trailers.find((x) => x.freshGal && x.grayGal && x.blackGal);
     assert.ok(t, 'need a trailer with all 3 tanks');
-    const html = renderDetail(t, assetPaths, null, null, trailers);
+    const html = renderDetail(t, assetPaths, null, trailers);
     assert.ok(html.includes(`${t.freshGal}-gallon fresh`), 'should show real fresh gallon count');
     assert.ok(html.includes(`${t.grayGal}-gallon gray`), 'should show real gray gallon count');
   });

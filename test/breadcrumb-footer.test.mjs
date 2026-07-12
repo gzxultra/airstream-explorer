@@ -42,7 +42,7 @@ test('breadcrumbJsonLd produces valid BreadcrumbList JSON-LD', () => {
 
 test('trailer detail page has breadcrumb nav with Home → Family → Floorplan', () => {
   const t = trailers.find((x) => x.slug === 'classic-33fb-2026');
-  const html = renderDetail(t, undefined, null, null, trailers);
+  const html = renderDetail(t, undefined, null, trailers);
   assert.match(html, /aria-label="Breadcrumb"/);
   assert.match(html, /class="breadcrumb-list"/);
   // Home link
@@ -109,7 +109,7 @@ test('motorhome family page has breadcrumb nav', () => {
 
 test('pages have multi-column editorial footer', () => {
   const t = trailers.find((x) => x.slug === 'classic-33fb-2026');
-  const html = renderDetail(t, undefined, null, null, trailers);
+  const html = renderDetail(t, undefined, null, trailers);
   assert.match(html, /class="footer-grid"/);
   assert.match(html, /class="footer-heading"/);
   assert.match(html, /class="footer-links"/);
@@ -136,7 +136,7 @@ test('motorhome pages also have editorial footer', () => {
 
 test('detail page wraps floorplan in a lightbox-triggerable zoom button', () => {
   const t = trailers.find((x) => x.slug === 'classic-33fb-2026');
-  const html = renderDetail(t, undefined, null, null, trailers);
+  const html = renderDetail(t, undefined, null, trailers);
   assert.match(html, /class="floorplan-zoom-btn"/);
   assert.match(html, /data-lightbox/);
   assert.match(html, /Tap to enlarge/);

@@ -8,7 +8,6 @@ import {
 } from './format.mjs';
 import { motorhomeAssetPaths, motorhomeFamilySlug, motorhomeOfficialUrl, motorhomeOfficialUrlBySlug } from './motorhome-data.mjs';
 import { catalogStats, rangePosition, towClass, waterAutonomy } from './data.mjs';
-import { calculateMonthly, FINANCE_DEFAULTS } from './render.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
 import {
   estimateOffGrid, formatNights,
@@ -29,7 +28,6 @@ function esc(s) {
 const NAV_ITEMS = [
   ['index.html', 'Explore', 'index'],
   ['saved.html', 'Saved', 'saved'],
-  ['campsites.html', 'Campsites', 'campsites'],
   ['upgrades.html', 'Upgrades', 'upgrades'],
   ['maintenance.html', 'Maintenance', 'maintenance'],
 ];
@@ -93,8 +91,6 @@ ${body}
 <div class="footer-col">
 <p class="footer-heading">Plan your trip</p>
 <ul class="footer-links">
-<li><a href="${relRoot}campsites.html">Campsites</a></li>
-<li><a href="${relRoot}campgrounds.html">Campground map</a></li>
 <li><a href="${relRoot}upgrades.html">Upgrades</a></li>
 <li><a href="${relRoot}maintenance.html">Maintenance</a></li>
 </ul>
@@ -102,7 +98,6 @@ ${body}
 <div class="footer-col">
 <p class="footer-heading">Community</p>
 <ul class="footer-links">
-<li><a href="${relRoot}community.html">Community photos</a></li>
 <li><a href="${relRoot}credits.html">Credits &amp; sources</a></li>
 <li><a href="https://www.airstream.com/" target="_blank" rel="noopener">airstream.com ↗</a></li>
 </ul>
@@ -112,7 +107,7 @@ ${body}
 <p class="footer-about">${_stats.floorplanCount} floorplans across ${_stats.familyCount} families. An independent, spec-accurate field guide to the current Airstream lineup.</p>
 </div>
 </div>
-<p class="footer-legal muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Model imagery is manufacturer product photography; community photos under Creative Commons / public-domain licenses (<a href="${relRoot}credits.html">see credits</a>).</p>
+<p class="footer-legal muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Model imagery is manufacturer product photography.</p>
 </footer>
 <div class="lightbox" id="lightbox" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Photo viewer">
 <div class="lightbox-backdrop" data-lb-close></div>
@@ -644,7 +639,6 @@ ${specRow('Length', formatLength(m.lengthFt))}${renderRangeBar(m.lengthFt, range
 ${specRow('Base weight', formatWeight(m.weightLb))}${renderRangeBar(m.weightLb, ranges.weightLb, 'Base weight')}
 ${specRow('Sleeps', String(m.sleeps))}
 ${specRow('MSRP', formatMsrp(m.msrp))}${renderRangeBar(m.msrp, ranges.msrp, 'MSRP')}
-${m.msrp > 0 ? `<div class="spec"><dt class="spec-monthly-label">Est. payment</dt><dd class="spec-monthly-val">~${esc(formatMsrpShort(calculateMonthly(m.msrp, FINANCE_DEFAULTS.downPct, FINANCE_DEFAULTS.apr, FINANCE_DEFAULTS.termYears).monthly))}/mo</dd></div>` : ''}
 </dl>
 </div>
 </a>

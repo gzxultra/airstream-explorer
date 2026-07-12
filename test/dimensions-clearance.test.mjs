@@ -100,8 +100,8 @@ describe('clearance fit section', () => {
     assert.match(html, /class="clearance-fit"/);
   });
 
-  it('section nav includes Clearance link', () => {
-    assert.match(html, /#clearance-fit/);
+  it('section nav includes dimensions link', () => {
+    assert.match(html, /#dimensions/);
   });
 
   it('shows trailer dimensions in intro text', () => {

@@ -11,13 +11,9 @@ import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, 
 import { loadVehicles } from '../src/lib/tow.mjs';
 import { loadMotorhomes, validateMotorhomeDataset, groupMotorhomesByFamily, resolveMotorhomeAssets } from '../src/lib/motorhome-data.mjs';
 import { renderMotorhomeIndex, renderMotorhomeFamily, renderMotorhomeDetail } from '../src/lib/motorhome-render.mjs';
-import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
 import { loadUpgrades, validateUpgrades, renderUpgradesBody } from '../src/lib/upgrades.mjs';
 import { loadMaintenance, validateMaintenance, renderMaintenanceBody } from '../src/lib/maintenance.mjs';
 import { loadOvernight, validateOvernight, renderOvernightBody } from '../src/lib/overnight.mjs';
-import { loadBoondocking, validateBoondocking, renderCampsitesBody } from '../src/lib/campsites.mjs';
-import { loadCampgrounds, validateCampgrounds } from '../src/lib/campgrounds.mjs';
-import { renderCampgroundsPage } from '../src/lib/campgrounds-render.mjs';
 import { SITE_ORIGIN } from '../src/lib/seo.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -37,17 +33,6 @@ const trailers = loadTrailers();
 validateDataset(trailers);
 const families = groupByFamily(trailers);
 log(`data ok: ${trailers.length} floorplans in ${families.length} families`);
-
-// 1b. Load + validate community photos (fail the build if any attribution is missing)
-const community = loadCommunityPhotos();
-validateCommunity(community);
-log(`community photos ok: ${community.length} (all attributed)`);
-
-// 1c. Load + validate campground dataset (Recreation.gov, baked static JSON)
-const campData = loadCampgrounds();
-validateCampgrounds(campData);
-const campgrounds = campData.campgrounds;
-log(`campgrounds ok: ${campgrounds.length} RV-capable sites in ${campData.stats.states} states`);
 
 // 1d. Load official interior décor options (family slug -> material schemes)
 const decorMap = loadDecor();
@@ -78,7 +63,6 @@ if (maintenanceProblems.length) {
 const maintenanceCount = maintenance.categories.reduce((n, c) => n + c.items.length, 0);
 log(`maintenance ok: ${maintenanceCount} tasks in ${maintenance.categories.length} cadences (all sourced)`);
 
-// 1f. Load + validate curated overnight stays (Recreation.gov campgrounds
 //     filtered into two intents: off-grid "Big Views" + serviced "Full
 //     Hookups"). Fail the build if any pick lacks a valid lens, a real
 //     Recreation.gov url, a photo, coordinates, or violates the hookups
@@ -89,17 +73,6 @@ if (overnightProblems.length) {
   throw new Error('Overnight stays data invalid:\n' + overnightProblems.join('\n'));
 }
 log(`overnight stays ok: ${overnightData.stays.length} curated picks (${Object.entries(overnightData.byLens).map(([k, v]) => `${v} ${k}`).join(', ')})`);
-
-// 1g. Load + validate boondocking dataset (OpenStreetMap / ODbL dispersed
-//     sites). Fail the build if any community site lacks real coordinates,
-//     OSM provenance, or — critically — carries a FABRICATED rating, photo, or
-//     price. Community data must stay visibly honest next to the gov data.
-const boondockingData = loadBoondocking();
-const boondockingProblems = validateBoondocking(boondockingData);
-if (boondockingProblems.length) {
-  throw new Error('Boondocking data invalid:\n' + boondockingProblems.join('\n'));
-}
-log(`boondocking ok: ${boondockingData.sites.length} OSM dispersed sites (unverified, first-come)`);
 
 // 1h. Load + validate motorhome dataset
 const motorhomes = loadMotorhomes();
@@ -126,7 +99,7 @@ log(`wrote ${families.length} family pages`);
 
 // 4. Detail pages
 for (const t of trailers) {
-  writeFileSync(join(DIST, 'm', `${t.slug}.html`), renderDetail(t, resolve, campgrounds, resolveDecor(t, decorMap, hasAsset), trailers));
+  writeFileSync(join(DIST, 'm', `${t.slug}.html`), renderDetail(t, resolve, resolveDecor(t, decorMap, hasAsset), trailers));
 }
 log(`wrote ${trailers.length} detail pages`);
 
@@ -145,61 +118,6 @@ for (const mh of motorhomes) {
   writeFileSync(join(DIST, 'mm', `${mh.slug}.html`), renderMotorhomeDetail(mh, resolveMH, motorhomes));
 }
 log(`wrote motorhomes.html + ${motorhomeFamilies.length} family pages + ${motorhomes.length} detail pages`);
-
-// 4a2. Campground Finder (national, map + list)
-{
-  const { body, payload } = renderCampgroundsPage(campgrounds, trailers);
-  // The campground dataset (~905 KB baked) is written to its OWN file rather
-  // than inlined into the HTML. Inlining forced every visit to re-download the
-  // whole dataset (HTML is no-cache) and blocked first paint on a 900 KB parse.
-  // As a standalone file it's fingerprinted + immutable-cached (step 6/8): one
-  // download, cached forever, fetched async by app.js without blocking the list.
-  mkdirSync(join(DIST, 'assets', 'data'), { recursive: true });
-  writeFileSync(join(DIST, 'assets', 'data', 'campgrounds.json'), JSON.stringify(payload));
-  log(`wrote campground dataset (${(JSON.stringify(payload).length / 1024).toFixed(0)} KB, external + cacheable)`);
-  // MapLibre (~940 KB) is the heaviest asset on the site. We DON'T load it
-  // render-blocking here — app.js lazy-loads it after the campground list is on
-  // screen, so a slow/blocked/aborted map download can never stop the list from
-  // rendering. Keep the CSS (small) and preload the JS at low priority so it's
-  // usually warm by the time app.js asks for it.
-  const head = '<link rel="stylesheet" href="assets/vendor/maplibre/maplibre-gl.css">\n'
-    + '<link rel="preload" href="assets/vendor/maplibre/maplibre-gl.js" as="script">\n';
-  writeFileSync(
-    join(DIST, 'campgrounds.html'),
-    page({
-      title: 'Campground Finder — where your Airstream fits',
-      description: `Find RV-friendly campgrounds nationwide matched to your Airstream's real length. ${campgrounds.length} campgrounds across ${campData.stats.states} states from Recreation.gov, with posted max-length limits, ratings, and prices.`,
-      body,
-      head,
-      active: 'campgrounds',
-      canonicalPath: 'campgrounds.html',
-    }),
-  );
-  log('wrote campgrounds.html (national finder)');
-}
-
-// 4b. Community gallery + credits pages (root-level, so relRoot = '')
-writeFileSync(
-  join(DIST, 'community.html'),
-  page({
-    title: 'Airstream in the Wild — real community photos',
-    description: 'Real, freely-licensed photographs of Airstream travel trailers from photographers via Wikimedia Commons, grouped by model and setting. Every photo credited.',
-    body: renderCommunityBody(community, ''),
-    active: 'community',
-    canonicalPath: 'community.html',
-  }),
-);
-writeFileSync(
-  join(DIST, 'credits.html'),
-  page({
-    title: 'Photo credits & licenses — Airstream Explorer',
-    description: 'Full attribution for every community photograph: photographer, license, and original source.',
-    body: renderCreditsBody(community, ''),
-    active: 'community',
-    canonicalPath: 'credits.html',
-  }),
-);
-log('wrote community.html + credits.html');
 
 // 4b-ii. Glossary page (root-level, reference page)
 writeFileSync(
@@ -239,43 +157,6 @@ writeFileSync(
   }),
 );
 log('wrote maintenance.html');
-
-// 4d. Campsites hub (root-level, so relRoot = '') — the unified page that
-//     merges overnight stays (Big Views + Full Hookups, Recreation.gov) with
-//     boondocking (free dispersed, OpenStreetMap) under three filter lenses.
-//     Ships the MapLibre CSS + a low-priority JS preload (same as the Finder)
-//     because the hub now carries its own all-lenses map; app.js lazy-loads the
-//     library when the map scrolls near the viewport, so the list never waits.
-const campsitesHead = '<link rel="stylesheet" href="assets/vendor/maplibre/maplibre-gl.css">\n'
-  + '<link rel="preload" href="assets/vendor/maplibre/maplibre-gl.js" as="script">\n';
-writeFileSync(
-  join(DIST, 'campsites.html'),
-  page({
-    title: 'Campsites — where to park your Airstream tonight',
-    description: `${overnightData.stays.length + boondockingData.sites.length} places to park an Airstream on US public land, in one place — ${overnightData.byLens.view || 0} off-grid big-view sites and ${overnightData.byLens.utility || 0} full-hookup sites bookable on Recreation.gov, plus ${boondockingData.sites.length} free first-come boondocking spots mapped from OpenStreetMap. Filter by views, hookups, or free dispersed camping.`,
-    body: renderCampsitesBody(overnightData, boondockingData, ''),
-    head: campsitesHead,
-    active: 'campsites',
-    canonicalPath: 'campsites.html',
-  }),
-);
-log('wrote campsites.html (unified hub: stays + boondocking + all-lenses map)');
-
-// 4d-ii. Legacy redirects: stays.html → campsites.html (the Overnight Stays
-//     page was absorbed into the hub). Keep the URL alive so old links/bookmarks
-//     and any external references don't 404; a meta-refresh + canonical + JS
-//     replace covers crawlers and humans.
-function redirectStub(to, title) {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8">
-<title>${title}</title>
-<link rel="canonical" href="${to}">
-<meta http-equiv="refresh" content="0; url=${to}">
-<meta name="robots" content="noindex,follow">
-<script>location.replace('${to}');</script>
-</head><body><p>This page moved to <a href="${to}">Campsites</a>.</p></body></html>`;
-}
-writeFileSync(join(DIST, 'stays.html'), redirectStub('campsites.html', 'Overnight stays moved — Campsites'));
-log('wrote stays.html (redirect → campsites.html)');
 
 // 4e. Custom 404 — Cloudflare Pages serves /404.html for unmatched routes.
 //     A branded, navigable 404 (full site chrome via page()) beats Cloudflare's
@@ -399,7 +280,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     }
     return out;
   };
-  const EXCLUDE = new Set(['stays.html', '404.html', 'offline.html']); // legacy redirect + 404 + offline (all noindex)
+  const EXCLUDE = new Set(['404.html', 'offline.html']);
   const urls = collectHtml(DIST)
     .map((abs) => relative(DIST, abs).split('\\').join('/'))
     .filter((rel) => !EXCLUDE.has(rel))
@@ -464,8 +345,6 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
   fingerprintTree('img', /\.(jpe?g|png|webp|avif|gif|svg)$/i);
   fingerprintTree('js', /\.js$/i);
   fingerprintTree('css', /\.css$/i);
-  // The campground dataset (assets/data/campgrounds.json) is large, immutable
-  // per build, and referenced once (in campgrounds.html via #cg-data[data-src]).
   // Fingerprinting it makes it safe to cache forever AND fresh on every rebuild.
   fingerprintTree('data', /\.json$/i);
   log(`fingerprinted ${counts.img || 0} images, ${counts.js || 0} js, ${counts.css || 0} css, ${counts.data || 0} data`);
@@ -478,14 +357,9 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     join(DIST, 'explore.html'),
     join(DIST, 'compare.html'),
     join(DIST, 'saved.html'),
-    join(DIST, 'campgrounds.html'),
     join(DIST, 'upgrades.html'),
     join(DIST, 'maintenance.html'),
-    join(DIST, 'campsites.html'),
-    join(DIST, 'stays.html'),
     join(DIST, '404.html'),
-    join(DIST, 'community.html'),
-    join(DIST, 'credits.html'),
     join(DIST, 'glossary.html'),
     join(DIST, 'motorhomes.html'),
     join(DIST, 'towguide.html'),
@@ -538,12 +412,8 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     { file: join(DIST, 'index.html'), base: DIST },
     { file: join(DIST, 'explore.html'), base: DIST },
     { file: join(DIST, 'compare.html'), base: DIST },
-    { file: join(DIST, 'campgrounds.html'), base: DIST },
     { file: join(DIST, 'upgrades.html'), base: DIST },
     { file: join(DIST, 'maintenance.html'), base: DIST },
-    { file: join(DIST, 'campsites.html'), base: DIST },
-    { file: join(DIST, 'community.html'), base: DIST },
-    { file: join(DIST, 'credits.html'), base: DIST },
     { file: join(DIST, 'glossary.html'), base: DIST },
     { file: join(DIST, 'motorhomes.html'), base: DIST },
     { file: join(DIST, '404.html'), base: DIST },

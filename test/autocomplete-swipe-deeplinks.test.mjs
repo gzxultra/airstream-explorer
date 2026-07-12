@@ -21,14 +21,10 @@ test('search autocomplete: combobox wrapper and suggestion list present in explo
   assert.ok(html.includes('autocomplete="off"'), 'native autocomplete disabled');
 });
 
-test('search autocomplete: JS module present in app.js', () => {
+test('search: datalist-based search module present in app.js', () => {
   const js = read('src/assets/js/app.js');
-  assert.ok(js.includes('function searchAutocomplete'), 'autocomplete module exists');
-  assert.ok(js.includes("getElementById('x-suggest')"), 'references suggestion list');
-  assert.ok(js.includes('x-suggest-item'), 'renders suggestion items');
-  assert.ok(js.includes('ArrowDown'), 'keyboard navigation support');
-  assert.ok(js.includes('ArrowUp'), 'keyboard up navigation');
-  assert.ok(js.includes('aria-activedescendant'), 'ARIA active descendant management');
+  assert.ok(js.includes('function searchDatalist'), 'datalist search module exists');
+  assert.ok(js.includes("getElementById('search')"), 'references search input');
 });
 
 test('search autocomplete: CSS styles present', () => {

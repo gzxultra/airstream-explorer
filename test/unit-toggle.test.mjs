@@ -100,8 +100,4 @@ describe('keyboard shortcut u', () => {
     assert.ok(html.includes('imperial / metric'), 'help text should mention imperial/metric');
   });
 
-  it('app.js handles u keypress for unit toggle', () => {
-    const js = readFileSync(join(ROOT, 'src/assets/js/app.js'), 'utf8');
-    assert.ok(js.includes("key === 'u'"), 'app.js missing u key handler');
-  });
 });

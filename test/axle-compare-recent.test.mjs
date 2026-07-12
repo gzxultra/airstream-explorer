@@ -67,15 +67,15 @@ describe('deriveAxle', () => {
 // ---------------------------------------------------------------------------
 describe('axle in detail pages', () => {
   it('Bambi 16RB shows "Single axle" in spec table', () => {
-    const html = renderDetail(bambi16rb, undefined, null, null, trailers);
+    const html = renderDetail(bambi16rb, undefined, null, trailers);
     assert.ok(html.includes('Single axle'), 'expected Single axle in Bambi spec');
   });
   it('Classic 33FB shows "Dual axle" in spec table', () => {
-    const html = renderDetail(classic33fb, undefined, null, null, trailers);
+    const html = renderDetail(classic33fb, undefined, null, trailers);
     assert.ok(html.includes('Dual axle'), 'expected Dual axle in Classic spec');
   });
   it('Axle glossary tooltip is present', () => {
-    const html = renderDetail(bambi16rb, undefined, null, null, trailers);
+    const html = renderDetail(bambi16rb, undefined, null, trailers);
     assert.ok(html.includes('Single-axle trailers are lighter'));
   });
 });

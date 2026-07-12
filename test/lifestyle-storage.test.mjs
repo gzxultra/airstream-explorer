@@ -154,7 +154,7 @@ describe('render integration', () => {
     const { loadTrailers } = await import('../src/lib/data.mjs');
     trailers = trailers || loadTrailers();
     const t = trailers.find(t => t.year === 2026) || trailers[0];
-    const html = renderModule.renderDetail(t, undefined, null, null, trailers);
+    const html = renderModule.renderDetail(t, undefined, null, trailers);
     assert.ok(html.includes('id="lifestyle-fit"'), 'detail page should have lifestyle-fit section');
     assert.ok(html.includes('lf-dot'), 'lifestyle fit should render dots');
     assert.ok(html.includes('lf-row'), 'lifestyle fit should render rows');
@@ -167,7 +167,7 @@ describe('render integration', () => {
     // Find a trailer with a description that should produce amenities
     const t = trailers.find(t => t.description && t.description.includes('Bed'));
     if (!t) return; // skip if no suitable trailer
-    const html = renderModule.renderDetail(t, undefined, null, null, trailers);
+    const html = renderModule.renderDetail(t, undefined, null, trailers);
     assert.ok(html.includes('amenity-summary'), 'detail page should have amenity summary');
     assert.ok(html.includes('amenity-chip'), 'amenity summary should have chips');
   });
@@ -177,7 +177,7 @@ describe('render integration', () => {
     const { loadTrailers } = await import('../src/lib/data.mjs');
     trailers = trailers || loadTrailers();
     const t = trailers.find(t => t.year === 2026 && t.lengthFt) || trailers[0];
-    const html = renderModule.renderDetail(t, undefined, null, null, trailers);
+    const html = renderModule.renderDetail(t, undefined, null, trailers);
     assert.ok(html.includes('id="storage"'), 'detail page should have storage section');
     assert.ok(html.includes('sg-card'), 'storage section should have cards');
     assert.ok(html.includes('Storage unit'), 'storage section should mention storage unit');
@@ -190,7 +190,7 @@ describe('render integration', () => {
     const { loadTrailers } = await import('../src/lib/data.mjs');
     trailers = trailers || loadTrailers();
     const t = trailers.find(t => t.year === 2026) || trailers[0];
-    const html = renderModule.renderDetail(t, undefined, null, null, trailers);
+    const html = renderModule.renderDetail(t, undefined, null, trailers);
     assert.ok(html.includes('#lifestyle-fit'), 'secnav should link to lifestyle-fit');
     assert.ok(html.includes('#storage'), 'secnav should link to storage');
   });

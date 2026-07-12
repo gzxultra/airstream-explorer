@@ -190,7 +190,7 @@ test('renderDetail renders an official décor section with scheme names + swatch
       ],
     },
   ];
-  const html = renderDetail(classic, resolve, null, decor);
+  const html = renderDetail(classic, resolve, decor);
   assert.match(html, /<section class="decor"/);
   assert.match(html, /Interior décor options/);
   assert.match(html, /Comfort White with Earl Grey Ultraleather/);
@@ -202,8 +202,8 @@ test('renderDetail renders an official décor section with scheme names + swatch
 
 test('renderDetail omits the décor section when no schemes resolve', () => {
   const resolve = (t) => ({ thumb: '', hero: null, gallery: [], floorplan: null });
-  assert.doesNotMatch(renderDetail(classic, resolve, null, []), /<section class="decor"/);
-  assert.doesNotMatch(renderDetail(classic, resolve, null, null), /<section class="decor"/);
+  assert.doesNotMatch(renderDetail(classic, resolve, []), /<section class="decor"/);
+  assert.doesNotMatch(renderDetail(classic, resolve, null), /<section class="decor"/);
 });
 
 test('renderDetail escapes décor names + descriptions (no raw HTML injection)', () => {
@@ -214,7 +214,7 @@ test('renderDetail escapes décor names + descriptions (no raw HTML injection)',
       swatches: [{ kind: '<i>k</i>', src: 'assets/img/decor/x.webp' }],
     },
   ];
-  const html = renderDetail(classic, resolve, null, decor);
+  const html = renderDetail(classic, resolve, decor);
   assert.ok(!html.includes('<b>Evil</b>'));
   assert.ok(!html.includes('<script>alert(1)</script>'));
   assert.match(html, /&lt;b&gt;Evil/);
@@ -347,42 +347,39 @@ test('detail page renders the towing callout from official GVWR (no derived rati
   assert.doesNotMatch(html, /Recommended minimum tow rating/);
 });
 
-test('top nav is exactly the 5 consolidated tabs — Explore / Saved / Campsites / Upgrades / Maintenance', () => {
+test('top nav is exactly the 4 consolidated tabs — Explore / Saved / Upgrades / Maintenance', () => {
   for (const html of [renderIndex(groupByFamily(trailers), trailers), renderExplore(trailers), renderCompare(trailers)]) {
     assert.match(html, /class="topnav-links"/);
-    // five top-level nav links (Campgrounds + Overnight Stays were merged into
-    // one Campsites hub; Motorhomes live inside the Explore grid; Saved is the
-    // site-wide shortlist that completes browse → save → compare → decide)
+    // four top-level nav links (Campsites, Campgrounds, Community removed;
+    // Motorhomes live inside the Explore grid; Saved is the site-wide shortlist)
     const nav = html.match(/<nav class="topnav-links"[^>]*>([\s\S]*?)<\/nav>/);
     assert.ok(nav, 'has a topnav-links nav');
     const links = nav[1].match(/<a /g) || [];
-    assert.equal(links.length, 5, 'exactly 5 top tabs');
-    // the five tabs are Explore (index) / Saved / Campsites / Upgrades / Maintenance
+    assert.equal(links.length, 4, 'exactly 4 top tabs');
+    // the four tabs are Explore (index) / Saved / Upgrades / Maintenance
     assert.match(nav[1], /href="index\.html"[^>]*>Explore</);
     assert.match(nav[1], /href="saved\.html"[^>]*>Saved /);
-    assert.match(nav[1], /href="campsites\.html"[^>]*>Campsites</);
     assert.match(nav[1], /href="upgrades\.html"[^>]*>Upgrades</);
     assert.match(nav[1], /href="maintenance\.html"[^>]*>Maintenance</);
     // Motorhomes is no longer a top tab — it's a type filter inside Explore now
     assert.doesNotMatch(nav[1], /href="motorhomes\.html"/);
-    // the old separate Campgrounds + Overnight Stays tabs are gone from the nav
+    // Campsites, Campgrounds, Stays, Compare, Community are NOT top tabs
+    assert.doesNotMatch(nav[1], /href="campsites\.html"/);
     assert.doesNotMatch(nav[1], /href="campgrounds\.html"/);
     assert.doesNotMatch(nav[1], /href="stays\.html"/);
-    // Compare and Community are NOT top tabs anymore
     assert.doesNotMatch(nav[1], /compare\.html/);
     assert.doesNotMatch(nav[1], /community\.html/);
     assert.doesNotMatch(nav[1], />Families</);
   }
 });
 
-test('Compare + Community + Motorhomes survive as footer destinations (not top tabs)', () => {
+test('Compare + Motorhomes survive as footer destinations (not top tabs)', () => {
   const home = renderIndex(groupByFamily(trailers), trailers);
   const footer = home.match(/<footer[\s\S]*?<\/footer>/)[0];
   // Motorhomes is a footer entry that deep-links into the pre-filtered Explore grid
   assert.match(footer, /index\.html#all&type=motorhome/);
   assert.match(footer, />Motorhomes</);
   assert.match(footer, /compare\.html/);
-  assert.match(footer, /community\.html/);
   assert.match(footer, /credits\.html/);
 });
 
@@ -450,55 +447,4 @@ test('detail page includes the off-grid estimator with real spec data attrs', ()
 test('off-grid tool omits itself when inputs are missing (no fabrication)', () => {
   const bare = { model: 'X', floorplan: 'Y', batteryKwh: 0, freshGal: 0 };
   assert.equal(renderOffGridTool(bare), '');
-});
-
-// ---------------------------------------------------------------------------
-// renderCampgroundFit — HONEST per-site detail-page section (the accuracy
-// mandate: never show a single all-equipment max as "fits your trailer")
-// ---------------------------------------------------------------------------
-import { loadCampgrounds } from '../src/lib/campgrounds.mjs';
-import { renderCampgroundFit } from '../src/lib/campgrounds-render.mjs';
-
-const campData = loadCampgrounds().campgrounds;
-
-test('renderCampgroundFit headline is per-site honest, not a single max length', () => {
-  const html = renderCampgroundFit(classic, campData); // Classic 33FB ≈ 33.25'
-  assert.ok(html.includes('class="cgfit"'), 'section rendered');
-  // Honest framing: per-site parks/sites, with the unverified count called out.
-  assert.match(html, /per-site/i);
-  assert.match(html, /trailer sites nationwide/);
-  assert.match(html, /publish no per-site lengths/);
-  // The honesty banner must explain the all-equipment overstatement.
-  assert.match(html, /overstates trailer capacity/);
-  // Bars are parks-fit vs parks-too-short (no "no posted limit" bucket here).
-  assert.match(html, /Parks that fit it/);
-  assert.match(html, /Parks too short/);
-});
-
-test('renderCampgroundFit picks only parks a per-site fit confirms, with real Ns', () => {
-  const html = renderCampgroundFit(classic, campData);
-  // Each top-pick card carries an honest "X of N sites" fit line.
-  assert.match(html, /\d+ of [\d,]+ sites/);
-  // It must NOT recommend Mather to a 33-footer (0 of 136 fit) — Mather has no
-  // site that takes the Classic, so the picker excludes it.
-  // (We assert the picker logic via a tiny rig vs a huge rig below.)
-});
-
-test('renderCampgroundFit: Mather shows the 15ft-cap reality for a big rig (0 fit)', async () => {
-  // Render for the Classic 33FB and confirm Mather is NOT in the honest picks,
-  // because trailerFit says 0 of 136 sites take a 33-footer.
-  const { trailerFit } = await import('../src/lib/campsite-fit.mjs');
-  const mather = campData.find((c) => String(c.id) === '232490');
-  const tf = trailerFit(mather, classic.lengthFt);
-  assert.equal(tf.cls, 'no', 'a 33-footer fits no Mather site');
-  assert.equal(tf.sitesFit, 0);
-  assert.match(tf.why, /None of this park/);
-});
-
-test('renderCampgroundFit empties honestly when no per-site park fits the rig', () => {
-  // A rig longer than any site in a tiny fixture dataset.
-  const tiny = [{ id: 'x', name: 'Tiny', lat: 1, lon: 1, trailerLenHistogram: { 20: 3 } }];
-  const bigRig = { ...classic, lengthFt: 45, model: 'Test', floorplan: 'XL' };
-  const html = renderCampgroundFit(bigRig, tiny);
-  assert.match(html, /No campground in the dataset has per-site data confirming a fit/);
 });

@@ -86,7 +86,7 @@ describe('renderDetail percentile indicators', () => {
   it('renders spec-pct elements for notable rankings', () => {
     // The lightest 2026 trailer should definitely get a percentile badge
     const lightest = [...t2026].sort((a, b) => a.weightLb - b.weightLb)[0];
-    const html = renderDetail(lightest, undefined, null, null, trailers);
+    const html = renderDetail(lightest, undefined, null, trailers);
     assert.ok(html.includes('spec-pct'), `detail page for ${lightest.slug} should have percentile indicators`);
     assert.ok(html.includes('spec-pct-bar'), 'should have visual bar');
     assert.ok(html.includes('spec-pct-text'), 'should have text label');
@@ -95,7 +95,7 @@ describe('renderDetail percentile indicators', () => {
   it('percentile tiers use correct CSS classes', () => {
     // Check that the CSS class tiers exist in the rendered output
     const lightest = [...t2026].sort((a, b) => a.weightLb - b.weightLb)[0];
-    const html = renderDetail(lightest, undefined, null, null, trailers);
+    const html = renderDetail(lightest, undefined, null, trailers);
     // Lightest trailer should have top10 badges
     assert.ok(html.includes('spec-pct--top10'), 'lightest trailer should get top10 badges');
   });
@@ -121,7 +121,7 @@ describe('explore card quick-view', () => {
 
   it('quick-view modal markup is in the page shell', () => {
     const t = t2026[0];
-    const html = renderDetail(t, undefined, null, null, trailers);
+    const html = renderDetail(t, undefined, null, trailers);
     assert.ok(html.includes('id="quick-view"'), 'page should have quick-view modal');
     assert.ok(html.includes('qv-panel'), 'page should have quick-view panel');
     assert.ok(html.includes('qv-specs'), 'page should have quick-view specs container');
@@ -131,7 +131,7 @@ describe('explore card quick-view', () => {
 describe('key-stats markup for animation', () => {
   it('key-stats are present with value elements on detail pages', () => {
     const t = t2026[0];
-    const html = renderDetail(t, undefined, null, null, trailers);
+    const html = renderDetail(t, undefined, null, trailers);
     assert.ok(html.includes('key-stat-value'), 'detail should have key-stat-value elements');
     assert.ok(html.includes('key-stats'), 'detail should have key-stats container');
   });

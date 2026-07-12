@@ -43,7 +43,7 @@ describe('computePropaneDuration', () => {
 
 describe('propane estimator rendering', () => {
   const t = trailers.find(x => x.year === 2026) || trailers[0];
-  const html = renderDetail(t, resolve, null, null, trailers);
+  const html = renderDetail(t, resolve, null, trailers);
 
   it('detail page includes propane section with id', () => {
     assert.ok(html.includes('id="propane"'), 'missing #propane section');
@@ -67,7 +67,7 @@ describe('propane estimator rendering', () => {
 
 describe('electrical load planner rendering', () => {
   const t = trailers.find(x => x.year === 2026) || trailers[0];
-  const html = renderDetail(t, resolve, null, null, trailers);
+  const html = renderDetail(t, resolve, null, trailers);
 
   it('detail page includes electrical section with id', () => {
     assert.ok(html.includes('id="electrical"'), 'missing #electrical section');
@@ -88,7 +88,7 @@ describe('electrical load planner rendering', () => {
   it('30A models get 3600W max', () => {
     const bambi = trailers.find(x => x.model === 'Bambi' && x.year === 2026);
     if (bambi) {
-      const bhtml = renderDetail(bambi, resolve, null, null, trailers);
+      const bhtml = renderDetail(bambi, resolve, null, trailers);
       assert.ok(bhtml.includes('30A shore power'), 'Bambi should be 30A');
       assert.ok(bhtml.includes('3,600W max'), 'Bambi should show 3600W');
     }
@@ -97,7 +97,7 @@ describe('electrical load planner rendering', () => {
   it('Classic gets 50A / 12000W max', () => {
     const classic = trailers.find(x => x.model === 'Classic' && x.year === 2026);
     if (classic) {
-      const chtml = renderDetail(classic, resolve, null, null, trailers);
+      const chtml = renderDetail(classic, resolve, null, trailers);
       assert.ok(chtml.includes('50A shore power'), 'Classic should be 50A');
       assert.ok(chtml.includes('12,000W max'), 'Classic should show 12000W');
     }

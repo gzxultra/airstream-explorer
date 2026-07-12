@@ -786,3 +786,13 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .wc-seg.is-active { outline-color: var(--copper); }
 [data-theme="dark"] .fs-card { background: var(--surface); border-color: var(--line); }
 [data-theme="dark"] .fs-card-value { color: #f0ebe3; }
+
+/* Merged sections & gallery — dark mode */
+[data-theme="dark"] .weight-capacity .weight-payload { border-top-color: var(--border); }
+[data-theme="dark"] .gallery-mosaic-item { background: var(--surface-2); }
+[data-theme="dark"] .gallery-show-all { background: var(--surface-2); border-color: var(--border); color: var(--fg); }
+[data-theme="dark"] .gallery-show-all:hover { background: var(--surface-3); }
+[data-theme="dark"] .dimensions-intro,
+[data-theme="dark"] .offgrid-dash-intro,
+[data-theme="dark"] .journey-intro { color: var(--muted); }
+[data-theme="dark"] .compare-grid th { background: var(--bg); }

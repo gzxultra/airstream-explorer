@@ -120,7 +120,7 @@ describe('scroll fade indicators', () => {
 // ---------------------------------------------------------------------------
 describe('payload packing presets', () => {
   const t = trailers.find((x) => x.slug === 'classic-33fb-2026') || trailers.find((x) => x.cccLb > 0);
-  const html = renderDetail(t, assetPaths, null, null, trailers);
+  const html = renderDetail(t, assetPaths, null, trailers);
 
   it('renders preset buttons', () => {
     assert.ok(html.includes('id="payload-presets"'), 'payload-presets container missing');

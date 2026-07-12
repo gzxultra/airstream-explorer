@@ -14,7 +14,6 @@ import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorho
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd, faqJsonLd } from './seo.mjs';
 import { lifestyleFit, deriveAmenities, storageGuide } from './lifestyle.mjs';
 import { SORT_KEYS, exploreTags, tagLabel, SMART_PRESETS } from './explore.mjs';
-import { renderCampgroundFit } from './campgrounds-render.mjs';
 import { renderFloorplanZones, renderFloorplanLegend } from './floorplan-zones.mjs';
 import {
   estimateOffGrid, formatNights,
@@ -59,7 +58,6 @@ export function esc(s) {
 const NAV_ITEMS = [
   ['index.html', 'Explore', 'index'],
   ['saved.html', 'Saved', 'saved'],
-  ['campsites.html', 'Campsites', 'campsites'],
   ['upgrades.html', 'Upgrades', 'upgrades'],
   ['maintenance.html', 'Maintenance', 'maintenance'],
 ];
@@ -125,8 +123,6 @@ ${body}
 <div class="footer-col">
 <p class="footer-heading">Plan your trip</p>
 <ul class="footer-links">
-<li><a href="${relRoot}campsites.html">Campsites</a></li>
-<li><a href="${relRoot}campgrounds.html">Campground map</a></li>
 <li><a href="${relRoot}upgrades.html">Upgrades</a></li>
 <li><a href="${relRoot}maintenance.html">Maintenance</a></li>
 <li><a href="${relRoot}towguide.html">Tow guide</a></li>
@@ -135,7 +131,6 @@ ${body}
 <div class="footer-col">
 <p class="footer-heading">Community</p>
 <ul class="footer-links">
-<li><a href="${relRoot}community.html">Community photos</a></li>
 <li><a href="${relRoot}credits.html">Credits &amp; sources</a></li>
 <li><a href="${relRoot}glossary.html">RV glossary</a></li>
 <li><a href="https://www.airstream.com/" target="_blank" rel="noopener">airstream.com ↗</a></li>
@@ -146,7 +141,7 @@ ${body}
 <p class="footer-about">${_stats.floorplanCount} floorplans across ${_stats.familyCount} families. An independent, spec-accurate field guide to the current Airstream lineup.</p>
 </div>
 </div>
-<p class="footer-legal muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Model imagery is manufacturer product photography; community photos under Creative Commons / public-domain licenses (<a href="${relRoot}credits.html">see credits</a>).</p>
+<p class="footer-legal muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Model imagery is manufacturer product photography.</p>
 </footer>
 <div class="lightbox" id="lightbox" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Photo viewer">
 <div class="lightbox-backdrop" data-lb-close></div>
@@ -385,57 +380,6 @@ const WEIGHT_REFS = [
   { label: 'Ford Expedition', lb: 5700, icon: '🚐' },
   { label: 'African elephant', lb: 13000, icon: '🐘' },
 ];
-
-export function renderWeightContext(t) {
-  if (!(t.weightLb > 0)) return '';
-  const w = t.weightLb;
-
-  const comparisons = WEIGHT_REFS
-    .map((r) => {
-      const ratio = w / r.lb;
-      let text;
-      if (ratio >= 0.95 && ratio <= 1.05) {
-        text = `About the same as one ${r.label}`;
-      } else if (ratio > 1.05) {
-        const rounded = Math.round(ratio * 10) / 10;
-        const plural = rounded === 1 ? r.label : r.label + 's';
-        text = `About ${rounded}× a ${r.label}`;
-        if (rounded === Math.round(rounded)) {
-          text = `About ${Math.round(rounded)} ${plural}`;
-        }
-      } else {
-        const pct = Math.round(ratio * 100);
-        text = `About ${pct}% of a ${r.label}`;
-      }
-      return { ...r, ratio, text, distance: Math.abs(Math.log(ratio)) };
-    })
-    .sort((a, b) => a.distance - b.distance)
-    .slice(0, 3);
-
-  const items = comparisons
-    .map((c) => {
-      const barPct = Math.min(100, Math.max(4, Math.round((w / c.lb) * 50)));
-      const refPct = Math.min(100, Math.max(4, 50));
-      return `<div class="wctx-item">
-<span class="wctx-icon" aria-hidden="true">${c.icon}</span>
-<div class="wctx-detail">
-<span class="wctx-text">${esc(c.text)}</span>
-<div class="wctx-bars">
-<div class="wctx-bar wctx-bar--trailer" style="width:${barPct}%"><span class="wctx-bar-label">${esc(formatWeight(w))}</span></div>
-<div class="wctx-bar wctx-bar--ref" style="width:${refPct}%"><span class="wctx-bar-label">${esc(c.label)} ${esc(formatWeight(c.lb))}</span></div>
-</div>
-</div>
-</div>`;
-    })
-    .join('\n');
-
-  return `<section class="weight-context" id="weight-context" aria-label="Weight in context">
-<h2>How heavy is ${esc(formatWeight(w))}?</h2>
-<p class="wctx-intro muted">Your ${esc(t.model)} ${esc(t.floorplan)} weighs ${esc(formatWeight(w))} dry — here's how that compares to everyday objects.</p>
-<div class="wctx-grid">${items}</div>
-</section>`;
-}
-
 // ---------------------------------------------------------------------------
 // WEIGHT BUDGET WATERFALL — shows how CCC gets consumed by fluids + propane
 // ---------------------------------------------------------------------------
@@ -717,104 +661,13 @@ export function renderWhatsNew2026(trailers) {
     ? `${t2026.length} floorplans in the 2026 lineup — ${carryover} carry over unchanged from 2025.`
     : `${t2026.length} floorplans in the 2026 lineup.`;
 
-  return `<section class="wn26-section" id="whats-new-2026" aria-label="What's new in the 2026 lineup">
+  return `<section class="wn26-section" id="whats-new" aria-label="What's new in the 2026 lineup">
 <div class="wn26-head">
 <h2 class="wn26-title">What's new in 2026</h2>
 <p class="wn26-sub muted">${sub}</p>
 </div>
 <div class="wn26-chips">${chips.join('')}</div>
 ${sections}
-</section>`;
-}
-
-export function renderModelYearHighlights(trailers) {
-  const t2026 = trailers.filter((t) => t.year === 2026);
-  const t2025 = trailers.filter((t) => t.year === 2025);
-  if (t2026.length < 5 || t2025.length < 5) return '';
-
-  // Compute diffs for all models that exist in both years
-  const highlights = [];
-  for (const curr of t2026) {
-    const diff = computeYearDiff(curr, trailers);
-    if (!diff || !diff.diffs.length) continue;
-    // Pick the most notable change
-    const priceDiff = diff.diffs.find((d) => d.key === 'msrp');
-    const weightDiff = diff.diffs.find((d) => d.key === 'weightLb');
-    const solarDiff = diff.diffs.find((d) => d.key === 'solarW');
-    const battDiff = diff.diffs.find((d) => d.key === 'batteryKwh');
-    const cccDiff = diff.diffs.find((d) => d.key === 'cccLb');
-    highlights.push({ trailer: curr, diffs: diff.diffs, priceDiff, weightDiff, solarDiff, battDiff, cccDiff });
-  }
-  if (highlights.length < 3) return '';
-
-  // Aggregate stats
-  const priceChanges = highlights.filter((h) => h.priceDiff && h.priceDiff.delta !== 0);
-  const priceUp = priceChanges.filter((h) => h.priceDiff.delta > 0);
-  const priceDown = priceChanges.filter((h) => h.priceDiff.delta < 0);
-  const avgPriceDelta = priceChanges.length
-    ? Math.round(priceChanges.reduce((s, h) => s + h.priceDiff.delta, 0) / priceChanges.length)
-    : 0;
-  const solarUpgrades = highlights.filter((h) => h.solarDiff && h.solarDiff.delta > 0);
-  const weightChanges = highlights.filter((h) => h.weightDiff && h.weightDiff.delta !== 0);
-
-  // Pick 4 most interesting individual changes to feature
-  const featured = highlights
-    .map((h) => {
-      // Score how interesting this model's changes are
-      let score = h.diffs.length;
-      if (h.solarDiff && h.solarDiff.delta > 0) score += 3;
-      if (h.battDiff && h.battDiff.delta > 0) score += 3;
-      if (h.priceDiff && h.priceDiff.delta < 0) score += 2; // price drop is interesting
-      if (h.cccDiff && h.cccDiff.delta > 0) score += 2;
-      return { ...h, score };
-    })
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 4);
-
-  const formatDelta = (d) => {
-    if (!d || d.delta == null) return '';
-    const sign = d.delta > 0 ? '+' : '';
-    if (d.unit === '$') return `${sign}${formatMsrpShort(d.delta)}`;
-    if (d.unit === 'lb') return `${sign}${d.delta.toLocaleString('en-US')} lb`;
-    if (d.unit === 'W') return `${sign}${d.delta} W`;
-    if (d.unit === 'kWh') return `${sign}${d.delta} kWh`;
-    if (d.unit === 'gal') return `${sign}${d.delta} gal`;
-    return `${sign}${d.delta} ${d.unit}`;
-  };
-
-  const featuredCards = featured.map((h) => {
-    const topDiffs = h.diffs.slice(0, 3).map((d) => {
-      const cls = d.direction === 'up' ? 'myh-delta--up' : d.direction === 'down' ? 'myh-delta--down' : 'myh-delta--changed';
-      return `<span class="myh-change ${cls}">${esc(d.field)}: ${esc(formatDelta(d))}</span>`;
-    }).join('');
-    return `<a class="myh-card" href="m/${esc(h.trailer.slug)}.html#year-diff">
-<span class="myh-card-name">${esc(h.trailer.model)} ${esc(h.trailer.floorplan)}</span>
-<span class="myh-card-changes">${topDiffs}</span>
-</a>`;
-  }).join('\n');
-
-  // Summary stats bar
-  const statChips = [];
-  statChips.push(`<span class="myh-stat">${highlights.length} models updated</span>`);
-  if (avgPriceDelta !== 0) {
-    const dir = avgPriceDelta > 0 ? 'up' : 'down';
-    statChips.push(`<span class="myh-stat myh-stat--${dir}">Avg. price ${dir === 'up' ? '↑' : '↓'} ${esc(formatMsrpShort(Math.abs(avgPriceDelta)))}</span>`);
-  }
-  if (solarUpgrades.length) {
-    statChips.push(`<span class="myh-stat myh-stat--up">${solarUpgrades.length} solar upgrades</span>`);
-  }
-  if (weightChanges.length) {
-    const lighter = weightChanges.filter((h) => h.weightDiff.delta < 0).length;
-    if (lighter > 0) statChips.push(`<span class="myh-stat">${lighter} got lighter</span>`);
-  }
-
-  return `<section class="myh-section" id="model-year-highlights" aria-label="What's new for 2026">
-<div class="myh-head">
-<h2 class="myh-title">What's new for 2026</h2>
-<p class="myh-sub muted">${highlights.length} floorplans carry changes from 2025 — here's what moved.</p>
-</div>
-<div class="myh-stats">${statChips.join('')}</div>
-<div class="myh-grid">${featuredCards}</div>
 </section>`;
 }
 
@@ -951,7 +804,6 @@ export function renderIndex(families, trailers = [], resolve = assetPaths, motor
 <a class="viewseg-btn" href="#all" data-view="all"><span class="viewseg-label">All floorplans</span><span class="viewseg-sub">${trailers.length + motorhomes.length} by the numbers</span></a>
 </nav>`;
   const editorsPicks = computeEditorsPicks(trailers, resolve);
-  const yearHighlights = renderModelYearHighlights(trailers);
   const body = `${heroBand}
 ${viewToggle}
 ${renderQuiz()}
@@ -965,7 +817,6 @@ ${cards}
 </main>
 ${editorsPicks}
 ${renderWhatsNew2026(trailers)}
-${yearHighlights}
 ${renderSizeLadder(families, trailers)}
 </section>
 <section class="hub-view" id="view-all" data-view="all" hidden>
@@ -1464,78 +1315,6 @@ export function renderFuelTool(t) {
 // ---------------------------------------------------------------------------
 
 /** Default financing assumptions — reasonable RV loan terms. */
-export const FINANCE_DEFAULTS = { downPct: 20, apr: 6.99, termYears: 15 };
-
-/** Calculate monthly payment using standard amortization formula. */
-export function calculateMonthly(msrp, downPct, apr, termYears) {
-  const down = Math.round(msrp * downPct / 100);
-  const principal = msrp - down;
-  if (principal <= 0) return { monthly: 0, totalCost: down, totalInterest: 0, down, principal: 0 };
-  const r = apr / 100 / 12;
-  const n = termYears * 12;
-  const monthly = r > 0
-    ? principal * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)
-    : principal / n;
-  const totalCost = Math.round(monthly) * n + down;
-  return { monthly: Math.round(monthly), totalCost, totalInterest: totalCost - msrp, down, principal };
-}
-
-/** Render the financing calculator section for a detail page. */
-export function renderFinancingTool(t) {
-  if (!(t.msrp > 0)) return '';
-  const d = FINANCE_DEFAULTS;
-  const calc = calculateMonthly(t.msrp, d.downPct, d.apr, d.termYears);
-
-  const termOpts = [5, 10, 15, 20].map((y) =>
-    `<option value="${y}"${y === d.termYears ? ' selected' : ''}>${y} years</option>`
-  ).join('');
-
-  const dataIsland = JSON.stringify({ msrp: t.msrp }).replace(/<\//g, '<\\/');
-
-  return `<section class="estimator finance-tool" id="finance" aria-label="Monthly payment estimator"
- data-msrp="${esc(t.msrp)}">
-<script type="application/json" id="finance-data">${dataIsland}</script>
-<div class="est-head">
-<h2>Estimated monthly payment</h2>
-<p class="est-sub">A financing estimate for the ${esc(t.model)} ${esc(t.floorplan)} at ${formatMsrp(t.msrp)} MSRP. Adjust the terms below — this is for planning only, not a loan offer.</p>
-</div>
-<div class="est-controls">
-<div class="est-field">
-<label for="finance-down">Down payment</label>
-<div class="finance-slider-row">
-<input type="range" id="finance-down" min="0" max="50" step="5" value="${d.downPct}" class="finance-range" aria-label="Down payment percentage">
-<span class="finance-range-val" id="finance-down-val">${d.downPct}% (${formatMsrp(calc.down)})</span>
-</div>
-</div>
-<div class="est-field">
-<label for="finance-apr">Interest rate (APR)</label>
-<div class="finance-slider-row">
-<input type="range" id="finance-apr" min="3" max="12" step="0.25" value="${d.apr}" class="finance-range" aria-label="Annual percentage rate">
-<span class="finance-range-val" id="finance-apr-val">${d.apr}%</span>
-</div>
-</div>
-<div class="est-field">
-<label for="finance-term">Loan term</label>
-<select id="finance-term">${termOpts}</select>
-</div>
-</div>
-<div class="est-result" id="finance-result" aria-live="polite" aria-atomic="true">
-<div class="est-big">
-<span class="est-number" id="finance-monthly">${formatMsrp(calc.monthly)}</span>
-<span class="est-number-cap">per month</span>
-</div>
-<div class="finance-breakdown">
-<dl class="finance-dl">
-<div class="finance-dl-row"><dt>Loan amount</dt><dd id="finance-principal">${formatMsrp(calc.principal)}</dd></div>
-<div class="finance-dl-row"><dt>Total interest</dt><dd id="finance-interest">${formatMsrp(calc.totalInterest)}</dd></div>
-<div class="finance-dl-row finance-dl-total"><dt>Total cost</dt><dd id="finance-total">${formatMsrp(calc.totalCost)}</dd></div>
-</dl>
-</div>
-</div>
-<p class="est-caveat muted">For planning purposes only. Actual rates depend on credit, lender, and terms. Does not include tax, registration, or dealer fees.</p>
-</section>`;
-}
-
 export function renderPayloadTool(t) {
   if (!(t.cccLb > 0)) return '';
   const def = calculatePayload(t);
@@ -1889,89 +1668,6 @@ const OWNERSHIP_DEFAULTS = {
   depreciationPct: 12,   // % of current value first year
 };
 
-function computeOwnership(msrp, opts = {}) {
-  const o = { ...OWNERSHIP_DEFAULTS, ...opts };
-  const insurance = Math.round(msrp * o.insurancePct / 100);
-  const storage = Math.round(o.storageMo * 12);
-  const maintenance = Math.round(o.maintenanceYr);
-  const depreciation = Math.round(msrp * o.depreciationPct / 100);
-  const total = insurance + storage + maintenance + depreciation;
-  return { insurance, storage, maintenance, depreciation, total };
-}
-
-export function renderOwnershipTool(t) {
-  if (!(t.msrp > 0)) return '';
-  const d = OWNERSHIP_DEFAULTS;
-  const calc = computeOwnership(t.msrp);
-
-  const dataIsland = JSON.stringify({
-    msrp: t.msrp,
-    defaults: d,
-  }).replace(/<\//g, '<\\/');
-
-  return `<section class="estimator ownership-tool" id="ownership" aria-label="Annual ownership cost estimator"
- data-msrp="${esc(t.msrp)}">
-<script type="application/json" id="ownership-data">${dataIsland}</script>
-<div class="est-head">
-<h2>Annual ownership cost</h2>
-<p class="est-sub">Estimated yearly costs beyond the purchase price for the ${esc(t.model)} ${esc(t.floorplan)}. Adjust assumptions below.</p>
-</div>
-<div class="est-controls">
-<div class="est-field">
-<label for="own-insurance">Insurance (% of value/year)</label>
-<div class="finance-slider-row">
-<input type="range" id="own-insurance" min="0.5" max="3" step="0.25" value="${d.insurancePct}" class="finance-range" aria-label="Insurance rate">
-<span class="finance-range-val" id="own-insurance-val">${d.insurancePct}% (${formatMsrp(calc.insurance)}/yr)</span>
-</div>
-</div>
-<div class="est-field">
-<label for="own-storage">Storage ($/month)</label>
-<div class="finance-slider-row">
-<input type="range" id="own-storage" min="0" max="400" step="25" value="${d.storageMo}" class="finance-range" aria-label="Monthly storage cost">
-<span class="finance-range-val" id="own-storage-val">$${d.storageMo}/mo (${formatMsrp(calc.storage)}/yr)</span>
-</div>
-</div>
-<div class="est-field">
-<label for="own-maintenance">Maintenance ($/year)</label>
-<div class="finance-slider-row">
-<input type="range" id="own-maintenance" min="200" max="2000" step="100" value="${d.maintenanceYr}" class="finance-range" aria-label="Annual maintenance cost">
-<span class="finance-range-val" id="own-maintenance-val">${formatMsrp(calc.maintenance)}/yr</span>
-</div>
-</div>
-<div class="est-field">
-<label for="own-depreciation">First-year depreciation (%)</label>
-<div class="finance-slider-row">
-<input type="range" id="own-depreciation" min="5" max="20" step="1" value="${d.depreciationPct}" class="finance-range" aria-label="First year depreciation rate">
-<span class="finance-range-val" id="own-depreciation-val">${d.depreciationPct}% (${formatMsrp(calc.depreciation)})</span>
-</div>
-</div>
-</div>
-<div class="est-result" id="ownership-result" aria-live="polite" aria-atomic="true">
-<div class="est-big">
-<span class="est-number" id="own-total">${formatMsrp(calc.total)}</span>
-<span class="est-number-cap">estimated per year</span>
-</div>
-<div class="ownership-breakdown">
-<div class="own-bar-stack" id="own-bars">
-<div class="own-bar own-bar--insurance" style="flex:${calc.insurance}"><span class="own-bar-label">Insurance</span></div>
-<div class="own-bar own-bar--storage" style="flex:${calc.storage}"><span class="own-bar-label">Storage</span></div>
-<div class="own-bar own-bar--maintenance" style="flex:${calc.maintenance}"><span class="own-bar-label">Maint.</span></div>
-<div class="own-bar own-bar--depreciation" style="flex:${calc.depreciation}"><span class="own-bar-label">Depreciation</span></div>
-</div>
-<dl class="finance-dl">
-<div class="finance-dl-row"><dt>Insurance</dt><dd id="own-ins-dd">${formatMsrp(calc.insurance)}/yr</dd></div>
-<div class="finance-dl-row"><dt>Storage</dt><dd id="own-sto-dd">${formatMsrp(calc.storage)}/yr</dd></div>
-<div class="finance-dl-row"><dt>Maintenance</dt><dd id="own-mnt-dd">${formatMsrp(calc.maintenance)}/yr</dd></div>
-<div class="finance-dl-row"><dt>Depreciation</dt><dd id="own-dep-dd">${formatMsrp(calc.depreciation)}</dd></div>
-<div class="finance-dl-row finance-dl-total"><dt>Total annual cost</dt><dd id="own-tot-dd">${formatMsrp(calc.total)}/yr</dd></div>
-</dl>
-</div>
-</div>
-<p class="est-caveat muted">Rough planning estimates only. Insurance varies by coverage, location, and driving record. Airstreams hold value well — depreciation may be lower than shown. Storage cost varies widely by region and type (indoor/outdoor/covered).</p>
-</section>`;
-}
-
-
 // ---------------------------------------------------------------------------
 // SIZE SCALE — visual length comparison against everyday reference objects.
 // Helps users answer "will it fit in my garage / at the campsite?"
@@ -1984,39 +1680,6 @@ const SIZE_REFS = [
   { label: 'School bus',          ft: 35,  cls: 'size-ref--bus'      },
   { label: 'Typical RV site',     ft: 40,  cls: 'size-ref--site'     },
 ];
-
-function renderSizeScale(t) {
-  if (!(t.lengthFt > 0)) return '';
-  // Use the longest reference as 100% scale
-  const maxFt = Math.max(SIZE_REFS[SIZE_REFS.length - 1].ft, t.lengthFt + 2);
-  const pct = (ft) => Math.round((ft / maxFt) * 1000) / 10;
-  const trailerPct = pct(t.lengthFt);
-  const wholeFt = Math.floor(t.lengthFt);
-  const inches = Math.round((t.lengthFt - wholeFt) * 12);
-  const lenLabel = inches ? `${wholeFt}'${inches}"` : `${wholeFt}'`;
-
-  const refs = SIZE_REFS.map((r) => {
-    const fit = t.lengthFt <= r.ft;
-    return `<div class="size-ref-row ${r.cls}${fit ? ' size-ref--fits' : ''}">
-<span class="size-ref-label">${esc(r.label)} <span class="size-ref-ft">${r.ft}'</span></span>
-<div class="size-ref-track"><div class="size-ref-bar" style="width:${pct(r.ft)}%"></div></div>
-${fit ? '<span class="size-ref-verdict">✓ fits</span>' : '<span class="size-ref-verdict size-ref-verdict--no">too short</span>'}
-</div>`;
-  }).join('\n');
-
-  return `<section class="size-scale" id="size-scale" aria-label="Size comparison">
-<h2>How big is ${esc(lenLabel)}?</h2>
-<p class="size-scale-intro">Your ${esc(t.model)} ${esc(t.floorplan)} is ${esc(lenLabel)} bumper to hitch. Here's how it measures up.</p>
-<div class="size-scale-chart">
-<div class="size-ref-row size-ref--trailer">
-<span class="size-ref-label size-ref-label--trailer">${esc(t.model)} ${esc(t.floorplan)} <span class="size-ref-ft">${esc(lenLabel)}</span></span>
-<div class="size-ref-track"><div class="size-ref-bar size-ref-bar--trailer" style="width:${trailerPct}%"></div></div>
-</div>
-${refs}
-</div>
-</section>`;
-}
-
 // ---------------------------------------------------------------------------
 // COST-PER-NIGHT — compares camping cost to hotel, key purchase justification.
 
@@ -2032,6 +1695,90 @@ const CLEARANCE_REFS = [
   { label: 'Standard overpass', heightFt: 14, widthFt: 12, note: '14\' federal minimum' },
   { label: 'Covered campsite', heightFt: 12, widthFt: 14, note: '~12\' typical clearance' },
 ];
+
+
+// ---------------------------------------------------------------------------
+// MERGED: Weight & Cargo Capacity — bar + budget + payload unified
+// ---------------------------------------------------------------------------
+function renderWeightCapacity(t) {
+  const bar = renderWeightBar(t);
+  const budget = renderWeightBudget(t);
+  const payload = renderPayloadTool(t);
+  if (!bar && !budget && !payload) return '';
+  return `<section class="weight-capacity" id="weight-capacity" aria-label="Weight & cargo capacity">
+<h2>Weight & cargo capacity</h2>
+${bar}
+${budget}
+${payload ? `<div class="weight-payload">${payload}</div>` : ''}
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
+// MERGED: Off-grid Capability — power endurance + water autonomy
+// ---------------------------------------------------------------------------
+function renderOffGridDashboard(t) {
+  const power = renderOffGridTool(t);
+  const water = renderWaterAutonomy(t);
+  if (!power && !water) return '';
+  return `<section class="offgrid-dashboard" id="offgrid-dash" aria-label="Off-grid capability">
+<h2>Off-grid capability</h2>
+<p class="offgrid-dash-intro">How long the ${esc(t.model)} ${esc(t.floorplan)} can sustain off-grid — power endurance and water autonomy in one view.</p>
+<div class="offgrid-dash-grid">
+${power}
+${water}
+</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
+// MERGED: Journey Performance — fuel costs + grade climbing
+// ---------------------------------------------------------------------------
+function renderJourneyPerformance(t) {
+  const fuel = renderFuelTool(t);
+  const grade = renderGradeClimb(t);
+  if (!fuel && !grade) return '';
+  return `<section class="journey-section" id="journey" aria-label="Journey performance">
+<h2>Journey performance</h2>
+<p class="journey-intro">Fuel costs and terrain challenges for towing the ${esc(t.model)} ${esc(t.floorplan)}.</p>
+<div class="journey-grid">
+${fuel}
+${grade}
+</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
+// MERGED: Tow Setup — safety calculator + hitch guide
+// ---------------------------------------------------------------------------
+function renderTowSetup(t) {
+  const tow = renderTowTool(t);
+  const hitch = renderHitchGuide(t);
+  if (!tow && !hitch) return '';
+  return `<section class="tow-setup-section" id="tow-setup" aria-label="Tow setup & safety">
+<h2>Tow setup & safety</h2>
+<div class="tow-setup-grid">
+${tow}
+${hitch}
+</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
+// MERGED: Dimensions — clearance fit + campsite length fit
+// ---------------------------------------------------------------------------
+function renderDimensions(t) {
+  const clearance = renderClearanceFit(t);
+  const rigFit = renderRigLengthFit(t);
+  if (!clearance && !rigFit) return '';
+  return `<section class="dimensions-section" id="dimensions" aria-label="Size & fit">
+<h2>Size & fit</h2>
+<p class="dimensions-intro">How the ${esc(t.model)} ${esc(t.floorplan)} measures up — clearance checks and campsite compatibility.</p>
+<div class="dimensions-grid">
+${clearance}
+${rigFit}
+</div>
+</section>`;
+}
 
 function renderClearanceFit(t) {
   const h = t.extHeightFt;
@@ -2132,87 +1879,6 @@ const COST_NIGHT_DEFAULTS = {
   hotelNight: 200,
   campFee: 40,
 };
-
-function renderCostPerNight(t) {
-  if (!(t.msrp > 0)) return '';
-  const d = COST_NIGHT_DEFAULTS;
-  const totalNights = d.tripsYear * d.nightsTrip;
-  // Rough annual cost: same formula as ownership tool (insurance + storage + maint + depreciation)
-  const annualOwn = Math.round(t.msrp * 0.012) + 100 * 12 + 800 + Math.round(t.msrp * 0.10);
-  const campFeeYear = d.campFee * totalNights;
-  const totalAnnual = annualOwn + campFeeYear;
-  const costNight = totalNights > 0 ? Math.round(totalAnnual / totalNights) : 0;
-  const hotelYear = d.hotelNight * totalNights;
-  const savings = hotelYear - totalAnnual;
-
-  const dataIsland = JSON.stringify({ msrp: t.msrp, annualOwn }).replace(/<\//g, '<\\/');
-
-  return `<section class="estimator cost-night" id="cost-night" aria-label="Cost per camping night"
- data-annual-own="${annualOwn}">
-<script type="application/json" id="cost-night-data">${dataIsland}</script>
-<div class="est-head">
-<h2>Cost per camping night</h2>
-<p class="est-sub">How your ${esc(t.model)} ${esc(t.floorplan)} compares to hotel stays — adjust your camping frequency and campground fees.</p>
-</div>
-<div class="est-controls">
-<div class="est-field">
-<label for="cn-trips">Trips per year</label>
-<div class="finance-slider-row">
-<input type="range" id="cn-trips" min="1" max="52" step="1" value="${d.tripsYear}" class="finance-range" aria-label="Trips per year">
-<span class="finance-range-val" id="cn-trips-val">${d.tripsYear} trips</span>
-</div>
-</div>
-<div class="est-field">
-<label for="cn-nights">Nights per trip</label>
-<div class="finance-slider-row">
-<input type="range" id="cn-nights" min="1" max="21" step="1" value="${d.nightsTrip}" class="finance-range" aria-label="Nights per trip">
-<span class="finance-range-val" id="cn-nights-val">${d.nightsTrip} nights</span>
-</div>
-</div>
-<div class="est-field">
-<label for="cn-hotel">Comparable hotel rate</label>
-<div class="finance-slider-row">
-<input type="range" id="cn-hotel" min="75" max="500" step="25" value="${d.hotelNight}" class="finance-range" aria-label="Hotel rate per night">
-<span class="finance-range-val" id="cn-hotel-val">$${d.hotelNight}/night</span>
-</div>
-</div>
-<div class="est-field">
-<label for="cn-camp-fee">Campground fee</label>
-<div class="finance-slider-row">
-<input type="range" id="cn-camp-fee" min="0" max="150" step="5" value="${d.campFee}" class="finance-range" aria-label="Campground fee per night">
-<span class="finance-range-val" id="cn-camp-fee-val">$${d.campFee}/night</span>
-</div>
-<div class="cn-fee-presets" id="cn-fee-presets">
-<button type="button" class="cn-fee-preset" data-fee="0">Free / BLM</button>
-<button type="button" class="cn-fee-preset" data-fee="30">State park</button>
-<button type="button" class="cn-fee-preset is-active" data-fee="40">Average</button>
-<button type="button" class="cn-fee-preset" data-fee="55">Private</button>
-<button type="button" class="cn-fee-preset" data-fee="85">RV resort</button>
-</div>
-</div>
-</div>
-<div class="est-result" id="cost-night-result" aria-live="polite" aria-atomic="true">
-<div class="cn-comparison">
-<div class="cn-side cn-side--airstream">
-<span class="cn-icon" aria-hidden="true">▲</span>
-<span class="cn-amount" id="cn-cost">$${costNight}</span>
-<span class="cn-label">per camping night</span>
-<span class="cn-detail" id="cn-total-nights">${totalNights} nights/year</span>
-</div>
-<div class="cn-vs" aria-hidden="true">vs</div>
-<div class="cn-side cn-side--hotel">
-<span class="cn-icon" aria-hidden="true">🏨</span>
-<span class="cn-amount" id="cn-hotel-cost">$${d.hotelNight}</span>
-<span class="cn-label">hotel per night</span>
-<span class="cn-detail" id="cn-hotel-year">${formatMsrp(hotelYear)}/year</span>
-</div>
-</div>
-<p class="cn-verdict ${savings > 0 ? 'cn-verdict--saves' : 'cn-verdict--over'}" id="cn-verdict">${savings > 0 ? `You save about <strong>${formatMsrp(savings)}/year</strong> vs hotel stays at this frequency.` : `At this frequency, hotel stays cost about the same. Camp more to tip the balance.`}</p>
-</div>
-<p class="est-caveat muted">Annual ownership cost is a rough estimate (insurance, storage, maintenance, depreciation). Actual costs vary. Campground fees range from free (BLM/dispersed) to $80+/night (full-hookup RV resorts).</p>
-</section>`;
-}
-
 /**
  * "You might also like" — spec-similar trailers from OTHER families.
  * Complements renderRelated() which stays within the same family.
@@ -2255,66 +1921,6 @@ export function projectResale(msrp, condition = 'good') {
   }
   return { milestones, airstream, industry };
 }
-
-function renderResaleProjector(t) {
-  if (!(t.msrp > 0)) return '';
-  const proj = projectResale(t.msrp, 'good');
-
-  const bars = proj.airstream.map((a, i) => {
-    const ind = proj.industry[i];
-    const yr = a.year;
-    const label = yr === 0 ? 'New' : `Yr ${yr}`;
-    return `<div class="resale-col">
-<div class="resale-bars">
-<div class="resale-bar resale-bar--airstream" style="height:${a.pct}%" aria-label="Airstream: ${esc(formatMsrp(a.value))} (${a.pct}%)"><span class="resale-bar-val">${a.pct}%</span></div>
-<div class="resale-bar resale-bar--industry" style="height:${ind.pct}%" aria-label="Industry avg: ${esc(formatMsrp(ind.value))} (${ind.pct}%)"><span class="resale-bar-val">${ind.pct}%</span></div>
-</div>
-<span class="resale-label">${label}</span>
-</div>`;
-  }).join('');
-
-  const yr5 = proj.airstream.find((a) => a.year === 5);
-  const yr10 = proj.airstream.find((a) => a.year === 10);
-  const yr5Ind = proj.industry.find((a) => a.year === 5);
-  const yr10Ind = proj.industry.find((a) => a.year === 10);
-
-  return `<section class="resale-projector collapsible" id="resale" aria-label="Resale value projector"
- data-msrp="${esc(t.msrp)}">
-<h2 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">Resale value projector<span class="collapsible-icon" aria-hidden="true"></span></h2>
-<div class="collapsible-body" hidden>
-<p class="resale-intro">Airstreams are legendary for holding their value. Here's how the ${esc(t.model)} ${esc(t.floorplan)}'s estimated resale compares to a typical RV over 10 years.</p>
-<div class="resale-condition">
-<label for="resale-cond">Condition</label>
-<select id="resale-cond">
-<option value="excellent">Excellent (garaged, low use)</option>
-<option value="good" selected>Good (well-maintained)</option>
-<option value="fair">Fair (normal wear)</option>
-</select>
-</div>
-<div class="resale-chart" id="resale-chart" role="img" aria-label="Resale value chart">
-${bars}
-</div>
-<div class="resale-legend">
-<span class="resale-legend-item"><span class="resale-legend-dot resale-legend-dot--airstream"></span>Airstream</span>
-<span class="resale-legend-item"><span class="resale-legend-dot resale-legend-dot--industry"></span>Industry avg</span>
-</div>
-<div class="resale-highlights">
-<div class="resale-hl">
-<span class="resale-hl-label">At 5 years</span>
-<span class="resale-hl-value" id="resale-5yr">${esc(formatMsrp(yr5.value))}</span>
-<span class="resale-hl-note">${yr5.pct}% retained <span class="muted">(vs ${yr5Ind.pct}% typical)</span></span>
-</div>
-<div class="resale-hl">
-<span class="resale-hl-label">At 10 years</span>
-<span class="resale-hl-value" id="resale-10yr">${esc(formatMsrp(yr10.value))}</span>
-<span class="resale-hl-note">${yr10.pct}% retained <span class="muted">(vs ${yr10Ind.pct}% typical)</span></span>
-</div>
-</div>
-<p class="est-caveat muted">Estimates based on Airstream resale patterns. Actual value depends on condition, mileage, upgrades, and market conditions. Airstreams consistently outperform other RV brands in resale value due to their aluminum construction and enduring demand.</p>
-</div>
-</section>`;
-}
-
 // ---------------------------------------------------------------------------
 // TRIP COST ESTIMATOR — total cost for a specific trip.
 // Combines fuel, campground fees, and propane into one number.
@@ -2522,80 +2128,6 @@ const TRIP_DEFAULTS = {
   campType: 'state',
   towMpg: 10,
 };
-
-function renderTripCost(t) {
-  if (!(t.gvwrLb > 0)) return '';
-  // Estimate tow MPG from GVWR bracket (heavier = thirstier)
-  const gvwr = t.gvwrLb;
-  const estMpg = gvwr <= 5000 ? 14 : gvwr <= 7000 ? 11 : gvwr <= 9000 ? 9 : 8;
-  const d = TRIP_DEFAULTS;
-  const fuelGal = Math.ceil(d.distanceMi / estMpg);
-  const fuelCost = Math.round(fuelGal * 3.50);
-  const campCost = d.nights * CAMPGROUND_PRESETS[d.campType].perNight;
-  const propaneCost = Math.round(d.nights * 3); // ~$3/night avg propane for heat/cooking
-  const total = fuelCost + campCost + propaneCost;
-
-  const campOpts = Object.entries(CAMPGROUND_PRESETS)
-    .map(([k, v]) => `<option value="${esc(k)}"${k === d.campType ? ' selected' : ''}>${esc(v.label)} ($${v.perNight}/night)</option>`)
-    .join('');
-
-  const dataIsland = JSON.stringify({
-    gvwrLb: gvwr,
-    estMpg,
-    presets: CAMPGROUND_PRESETS,
-    defaults: d,
-  }).replace(/<\//g, '<\\/');
-
-  return `<section class="estimator trip-cost-tool collapsible" id="trip-cost" aria-label="Trip cost estimator"
- data-gvwr="${esc(gvwr)}">
-<script type="application/json" id="trip-cost-data">${dataIsland}</script>
-<h2 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">Trip cost estimator<span class="collapsible-icon" aria-hidden="true"></span></h2>
-<div class="collapsible-body" hidden>
-<p class="est-sub">Estimate the total cost of a trip with the ${esc(t.model)} ${esc(t.floorplan)}. Fuel estimate based on its ${esc(formatWeight(gvwr))} GVWR (~${estMpg} MPG towing).</p>
-<div class="est-controls">
-<div class="est-field">
-<label for="trip-dist">Round-trip distance</label>
-<div class="finance-slider-row">
-<input type="range" id="trip-dist" min="50" max="3000" step="50" value="${d.distanceMi}" class="finance-range" aria-label="Round trip distance in miles">
-<span class="finance-range-val" id="trip-dist-val">${d.distanceMi} mi</span>
-</div>
-</div>
-<div class="est-field">
-<label for="trip-nights">Nights</label>
-<div class="finance-slider-row">
-<input type="range" id="trip-nights" min="1" max="30" step="1" value="${d.nights}" class="finance-range" aria-label="Number of nights">
-<span class="finance-range-val" id="trip-nights-val">${d.nights} nights</span>
-</div>
-</div>
-<div class="est-field">
-<label for="trip-camp">Campground type</label>
-<select id="trip-camp" class="finance-select">${campOpts}</select>
-</div>
-<div class="est-field">
-<label for="trip-fuel-price">Fuel price ($/gal)</label>
-<div class="finance-slider-row">
-<input type="range" id="trip-fuel-price" min="2.50" max="6.00" step="0.10" value="3.50" class="finance-range" aria-label="Fuel price per gallon">
-<span class="finance-range-val" id="trip-fuel-price-val">$3.50/gal</span>
-</div>
-</div>
-</div>
-<div class="est-result" id="trip-cost-result" aria-live="polite" aria-atomic="true">
-<div class="est-big">
-<span class="est-number" id="trip-total">${formatMsrp(total)}</span>
-<span class="est-number-cap">estimated trip cost</span>
-</div>
-<dl class="finance-dl">
-<div class="finance-dl-row"><dt>Fuel (~${fuelGal} gal at $3.50)</dt><dd id="trip-fuel-dd">${formatMsrp(fuelCost)}</dd></div>
-<div class="finance-dl-row"><dt>Campground (${d.nights} nights)</dt><dd id="trip-camp-dd">${formatMsrp(campCost)}</dd></div>
-<div class="finance-dl-row"><dt>Propane (heat/cooking)</dt><dd id="trip-propane-dd">${formatMsrp(propaneCost)}</dd></div>
-<div class="finance-dl-row finance-dl-total"><dt>Total trip cost</dt><dd id="trip-tot-dd">${formatMsrp(total)}</dd></div>
-</dl>
-</div>
-<p class="est-caveat muted">Fuel MPG is estimated from GVWR; actual mileage varies with tow vehicle, terrain, speed, and wind. Campground rates are U.S. averages — prices vary by region and season. Propane cost assumes heating and cooking at ~$3/night.</p>
-</div>
-</section>`;
-}
-
 
 // ---------------------------------------------------------------------------
 // BUDGET ALTERNATIVES — "In your price range" cross-family recommendations.
@@ -3560,7 +3092,7 @@ function generateFaqItems(t) {
     const maneuver = t.lengthFt <= 20 ? 'very easy to maneuver and tow' : t.lengthFt <= 25 ? 'manageable for most drivers' : t.lengthFt <= 30 ? 'a mid-size rig requiring some towing experience' : 'a full-size rig best suited for experienced towers';
     faqs.push({
       question: `How long is the ${title} and will it fit at campgrounds?`,
-      answer: `The ${title} is ${formatLength(t.lengthFt)} overall (bumper to hitch)${t.extWidthFt ? `, ${formatDimFt(t.extWidthFt)} wide` : ''}${t.extHeightFt ? `, and ${formatDimFt(t.extHeightFt)} tall with A/C` : ''}. At this length, it is ${maneuver}. Most national park and state park campgrounds accommodate trailers up to 27 feet; check individual site limits for longer rigs. Use the campground finder on this page to see which parks fit your trailer.`,
+      answer: `The ${title} is ${formatLength(t.lengthFt)} overall (bumper to hitch)${t.extWidthFt ? `, ${formatDimFt(t.extWidthFt)} wide` : ''}${t.extHeightFt ? `, and ${formatDimFt(t.extHeightFt)} tall with A/C` : ''}. At this length, it is ${maneuver}. Most national park and state park campgrounds accommodate trailers up to 27 feet; check individual site limits for longer rigs. Check individual site limits before booking.`,
     });
   }
 
@@ -3754,7 +3286,8 @@ function renderCompatibleVehicles(t) {
 </section>`;
 }
 
-export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor = null, allTrailers = []) {
+export function renderDetail(t, resolve = assetPaths, decor = null, allTrailers = []) {
+  allTrailers = allTrailers || [];
   const a = resolve(t);
   const fam = familySlug(t.model);
   const official = officialUrl(t.model);
@@ -3781,6 +3314,12 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     : '';
   const galleryCount = a.gallery.length;
   const heroOffset = a.hero ? 1 : 0;
+  // Mosaic: first 5 images in hero+thumb grid
+  const galleryMosaic = a.gallery ? a.gallery.slice(0, 5).map((g, i) => {
+    const cutout = a.galleryCutout && a.galleryCutout[i];
+    const cls = i === 0 ? 'gallery-mosaic-hero' : 'gallery-mosaic-thumb';
+    return `<button type="button" class="gallery-mosaic-item ${cls}" data-lightbox data-full="../${esc(g)}" data-index="${i + heroOffset}" aria-label="Photo ${i + 1}"><img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="${i < 2 ? 'eager' : 'lazy'}" class="${cutout ? 'gallery-img--cutout' : 'gallery-img--photo'}"></button>`;
+  }).join('\n') : '';
   const gallery = a.gallery
     .map(
       (g, i) =>
@@ -3837,24 +3376,13 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
   }
   const sectionNav = buildSectionNav([
     ['#specs', 'Specs'],
-    ['#size-scale', 'Size'],
-    (t.extHeightFt && t.extWidthFt) ? ['#clearance-fit', 'Clearance'] : null,
-    t.lengthFt ? ['#rigfit', 'Site Fit'] : null,
-    ['#weight-context', 'Weight'],
+    (t.extHeightFt || t.lengthFt) ? ['#dimensions', 'Size & Fit'] : null,
     yearDiff ? ['#year-diff', '2025→26'] : null,
-    t.gvwrLb ? ['#tow', 'Tow'] : null,
-    t.gvwrLb ? ['#fuel', 'Fuel'] : null,
-    t.gvwrLb ? ['#grade-climb', 'Grades'] : null,
-    t.gvwrLb ? ['#hitch-guide', 'Hitch'] : null,
+    (t.weightLb || t.cccLb) ? ['#weight-capacity', 'Weight'] : null,
+    t.gvwrLb ? ['#tow-setup', 'Tow Setup'] : null,
     t.gvwrLb ? ['#vehicles', 'Vehicles'] : null,
-    t.cccLb ? ['#payload', 'Payload'] : null,
-    t.msrp > 0 ? ['#finance', 'Finance'] : null,
-    t.msrp > 0 ? ['#ownership', 'Ownership'] : null,
-    t.msrp > 0 ? ['#cost-night', 'Cost/Night'] : null,
-    t.msrp > 0 ? ['#resale', 'Resale'] : null,
-    t.gvwrLb ? ['#trip-cost', 'Trip Cost'] : null,
-    ['#offgrid', 'Off-grid'],
-    (t.freshGal || t.blackGal) ? ['#water-autonomy', 'Water'] : null,
+    t.gvwrLb ? ['#journey', 'Journey'] : null,
+    (t.batteryKwh || t.freshGal) ? ['#offgrid-dash', 'Off-grid'] : null,
     ['#propane', 'Propane'],
     ['#electrical', 'Power'],
     ['#hookup', 'Hookup'],
@@ -3963,32 +3491,18 @@ ${note}
 ${renderBrowseLinks(t)}
 </section>
 ${renderYearDiff(t, allTrailers)}
-${renderSizeScale(t)}
-${renderClearanceFit(t)}
-${renderRigLengthFit(t)}
-${renderWeightBar(t)}
-${renderWeightContext(t)}
-${renderWeightBudget(t)}
+${renderDimensions(t)}
+${renderWeightCapacity(t)}
 ${towCallout}
-${renderTowTool(t)}
+${renderTowSetup(t)}
 ${renderCompatibleVehicles(t)}
-${renderFuelTool(t)}
-${renderGradeClimb(t)}
-${renderHitchGuide(t)}
-${renderPayloadTool(t)}
-${renderFinancingTool(t)}
-${renderOwnershipTool(t)}
-${renderCostPerNight(t)}
-${renderResaleProjector(t)}
-${renderTripCost(t)}
-${renderOffGridTool(t)}
-${renderWaterAutonomy(t)}
+${renderJourneyPerformance(t)}
+${renderOffGridDashboard(t)}
 ${renderPropaneEstimator(t)}
 ${renderElectricalPlanner(t)}
 ${renderHookupGuide(t)}
 ${floorplanSection}
 ${decorSection}
-${campgrounds ? renderCampgroundFit(t, campgrounds) : ''}
 ${pros || cons ? `<section class="proscons">
 ${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}
 ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
@@ -4001,7 +3515,14 @@ ${renderLifestyleFit(t)}
 ${renderWinterization(t)}
 ${renderStorageGuide(t)}
 ${renderMaintenanceQuickRef(t)}
-${gallery ? `<section class="gallery" id="gallery" aria-label="Gallery"><div class="gallery-head"><h2>Gallery</h2><button type="button" class="gallery-autoplay" id="gallery-autoplay" aria-label="Auto-play slideshow" title="Auto-play slideshow"><svg viewBox="0 0 24 24" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Slideshow</button></div><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
+${gallery ? `<section class="gallery gallery-immersive" id="gallery" aria-label="Gallery">
+<div class="gallery-head"><h2>Gallery</h2><span class="gallery-count">${galleryCount} photos</span></div>
+<div class="gallery-mosaic" data-gallery data-count="${galleryCount}">
+${galleryMosaic}
+</div>
+<button type="button" class="gallery-show-all" data-gallery-all aria-label="View all photos">View all ${galleryCount} photos</button>
+<div class="gallery-grid" data-gallery hidden>${gallery}</div>
+</section>` : ''}
 ${renderNextSteps(t)}
 ${renderNotes(t.slug)}
 ${relatedSection}
@@ -4071,7 +3592,6 @@ ${specRow('Cargo (CCC)', formatWeight(t.cccLb), { unit: 'weight', raw: t.cccLb }
 ${specRow('Off-grid', t.offGridScore ? `${t.offGridScore}/100` : '—')}${renderRangeBar(t.offGridScore, ranges.offGridScore, 'Off-grid score')}
 ${specRow('Fresh tank', t.freshGal ? formatGal(t.freshGal) : '—')}${renderRangeBar(t.freshGal, ranges.freshGal, 'Fresh water')}
 ${specRow('MSRP', formatMsrp(t.msrp))}${renderRangeBar(t.msrp, ranges.msrp, 'MSRP')}
-${t.msrp > 0 ? `<div class="spec"><dt class="spec-monthly-label">Est. payment</dt><dd class="spec-monthly-val">~${esc(formatMsrpShort(calculateMonthly(t.msrp, FINANCE_DEFAULTS.downPct, FINANCE_DEFAULTS.apr, FINANCE_DEFAULTS.termYears).monthly))}/mo</dd></div>` : ''}
 </dl>
 ${(() => { const tc = towClass(t.gvwrLb); return `<span class="xcard-tow tow-badge tow-badge--${esc(tc.cls)}">${tc.icon} ${esc(tc.label)}</span>`; })()}
 ${renderTowDifficultyBadge(t, 'card')}

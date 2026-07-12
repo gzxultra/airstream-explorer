@@ -20,7 +20,7 @@ describe('year-over-year spec delta indicators', () => {
     // The specRow function should work with and without yearDelta
     const t2026 = trailers.find((t) => t.year === 2026);
     assert.ok(t2026, 'should have at least one 2026 trailer');
-    const html = renderDetail(t2026, (t) => resolveAssets(t, hasAsset), null, null, trailers);
+    const html = renderDetail(t2026, (t) => resolveAssets(t, hasAsset), null, trailers);
     assert.ok(html.includes('class="spec"'), 'should have spec rows');
   });
 
@@ -62,7 +62,7 @@ describe('year-over-year spec delta indicators', () => {
     );
     if (!prev) return;
     prev.msrp = prev.msrp - 2000; // 2026 is +$2000
-    const html = renderDetail(t2026, (t) => resolveAssets(t, hasAsset), null, null, allCopy);
+    const html = renderDetail(t2026, (t) => resolveAssets(t, hasAsset), null, allCopy);
     assert.ok(html.includes('spec-yd'), 'should contain spec-yd markup');
     assert.ok(html.includes('spec-yd--up') || html.includes('spec-yd--down'), 'should have direction class');
   });
@@ -136,7 +136,7 @@ describe('related trailers carousel', () => {
   it('detail pages render related section with carousel markup', () => {
     const t = trailers.find((t) => t.year === 2026);
     if (!t) return;
-    const html = renderDetail(t, (t) => resolveAssets(t, hasAsset), null, null, trailers);
+    const html = renderDetail(t, (t) => resolveAssets(t, hasAsset), null, trailers);
     assert.ok(html.includes('related-grid'), 'should have related-grid');
     assert.ok(html.includes('rel-card'), 'should have rel-card items');
   });

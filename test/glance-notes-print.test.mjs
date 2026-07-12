@@ -60,7 +60,7 @@ describe('At a Glance summary', () => {
 
   it('glance-summary appears in rendered detail HTML', () => {
     const t = trailers.find((x) => x.slug === 'basecamp-16x-2026');
-    const html = renderDetail(t, undefined, null, null, trailers);
+    const html = renderDetail(t, undefined, null, trailers);
     assert.ok(html.includes('class="glance-summary"'), 'has glance-summary section');
     assert.ok(html.includes('class="glance-heading"'), 'has heading');
     assert.ok(html.includes('class="glance-item"'), 'has at least one item');
@@ -70,7 +70,7 @@ describe('At a Glance summary', () => {
 describe('Personal notes', () => {
   it('notes section appears in detail HTML with correct slug', () => {
     const t = trailers.find((x) => x.slug === 'bambi-16rb-2026');
-    const html = renderDetail(t, undefined, null, null, trailers);
+    const html = renderDetail(t, undefined, null, trailers);
     assert.ok(html.includes('class="personal-notes"'), 'has notes section');
     assert.ok(html.includes('id="notes-input"'), 'has notes textarea');
     assert.ok(html.includes('data-slug="bambi-16rb-2026"'), 'slug is set correctly');
@@ -79,7 +79,7 @@ describe('Personal notes', () => {
 
   it('notes placeholder mentions dealer quotes', () => {
     const t = trailers[0];
-    const html = renderDetail(t, undefined, null, null, trailers);
+    const html = renderDetail(t, undefined, null, trailers);
     assert.ok(html.includes('dealer quotes'), 'placeholder mentions dealer context');
   });
 });

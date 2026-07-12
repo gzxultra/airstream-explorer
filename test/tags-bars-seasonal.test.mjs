@@ -67,7 +67,7 @@ describe('family compare visual bars', () => {
 describe('seasonal camping guide', () => {
   it('renders 4 season cards on every detail page', () => {
     for (const t of trailers.slice(0, 5)) {
-      const html = renderDetail(t, assetPaths, null, null, trailers);
+      const html = renderDetail(t, assetPaths, null, trailers);
       assert.ok(html.includes('seasonal-guide'), `${t.slug} should have seasonal guide`);
       assert.ok(html.includes('id="seasonal"'), `${t.slug} should have #seasonal anchor`);
       // 4 seasons
@@ -77,14 +77,14 @@ describe('seasonal camping guide', () => {
   });
 
   it('shows season names: Spring, Summer, Fall, Winter', () => {
-    const html = renderDetail(trailers[0], assetPaths, null, null, trailers);
+    const html = renderDetail(trailers[0], assetPaths, null, trailers);
     for (const name of ['Spring', 'Summer', 'Fall', 'Winter']) {
       assert.ok(html.includes(name), `should mention ${name}`);
     }
   });
 
   it('has season dots for scoring (1-5 scale)', () => {
-    const html = renderDetail(trailers[0], assetPaths, null, null, trailers);
+    const html = renderDetail(trailers[0], assetPaths, null, trailers);
     // Each season has 5 dots. The dots use class="season-dot" or "season-dot season-dot--filled".
     // The container uses "season-dots" (plural) — exclude it.
     const allDotClasses = (html.match(/class="season-dot(?:\s|")/g) || []).length;
@@ -94,7 +94,7 @@ describe('seasonal camping guide', () => {
   });
 
   it('includes seasonal guide in section nav', () => {
-    const html = renderDetail(trailers[0], assetPaths, null, null, trailers);
+    const html = renderDetail(trailers[0], assetPaths, null, trailers);
     assert.ok(html.includes('#seasonal'), 'section nav should link to #seasonal');
     assert.ok(html.includes('Seasons'), 'section nav should label it "Seasons"');
   });
@@ -102,7 +102,7 @@ describe('seasonal camping guide', () => {
   it('uses real spec values in tips', () => {
     const t = trailers.find((tr) => tr.solarW >= 200 && tr.freshGal >= 30);
     assert.ok(t, 'need a trailer with solar >= 200 and fresh >= 30');
-    const html = renderDetail(t, assetPaths, null, null, trailers);
+    const html = renderDetail(t, assetPaths, null, trailers);
     assert.ok(
       html.includes(`${t.solarW}W solar`),
       `should reference actual solar wattage ${t.solarW}W`,

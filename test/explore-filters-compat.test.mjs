@@ -60,7 +60,7 @@ test('explore page has a max-weight filter', () => {
 
 test('detail page includes a compatible tow vehicles table', () => {
   const t = trailers.find(t => t.slug === 'bambi-16rb-2026');
-  const html = renderDetail(t, undefined, null, null, trailers);
+  const html = renderDetail(t, undefined, null, trailers);
   assert.ok(html.includes('compat-vehicles'), 'compat-vehicles section present');
   assert.ok(html.includes('What can tow it?'), 'section heading present');
   assert.ok(html.includes('compat-table'), 'table rendered');
@@ -68,7 +68,7 @@ test('detail page includes a compatible tow vehicles table', () => {
 
 test('compat table has all 20 vehicles with correct verdicts', () => {
   const t = trailers.find(t => t.slug === 'bambi-16rb-2026');
-  const html = renderDetail(t, undefined, null, null, trailers);
+  const html = renderDetail(t, undefined, null, trailers);
   // Bambi 16RB has GVWR 3500 — most vehicles should be compat-ok
   const okCount = (html.match(/compat-ok/g) || []).length;
   const overCount = (html.match(/compat-over/g) || []).length;
@@ -79,21 +79,21 @@ test('compat table has all 20 vehicles with correct verdicts', () => {
 
 test('compat table for heavy trailer shows many over-limit vehicles', () => {
   const t = trailers.find(t => t.slug === 'classic-33fb-2026');
-  const html = renderDetail(t, undefined, null, null, trailers);
+  const html = renderDetail(t, undefined, null, trailers);
   const overCount = (html.match(/compat-over/g) || []).length;
   assert.ok(overCount >= 10, `most vehicles should be OVER for Classic 33FB (got ${overCount})`);
 });
 
 test('compat table shows margin with + for safe vehicles', () => {
   const t = trailers.find(t => t.slug === 'bambi-16rb-2026');
-  const html = renderDetail(t, undefined, null, null, trailers);
+  const html = renderDetail(t, undefined, null, trailers);
   assert.ok(html.includes('+'), 'positive margin shown with + prefix');
   assert.ok(html.includes('lb margin'), 'margin units shown');
 });
 
 test('detail section nav includes Vehicles link', () => {
   const t = trailers.find(t => t.slug === 'flying-cloud-25fb-2026');
-  const html = renderDetail(t, undefined, null, null, trailers);
+  const html = renderDetail(t, undefined, null, trailers);
   assert.ok(html.includes('#vehicles'), 'vehicles anchor in section nav');
   assert.ok(html.includes('>Vehicles<'), 'Vehicles label in nav');
 });

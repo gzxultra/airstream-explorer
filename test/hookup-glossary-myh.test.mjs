@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { renderHookupGuide, renderModelYearHighlights, renderGlossaryBody } from '../src/lib/render.mjs';
+import { renderHookupGuide, renderGlossaryBody } from '../src/lib/render.mjs';
 import { loadTrailers } from '../src/lib/data.mjs';
 
 const trailers = loadTrailers();
@@ -49,49 +49,8 @@ describe('renderHookupGuide', () => {
   });
 });
 
-// ── renderModelYearHighlights ─────────────────────────────────────────────────
+// ── renderModelYearHighlights — REMOVED (merged into renderWhatsNew2026) ──
 
-describe('renderModelYearHighlights', () => {
-  it('returns empty when year specs are identical (no diffs)', () => {
-    const html = renderModelYearHighlights(trailers);
-    // Current dataset: 2025 and 2026 specs are identical, so no highlights
-    // The function should return empty string gracefully
-    const has2026 = trailers.some((t) => t.year === 2026);
-    const has2025 = trailers.some((t) => t.year === 2025);
-    assert.ok(has2026 && has2025, 'dataset should have both years');
-    // With identical specs, output should be empty (no diffs to show)
-    assert.strictEqual(html, '', 'identical specs should yield no highlights');
-  });
-
-  it('returns empty string when insufficient data', () => {
-    const only2026 = trailers.filter((t) => t.year === 2026);
-    const html = renderModelYearHighlights(only2026);
-    assert.strictEqual(html, '', 'single-year dataset should return empty');
-  });
-
-  it('produces output when given synthetic diffs', () => {
-    // Create a fake dataset with actual spec differences
-    const fakeTrailers = trailers.map((t) => {
-      if (t.year === 2025 && t.model === 'Classic' && t.floorplan === '33FB') {
-        return { ...t, msrp: t.msrp + 5000, weightLb: (t.weightLb || 8425) + 100 };
-      }
-      if (t.year === 2025 && t.model === 'Bambi' && t.floorplan === '16RB') {
-        return { ...t, solarW: (t.solarW || 0) + 100 };
-      }
-      if (t.year === 2025 && t.model === 'Flying Cloud' && t.floorplan === '25FB') {
-        return { ...t, msrp: t.msrp - 2000 };
-      }
-      return t;
-    });
-    const html = renderModelYearHighlights(fakeTrailers);
-    if (html) {
-      assert.ok(html.includes('myh-section'), 'should render myh-section');
-      assert.ok(html.includes('myh-grid'), 'should have card grid');
-      assert.ok(html.includes('myh-card'), 'should have at least one featured card');
-      assert.ok(html.includes('href="m/'), 'cards should link to detail pages');
-    }
-  });
-});
 
 // ── renderGlossaryBody ────────────────────────────────────────────────────────
 
