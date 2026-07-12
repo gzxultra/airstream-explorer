@@ -24,6 +24,10 @@
   --ink: #F3ECE1;         /* primary text — 13.8:1 on --bg */
   --muted: #B3A795;       /* secondary text — 6.6:1 on --bg, clears AA */
   --line: #3A3228;        /* hairlines / borders */
+  --border: #3A3228;      /* alias for --line (used by weight/gallery) */
+  --surface-2: #2A241D;   /* secondary surface (gallery bg, mosaic) */
+  --surface-3: #332C24;   /* hover surface (gallery show-all hover) */
+  --fg: #F3ECE1;          /* alias for --ink (gallery buttons) */
   --copper: #D98B5E;      /* brighter copper for fills on dark */
   --copper-deep: #E59A6C; /* link/heading copper — 6.1:1 on --bg */
   --copper-text: #E7A172; /* small copper text — 7.0:1 on --bg */

@@ -3044,7 +3044,7 @@ function generateFaqItems(t) {
     const tc = towClass(t.gvwrLb);
     faqs.push({
       question: `How much does the ${t.year} ${title} weigh?`,
-      answer: `The ${title} has a dry weight of ${formatWeight(t.weightLb)} and a Gross Vehicle Weight Rating (GVWR) of ${formatWeight(t.gvwrLb)}, giving you ${formatWeight(t.cccLb || t.gvwrLb - t.weightLb)} of cargo carrying capacity for water, gear, and personal items.${tc ? ` It falls in the ${tc} tow class.` : ''}`,
+      answer: `The ${title} has a dry weight of ${formatWeight(t.weightLb)} and a Gross Vehicle Weight Rating (GVWR) of ${formatWeight(t.gvwrLb)}, giving you ${formatWeight(t.cccLb || t.gvwrLb - t.weightLb)} of cargo carrying capacity for water, gear, and personal items.${tc ? ` It falls in the ${tc.label} tow class.` : ''}`,
     });
   }
 
@@ -3053,7 +3053,7 @@ function generateFaqItems(t) {
     const minTow = Math.round(t.gvwrLb * 1.2);
     faqs.push({
       question: `What vehicle do I need to tow the ${title}?`,
-      answer: `You need a tow vehicle rated for at least ${formatWeight(minTow)} towing capacity (GVWR × 1.2 safety margin). The hitch weight is ${formatWeight(t.hitchWeightLb)}, which is ${hitchPctOfGvwr(t)}% of GVWR — your vehicle's payload must handle this plus passengers and gear. Popular matches include half-ton and three-quarter-ton trucks and large SUVs; use the tow calculator on this page for your specific vehicle.`,
+      answer: `You need a tow vehicle rated for at least ${formatWeight(minTow)} towing capacity (GVWR × 1.2 safety margin). The hitch weight is ${formatWeight(t.hitchWeightLb)}, which is ${hitchPctOfGvwr(t.hitchWeightLb, t.gvwrLb)}% of GVWR — your vehicle's payload must handle this plus passengers and gear. Popular matches include half-ton and three-quarter-ton trucks and large SUVs; use the tow calculator on this page for your specific vehicle.`,
     });
   }
 
