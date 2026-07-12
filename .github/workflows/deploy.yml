@@ -21,11 +21,11 @@ jobs:
         with:
           node-version: 20
 
-      - name: Run tests
-        run: node --test test/
-
       - name: Build site
         run: node scripts/build.mjs
+
+      - name: Run tests
+        run: node --test test/
 
       - name: Verify build output
         run: |
