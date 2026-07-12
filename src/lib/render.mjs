@@ -610,6 +610,123 @@ function renderQuiz() {
 // ---------------------------------------------------------------------------
 // MODEL YEAR HIGHLIGHTS — auto-generated 2025→2026 changes summary
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// WHAT'S NEW IN 2026 — editorial overview of all model year changes.
+// Shows new models, discontinued models, and aggregated spec changes.
+// ---------------------------------------------------------------------------
+export function renderWhatsNew2026(trailers) {
+  const t2026 = trailers.filter((t) => t.year === 2026);
+  const t2025 = trailers.filter((t) => t.year === 2025);
+  if (t2026.length === 0) return '';
+
+  const keys26 = new Set(t2026.map((t) => t.model + '|' + t.floorplan));
+  const keys25 = new Set(t2025.map((t) => t.model + '|' + t.floorplan));
+
+  // New for 2026 (no 2025 counterpart)
+  const newModels = t2026.filter((t) => !keys25.has(t.model + '|' + t.floorplan));
+  // Discontinued (2025 only, no 2026 counterpart)
+  const discontinued = t2025.filter((t) => !keys26.has(t.model + '|' + t.floorplan));
+  // Paired models with spec changes
+  const paired = t2026.filter((t) => keys25.has(t.model + '|' + t.floorplan));
+  const changed = [];
+  for (const curr of paired) {
+    const diff = computeYearDiff(curr, trailers);
+    if (diff && diff.diffs.length) {
+      const priceDiff = diff.diffs.find((d) => d.key === 'msrp');
+      const weightDiff = diff.diffs.find((d) => d.key === 'weightLb');
+      changed.push({ trailer: curr, diffs: diff.diffs, priceDiff, weightDiff });
+    }
+  }
+
+  // Nothing interesting to show
+  if (newModels.length === 0 && discontinued.length === 0 && changed.length === 0) return '';
+
+  // Build summary chips
+  const chips = [];
+  if (newModels.length) chips.push(`<span class="wn26-chip wn26-chip--new">${newModels.length} new model${newModels.length > 1 ? 's' : ''}</span>`);
+  if (discontinued.length) chips.push(`<span class="wn26-chip wn26-chip--disc">${discontinued.length} discontinued</span>`);
+  const priceDrops = changed.filter((h) => h.priceDiff && h.priceDiff.delta < 0);
+  const priceUps = changed.filter((h) => h.priceDiff && h.priceDiff.delta > 0);
+  const lighter = changed.filter((h) => h.weightDiff && h.weightDiff.delta < 0);
+  if (priceDrops.length) chips.push(`<span class="wn26-chip wn26-chip--good">${priceDrops.length} price drop${priceDrops.length > 1 ? 's' : ''}</span>`);
+  if (priceUps.length) chips.push(`<span class="wn26-chip wn26-chip--warn">${priceUps.length} price increase${priceUps.length > 1 ? 's' : ''}</span>`);
+  if (lighter.length) chips.push(`<span class="wn26-chip wn26-chip--good">${lighter.length} weight reduction${lighter.length > 1 ? 's' : ''}</span>`);
+  if (paired.length > 0 && changed.length === 0) chips.push(`<span class="wn26-chip">${paired.length} models unchanged</span>`);
+
+  // New model cards
+  const newCards = newModels.map((t) => {
+    const price = t.msrp > 0 ? formatMsrp(t.msrp) : 'Price TBA';
+    const weight = t.weightLb ? formatWeight(t.weightLb) : '';
+    const len = t.lengthFt ? formatLength(t.lengthFt) : '';
+    const specs = [len, weight, t.sleeps ? 'sleeps ' + t.sleeps : ''].filter(Boolean).join(' · ');
+    return `<a class="wn26-card wn26-card--new" href="m/${esc(t.slug)}.html">
+<span class="wn26-card-badge">New</span>
+<span class="wn26-card-name">${esc(t.model)} ${esc(t.floorplan)}</span>
+<span class="wn26-card-specs muted">${esc(specs)}</span>
+<span class="wn26-card-price">${esc(price)}</span>
+</a>`;
+  }).join('\n');
+
+  // Changed model cards
+  const changedCards = changed.slice(0, 6).map((h) => {
+    const topDiffs = h.diffs.slice(0, 3).map((d) => {
+      const sign = d.delta > 0 ? '+' : '';
+      let val = '';
+      if (d.unit === '$') val = sign + formatMsrpShort(d.delta);
+      else if (d.unit === 'lb') val = sign + d.delta.toLocaleString('en-US') + ' lb';
+      else if (d.unit === 'W') val = sign + d.delta + ' W';
+      else if (d.unit === 'kWh') val = sign + d.delta + ' kWh';
+      else if (d.unit === 'gal') val = sign + d.delta + ' gal';
+      else val = sign + d.delta + ' ' + d.unit;
+      const cls = d.direction === 'up' ? 'wn26-delta--up' : d.direction === 'down' ? 'wn26-delta--down' : '';
+      return `<span class="wn26-delta ${cls}">${esc(d.field)}: ${esc(val)}</span>`;
+    }).join('');
+    return `<a class="wn26-card" href="m/${esc(h.trailer.slug)}.html#year-diff">
+<span class="wn26-card-name">${esc(h.trailer.model)} ${esc(h.trailer.floorplan)}</span>
+<span class="wn26-card-deltas">${topDiffs}</span>
+</a>`;
+  }).join('\n');
+
+  // Discontinued cards
+  const discCards = discontinued.map((t) => {
+    return `<a class="wn26-card wn26-card--disc" href="m/${esc(t.slug)}.html">
+<span class="wn26-card-badge wn26-badge--disc">Discontinued</span>
+<span class="wn26-card-name">${esc(t.model)} ${esc(t.floorplan)}</span>
+<span class="wn26-card-specs muted">${esc(String(t.year))} model year</span>
+</a>`;
+  }).join('\n');
+
+  // Group cards into labelled sections
+  let sections = '';
+  if (newCards) sections += `<div class="wn26-group">
+<h3 class="wn26-group-title">New for 2026</h3>
+<div class="wn26-grid">${newCards}</div>
+</div>`;
+  if (changedCards) sections += `<div class="wn26-group">
+<h3 class="wn26-group-title">Updated specs</h3>
+<div class="wn26-grid">${changedCards}</div>
+</div>`;
+  if (discCards) sections += `<div class="wn26-group">
+<h3 class="wn26-group-title">Discontinued</h3>
+<div class="wn26-grid">${discCards}</div>
+</div>`;
+
+  const carryover = paired.length - changed.length;
+  const sub = carryover > 0
+    ? `${t2026.length} floorplans in the 2026 lineup — ${carryover} carry over unchanged from 2025.`
+    : `${t2026.length} floorplans in the 2026 lineup.`;
+
+  return `<section class="wn26-section" id="whats-new-2026" aria-label="What's new in the 2026 lineup">
+<div class="wn26-head">
+<h2 class="wn26-title">What's new in 2026</h2>
+<p class="wn26-sub muted">${sub}</p>
+</div>
+<div class="wn26-chips">${chips.join('')}</div>
+${sections}
+</section>`;
+}
+
 export function renderModelYearHighlights(trailers) {
   const t2026 = trailers.filter((t) => t.year === 2026);
   const t2025 = trailers.filter((t) => t.year === 2025);
@@ -847,6 +964,7 @@ ${renderQuiz()}
 ${cards}
 </main>
 ${editorsPicks}
+${renderWhatsNew2026(trailers)}
 ${yearHighlights}
 ${renderSizeLadder(families, trailers)}
 </section>
@@ -4380,6 +4498,7 @@ export function renderSaved(trailers, resolve = assetPaths, motorhomes = []) {
 <p class="saved-summary" id="saved-summary"></p>
 <div class="saved-toolbar-actions">
 <a class="saved-compare-btn" id="saved-compare" href="compare.html">Compare these →</a>
+<button type="button" class="share-btn" id="saved-export" title="Copy saved fleet summary to clipboard"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Export list</button>
 <button type="button" class="saved-clear-btn" id="saved-clear">Clear all</button>
 </div>
 </div>

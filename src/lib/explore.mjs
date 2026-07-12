@@ -52,6 +52,7 @@ export const SORT_KEYS = {
   'value-asc': { label: 'Best value ($/ft)', get: (t) => t.lengthFt > 0 ? t.msrp / t.lengthFt : Infinity, dir: 1 },
   'value-lb-asc': { label: 'Best value ($/lb)', get: (t) => t.weightLb > 0 ? t.msrp / t.weightLb : Infinity, dir: 1 },
   'fresh-desc': { label: 'Most fresh water', get: (t) => t.freshGal || 0, dir: -1 },
+  'year-desc': { label: 'Year: newest first', get: (t) => t.year, dir: -1 },
 };
 
 /**

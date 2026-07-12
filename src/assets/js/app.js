@@ -5550,6 +5550,79 @@
     Saved.onChange(render);
     render();
 
+
+    // --- Export saved fleet list to clipboard ---
+    (function savedExport() {
+      var exportBtn = document.getElementById('saved-export');
+      if (!exportBtn) return;
+      exportBtn.addEventListener('click', function () {
+        var list = Saved.read();
+        if (!list.length) return;
+        // newest-first, same as the page render
+        list = list.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
+        var recs = [];
+        for (var i = 0; i < list.length; i++) {
+          var r = CATALOG[list[i].slug];
+          if (r) recs.push(r);
+        }
+        if (!recs.length) return;
+
+        function lenLabel(ft) {
+          if (ft == null) return '';
+          var whole = Math.floor(ft);
+          var inch = Math.round((ft - whole) * 12);
+          if (inch === 12) { whole += 1; inch = 0; }
+          return whole + "'" + inch + '"';
+        }
+
+        var lines = ['My Airstream Shortlist', String.fromCharCode(9473).repeat(22)];
+        var prices = [];
+        for (var j = 0; j < recs.length; j++) {
+          var t = recs[j];
+          var parts = [];
+          if (t.lengthFt) parts.push(lenLabel(t.lengthFt));
+          if (t.weightLb) parts.push(Math.round(t.weightLb).toLocaleString('en-US') + ' lb');
+          if (t.msrp > 0) { parts.push('$' + Math.round(t.msrp).toLocaleString('en-US')); prices.push(t.msrp); }
+          lines.push(String.fromCharCode(8226) + ' ' + t.year + ' ' + t.model + ' ' + t.floorplan + (parts.length ? ' ' + String.fromCharCode(8212) + ' ' + parts.join(', ') : ''));
+        }
+        lines.push('');
+        var summaryParts = [recs.length + ' floorplan' + (recs.length > 1 ? 's' : '')];
+        if (prices.length >= 2) {
+          var lo = Math.min.apply(null, prices), hi = Math.max.apply(null, prices);
+          summaryParts.push('$' + Math.round(lo).toLocaleString('en-US') + String.fromCharCode(8211) + '$' + Math.round(hi).toLocaleString('en-US'));
+        }
+        lines.push(summaryParts.join(' ' + String.fromCharCode(183) + ' '));
+        lines.push('via Airstream Explorer');
+        var text = lines.join('
+');
+
+        var prev = exportBtn.innerHTML;
+        function flash(msg) {
+          exportBtn.innerHTML = msg;
+          exportBtn.classList.add('is-copied');
+          setTimeout(function () {
+            exportBtn.innerHTML = prev;
+            exportBtn.classList.remove('is-copied');
+          }, 1800);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(
+            function () { flash(String.fromCharCode(10003) + ' Copied!'); },
+            function () { flash('Copy failed'); }
+          );
+        } else {
+          try {
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.setAttribute('readonly', '');
+            ta.style.position = 'absolute'; ta.style.left = '-9999px';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            flash(String.fromCharCode(10003) + ' Copied!');
+          } catch (e) { flash('Copy failed'); }
+        }
+      });
+    })();
+
     // --- "You might also like" recommendations based on saved items ---
     (function savedRecs() {
       var recsSection = document.getElementById('recs-section');
