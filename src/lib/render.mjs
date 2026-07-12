@@ -4111,6 +4111,7 @@ export function renderExploreSections(trailers, resolve = assetPaths, motorhomes
 ${typeSeg}
 </header>
 ${renderFleetChart(trailers)}
+${renderWeightClassBar(trailers)}
 <div class="smart-presets" aria-label="Quick start">${SMART_PRESETS.map((p) => `<button type="button" class="smart-preset" data-preset="${esc(p.id)}" data-filters="${esc(JSON.stringify(p.filters))}"><span class="smart-preset-icon" aria-hidden="true">${p.icon}</span><span class="smart-preset-text"><span class="smart-preset-label">${esc(p.label)}</span><span class="smart-preset-desc">${esc(p.desc)}</span></span></button>`).join('')}</div>
 <section class="tow-tool" aria-label="Tow vehicle matcher">
 <div class="tow-tool-inner">
@@ -4205,6 +4206,7 @@ ${exploreTowVehicleOpts}
 </div>
 </div>
 <p class="xcount"><span id="x-count">${total}</span> floorplans</p>
+<div class="fleet-snapshot" id="fleet-snapshot" aria-label="Fleet snapshot"></div>
 <main class="xgrid" id="xgrid">
 ${cards}
 </main>
@@ -4488,4 +4490,42 @@ export function renderGlossaryBody() {
 ${GLOSSARY_CATS.map((c) => `<a class="glossary-toc-link" href="#gl-${esc(GLOSSARY_TERMS.find((t) => t.cat === c.key).term.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}">${c.icon} ${esc(c.label)}</a>`).join('\n')}
 </div>
 ${sections}`;
+}
+
+// ---------------------------------------------------------------------------
+// WEIGHT CLASS SEGMENT BAR — visual weight distribution for explore page
+// ---------------------------------------------------------------------------
+const WEIGHT_CLASSES = [
+  { key: 'ultralight', label: 'Ultra-light', max: 3500, color: '#3a7d44' },
+  { key: 'light',      label: 'Light',       max: 5000, color: '#5b8a3c' },
+  { key: 'medium',     label: 'Medium',      max: 7000, color: '#b07a1f' },
+  { key: 'heavy',      label: 'Heavy',       max: Infinity, color: '#8b5a3c' },
+];
+
+export function renderWeightClassBar(trailers) {
+  // Only count latest-year trailers so the bar matches the default explore view
+  const latest = trailers.filter((t) => t.year === 2026 && t.weightLb > 0);
+  if (latest.length < 3) return '';
+  const counts = WEIGHT_CLASSES.map((wc) => {
+    const prev = WEIGHT_CLASSES[WEIGHT_CLASSES.indexOf(wc) - 1];
+    const min = prev ? prev.max : 0;
+    const n = latest.filter((t) => t.weightLb > min && t.weightLb <= wc.max).length;
+    return { ...wc, count: n };
+  }).filter((wc) => wc.count > 0);
+  const total = counts.reduce((s, c) => s + c.count, 0);
+  const segments = counts.map((wc) => {
+    const pct = ((wc.count / total) * 100).toFixed(1);
+    const maxLabel = wc.max === Infinity ? '7,000+' : wc.max.toLocaleString('en-US');
+    const prevWc = WEIGHT_CLASSES[WEIGHT_CLASSES.indexOf(WEIGHT_CLASSES.find((w) => w.key === wc.key)) - 1];
+    const minLabel = prevWc ? prevWc.max.toLocaleString('en-US') : '0';
+    return `<button type="button" class="wc-seg" data-wc="${esc(wc.key)}" data-wc-max="${wc.max === Infinity ? '99999' : wc.max}" data-wc-min="${prevWc ? prevWc.max : 0}" style="flex:${wc.count};background:${wc.color}" aria-label="${esc(wc.label)}: ${wc.count} models (${minLabel}–${maxLabel} lb)" title="${esc(wc.label)}: ${wc.count} models"><span class="wc-seg-label">${esc(wc.label)}</span><span class="wc-seg-count">${wc.count}</span></button>`;
+  }).join('\n');
+  return `<div class="weight-class-bar" id="weight-class-bar" aria-label="Weight class distribution">
+<div class="wc-header"><span class="wc-title">Weight classes</span><button type="button" class="wc-clear linklike" id="wc-clear" hidden>Clear</button></div>
+<div class="wc-bar">${segments}</div>
+<div class="wc-legend">${counts.map((wc) => {
+    const maxLabel = wc.max === Infinity ? '7,000+ lb' : `under ${wc.max.toLocaleString('en-US')} lb`;
+    return `<span class="wc-legend-item"><span class="wc-legend-dot" style="background:${wc.color}"></span>${esc(wc.label)} · ${maxLabel}</span>`;
+  }).join('')}</div>
+</div>`;
 }

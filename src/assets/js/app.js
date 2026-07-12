@@ -8685,3 +8685,181 @@
     // Also sync on initial load
     sync();
   })();
+
+  // =========================================================================
+  // WEIGHT CLASS FILTER — clickable weight-class segment bar on explore page.
+  //     Clicking a segment sets the max-weight filter to that class boundary.
+  //     Guarded by #weight-class-bar.
+  // =========================================================================
+  (function weightClassFilter() {
+    var bar = document.getElementById('weight-class-bar');
+    if (!bar) return;
+    var segs = Array.prototype.slice.call(bar.querySelectorAll('.wc-seg'));
+    var clearBtn = document.getElementById('wc-clear');
+    var weightSelect = document.getElementById('x-weight');
+    var activeKey = null;
+
+    function setActive(key) {
+      activeKey = key;
+      segs.forEach(function (s) {
+        var k = s.getAttribute('data-wc');
+        s.classList.toggle('is-active', k === key);
+        s.classList.toggle('is-dimmed', key && k !== key);
+      });
+      if (clearBtn) clearBtn.hidden = !key;
+    }
+
+    segs.forEach(function (seg) {
+      seg.addEventListener('click', function () {
+        var key = seg.getAttribute('data-wc');
+        if (activeKey === key) {
+          // Toggle off
+          setActive(null);
+          if (weightSelect) { weightSelect.value = ''; weightSelect.dispatchEvent(new Event('change')); }
+        } else {
+          setActive(key);
+          var maxW = parseInt(seg.getAttribute('data-wc-max'), 10);
+          if (weightSelect && maxW < 99999) {
+            // Find closest option
+            var best = '';
+            Array.prototype.slice.call(weightSelect.options).forEach(function (opt) {
+              var v = parseInt(opt.value, 10);
+              if (v && v >= maxW) { if (!best || v < parseInt(best, 10)) best = opt.value; }
+            });
+            if (best) { weightSelect.value = best; }
+            else { weightSelect.value = String(maxW); }
+            weightSelect.dispatchEvent(new Event('change'));
+          } else if (weightSelect && maxW >= 99999) {
+            // Heavy = clear weight filter, but visual stays active
+            weightSelect.value = '';
+            weightSelect.dispatchEvent(new Event('change'));
+          }
+        }
+      });
+    });
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function () {
+        setActive(null);
+        if (weightSelect) { weightSelect.value = ''; weightSelect.dispatchEvent(new Event('change')); }
+      });
+    }
+
+    // Sync visual state when weight filter changes externally (e.g. reset button)
+    if (weightSelect) {
+      weightSelect.addEventListener('change', function () {
+        if (!weightSelect.value) setActive(null);
+      });
+    }
+    var resetBtn = document.getElementById('x-reset');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        setActive(null);
+      });
+    }
+  })();
+
+  // =========================================================================
+  // CARD ENTER ANIMATION — adds staggered fade-in to explore cards when the
+  //     visible set changes due to filtering. Observes the x-count element for
+  //     mutations (same hook the fleet chart uses) as a proxy for filter changes.
+  //     Guarded by #xgrid.
+  // =========================================================================
+  (function cardEnterAnim() {
+    var grid = document.getElementById('xgrid');
+    if (!grid) return;
+    var countEl = document.getElementById('x-count');
+    if (!countEl) return;
+    var prevVisible = new Set();
+    // Initialize with current visible cards
+    var initCards = grid.querySelectorAll('.xcard:not([hidden])');
+    for (var i = 0; i < initCards.length; i++) {
+      prevVisible.add(initCards[i].getAttribute('data-slug'));
+    }
+
+    var obs = new MutationObserver(function () {
+      var cards = grid.querySelectorAll('.xcard');
+      var newVisible = new Set();
+      for (var c = 0; c < cards.length; c++) {
+        if (!cards[c].hidden) newVisible.add(cards[c].getAttribute('data-slug'));
+      }
+      // Find newly visible cards
+      var hasNew = false;
+      newVisible.forEach(function (slug) {
+        if (!prevVisible.has(slug)) hasNew = true;
+      });
+      if (hasNew) {
+        for (var j = 0; j < cards.length; j++) {
+          var slug = cards[j].getAttribute('data-slug');
+          if (!cards[j].hidden && !prevVisible.has(slug)) {
+            cards[j].classList.remove('card-enter');
+            // Force reflow to restart animation
+            void cards[j].offsetWidth;
+            cards[j].classList.add('card-enter');
+          }
+        }
+      }
+      prevVisible = newVisible;
+    });
+    obs.observe(countEl, { childList: true, characterData: true, subtree: true });
+  })();
+
+  // =========================================================================
+  // FLEET SNAPSHOT DASHBOARD — live stat cards that update as filters change.
+  //     Shows avg price, weight range, most popular sleeping capacity, and
+  //     the off-grid champion among visible cards.
+  //     Guarded by #fleet-snapshot.
+  // =========================================================================
+  (function fleetSnapshot() {
+    var el = document.getElementById('fleet-snapshot');
+    if (!el) return;
+    var grid = document.getElementById('xgrid');
+    if (!grid) return;
+    var countEl = document.getElementById('x-count');
+    if (!countEl) return;
+
+    function fmtK(n) { return n >= 1000 ? '$' + Math.round(n / 1000) + 'k' : '$' + n; }
+
+    function update() {
+      var cards = grid.querySelectorAll('.xcard:not([hidden])');
+      if (cards.length < 2) { el.innerHTML = ''; return; }
+      var prices = [], weights = [], sleepCounts = {}, bestOffgrid = null, bestOffgridScore = -1;
+      for (var i = 0; i < cards.length; i++) {
+        var c = cards[i];
+        var p = parseFloat(c.getAttribute('data-msrp')) || 0;
+        var w = parseFloat(c.getAttribute('data-weight')) || 0;
+        var sl = parseInt(c.getAttribute('data-sleeps'), 10) || 0;
+        var og = parseFloat(c.getAttribute('data-offgrid')) || 0;
+        if (p > 0) prices.push(p);
+        if (w > 0) weights.push(w);
+        if (sl > 0) sleepCounts[sl] = (sleepCounts[sl] || 0) + 1;
+        if (og > bestOffgridScore) {
+          bestOffgridScore = og;
+          bestOffgrid = c.getAttribute('data-name') || '';
+        }
+      }
+      if (!prices.length || !weights.length) { el.innerHTML = ''; return; }
+
+      // Average price
+      var avgPrice = Math.round(prices.reduce(function (a, b) { return a + b; }, 0) / prices.length);
+      // Weight range
+      var wMin = Math.min.apply(null, weights), wMax = Math.max.apply(null, weights);
+      // Most popular sleeping capacity
+      var topSleeps = 0, topSleepsCount = 0;
+      for (var s in sleepCounts) {
+        if (sleepCounts[s] > topSleepsCount) { topSleepsCount = sleepCounts[s]; topSleeps = parseInt(s, 10); }
+      }
+      // Best off-grid
+      var offgridName = bestOffgrid ? bestOffgrid.split(' ').slice(0, 2).join(' ') : '';
+
+      el.innerHTML =
+        '<div class="fs-card"><span class="fs-card-label">Avg. price</span><span class="fs-card-value">' + fmtK(avgPrice) + '</span><span class="fs-card-sub">' + cards.length + ' shown</span></div>' +
+        '<div class="fs-card"><span class="fs-card-label">Weight range</span><span class="fs-card-value">' + wMin.toLocaleString('en-US') + '–' + wMax.toLocaleString('en-US') + '</span><span class="fs-card-sub">dry weight (lb)</span></div>' +
+        '<div class="fs-card"><span class="fs-card-label">Most common</span><span class="fs-card-value">Sleeps ' + topSleeps + '</span><span class="fs-card-sub">' + topSleepsCount + ' of ' + cards.length + ' models</span></div>' +
+        '<div class="fs-card"><span class="fs-card-label">Off-grid champ</span><span class="fs-card-value">' + Math.round(bestOffgridScore) + '/100</span><span class="fs-card-sub">' + offgridName + '</span></div>';
+    }
+
+    var obs = new MutationObserver(update);
+    obs.observe(countEl, { childList: true, characterData: true, subtree: true });
+    update();
+  })();

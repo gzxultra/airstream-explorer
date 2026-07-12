@@ -6202,3 +6202,107 @@ h2:hover .section-anchor,
    ALTITUDE ROW in grade climb
    =================================================================== */
 .grade-alt-row dt { font-style: italic; }
+
+/* ======================================================================== */
+/* WEIGHT CLASS SEGMENT BAR                                                  */
+/* ======================================================================== */
+.weight-class-bar {
+  max-width: var(--maxw); margin: 16px auto 20px; padding: 0 var(--gutter);
+}
+.wc-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.wc-title {
+  font-size: 12px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--muted);
+}
+.wc-clear { font-size: 12px; }
+.wc-bar {
+  display: flex; height: 36px; border-radius: 6px; overflow: hidden;
+  gap: 2px; cursor: pointer;
+}
+.wc-seg {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: none; font: inherit; color: #fff; cursor: pointer;
+  transition: opacity .2s ease, filter .2s ease, flex .35s cubic-bezier(.2,.7,.35,1);
+  min-width: 0; padding: 0 6px;
+}
+.wc-seg:hover { filter: brightness(1.15); }
+.wc-seg.is-active { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 4px; }
+.wc-seg.is-dimmed { opacity: .35; }
+.wc-seg-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .03em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
+.wc-seg-count {
+  font-size: 10px; font-weight: 600; opacity: .85;
+}
+.wc-legend {
+  display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px;
+}
+.wc-legend-item {
+  font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 4px;
+}
+.wc-legend-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 2px;
+}
+@media (max-width: 560px) {
+  .wc-seg-label { font-size: 10px; }
+  .wc-seg-count { display: none; }
+  .wc-bar { height: 30px; }
+}
+
+/* ======================================================================== */
+/* EXPLORE CARD TRANSITIONS — smooth fade-in on filter/sort                  */
+/* ======================================================================== */
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+.xcard.card-enter {
+  animation: cardEnter .32s cubic-bezier(.2,.7,.35,1) both;
+}
+/* Stagger up to 12 cards */
+.xcard.card-enter:nth-child(2)  { animation-delay: .02s; }
+.xcard.card-enter:nth-child(3)  { animation-delay: .04s; }
+.xcard.card-enter:nth-child(4)  { animation-delay: .06s; }
+.xcard.card-enter:nth-child(5)  { animation-delay: .08s; }
+.xcard.card-enter:nth-child(6)  { animation-delay: .10s; }
+.xcard.card-enter:nth-child(7)  { animation-delay: .12s; }
+.xcard.card-enter:nth-child(8)  { animation-delay: .14s; }
+.xcard.card-enter:nth-child(9)  { animation-delay: .16s; }
+.xcard.card-enter:nth-child(10) { animation-delay: .18s; }
+.xcard.card-enter:nth-child(11) { animation-delay: .20s; }
+.xcard.card-enter:nth-child(12) { animation-delay: .22s; }
+@media (prefers-reduced-motion: reduce) {
+  .xcard.card-enter { animation: none; opacity: 1; transform: none; }
+}
+
+/* ======================================================================== */
+/* FLEET SNAPSHOT DASHBOARD — live stats below the count                      */
+/* ======================================================================== */
+.fleet-snapshot {
+  max-width: var(--maxw); margin: 0 auto 16px; padding: 0 var(--gutter);
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+}
+.fs-card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 6px; padding: 10px 12px; text-align: center;
+}
+.fs-card-label {
+  display: block; font-size: 10px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+  margin-bottom: 2px;
+}
+.fs-card-value {
+  display: block; font-size: 18px; font-weight: 700;
+  font-variant-numeric: tabular-nums; color: var(--ink);
+}
+.fs-card-sub {
+  display: block; font-size: 11px; color: var(--muted); margin-top: 2px;
+}
+@media (max-width: 560px) {
+  .fleet-snapshot { grid-template-columns: repeat(2, 1fr); }
+  .fs-card-value { font-size: 16px; }
+}

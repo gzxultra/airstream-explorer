@@ -782,3 +782,7 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .famnav { background: var(--surface); border-color: var(--line); }
 [data-theme="dark"] .famnav-link { color: var(--muted); }
 [data-theme="dark"] .famnav-link.is-current { color: var(--copper); }
+[data-theme="dark"] .wc-seg { color: #fff; }
+[data-theme="dark"] .wc-seg.is-active { outline-color: var(--copper); }
+[data-theme="dark"] .fs-card { background: var(--surface); border-color: var(--line); }
+[data-theme="dark"] .fs-card-value { color: #f0ebe3; }
