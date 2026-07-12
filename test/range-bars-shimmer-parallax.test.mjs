@@ -71,9 +71,9 @@ describe('explore card range bars', () => {
     assert.ok(html.includes('range-bar'), 'should have range-bar class');
     assert.ok(html.includes('range-bar-track'), 'should have track');
     assert.ok(html.includes('range-bar-fill'), 'should have fill');
-    // Should have 3 range bars (length, weight, msrp — not sleeps)
+    // Should have 6 range bars (length, weight, ccc, off-grid, fresh, msrp)
     const barCount = (html.match(/range-bar-fill/g) || []).length;
-    assert.equal(barCount, 3, 'should have exactly 3 range bars');
+    assert.equal(barCount, 6, 'should have exactly 6 range bars');
   });
 
   it('explore cards without ranges still render correctly', () => {

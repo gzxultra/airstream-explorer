@@ -3928,6 +3928,9 @@ ${fleetBadgeHtml}
 ${specRow('Length', formatLength(t.lengthFt), { unit: 'length', raw: t.lengthFt })}${renderRangeBar(t.lengthFt, ranges.lengthFt, 'Length')}
 ${specRow('Dry weight', formatWeight(t.weightLb), { unit: 'weight', raw: t.weightLb })}${renderRangeBar(t.weightLb, ranges.weightLb, 'Dry weight')}
 ${specRow('Sleeps', String(t.sleeps))}
+${specRow('Cargo (CCC)', formatWeight(t.cccLb), { unit: 'weight', raw: t.cccLb })}${renderRangeBar(t.cccLb, ranges.cccLb, 'Cargo capacity')}
+${specRow('Off-grid', t.offGridScore ? `${t.offGridScore}/100` : '—')}${renderRangeBar(t.offGridScore, ranges.offGridScore, 'Off-grid score')}
+${specRow('Fresh tank', t.freshGal ? formatGal(t.freshGal) : '—')}${renderRangeBar(t.freshGal, ranges.freshGal, 'Fresh water')}
 ${specRow('MSRP', formatMsrp(t.msrp))}${renderRangeBar(t.msrp, ranges.msrp, 'MSRP')}
 ${t.msrp > 0 ? `<div class="spec"><dt class="spec-monthly-label">Est. payment</dt><dd class="spec-monthly-val">~${esc(formatMsrpShort(calculateMonthly(t.msrp, FINANCE_DEFAULTS.downPct, FINANCE_DEFAULTS.apr, FINANCE_DEFAULTS.termYears).monthly))}/mo</dd></div>` : ''}
 </dl>
@@ -3953,6 +3956,82 @@ ${saveButton(t.slug, 'trailer', trailerLabel(t), 'card')}
  * `trailers` is the full (unsorted) dataset. All links are root-relative
  * (m/…, compare.html) so it renders correctly at the site root either way.
  */
+
+// ---------------------------------------------------------------------------
+// FLEET SCATTER CHART — price vs weight scatter plot for the explore page.
+// Pure SVG, no runtime dependency. Each trailer is a dot positioned by MSRP
+// (x) and dry weight (y). Color encodes model family. The client toggles
+// data-visible on each dot when filters change.
+// ---------------------------------------------------------------------------
+const FAMILY_COLORS = {
+  Basecamp: '#C97B4B',
+  Bambi: '#8AB06B',
+  Caravel: '#6BA3B0',
+  'Flying Cloud': '#7B8EC9',
+  Globetrotter: '#B06B8A',
+  International: '#B0A06B',
+  'Trade Wind': '#6BB0A0',
+  Classic: '#C9A24B',
+  Rangeline: '#9B7BC9',
+  'Pottery Barn': '#A3886B',
+  Interstate: '#6B80B0',
+  Atlas: '#B08A6B',
+};
+
+function renderFleetChart(trailers) {
+  const pts = trailers
+    .filter((t) => t.msrp > 0 && t.weightLb > 0)
+    .map((t) => ({
+      slug: t.slug, model: t.model, floorplan: t.floorplan, year: t.year,
+      x: t.msrp, y: t.weightLb,
+      color: FAMILY_COLORS[t.model] || '#999',
+    }));
+  if (pts.length < 3) return '';
+
+  const W = 680, H = 320, PAD = { t: 24, r: 20, b: 44, l: 56 };
+  const plotW = W - PAD.l - PAD.r, plotH = H - PAD.t - PAD.b;
+  const xMin = Math.floor(Math.min(...pts.map((p) => p.x)) / 10000) * 10000;
+  const xMax = Math.ceil(Math.max(...pts.map((p) => p.x)) / 10000) * 10000;
+  const yMin = Math.floor(Math.min(...pts.map((p) => p.y)) / 1000) * 1000;
+  const yMax = Math.ceil(Math.max(...pts.map((p) => p.y)) / 1000) * 1000;
+  const sx = (v) => PAD.l + ((v - xMin) / (xMax - xMin)) * plotW;
+  const sy = (v) => PAD.t + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
+
+  // Grid lines
+  let grid = '';
+  for (let p = xMin; p <= xMax; p += 50000) {
+    const px = sx(p);
+    grid += `<line x1="${px}" y1="${PAD.t}" x2="${px}" y2="${PAD.t + plotH}" class="fc-grid"/>`;
+    grid += `<text x="${px}" y="${H - 6}" class="fc-label fc-label-x">$${p / 1000}k</text>`;
+  }
+  for (let w = yMin; w <= yMax; w += 2000) {
+    const py = sy(w);
+    grid += `<line x1="${PAD.l}" y1="${py}" x2="${PAD.l + plotW}" y2="${py}" class="fc-grid"/>`;
+    grid += `<text x="${PAD.l - 6}" y="${py + 4}" class="fc-label fc-label-y">${(w / 1000).toFixed(0)}k</text>`;
+  }
+
+  // Dots
+  const dots = pts.map((p) => {
+    const cx = sx(p.x).toFixed(1), cy = sy(p.y).toFixed(1);
+    return `<a href="m/${esc(p.slug)}.html" class="fc-dot-link"><circle class="fc-dot" cx="${cx}" cy="${cy}" r="6" fill="${esc(p.color)}" data-slug="${esc(p.slug)}" data-year="${esc(String(p.year))}"><title>${esc(p.model)} ${esc(p.floorplan)} ${p.year} — $${Math.round(p.x / 1000)}k, ${p.y.toLocaleString()} lb</title></circle></a>`;
+  }).join('\n');
+
+  // Axis labels
+  const axisLabels = `<text x="${PAD.l + plotW / 2}" y="${H - 0}" class="fc-axis-label">Base MSRP →</text>` +
+    `<text x="12" y="${PAD.t + plotH / 2}" class="fc-axis-label" transform="rotate(-90 12 ${PAD.t + plotH / 2})">Dry weight →</text>`;
+
+  return `<details class="fleet-chart-wrap" id="fleet-chart">
+<summary class="fleet-chart-toggle">Fleet map <span class="fleet-chart-sub">— price vs. weight for every floorplan</span></summary>
+<div class="fleet-chart-body">
+<svg class="fleet-chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter chart: Airstream price vs weight">
+${grid}
+${dots}
+${axisLabels}
+</svg>
+</div>
+</details>`;
+}
+
 export function renderExploreSections(trailers, resolve = assetPaths, motorhomes = [], { headingLevel = 'h1' } = {}) {
   // Build tow vehicle picker options from the shared dataset
   const exploreTowVehicleOpts = TOW_VEHICLES
@@ -4012,6 +4091,7 @@ export function renderExploreSections(trailers, resolve = assetPaths, motorhomes
 <p class="lede">Search, sort and filter all ${totalPlans} floorplans${hasMotorhomes ? ' — travel trailers and motorhomes' : ''} — match a trailer to your tow vehicle, or browse by size, sleeping capacity or off-grid capability.</p>
 ${typeSeg}
 </header>
+${renderFleetChart(trailers)}
 <div class="smart-presets" aria-label="Quick start">${SMART_PRESETS.map((p) => `<button type="button" class="smart-preset" data-preset="${esc(p.id)}" data-filters="${esc(JSON.stringify(p.filters))}"><span class="smart-preset-icon" aria-hidden="true">${p.icon}</span><span class="smart-preset-text"><span class="smart-preset-label">${esc(p.label)}</span><span class="smart-preset-desc">${esc(p.desc)}</span></span></button>`).join('')}</div>
 <section class="tow-tool" aria-label="Tow vehicle matcher">
 <div class="tow-tool-inner">

@@ -764,3 +764,14 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .back-to-top .progress-ring .ring-bg {
   stroke: rgba(255,255,255,.12);
 }
+
+
+/* Fleet chart — dark mode */
+[data-theme="dark"] .fleet-chart-wrap { border-color: var(--line); }
+[data-theme="dark"] .fleet-chart-toggle { background: var(--surface); }
+[data-theme="dark"] .fc-grid { stroke: var(--line); }
+[data-theme="dark"] .fc-dot--dimmed { opacity: .08; }
+
+/* Card carousel dots — dark mode */
+[data-theme="dark"] .xcard-carousel-dot { background: rgba(255,255,255,.35); }
+[data-theme="dark"] .xcard-carousel-dot.is-active { background: #fff; }

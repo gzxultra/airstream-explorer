@@ -8433,3 +8433,119 @@
     grid.addEventListener('scroll', check, { passive: true });
     check();
   })();
+
+  // =========================================================================
+  // EXPLORE CARD IMAGE CAROUSEL — cycle through gallery images on hover/touch.
+  //     Each .xcard carries data-gallery-urls (pipe-separated, up to 6).
+  //     On mouseenter, dot indicators appear; moving the mouse horizontally
+  //     across the image area selects the corresponding photo. On touch,
+  //     swipe left/right cycles. Leaving the card resets to the first image.
+  // =========================================================================
+  (function cardCarousel() {
+    var grid = document.getElementById('xgrid');
+    if (!grid) return;
+    var cards = grid.querySelectorAll('.xcard[data-gallery-urls]');
+    if (!cards.length) return;
+
+    function setup(card) {
+      var raw = card.getAttribute('data-gallery-urls') || '';
+      if (!raw) return;
+      var urls = raw.split('|').filter(Boolean);
+      if (urls.length < 2) return;
+      var media = card.querySelector('.xcard-media');
+      if (!media) return;
+      var img = media.querySelector('img');
+      if (!img) return;
+      var origSrc = img.src;
+      var current = 0;
+
+      // Build dot indicators
+      var dotsWrap = document.createElement('div');
+      dotsWrap.className = 'xcard-carousel-dots';
+      dotsWrap.setAttribute('aria-hidden', 'true');
+      var dots = [];
+      for (var i = 0; i < Math.min(urls.length, 6); i++) {
+        var dot = document.createElement('span');
+        dot.className = 'xcard-carousel-dot' + (i === 0 ? ' is-active' : '');
+        dotsWrap.appendChild(dot);
+        dots.push(dot);
+      }
+      media.appendChild(dotsWrap);
+
+      function show(idx) {
+        if (idx === current) return;
+        current = idx;
+        img.src = urls[idx];
+        for (var d = 0; d < dots.length; d++) {
+          dots[d].classList.toggle('is-active', d === idx);
+        }
+      }
+
+      function reset() {
+        current = 0;
+        img.src = origSrc;
+        for (var d = 0; d < dots.length; d++) {
+          dots[d].classList.toggle('is-active', d === 0);
+        }
+      }
+
+      // Desktop: mouse position across the image area selects the image
+      media.addEventListener('mousemove', function (e) {
+        var rect = media.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var pct = x / rect.width;
+        var idx = Math.min(dots.length - 1, Math.max(0, Math.floor(pct * dots.length)));
+        show(idx);
+      });
+      media.addEventListener('mouseleave', reset);
+
+      // Touch: swipe left/right
+      var touchStartX = 0;
+      media.addEventListener('touchstart', function (e) {
+        touchStartX = e.touches[0].clientX;
+      }, { passive: true });
+      media.addEventListener('touchend', function (e) {
+        var dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx) < 30) return;
+        if (dx < 0 && current < dots.length - 1) show(current + 1);
+        else if (dx > 0 && current > 0) show(current - 1);
+      }, { passive: true });
+    }
+
+    for (var c = 0; c < cards.length; c++) setup(cards[c]);
+  })();
+
+  // =========================================================================
+  // FLEET CHART SYNC — dim dots in the scatter chart when filters hide cards.
+  //     The chart's <circle> elements carry data-slug matching the grid cards.
+  //     After each filter apply(), toggle a class on non-visible dots.
+  // =========================================================================
+  (function fleetChartSync() {
+    var chart = document.getElementById('fleet-chart');
+    if (!chart) return;
+    var dotEls = chart.querySelectorAll('.fc-dot');
+    if (!dotEls.length) return;
+    var grid = document.getElementById('xgrid');
+    if (!grid) return;
+
+    function sync() {
+      var visible = {};
+      var cards = grid.querySelectorAll('.xcard');
+      for (var i = 0; i < cards.length; i++) {
+        if (!cards[i].hidden) visible[cards[i].getAttribute('data-slug')] = true;
+      }
+      for (var d = 0; d < dotEls.length; d++) {
+        var slug = dotEls[d].getAttribute('data-slug');
+        dotEls[d].classList.toggle('fc-dot--dimmed', !visible[slug]);
+      }
+    }
+
+    // Hook into filter changes by observing the result count element
+    var countEl = document.getElementById('x-count');
+    if (countEl) {
+      var obs = new MutationObserver(sync);
+      obs.observe(countEl, { childList: true, characterData: true, subtree: true });
+    }
+    // Also sync on initial load
+    sync();
+  })();
