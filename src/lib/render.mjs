@@ -294,7 +294,7 @@ function renderBrowseLinks(t) {
   return `<div class="browse-links"><span class="browse-links-label">Browse similar:</span>${links.join('')}</div>`;
 }
 
-function specRow(label, value, { tip = false, unit = null, raw = null, pctData = null, fleetRange = null } = {}) {
+function specRow(label, value, { tip = false, unit = null, raw = null, pctData = null, fleetRange = null, yearDelta = null } = {}) {
   const glossary = tip && SPEC_GLOSSARY[label];
   const dtInner = glossary
     ? `<span class="spec-tip" tabindex="0" aria-label="${esc(label)}: ${esc(glossary)}"><span class="spec-tip-text">${esc(glossary)}</span>${esc(label)}</span>`
@@ -316,7 +316,17 @@ function specRow(label, value, { tip = false, unit = null, raw = null, pctData =
       fleetHtml = `<span class="spec-fleet" aria-label="${esc(label)}: ${pos}th percentile in lineup" title="Fleet position: ${pos}%"><span class="spec-fleet-track"><span class="spec-fleet-fill" style="width:${pos}%"></span><span class="spec-fleet-dot" style="left:${pos}%"></span></span></span>`;
     }
   }
-  return `<div class="spec"><dt>${dtInner}</dt><dd${unitAttr}>${esc(value)}${pctHtml}${fleetHtml}</dd></div>`;
+  // Year-over-year change indicator (2025→2026)
+  let ydHtml = '';
+  if (yearDelta) {
+    const arrow = yearDelta.direction === 'up' ? '↑' : yearDelta.direction === 'down' ? '↓' : '~';
+    const cls = yearDelta.direction === 'up' ? 'spec-yd--up' : yearDelta.direction === 'down' ? 'spec-yd--down' : 'spec-yd--changed';
+    const deltaText = yearDelta.delta != null
+      ? (yearDelta.delta > 0 ? '+' : '') + yearDelta.formatted
+      : 'changed';
+    ydHtml = `<span class="spec-yd ${cls}" title="vs 2025: ${esc(deltaText)}" aria-label="Changed from 2025: ${esc(deltaText)}"><span class="spec-yd-arrow">${arrow}</span><span class="spec-yd-val">${esc(deltaText)}</span></span>`;
+  }
+  return `<div class="spec"><dt>${dtInner}</dt><dd${unitAttr}>${esc(value)}${ydHtml}${pctHtml}${fleetHtml}</dd></div>`;
 }
 
 function tagChips(tags) {
@@ -3669,6 +3679,23 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     : '';
   // Section quick-nav: built from sections present on this page
   const yearDiff = computeYearDiff(t, allTrailers);
+  // Build a quick lookup: spec key → formatted delta for inline indicators
+  const ydMap = {};
+  if (yearDiff) {
+    for (const d of yearDiff.diffs) {
+      let formatted;
+      if (d.delta != null) {
+        if (d.unit === '$') formatted = (d.delta > 0 ? '+' : '-') + '$' + Math.abs(d.delta).toLocaleString('en-US');
+        else if (d.unit === 'lb') formatted = (d.delta > 0 ? '+' : '') + d.delta.toLocaleString('en-US') + ' lb';
+        else if (d.unit === 'ft') formatted = (d.delta > 0 ? '+' : '') + d.delta.toFixed(2) + ' ft';
+        else if (d.unit === 'gal') formatted = (d.delta > 0 ? '+' : '') + d.delta + ' gal';
+        else if (d.unit === 'W') formatted = (d.delta > 0 ? '+' : '') + d.delta + ' W';
+        else if (d.unit === 'kWh') formatted = (d.delta > 0 ? '+' : '') + d.delta + ' kWh';
+        else formatted = (d.delta > 0 ? '+' : '') + d.delta;
+      }
+      ydMap[d.key] = { direction: d.direction, delta: d.delta, formatted: formatted || 'changed' };
+    }
+  }
   const sectionNav = buildSectionNav([
     ['#specs', 'Specs'],
     ['#size-scale', 'Size'],
@@ -3777,21 +3804,21 @@ ${renderRadarChart(t)}
 <section class="spec-table" id="specs" aria-label="Specifications">
 <h2>Specifications</h2>
 <dl class="specs-grid">
-${specRow('Length', formatLength(t.lengthFt), { tip: true, unit: 'length', raw: t.lengthFt, pctData: pctFor('lengthFt'), fleetRange: fleetFor('lengthFt') })}
+${specRow('Length', formatLength(t.lengthFt), { tip: true, unit: 'length', raw: t.lengthFt, pctData: pctFor('lengthFt'), fleetRange: fleetFor('lengthFt'), yearDelta: ydMap.lengthFt })}
 ${specRow('Ext. width', formatDimFt(t.extWidthFt), { tip: true, unit: 'dimft', raw: t.extWidthFt })}
 ${specRow('Ext. height', formatDimFt(t.extHeightFt) + (t.extHeightFt ? ' (with A/C)' : ''), { tip: true, unit: 'dimft', raw: t.extHeightFt })}
 ${specRow('Interior height', formatDimFt(t.intHeightFt) + (t.intHeightFt ? ' (with A/C)' : ''), { tip: true, unit: 'dimft', raw: t.intHeightFt })}
-${specRow('Dry weight', formatWeight(t.weightLb), { tip: true, unit: 'weight', raw: t.weightLb, pctData: pctFor('weightLb'), fleetRange: fleetFor('weightLb') })}
-${specRow('GVWR', formatWeight(t.gvwrLb), { tip: true, unit: 'weight', raw: t.gvwrLb, fleetRange: fleetFor('gvwrLb') })}
-${specRow('Cargo capacity (CCC)', formatWeight(t.cccLb), { tip: true, unit: 'weight', raw: t.cccLb, pctData: pctFor('cccLb'), fleetRange: fleetFor('cccLb') })}
-${specRow('Hitch weight', formatWeight(t.hitchWeightLb), { tip: true, unit: 'weight', raw: t.hitchWeightLb, pctData: pctFor('hitchWeightLb'), fleetRange: fleetFor('hitchWeightLb') })}
-${specRow('Sleeps', String(t.sleeps), { tip: true, fleetRange: fleetFor('sleeps') })}
+${specRow('Dry weight', formatWeight(t.weightLb), { tip: true, unit: 'weight', raw: t.weightLb, pctData: pctFor('weightLb'), fleetRange: fleetFor('weightLb'), yearDelta: ydMap.weightLb })}
+${specRow('GVWR', formatWeight(t.gvwrLb), { tip: true, unit: 'weight', raw: t.gvwrLb, fleetRange: fleetFor('gvwrLb'), yearDelta: ydMap.gvwrLb })}
+${specRow('Cargo capacity (CCC)', formatWeight(t.cccLb), { tip: true, unit: 'weight', raw: t.cccLb, pctData: pctFor('cccLb'), fleetRange: fleetFor('cccLb'), yearDelta: ydMap.cccLb })}
+${specRow('Hitch weight', formatWeight(t.hitchWeightLb), { tip: true, unit: 'weight', raw: t.hitchWeightLb, pctData: pctFor('hitchWeightLb'), fleetRange: fleetFor('hitchWeightLb'), yearDelta: ydMap.hitchWeightLb })}
+${specRow('Sleeps', String(t.sleeps), { tip: true, fleetRange: fleetFor('sleeps'), yearDelta: ydMap.sleeps })}
 ${specRow('Axle', deriveAxle(t) === 'single' ? 'Single axle' : deriveAxle(t) === 'dual' ? 'Dual axle' : '—', { tip: true })}
 ${specRow('Fresh / gray / black', formatTanks(t.freshGal, t.grayGal, t.blackGal), { tip: true, unit: 'tanks', raw: [t.freshGal, t.grayGal, t.blackGal].join(',') })}
 ${specRow('Solar', t.solarW ? `${t.solarW} W ${t.solarStandard ? '(standard)' : '(optional)'}` : '—', { tip: true })}
 ${specRow('Battery', t.batteryKwh ? `${t.batteryKwh} kWh` : '—', { tip: true })}
-${specRow('Off-grid score', `${t.offGridScore} / 100`, { tip: true, pctData: pctFor('offGridScore'), fleetRange: fleetFor('offGridScore') })}
-${specRow('MSRP', formatMsrp(t.msrp), { tip: true, pctData: pctFor('msrp'), fleetRange: fleetFor('msrp') })}
+${specRow('Off-grid score', `${t.offGridScore} / 100`, { tip: true, pctData: pctFor('offGridScore'), fleetRange: fleetFor('offGridScore'), yearDelta: ydMap.offGridScore })}
+${specRow('MSRP', formatMsrp(t.msrp), { tip: true, pctData: pctFor('msrp'), fleetRange: fleetFor('msrp'), yearDelta: ydMap.msrp })}
 </dl>
 ${note}
 ${renderBrowseLinks(t)}

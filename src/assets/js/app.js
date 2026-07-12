@@ -5646,20 +5646,50 @@
   (function backToTop() {
     var btn = document.getElementById('back-to-top');
     if (!btn) return;
+    // Inject SVG progress ring around the button content
+    var R = 18, C = 2 * Math.PI * R;
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'progress-ring');
+    svg.setAttribute('viewBox', '0 0 44 44');
+    svg.setAttribute('aria-hidden', 'true');
+    var bg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    bg.setAttribute('class', 'ring-bg');
+    bg.setAttribute('cx', '22'); bg.setAttribute('cy', '22'); bg.setAttribute('r', String(R));
+    var fg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    fg.setAttribute('class', 'ring-fg');
+    fg.setAttribute('cx', '22'); fg.setAttribute('cy', '22'); fg.setAttribute('r', String(R));
+    fg.style.strokeDasharray = C;
+    fg.style.strokeDashoffset = C;
+    svg.appendChild(bg);
+    svg.appendChild(fg);
+    btn.appendChild(svg);
+
     var visible = false;
-    function check() {
-      var show = window.scrollY > 400;
+    var ticking = false;
+    function update() {
+      var scrollY = window.scrollY;
+      var docH = document.documentElement.scrollHeight - window.innerHeight;
+      // Show/hide
+      var show = scrollY > 400;
       if (show !== visible) {
         visible = show;
         btn.classList.toggle('is-visible', show);
         btn.removeAttribute('hidden');
       }
+      // Update ring progress
+      if (docH > 0) {
+        var pct = Math.min(scrollY / docH, 1);
+        fg.style.strokeDashoffset = String(C * (1 - pct));
+      }
+      ticking = false;
     }
-    window.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
     btn.addEventListener('click', function () {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-    check();
+    update();
   })();
 
   // =========================================================================
@@ -8334,4 +8364,72 @@
       }
       exploreSelect.addEventListener('change', function () { save(this.value); });
     }
+  })();
+
+  // =========================================================================
+  // SAVED BADGES ON EXPLORE CARDS — show a heart indicator on cards the user
+  //     already saved, so the shortlist is visible while browsing.
+  // =========================================================================
+  (function savedBadgesOnCards() {
+    var savedRaw;
+    try { savedRaw = JSON.parse(localStorage.getItem('ae:saved')); } catch(e) { return; }
+    if (!Array.isArray(savedRaw) || !savedRaw.length) return;
+    var savedSlugs = {};
+    savedRaw.forEach(function (s) {
+      if (s && s.slug) savedSlugs[s.slug] = true;
+    });
+    function syncBadges() {
+      var cards = document.querySelectorAll('.xcard[data-slug]');
+      for (var i = 0; i < cards.length; i++) {
+        var slug = cards[i].getAttribute('data-slug');
+        var media = cards[i].querySelector('.xcard-media');
+        if (!media) continue;
+        var existing = media.querySelector('.xcard-saved-badge');
+        if (savedSlugs[slug] && !existing) {
+          var badge = document.createElement('span');
+          badge.className = 'xcard-saved-badge';
+          badge.setAttribute('aria-label', 'Saved');
+          badge.textContent = '\u2665';
+          media.appendChild(badge);
+        } else if (!savedSlugs[slug] && existing) {
+          existing.remove();
+        }
+      }
+    }
+    syncBadges();
+    // Re-sync when save state changes (listen for storage events + custom events)
+    window.addEventListener('storage', function (e) {
+      if (e.key === 'ae:saved') {
+        try {
+          var updated = JSON.parse(e.newValue);
+          savedSlugs = {};
+          if (Array.isArray(updated)) updated.forEach(function (s) { if (s && s.slug) savedSlugs[s.slug] = true; });
+        } catch(err) {}
+        syncBadges();
+      }
+    });
+    // Also listen for the custom ae:save-change event dispatched by the save module
+    document.addEventListener('ae:save-change', function () {
+      try {
+        var fresh = JSON.parse(localStorage.getItem('ae:saved'));
+        savedSlugs = {};
+        if (Array.isArray(fresh)) fresh.forEach(function (s) { if (s && s.slug) savedSlugs[s.slug] = true; });
+      } catch(err) {}
+      syncBadges();
+    });
+  })();
+
+  // =========================================================================
+  // RELATED CAROUSEL — detect scroll-end to remove fade hint
+  // =========================================================================
+  (function relatedScroll() {
+    var section = document.querySelector('.related');
+    var grid = section && section.querySelector('.related-grid');
+    if (!grid) return;
+    function check() {
+      var atEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 8;
+      section.classList.toggle('is-scrolled-end', atEnd);
+    }
+    grid.addEventListener('scroll', check, { passive: true });
+    check();
   })();

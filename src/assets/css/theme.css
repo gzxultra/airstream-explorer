@@ -743,3 +743,24 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .glossary-toc-link { background: var(--surface); border-color: var(--line); }
 [data-theme="dark"] .glossary-toc-link:hover { border-color: var(--copper); }
 [data-theme="dark"] .glossary-term { border-color: var(--line); }
+
+/* Year-over-year deltas in dark mode */
+[data-theme="dark"] .spec-yd--up { background: rgba(239,83,80,.15); color: #ef9a9a; }
+[data-theme="dark"] .spec-yd--down { background: rgba(76,175,80,.15); color: #a5d6a7; }
+[data-theme="dark"] .spec-yd--changed { background: rgba(255,255,255,.08); color: var(--muted); }
+
+/* Saved badge on explore cards — dark mode */
+[data-theme="dark"] .xcard-saved-badge {
+  background: rgba(30,30,30,.88);
+  box-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+
+/* Related section scroll fade — dark mode */
+[data-theme="dark"] .related::after {
+  background: linear-gradient(to right, transparent, var(--bg, #1a1714));
+}
+
+/* Progress ring — dark mode */
+[data-theme="dark"] .back-to-top .progress-ring .ring-bg {
+  stroke: rgba(255,255,255,.12);
+}

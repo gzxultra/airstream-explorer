@@ -2489,13 +2489,15 @@ html { scroll-behavior: smooth; }
 /* --- Related floorplans --- */
 .related { margin-top: 48px; padding-top: 40px; border-top: 1px solid var(--line, #E8E4DE); }
 .related h2 { font: 700 24px/1.2 "Fraunces", Georgia, serif; color: var(--ink, #1F1B16); margin: 0 0 20px; }
-.related-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.related-grid { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; padding-bottom: 8px; scrollbar-width: thin; }
 .rel-card {
   display: flex; flex-direction: column; text-decoration: none; color: inherit;
   border-radius: 12px; overflow: hidden;
   background: var(--card, #fff);
   box-shadow: 0 1px 4px rgba(0,0,0,.06);
   transition: transform .18s ease, box-shadow .18s ease;
+  scroll-snap-align: start;
+  flex: 0 0 260px; min-width: 220px;
 }
 .rel-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,.10); }
 .rel-media { aspect-ratio: 400/260; overflow: hidden; background: var(--surface, #F5F2ED); }
@@ -2505,8 +2507,8 @@ html { scroll-behavior: smooth; }
 .rel-title { font: 600 15px/1.3 "DM Sans", system-ui, sans-serif; margin: 0 0 4px; color: var(--ink, #1F1B16); }
 .rel-title span { color: var(--copper, #B8763E); }
 .rel-specs { font-size: 13px; color: var(--muted, #8C8580); margin: 0; }
-@media (max-width: 900px) { .related-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 560px) { .related-grid { grid-template-columns: 1fr 1fr; gap: 12px; } .rel-body { padding: 8px 10px 10px; } .rel-title { font-size: 14px; } .rel-specs { font-size: 12px; } }
+@media (max-width: 900px) { .related-grid { gap: 14px; } }
+@media (max-width: 560px) { .related-grid { gap: 12px; } .rel-body { padding: 8px 10px 10px; } .rel-title { font-size: 14px; } .rel-specs { font-size: 12px; } }
 @media (prefers-reduced-motion: reduce) { .rel-card, .rel-media img { transition: none; } }
 
 /* ---- Print-optimized detail spec sheet ---- */
@@ -5984,3 +5986,86 @@ h2:hover .section-anchor,
   text-decoration: none; margin-left: .3rem;
 }
 .glossary-link:hover { text-decoration: underline; }
+
+/* ===================================================================
+   SPEC YEAR-OVER-YEAR CHANGE INDICATORS — inline ↑/↓ on spec values
+   =================================================================== */
+.spec-yd {
+  display: inline-flex; align-items: center; gap: 2px;
+  font-size: .68rem; font-weight: 600; letter-spacing: .01em;
+  padding: 1px 5px; border-radius: 3px; margin-left: 6px;
+  white-space: nowrap; vertical-align: middle; line-height: 1.4;
+  cursor: help;
+}
+.spec-yd--up { background: rgba(183,28,28,.08); color: #b71c1c; }
+.spec-yd--down { background: rgba(46,125,50,.08); color: #2e7d32; }
+.spec-yd--changed { background: rgba(33,33,33,.06); color: var(--muted, #888); }
+/* Weight/price going down is good (green); going up is cautionary (red).
+   But for CCC/solar/battery, up is good. The data already has direction
+   and the labels are self-documenting, so the color conveys "change
+   happened" and the arrow + value tells the user what to think. */
+.spec-yd-arrow { font-size: .8em; }
+.spec-yd-val { font-variant-numeric: tabular-nums; }
+@media print { .spec-yd { display: none !important; } }
+
+/* ===================================================================
+   PROGRESS RING — back-to-top button with circular scroll progress
+   =================================================================== */
+.back-to-top {
+  position: relative;
+}
+.back-to-top .progress-ring {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+.back-to-top .progress-ring circle {
+  fill: none;
+  stroke-width: 2.5;
+}
+.back-to-top .progress-ring .ring-bg {
+  stroke: color-mix(in srgb, var(--line, #e0d8cf) 50%, transparent);
+}
+.back-to-top .progress-ring .ring-fg {
+  stroke: var(--copper, #b87333);
+  stroke-linecap: round;
+  transition: stroke-dashoffset .15s ease-out;
+}
+
+/* ===================================================================
+   SAVED INDICATOR ON EXPLORE CARDS — heart badge on saved cards
+   =================================================================== */
+.xcard-saved-badge {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  color: #c0392b; font-size: 14px; line-height: 1;
+  box-shadow: 0 1px 4px rgba(0,0,0,.12);
+  pointer-events: none;
+  animation: saved-pop .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes saved-pop {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.xcard-media { position: relative; }
+
+/* ===================================================================
+   RELATED TRAILERS — horizontal scroll carousel
+   =================================================================== */
+.related-grid::-webkit-scrollbar { height: 4px; }
+.related-grid::-webkit-scrollbar-thumb { background: var(--line, #e0d8cf); border-radius: 2px; }
+@media (max-width: 700px) {
+  .rel-card { flex: 0 0 220px; min-width: 180px; }
+}
+/* Scroll fade hints */
+.related { position: relative; }
+.related::after {
+  content: ''; position: absolute; top: 0; right: 0; bottom: 8px;
+  width: 48px; pointer-events: none;
+  background: linear-gradient(to right, transparent, var(--bg, #faf8f5));
+}
+.related.is-scrolled-end::after { opacity: 0; transition: opacity .3s; }
