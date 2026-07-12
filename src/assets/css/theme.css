@@ -311,6 +311,15 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .qv-close:hover { background: rgba(50,46,42,0.95); }
 [data-theme="dark"] .qv-nav { background: rgba(40,36,32,0.9); color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 [data-theme="dark"] .qv-nav:hover { background: rgba(50,46,42,0.95); box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+[data-theme="dark"] .qv-save-btn { border-color: var(--line); color: var(--ink); }
+[data-theme="dark"] .qv-save-btn:hover { border-color: var(--copper); color: var(--copper); }
+[data-theme="dark"] .qv-save-btn.is-saved { border-color: var(--copper); color: var(--copper); background: color-mix(in srgb, var(--copper) 12%, transparent); }
+[data-theme="dark"] .qv-compare-label { color: var(--muted); }
+[data-theme="dark"] .qv-compare-label:hover { color: var(--ink); }
+[data-theme="dark"] .qv-gallery-strip::-webkit-scrollbar-thumb { background: var(--line); }
+[data-theme="dark"] .qv-gallery-thumb { opacity: 0.6; }
+[data-theme="dark"] .qv-gallery-thumb:hover { opacity: 0.9; }
+[data-theme="dark"] .qv-gallery-thumb.is-active { opacity: 1; }
 [data-theme="dark"] .cn-fee-preset { border-color: var(--line); color: var(--muted); }
 [data-theme="dark"] .cn-fee-preset:hover { border-color: var(--copper); color: var(--ink); }
 [data-theme="dark"] .cn-fee-preset.is-active { background: var(--copper); border-color: var(--copper); color: #fff; }

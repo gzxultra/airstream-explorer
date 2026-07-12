@@ -4893,6 +4893,77 @@
   })();
 
   // =========================================================================
+  // 9d-1. EXPAND ALL / COLLAPSE ALL — toggle button in section nav
+  // =========================================================================
+  (function expandCollapseAll() {
+    var btn = document.getElementById('secnav-expand-all');
+    if (!btn) return;
+    var detail = document.querySelector('.detail');
+    if (!detail) return;
+
+    var allExpanded = false;
+
+    function getCollapsibleSections() {
+      return Array.prototype.slice.call(detail.querySelectorAll('section[data-collapsible]'));
+    }
+
+    function updateState() {
+      var sections = getCollapsibleSections();
+      if (!sections.length) return;
+      var collapsedCount = 0;
+      for (var i = 0; i < sections.length; i++) {
+        if (sections[i].classList.contains('is-collapsed')) collapsedCount++;
+      }
+      allExpanded = collapsedCount === 0;
+      btn.classList.toggle('is-expanded', allExpanded);
+      btn.setAttribute('aria-label', allExpanded ? 'Collapse all sections' : 'Expand all sections');
+      btn.setAttribute('title', allExpanded ? 'Collapse all sections' : 'Expand all sections');
+    }
+
+    btn.addEventListener('click', function () {
+      var sections = getCollapsibleSections();
+      var shouldExpand = !allExpanded;
+      var STORE_KEY = 'ae:collapsed';
+      var collapsed;
+      try { collapsed = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { collapsed = {}; }
+
+      for (var i = 0; i < sections.length; i++) {
+        var section = sections[i];
+        var id = section.id;
+        var heading = section.querySelector('[role="button"][aria-expanded]');
+        var body = section.querySelector('.section-collapse-body');
+        if (!heading || !body) continue;
+
+        if (shouldExpand && section.classList.contains('is-collapsed')) {
+          section.classList.remove('is-collapsed');
+          heading.setAttribute('aria-expanded', 'true');
+          body.style.maxHeight = body.scrollHeight + 'px';
+          setTimeout((function (b) { return function () { b.style.maxHeight = 'none'; }; })(body), 350);
+          if (id) delete collapsed[id];
+        } else if (!shouldExpand && !section.classList.contains('is-collapsed')) {
+          body.style.maxHeight = body.scrollHeight + 'px';
+          void body.offsetHeight;
+          section.classList.add('is-collapsed');
+          heading.setAttribute('aria-expanded', 'false');
+          body.style.maxHeight = '0';
+          if (id) collapsed[id] = true;
+        }
+      }
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(collapsed)); } catch (e) {}
+      updateState();
+    });
+
+    // Delay initial state check to let collapsible sections initialize
+    setTimeout(updateState, 100);
+    // Also update when individual sections are toggled
+    detail.addEventListener('click', function (e) {
+      if (e.target.closest('[role="button"][aria-expanded]')) {
+        setTimeout(updateState, 50);
+      }
+    });
+  })();
+
+  // =========================================================================
   // 9d-b. SPEC ROW TAP-TO-COPY — click a spec row to copy value to clipboard
   // =========================================================================
   (function specCopy() {
@@ -6068,6 +6139,10 @@
     var descEl = document.getElementById('qv-desc');
     var specsEl = document.getElementById('qv-specs');
     var linkEl = document.getElementById('qv-detail-link');
+    var saveBtn = document.getElementById('qv-save');
+    var saveLabel = document.getElementById('qv-save-label');
+    var compareBox = document.getElementById('qv-compare');
+    var galleryEl = document.getElementById('qv-gallery');
     var prevBtn = document.getElementById('qv-prev');
     var nextBtn = document.getElementById('qv-next');
     var counterEl = document.getElementById('qv-counter');
@@ -6125,6 +6200,48 @@
         return '<div class="qv-spec-item"><span class="qv-spec-label">' + s[0] + '</span><span class="qv-spec-value">' + s[1] + '</span></div>';
       }).join('');
 
+      // Sync save button state
+      if (saveBtn && saveLabel) {
+        var isSaved = Saved.has(d.slug);
+        saveBtn.classList.toggle('is-saved', isSaved);
+        saveLabel.textContent = isSaved ? 'Saved' : 'Save';
+        saveBtn.setAttribute('data-slug', d.slug);
+        saveBtn.setAttribute('data-type', type);
+      }
+
+      // Sync compare checkbox state
+      if (compareBox) {
+        var cmpBoxes = document.querySelectorAll('.cmp-box[data-slug="' + d.slug + '"]');
+        var isCompared = false;
+        for (var ci = 0; ci < cmpBoxes.length; ci++) {
+          if (cmpBoxes[ci].checked) { isCompared = true; break; }
+        }
+        compareBox.checked = isCompared;
+        compareBox.setAttribute('data-slug', d.slug);
+        compareBox.setAttribute('data-type', type);
+      }
+
+      // Gallery thumbnail strip
+      if (galleryEl) {
+        var galleryImgs = card.querySelectorAll('.xcard-gallery-data img, [data-gallery-urls]');
+        // Try to find gallery URLs from the card's detail page link pattern
+        var dir = type === 'motorhome' ? 'mm' : 'm';
+        var thumbSrc = d.thumb || '';
+        // Build gallery from the card's known gallery data attribute
+        var galleryUrls = d.galleryUrls ? d.galleryUrls.split('|') : [];
+        if (galleryUrls.length > 0) {
+          var html = '';
+          for (var gi = 0; gi < galleryUrls.length; gi++) {
+            html += '<img class="qv-gallery-thumb' + (gi === 0 ? ' is-active' : '') + '" src="' + galleryUrls[gi] + '" alt="Photo ' + (gi + 1) + '" loading="lazy" width="72" height="48">';
+          }
+          galleryEl.innerHTML = html;
+          galleryEl.removeAttribute('hidden');
+        } else {
+          galleryEl.innerHTML = '';
+          galleryEl.setAttribute('hidden', '');
+        }
+      }
+
       currentCard = card;
       updateNav();
     }
@@ -6169,6 +6286,52 @@
 
     if (prevBtn) prevBtn.addEventListener('click', function () { go(-1); });
     if (nextBtn) nextBtn.addEventListener('click', function () { go(1); });
+
+    // Quick-view save button
+    if (saveBtn) {
+      saveBtn.addEventListener('click', function () {
+        var slug = saveBtn.getAttribute('data-slug');
+        var type = saveBtn.getAttribute('data-type') || 'trailer';
+        if (!slug) return;
+        if (Saved.has(slug)) {
+          Saved.remove(slug);
+          saveBtn.classList.remove('is-saved');
+          saveLabel.textContent = 'Save';
+        } else {
+          Saved.add(slug, type);
+          saveBtn.classList.add('is-saved');
+          saveLabel.textContent = 'Saved';
+        }
+      });
+    }
+
+    // Quick-view compare checkbox
+    if (compareBox) {
+      compareBox.addEventListener('change', function () {
+        var slug = compareBox.getAttribute('data-slug');
+        if (!slug) return;
+        // Sync with the main grid's compare checkboxes
+        var boxes = document.querySelectorAll('.cmp-box[data-slug="' + slug + '"]');
+        for (var bi = 0; bi < boxes.length; bi++) {
+          if (boxes[bi].checked !== compareBox.checked) {
+            boxes[bi].checked = compareBox.checked;
+            boxes[bi].dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }
+      });
+    }
+
+    // Gallery thumbnail clicks swap main image
+    if (galleryEl) {
+      galleryEl.addEventListener('click', function (e) {
+        var thumb = e.target.closest('.qv-gallery-thumb');
+        if (!thumb) return;
+        img.src = thumb.src;
+        var active = galleryEl.querySelector('.is-active');
+        if (active) active.classList.remove('is-active');
+        thumb.classList.add('is-active');
+      });
+    }
 
     // Delegate click on all peek buttons
     document.addEventListener('click', function (e) {

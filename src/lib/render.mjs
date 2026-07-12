@@ -163,7 +163,7 @@ ${body}
 <button type="button" class="qv-nav qv-nav--prev" id="qv-prev" aria-label="Previous floorplan"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 19 8 12 15 5"></polyline></svg></button>
 <button type="button" class="qv-nav qv-nav--next" id="qv-next" aria-label="Next floorplan"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 5 16 12 9 19"></polyline></svg></button>
 <div class="qv-counter" id="qv-counter" aria-hidden="true"></div>
-<div class="qv-media"><img class="qv-img" id="qv-img" alt="" width="400" height="260"></div>
+<div class="qv-media"><img class="qv-img" id="qv-img" alt="" width="400" height="260"><div class="qv-gallery-strip" id="qv-gallery" hidden></div></div>
 <div class="qv-body">
 <p class="qv-year" id="qv-year"></p>
 <h3 class="qv-title" id="qv-title"></h3>
@@ -171,6 +171,8 @@ ${body}
 <dl class="qv-specs" id="qv-specs"></dl>
 <div class="qv-actions">
 <a class="qv-detail-btn" id="qv-detail-link" href="#">View full details →</a>
+<button type="button" class="qv-save-btn" id="qv-save" aria-label="Save"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"></path></svg> <span id="qv-save-label">Save</span></button>
+<label class="qv-compare-label"><input type="checkbox" class="qv-compare-box" id="qv-compare"> Compare</label>
 </div>
 </div>
 </div>
@@ -1434,7 +1436,7 @@ function buildSectionNav(items) {
   if (items.length < 2) return '';
   const links = items.map(([href, label]) =>
     `<a href="${href}" class="secnav-link">${esc(label)}</a>`).join('');
-  return `<nav class="secnav" aria-label="Page sections" data-secnav>${links}</nav>`;
+  return `<nav class="secnav" aria-label="Page sections" data-secnav>${links}<button type="button" class="secnav-expand-all" id="secnav-expand-all" aria-label="Expand all sections" title="Expand all sections"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 13 12 18 17 13"></polyline><polyline points="7 6 12 11 17 6"></polyline></svg></button></nav>`;
 }
 
 /** Build a plain-text spec summary for clipboard copy. */
@@ -3541,10 +3543,11 @@ export function renderExploreCard(t, resolve = assetPaths, hidden = false, range
   const a = resolve(t);
   const tags = (t.tags || []).join(' ');
   const layout = deriveLayoutFeatures(t).join(' ');
+  const galleryUrls = a.gallery && a.gallery.length ? a.gallery.slice(0, 6).join('|') : '';
   const fleetBadgeHtml = fleetBadges.length
     ? `<div class="xcard-fleet-badges">${fleetBadges.map((b) => `<span class="fleet-badge fleet-badge--${esc(b.cls)}"><span class="fleet-badge-icon" aria-hidden="true">${b.icon}</span>${esc(b.label)}</span>`).join('')}</div>`
     : '';
-  return `<article class="xcard" data-slug="${esc(t.slug)}" data-type="trailer" data-model="${esc(t.model)}" data-floorplan="${esc(t.floorplan)}" data-year="${esc(t.year)}" data-msrp="${esc(t.msrp)}" data-weight="${esc(t.weightLb)}" data-gvwr="${esc(t.gvwrLb)}" data-length="${esc(t.lengthFt)}" data-sleeps="${esc(t.sleeps)}" data-offgrid="${esc(t.offGridScore)}" data-tags="${esc(tags)}" data-layout="${esc(layout)}" data-name="${esc((t.model + ' ' + t.floorplan).toLowerCase())}" data-ccc="${esc(t.cccLb || '')}" data-fresh="${esc(t.freshGal || '')}" data-gray="${esc(t.grayGal || '')}" data-black="${esc(t.blackGal || '')}" data-solar="${esc(t.solarW || '')}" data-hitch="${esc(t.hitchWeightLb || '')}" data-axle="${esc(deriveAxle(t) || '')}" data-desc="${esc(t.description || '')}" data-thumb="${esc(a.thumb || '')}"${hidden ? ' hidden' : ''}>
+  return `<article class="xcard" data-slug="${esc(t.slug)}" data-type="trailer" data-model="${esc(t.model)}" data-floorplan="${esc(t.floorplan)}" data-year="${esc(t.year)}" data-msrp="${esc(t.msrp)}" data-weight="${esc(t.weightLb)}" data-gvwr="${esc(t.gvwrLb)}" data-length="${esc(t.lengthFt)}" data-sleeps="${esc(t.sleeps)}" data-offgrid="${esc(t.offGridScore)}" data-tags="${esc(tags)}" data-layout="${esc(layout)}" data-name="${esc((t.model + ' ' + t.floorplan).toLowerCase())}" data-ccc="${esc(t.cccLb || '')}" data-fresh="${esc(t.freshGal || '')}" data-gray="${esc(t.grayGal || '')}" data-black="${esc(t.blackGal || '')}" data-solar="${esc(t.solarW || '')}" data-hitch="${esc(t.hitchWeightLb || '')}" data-axle="${esc(deriveAxle(t) || '')}" data-desc="${esc(t.description || '')}" data-thumb="${esc(a.thumb || '')}" data-gallery-urls="${esc(galleryUrls)}"${hidden ? ' hidden' : ''}>
 <a class="xcard-link" href="m/${esc(t.slug)}.html">
 <div class="xcard-media">
 <img src="${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="400" height="260">
