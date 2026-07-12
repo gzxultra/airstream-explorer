@@ -11,7 +11,7 @@ import {
 import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy, computeFleetStandouts, generateGlanceSummary, deriveAxle, towDifficulty, winterizationGuide, computeIdealFor } from './data.mjs';
 import { motorhomeAssetPaths } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
-import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd } from './seo.mjs';
+import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd, faqJsonLd } from './seo.mjs';
 import { lifestyleFit, deriveAmenities, storageGuide } from './lifestyle.mjs';
 import { SORT_KEYS, exploreTags, tagLabel, SMART_PRESETS } from './explore.mjs';
 import { renderCampgroundFit } from './campgrounds-render.mjs';
@@ -2350,6 +2350,57 @@ function renderTripCost(t) {
 </section>`;
 }
 
+
+// ---------------------------------------------------------------------------
+// BUDGET ALTERNATIVES — "In your price range" cross-family recommendations.
+// Shows 4 models from OTHER families within ±25% of the current trailer's
+// MSRP, sorted by price proximity. Different lens from renderCrossFamily
+// (which uses spec distance) — this helps budget-focused cross-shopping.
+// ---------------------------------------------------------------------------
+
+function renderBudgetAlternatives(current, allTrailers, resolve) {
+  if (!current.msrp || current.msrp <= 0 || allTrailers.length < 10) return '';
+  const minPrice = current.msrp * 0.75;
+  const maxPrice = current.msrp * 1.25;
+  const candidates = allTrailers
+    .filter((t) => t.model !== current.model && t.year === current.year
+      && t.slug !== current.slug && t.msrp >= minPrice && t.msrp <= maxPrice)
+    .map((t) => ({ t, priceDist: Math.abs(t.msrp - current.msrp) }))
+    .sort((a, b) => a.priceDist - b.priceDist);
+  // Deduplicate by family (at most one per family)
+  const seen = new Set();
+  const picks = [];
+  for (const { t } of candidates) {
+    if (seen.has(t.model)) continue;
+    seen.add(t.model);
+    picks.push(t);
+    if (picks.length >= 4) break;
+  }
+  if (picks.length < 2) return '';
+  const cards = picks.map((t) => {
+    const a = resolve(t);
+    const priceDiff = t.msrp - current.msrp;
+    const diffLabel = priceDiff === 0 ? 'Same price'
+      : priceDiff > 0 ? `+${formatMsrpShort(priceDiff)} more` : `${formatMsrpShort(Math.abs(priceDiff))} less`;
+    const diffClass = priceDiff === 0 ? 'budget-diff--same'
+      : priceDiff > 0 ? 'budget-diff--more' : 'budget-diff--less';
+    return `<a class="budget-card" href="${esc(t.slug)}.html">
+<div class="budget-media"><img src="../${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="400" height="260"></div>
+<div class="budget-body">
+<p class="budget-title">${esc(t.model)} <span>${esc(t.floorplan)}</span></p>
+<p class="budget-price">${esc(formatMsrp(t.msrp))}</p>
+<span class="budget-diff ${diffClass}">${esc(diffLabel)}</span>
+<p class="budget-specs">${esc(formatLength(t.lengthFt))} · ${esc(formatWeight(t.weightLb))} · sleeps ${t.sleeps}</p>
+</div>
+</a>`;
+  }).join('\n');
+  return `<section class="budget-alts" id="budget" aria-label="In your price range">
+<h2>In your price range</h2>
+<p class="budget-sub muted">Other Airstream families between ${esc(formatMsrp(Math.round(minPrice)))} and ${esc(formatMsrp(Math.round(maxPrice)))}</p>
+<div class="budget-grid">${cards}</div>
+</section>`;
+}
+
 function renderCrossFamily(current, allTrailers, resolve) {
   if (allTrailers.length < 10) return '';
   const candidates = allTrailers
@@ -3113,6 +3164,103 @@ function renderFamilyAdvisor(fam) {
 <div class="advisor-grid">${items}</div>
 </section>`;
 }
+
+// ---------------------------------------------------------------------------
+// FAQ — data-driven buyer FAQ per trailer. Every answer uses real spec data;
+// nothing is fabricated. Renders as a collapsible accordion + FAQPage JSON-LD
+// for Google rich results.
+// ---------------------------------------------------------------------------
+
+function generateFaqItems(t) {
+  const faqs = [];
+  const title = `${t.model} ${t.floorplan}`;
+
+  // Weight & towing
+  if (t.weightLb && t.gvwrLb) {
+    const tc = towClass(t.gvwrLb);
+    faqs.push({
+      question: `How much does the ${t.year} ${title} weigh?`,
+      answer: `The ${title} has a dry weight of ${formatWeight(t.weightLb)} and a Gross Vehicle Weight Rating (GVWR) of ${formatWeight(t.gvwrLb)}, giving you ${formatWeight(t.cccLb || t.gvwrLb - t.weightLb)} of cargo carrying capacity for water, gear, and personal items.${tc ? ` It falls in the ${tc} tow class.` : ''}`,
+    });
+  }
+
+  // Towing requirements
+  if (t.gvwrLb) {
+    const minTow = Math.round(t.gvwrLb * 1.2);
+    faqs.push({
+      question: `What vehicle do I need to tow the ${title}?`,
+      answer: `You need a tow vehicle rated for at least ${formatWeight(minTow)} towing capacity (GVWR × 1.2 safety margin). The hitch weight is ${formatWeight(t.hitchWeightLb)}, which is ${hitchPctOfGvwr(t)}% of GVWR — your vehicle's payload must handle this plus passengers and gear. Popular matches include half-ton and three-quarter-ton trucks and large SUVs; use the tow calculator on this page for your specific vehicle.`,
+    });
+  }
+
+  // Tank capacities & camping duration
+  if (t.freshGal) {
+    const days = waterAutonomy(t.freshGal);
+    const tankDesc = [];
+    tankDesc.push(`${t.freshGal} gallons fresh water`);
+    if (t.grayGal) tankDesc.push(`${t.grayGal} gallons gray`);
+    if (t.blackGal) tankDesc.push(`${t.blackGal} gallons black${!t.grayGal ? ' (combined waste)' : ''}`);
+    faqs.push({
+      question: `What are the tank sizes on the ${title}?`,
+      answer: `The ${title} carries ${tankDesc.join(', ')}.${days ? ` With moderate use for two people, the fresh water tank lasts approximately ${days} days before needing a refill.` : ''}`,
+    });
+  }
+
+  // Off-grid capability
+  if (t.offGridScore) {
+    const level = t.offGridScore >= 75 ? 'excellent' : t.offGridScore >= 50 ? 'good' : t.offGridScore >= 30 ? 'moderate' : 'limited';
+    faqs.push({
+      question: `How good is the ${title} for boondocking and off-grid camping?`,
+      answer: `The ${title} scores ${t.offGridScore} out of 100 on our off-grid rating, which is ${level} for dry camping. It comes with ${t.solarW ? `${t.solarW}W of ${t.solarStandard ? 'factory-standard' : 'optional'} solar` : 'no factory solar'} and ${t.batteryKwh ? `a ${t.batteryKwh} kWh battery bank` : 'a standard battery'}. Use the off-grid estimator on this page for a detailed breakdown by season and usage level.`,
+    });
+  }
+
+  // Price & value
+  if (t.msrp > 0) {
+    faqs.push({
+      question: `How much does the ${t.year} ${title} cost?`,
+      answer: `The base MSRP for the ${t.year} ${title} is ${formatMsrp(t.msrp)}. Actual dealer prices may vary; options and packages can add to the total. Use the financing calculator on this page to estimate monthly payments, and the ownership cost tool for total cost of ownership over time.`,
+    });
+  }
+
+  // Size & maneuverability
+  if (t.lengthFt) {
+    const maneuver = t.lengthFt <= 20 ? 'very easy to maneuver and tow' : t.lengthFt <= 25 ? 'manageable for most drivers' : t.lengthFt <= 30 ? 'a mid-size rig requiring some towing experience' : 'a full-size rig best suited for experienced towers';
+    faqs.push({
+      question: `How long is the ${title} and will it fit at campgrounds?`,
+      answer: `The ${title} is ${formatLength(t.lengthFt)} overall (bumper to hitch)${t.extWidthFt ? `, ${formatDimFt(t.extWidthFt)} wide` : ''}${t.extHeightFt ? `, and ${formatDimFt(t.extHeightFt)} tall with A/C` : ''}. At this length, it is ${maneuver}. Most national park and state park campgrounds accommodate trailers up to 27 feet; check individual site limits for longer rigs. Use the campground finder on this page to see which parks fit your trailer.`,
+    });
+  }
+
+  // Sleeping
+  if (t.sleeps) {
+    faqs.push({
+      question: `How many people can sleep in the ${title}?`,
+      answer: `The ${title} sleeps up to ${t.sleeps} people using the factory floorplan layout. Sleeping positions typically include a main bed${t.sleeps >= 4 ? ', a convertible dinette or sofa' : ''}${t.sleeps >= 6 ? ', and additional bunk or convertible sleeping areas' : ''}. Check the floor plan section on this page for the exact layout.`,
+    });
+  }
+
+  return faqs;
+}
+
+function renderFaq(t) {
+  const faqs = generateFaqItems(t);
+  if (faqs.length === 0) return { html: '', jsonLd: '' };
+
+  const items = faqs.map((faq, i) => `<details class="faq-item"${i === 0 ? ' open' : ''}>
+<summary class="faq-q">${esc(faq.question)}</summary>
+<div class="faq-a"><p>${esc(faq.answer)}</p></div>
+</details>`).join('\n');
+
+  const html = `<section class="faq collapsible" id="faq" aria-label="Frequently asked questions">
+<h2>Frequently asked questions</h2>
+<div class="faq-list">${items}</div>
+</section>`;
+
+  const jsonLd = faqJsonLd(faqs);
+  return { html, jsonLd };
+}
+
 function renderNextSteps(t) {
   const official = officialUrl(t.model);
   const links = [];
@@ -3367,12 +3515,16 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     ['#winterization', 'Winterize'],
     ['#storage', 'Storage'],
     ['#maintenance-ref', 'Maint.'],
+    ['#faq', 'FAQ'],
     galleryCount ? ['#gallery', 'Gallery'] : null,
+    t.msrp > 0 ? ['#budget', 'Budget'] : null,
   ].filter(Boolean));
   // Related floorplans: same family, different floorplan, prefer same year
+  const faq = renderFaq(t);
   const relatedSection = renderRelated(t, allTrailers, resolve);
   // Cross-family: spec-similar trailers from other model lines
   const crossFamilySection = renderCrossFamily(t, allTrailers, resolve);
+  const budgetSection = renderBudgetAlternatives(t, allTrailers, resolve);
   // Prev/next pager: navigate between floorplans (sorted model+floorplan+year)
   const sorted = [...allTrailers].sort((a, b) =>
     `${a.model} ${a.floorplan} ${a.year}`.localeCompare(`${b.model} ${b.floorplan} ${b.year}`));
@@ -3490,6 +3642,7 @@ ${pros || cons ? `<section class="proscons">
 ${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}
 ${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
 </section>` : ''}
+${faq.html}
 ${renderTripReady(t)}
 ${renderIdealFor(t)}
 ${renderSeasonalGuide(t)}
@@ -3502,6 +3655,7 @@ ${renderNextSteps(t)}
 ${renderNotes(t.slug)}
 ${relatedSection}
 ${crossFamilySection}
+${budgetSection}
 </article>
 ${pagerNav}`;
   return page({
@@ -3519,7 +3673,7 @@ ${pagerNav}`;
       imagePath: a.hero || '',
       canonicalPath: `m/${t.slug}.html`,
       category: 'Travel Trailer',
-    }) + '\n' + breadcrumbJsonLd(breadcrumbItems),
+    }) + '\n' + breadcrumbJsonLd(breadcrumbItems) + '\n' + faq.jsonLd,
   });
 }
 

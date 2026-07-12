@@ -245,8 +245,8 @@ test('no detail page contains an unescaped data-driven angle bracket in body tex
     // data islands (tow-data, fuel-data, payload-data, finance-data,
     // ownership-data, cost-night-data, trip-cost-data, water-calc-data,
     // propane-data, elec-data, grade-climb-data) depending on trailer specs.
-    // Minimum 5 (theme + app.js + ld+json product + ld+json breadcrumb + tow-data), maximum 15 (all tools).
-    assert.ok(scripts.length >= 5 && scripts.length <= 15, `${t.slug} has unexpected <script> count: ${scripts.length}`);
+    // Minimum 5 (theme + app.js + ld+json product + ld+json breadcrumb + tow-data), maximum 16 (all tools + ld+json FAQ).
+    assert.ok(scripts.length >= 5 && scripts.length <= 16, `${t.slug} has unexpected <script> count: ${scripts.length}`);
     // No data island (json OR ld+json) should contain a raw </ breakout.
     const islands = html.match(/<script type="application\/(?:ld\+)?json"[^>]*>([\s\S]*?)<\/script>/g) || [];
     for (const m of islands) {

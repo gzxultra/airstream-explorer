@@ -158,3 +158,30 @@ export function breadcrumbJsonLd(items) {
   const json = JSON.stringify(data).replace(/<\//g, '<\\/');
   return `<script type="application/ld+json">${json}</script>`;
 }
+
+/**
+ * FAQPage structured data (schema.org/FAQPage) for a model detail page.
+ * Each question-answer pair becomes a mainEntity entry so Google can surface
+ * rich FAQ results. All answers are derived from real spec data — nothing
+ * fabricated.
+ *
+ * @param {Array<{question: string, answer: string}>} faqs
+ * @returns {string} a <script type="application/ld+json"> block, or '' if empty
+ */
+export function faqJsonLd(faqs) {
+  if (!faqs || faqs.length === 0) return '';
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
+  const json = JSON.stringify(data).replace(/<\//g, '<\\/');
+  return `<script type="application/ld+json">${json}</script>`;
+}

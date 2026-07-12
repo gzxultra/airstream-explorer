@@ -711,3 +711,15 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .rigfit-row--over { border-color: rgba(198,40,40,.25); }
 [data-theme="dark"] .rigfit-row--fits .rigfit-bar { background: rgba(46,125,50,.65); }
 [data-theme="dark"] .rigfit-row--over .rigfit-bar { background: rgba(198,40,40,.65); }
+
+/* FAQ dark overrides */
+[data-theme="dark"] .faq-item { border-color: var(--line); }
+[data-theme="dark"] .faq-q { color: var(--ink); }
+[data-theme="dark"] .faq-a p { color: var(--muted); }
+
+/* Budget alternatives dark overrides */
+[data-theme="dark"] .budget-card { background: var(--card); border-color: var(--line); }
+[data-theme="dark"] .budget-card:hover { border-color: var(--copper); box-shadow: 0 4px 20px rgba(0,0,0,.3); }
+[data-theme="dark"] .budget-diff--less { background: rgba(46,160,67,.18); color: #56d364; }
+[data-theme="dark"] .budget-diff--more { background: rgba(176,92,50,.18); color: var(--copper); }
+[data-theme="dark"] .budget-diff--same { background: rgba(255,255,255,.08); color: var(--muted); }
