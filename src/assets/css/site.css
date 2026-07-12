@@ -6121,3 +6121,84 @@ h2:hover .section-anchor,
 .fc-dot:hover { opacity: 1; r: 9; }
 .fc-dot--dimmed { opacity: .12; }
 .fc-dot-link { text-decoration: none; }
+
+
+/* ===================================================================
+   PRIORITY RANKER — explore page weighted sort
+   =================================================================== */
+.priority-ranker {
+  max-width: 880px; margin: .75rem auto;
+  border: 1px solid var(--line, #e0d8cf); border-radius: 12px;
+  overflow: hidden;
+}
+.ranker-toggle {
+  cursor: pointer; padding: .65rem 1rem; font-weight: 600;
+  font-size: .92rem; color: var(--ink, #1F1B16);
+  background: var(--surface, #fff); display: flex;
+  align-items: center; gap: .5rem; list-style: none;
+}
+.ranker-toggle::-webkit-details-marker { display: none; }
+.ranker-toggle svg { opacity: .6; }
+.priority-ranker[open] .ranker-toggle { border-bottom: 1px solid var(--line, #e0d8cf); }
+.ranker-panel { padding: 1rem; }
+.ranker-hint { font-size: .85rem; color: var(--muted, #8a8578); margin: 0 0 .75rem; }
+.ranker-fields { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem 1.5rem; }
+.ranker-field {
+  display: grid; grid-template-columns: 1fr auto; gap: 0 .5rem;
+  align-items: center;
+}
+.ranker-label { font-size: .85rem; font-weight: 500; grid-column: 1 / -1; margin-bottom: .15rem; }
+.ranker-range { width: 100%; accent-color: var(--copper, #B8860B); }
+.ranker-val { font-size: .8rem; font-weight: 600; color: var(--copper, #B8860B); min-width: 1.5em; text-align: center; }
+.ranker-actions {
+  display: flex; align-items: center; gap: 1rem;
+  margin-top: .75rem; padding-top: .75rem;
+  border-top: 1px solid var(--line, #e0d8cf);
+}
+.ranker-sort-btn {
+  padding: .45rem 1.2rem; border-radius: 6px; border: none; cursor: pointer;
+  font-weight: 600; font-size: .88rem;
+  background: var(--copper, #B8860B); color: #fff;
+}
+.ranker-sort-btn:hover { filter: brightness(1.1); }
+.ranker-reset { font-size: .85rem; }
+.xcard-rank {
+  position: absolute; top: .4rem; left: .4rem;
+  background: var(--copper, #B8860B); color: #fff;
+  font-size: .72rem; font-weight: 700; padding: .15rem .45rem;
+  border-radius: 4px; z-index: 2;
+}
+@media (max-width: 600px) {
+  .ranker-fields { grid-template-columns: 1fr; }
+}
+
+/* ===================================================================
+   FAMILY QUICK-NAV — horizontal scroll bar on family pages
+   =================================================================== */
+.famnav {
+  background: var(--surface, #faf8f4);
+  border-bottom: 1px solid var(--line, #e0d8cf);
+  position: sticky; top: var(--nav-h, 56px); z-index: 40;
+}
+.famnav-scroll {
+  display: flex; gap: .25rem; overflow-x: auto;
+  padding: .45rem 1rem; max-width: 1120px; margin: 0 auto;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.famnav-scroll::-webkit-scrollbar { display: none; }
+.famnav-link {
+  white-space: nowrap; padding: .3rem .7rem; border-radius: 6px;
+  font-size: .82rem; font-weight: 500; text-decoration: none;
+  color: var(--muted, #8a8578); transition: background .15s, color .15s;
+  flex-shrink: 0;
+}
+.famnav-link:hover { background: color-mix(in srgb, var(--copper, #B8860B) 10%, transparent); color: var(--ink, #1F1B16); }
+.famnav-link.is-current {
+  background: color-mix(in srgb, var(--copper, #B8860B) 12%, transparent);
+  color: var(--copper, #B8860B); font-weight: 600;
+}
+
+/* ===================================================================
+   ALTITUDE ROW in grade climb
+   =================================================================== */
+.grade-alt-row dt { font-style: italic; }

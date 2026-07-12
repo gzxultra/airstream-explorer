@@ -119,7 +119,7 @@ log('wrote index.html (Explore hub: family grid + all-floorplans)');
 
 // 3b. Family pages
 for (const fam of families) {
-  writeFileSync(join(DIST, 'f', `${fam.slug}.html`), renderFamily(fam, resolve));
+  writeFileSync(join(DIST, 'f', `${fam.slug}.html`), renderFamily(fam, resolve, families));
 }
 log(`wrote ${families.length} family pages`);
 

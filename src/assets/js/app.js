@@ -8026,6 +8026,10 @@
     var rollEl = document.getElementById('grade-roll-dd');
     var totalEl = document.getElementById('grade-total-dd');
     var tipEl = document.getElementById('grade-tip');
+    var altSlider = document.getElementById('grade-alt');
+    var altValEl = document.getElementById('grade-alt-val');
+    var altRow = document.getElementById('grade-alt-row');
+    var altDd = document.getElementById('grade-alt-dd');
     if (!slider) return;
 
     var RATING = {
@@ -8034,18 +8038,27 @@
       severe:      { label: 'Severe — use low gear',       cls: 'grade-severe' }
     };
 
-    function calc(gradePct) {
+    function calc(gradePct, altFt) {
       var theta = Math.atan(gradePct / 100);
       var gradeForce = Math.round(data.gvwrLb * Math.sin(theta));
       var rollResist = Math.round(data.gvwrLb * 0.015);
       var totalForce = gradeForce + rollResist;
-      var maxSpeed = gradePct <= 3 ? 65 : gradePct <= 5 ? 55 : gradePct <= 7 ? 45 : gradePct <= 9 ? 35 : 25;
-      var rating = gradePct <= 4 ? 'moderate' : gradePct <= 7 ? 'challenging' : 'severe';
-      return { gradeForce: gradeForce, rollResist: rollResist, totalForce: totalForce, maxSpeed: maxSpeed, rating: rating };
+      var powerLossPct = Math.round((altFt || 0) / 1000 * 3);
+      var altFactor = Math.max(0.4, 1 - powerLossPct / 100);
+      var baseSpeed = gradePct <= 3 ? 65 : gradePct <= 5 ? 55 : gradePct <= 7 ? 45 : gradePct <= 9 ? 35 : 25;
+      var maxSpeed = Math.round(baseSpeed * altFactor);
+      var effectiveGrade = gradePct / altFactor;
+      var rating = effectiveGrade <= 4 ? 'moderate' : effectiveGrade <= 7 ? 'challenging' : 'severe';
+      return { gradeForce: gradeForce, rollResist: rollResist, totalForce: totalForce, maxSpeed: maxSpeed, rating: rating, powerLossPct: powerLossPct, altFt: altFt || 0 };
     }
 
-    function update(gradePct, passName) {
-      var r = calc(gradePct);
+    function update(gradePct, passName, altFt) {
+      var alt = typeof altFt === 'number' ? altFt : (altSlider ? parseFloat(altSlider.value) : 0);
+      var r = calc(gradePct, alt);
+      // Altitude display
+      if (altValEl) altValEl.textContent = alt > 0 ? (alt.toLocaleString() + ' ft') : 'Sea level';
+      if (altRow) altRow.hidden = alt <= 0;
+      if (altDd) altDd.textContent = r.powerLossPct > 0 ? (r.powerLossPct + '% at ' + alt.toLocaleString() + ' ft') : '0% (sea level)';
       var rm = RATING[r.rating];
       if (sliderVal) sliderVal.textContent = gradePct + '%';
       if (badgeEl) { badgeEl.textContent = rm.label; badgeEl.className = 'grade-badge grade-badge--' + rm.cls; }
@@ -8071,14 +8084,137 @@
       update(parseFloat(this.value), '');
     });
 
+    if (altSlider) {
+      altSlider.addEventListener('input', function () {
+        update(parseFloat(slider.value), '');
+      });
+    }
+
     if (passGrid) {
       passGrid.addEventListener('click', function (e) {
         var btn = e.target.closest('.grade-pass-btn');
         if (!btn) return;
         var grade = parseFloat(btn.getAttribute('data-grade'));
         var name = btn.getAttribute('data-name') || '';
+        var elev = parseInt(btn.getAttribute('data-elev') || '0', 10);
         slider.value = grade;
-        update(grade, name);
+        if (altSlider) altSlider.value = elev;
+        update(grade, name, elev);
+      });
+    }
+  })();
+
+  // =========================================================================
+  // FAMILY QUICK-NAV — scroll current family into view on load.
+  // =========================================================================
+  (function famNav() {
+    var nav = document.querySelector('.famnav-scroll');
+    if (!nav) return;
+    var current = nav.querySelector('.is-current');
+    if (current) {
+      current.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'instant' });
+    }
+  })();
+
+  // =========================================================================
+  // PRIORITY RANKER — weighted slider sort on explore grid.
+  //     Six criteria (price, weight, off-grid, cargo, fresh, sleeps) with
+  //     0-10 importance weights. Normalizes each across visible cards,
+  //     computes weighted score, and re-sorts the DOM.
+  // =========================================================================
+  (function priorityRanker() {
+    var panel = document.getElementById('priority-ranker');
+    if (!panel) return;
+    var grid = document.getElementById('xgrid');
+    if (!grid) return;
+    var sliders = panel.querySelectorAll('.ranker-range');
+    var sortBtn = document.getElementById('rk-sort');
+    var resetBtn = document.getElementById('rk-reset');
+    if (!sliders.length || !sortBtn) return;
+
+    // Update displayed value next to each slider
+    for (var i = 0; i < sliders.length; i++) {
+      (function (sl) {
+        sl.addEventListener('input', function () {
+          var valEl = sl.parentNode.querySelector('.ranker-val');
+          if (valEl) valEl.textContent = sl.value;
+        });
+      })(sliders[i]);
+    }
+
+    function getCards() {
+      return Array.prototype.slice.call(grid.querySelectorAll('.xcard:not([hidden])'));
+    }
+
+    function doSort() {
+      var cards = getCards();
+      if (!cards.length) return;
+      // Collect weights
+      var weights = [];
+      for (var j = 0; j < sliders.length; j++) {
+        weights.push({ attr: sliders[j].getAttribute('data-rk'), w: parseFloat(sliders[j].value), invert: sliders[j].getAttribute('data-invert') === '1' });
+      }
+      // Collect raw values
+      var rows = cards.map(function (c) {
+        var vals = {};
+        for (var k = 0; k < weights.length; k++) {
+          vals[weights[k].attr] = parseFloat(c.getAttribute('data-' + weights[k].attr)) || 0;
+        }
+        return { el: c, vals: vals };
+      });
+      // Min/max per attribute
+      var mins = {}, maxs = {};
+      for (var a = 0; a < weights.length; a++) {
+        var attr = weights[a].attr;
+        mins[attr] = Infinity; maxs[attr] = -Infinity;
+        for (var r = 0; r < rows.length; r++) {
+          if (rows[r].vals[attr] < mins[attr]) mins[attr] = rows[r].vals[attr];
+          if (rows[r].vals[attr] > maxs[attr]) maxs[attr] = rows[r].vals[attr];
+        }
+      }
+      // Score each card
+      for (var s = 0; s < rows.length; s++) {
+        var score = 0;
+        for (var w = 0; w < weights.length; w++) {
+          var at = weights[w].attr;
+          var range = maxs[at] - mins[at];
+          var norm = range > 0 ? (rows[s].vals[at] - mins[at]) / range : 0.5;
+          if (weights[w].invert) norm = 1 - norm;
+          score += norm * weights[w].w;
+        }
+        rows[s].score = score;
+      }
+      // Sort descending by score
+      rows.sort(function (a, b) { return b.score - a.score; });
+      // Reorder DOM
+      for (var d = 0; d < rows.length; d++) {
+        grid.appendChild(rows[d].el);
+      }
+      // Show rank badges
+      for (var m = 0; m < rows.length; m++) {
+        var badge = rows[m].el.querySelector('.xcard-rank');
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.className = 'xcard-rank';
+          rows[m].el.querySelector('.xcard-body').prepend(badge);
+        }
+        badge.textContent = '#' + (m + 1);
+        badge.hidden = false;
+      }
+    }
+
+    sortBtn.addEventListener('click', doSort);
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        for (var i = 0; i < sliders.length; i++) {
+          sliders[i].value = 5;
+          var valEl = sliders[i].parentNode.querySelector('.ranker-val');
+          if (valEl) valEl.textContent = '5';
+        }
+        // Remove rank badges
+        var badges = grid.querySelectorAll('.xcard-rank');
+        for (var b = 0; b < badges.length; b++) badges[b].hidden = true;
       });
     }
   })();

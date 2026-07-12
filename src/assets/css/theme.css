@@ -775,3 +775,10 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 /* Card carousel dots — dark mode */
 [data-theme="dark"] .xcard-carousel-dot { background: rgba(255,255,255,.35); }
 [data-theme="dark"] .xcard-carousel-dot.is-active { background: #fff; }
+
+/* Priority ranker + family nav dark overrides */
+[data-theme="dark"] .ranker-sort-btn { background: var(--copper); color: #1a1a1a; }
+[data-theme="dark"] .xcard-rank { background: var(--copper); color: #1a1a1a; }
+[data-theme="dark"] .famnav { background: var(--surface); border-color: var(--line); }
+[data-theme="dark"] .famnav-link { color: var(--muted); }
+[data-theme="dark"] .famnav-link.is-current { color: var(--copper); }

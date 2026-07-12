@@ -949,7 +949,7 @@ function renderFamilyCompare(fam) {
 }
 
 /** A family page: hero banner + the floorplans in that family. relRoot='../'. */
-export function renderFamily(fam, resolve = assetPaths) {
+export function renderFamily(fam, resolve = assetPaths, allFamilies = []) {
   const hasBothYears = fam.years.length > 1;
   // Default the view to the latest model year so each distinct floorplan shows
   // once at its current price (the hero count and the visible count then agree).
@@ -978,7 +978,14 @@ ${fam.years
   const shownCount = hasBothYears
     ? fam.trailers.filter((t) => t.year === latest).length
     : fam.trailers.length;
-  const body = `<nav class="breadcrumb" aria-label="Breadcrumb"><ol class="breadcrumb-list"><li><a href="../index.html">Home</a></li><li aria-current="page">${esc(fam.family)}</li></ol></nav>
+  const famNav = allFamilies.length > 1
+    ? `<nav class="famnav" aria-label="All Airstream families">
+<div class="famnav-scroll">
+${allFamilies.map(f => `<a class="famnav-link${f.slug === fam.slug ? ' is-current' : ''}" href="${esc(f.slug)}.html"${f.slug === fam.slug ? ' aria-current="page"' : ''}>${esc(f.family)}</a>`).join('\n')}
+</div>
+</nav>`
+    : '';
+  const body = `${famNav}<nav class="breadcrumb" aria-label="Breadcrumb"><ol class="breadcrumb-list"><li><a href="../index.html">Home</a></li><li aria-current="page">${esc(fam.family)}</li></ol></nav>
 <header class="fam-hero">
 <img class="fam-hero-img" src="../${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" width="1280" height="720" fetchpriority="high" style="view-transition-name:vt-hero-${esc(fam.slug)}">
 <div class="fam-hero-overlay">
@@ -2221,19 +2228,23 @@ const MOUNTAIN_PASSES = [
  * Physics: grade resistance ≈ GVWR × sin(arctan(grade/100)).
  * For < ~15% grades, sin(arctan(g/100)) ≈ g/100 within 1%.
  */
-export function computeGradeForces(gvwrLb, gradePct) {
+export function computeGradeForces(gvwrLb, gradePct, altitudeFt = 0) {
   const theta = Math.atan(gradePct / 100);
   const gradeForce = Math.round(gvwrLb * Math.sin(theta));
   // Rolling resistance at ~1.5% of total weight
   const rollResist = Math.round(gvwrLb * 0.015);
   // Total resistance on grade
   const totalForce = gradeForce + rollResist;
-  // Speed where most engines run out of reserve power towing (rule of thumb):
-  // > 4% → 45-55 mph, > 7% → 35-45 mph, > 9% → 25-35 mph
-  const maxSpeed = gradePct <= 3 ? 65 : gradePct <= 5 ? 55 : gradePct <= 7 ? 45 : gradePct <= 9 ? 35 : 25;
-  // Grade rating: comfortable/challenging/severe
-  const rating = gradePct <= 4 ? 'moderate' : gradePct <= 7 ? 'challenging' : 'severe';
-  return { gradeForce, rollResist, totalForce, maxSpeed, rating, gradePct, gvwrLb };
+  // Engine power loss at altitude: ~3% per 1,000 ft (naturally aspirated rule of thumb)
+  const powerLossPct = Math.round(altitudeFt / 1000 * 3);
+  const altFactor = Math.max(0.4, 1 - powerLossPct / 100);
+  // Speed recommendation adjusted for altitude power loss
+  const baseSpeed = gradePct <= 3 ? 65 : gradePct <= 5 ? 55 : gradePct <= 7 ? 45 : gradePct <= 9 ? 35 : 25;
+  const maxSpeed = Math.round(baseSpeed * altFactor);
+  // Grade rating: altitude makes effective grade worse
+  const effectiveGrade = gradePct / altFactor;
+  const rating = effectiveGrade <= 4 ? 'moderate' : effectiveGrade <= 7 ? 'challenging' : 'severe';
+  return { gradeForce, rollResist, totalForce, maxSpeed, rating, gradePct, gvwrLb, altitudeFt, powerLossPct };
 }
 
 function renderGradeClimb(t) {
@@ -2271,6 +2282,13 @@ function renderGradeClimb(t) {
 <span class="finance-range-val" id="grade-pct-val">${defGrade}%</span>
 </div>
 </div>
+<div class="est-field">
+<label for="grade-alt">Summit altitude</label>
+<div class="finance-slider-row">
+<input type="range" id="grade-alt" min="0" max="14000" step="500" value="0" class="finance-range" aria-label="Altitude in feet">
+<span class="finance-range-val" id="grade-alt-val">Sea level</span>
+</div>
+</div>
 </div>
 <div class="grade-passes" aria-label="Famous mountain passes">
 <p class="grade-passes-label muted">Or pick a mountain pass:</p>
@@ -2285,12 +2303,13 @@ function renderGradeClimb(t) {
 <div class="finance-dl-row"><dt>Grade resistance</dt><dd id="grade-force-dd">${def.gradeForce.toLocaleString()} lb</dd></div>
 <div class="finance-dl-row"><dt>Rolling resistance</dt><dd id="grade-roll-dd">${def.rollResist.toLocaleString()} lb</dd></div>
 <div class="finance-dl-row finance-dl-total"><dt>Total pull force on grade</dt><dd id="grade-total-dd">${def.totalForce.toLocaleString()} lb</dd></div>
+<div class="finance-dl-row grade-alt-row" id="grade-alt-row" hidden><dt>Engine power loss at altitude</dt><dd id="grade-alt-dd">0% (sea level)</dd></div>
 </dl>
 <div class="grade-tip" id="grade-tip">
 <p class="grade-tip-text">On a ${defGrade}% grade, your engine must overcome an extra <strong>${def.gradeForce.toLocaleString()} lb</strong> of gravity pulling the trailer back. Use a low gear, keep speed at or below <strong>${def.maxSpeed} mph</strong>, and monitor transmission temperature.</p>
 </div>
 </div>
-<p class="est-caveat muted">Grade forces are physics-based (GVWR × sin of grade angle). Speed recommendations are conservative rules of thumb — actual performance depends on your tow vehicle's power, gearing, altitude, and temperature. Always use tow/haul mode and downshift on sustained grades.</p>
+<p class="est-caveat muted">Grade forces are physics-based (GVWR × sin of grade angle). Altitude power loss assumes ~3% per 1,000 ft for naturally aspirated engines (turbocharged vehicles lose less). Speed recommendations are conservative rules of thumb — actual performance depends on your tow vehicle's power, gearing, and temperature. Always use tow/haul mode and downshift on sustained grades.</p>
 </div>
 </section>`;
 }
@@ -4159,6 +4178,21 @@ ${exploreTowVehicleOpts}
 </div>
 <div class="active-filters" id="active-filters" hidden aria-live="polite"></div>
 </section>
+<details class="priority-ranker" id="priority-ranker">
+<summary class="ranker-toggle"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg> Priority ranker</summary>
+<div class="ranker-panel">
+<p class="ranker-hint">Adjust weights to sort floorplans by what matters most to you.</p>
+<div class="ranker-fields">
+<div class="ranker-field"><label class="ranker-label" for="rk-price">Affordable price</label><input type="range" id="rk-price" class="ranker-range" min="0" max="10" value="5" data-rk="msrp" data-invert="1"><span class="ranker-val">5</span></div>
+<div class="ranker-field"><label class="ranker-label" for="rk-weight">Light tow weight</label><input type="range" id="rk-weight" class="ranker-range" min="0" max="10" value="5" data-rk="weight" data-invert="1"><span class="ranker-val">5</span></div>
+<div class="ranker-field"><label class="ranker-label" for="rk-offgrid">Off-grid capability</label><input type="range" id="rk-offgrid" class="ranker-range" min="0" max="10" value="5" data-rk="offgrid" data-invert="0"><span class="ranker-val">5</span></div>
+<div class="ranker-field"><label class="ranker-label" for="rk-ccc">Cargo capacity</label><input type="range" id="rk-ccc" class="ranker-range" min="0" max="10" value="5" data-rk="ccc" data-invert="0"><span class="ranker-val">5</span></div>
+<div class="ranker-field"><label class="ranker-label" for="rk-fresh">Fresh water</label><input type="range" id="rk-fresh" class="ranker-range" min="0" max="10" value="5" data-rk="fresh" data-invert="0"><span class="ranker-val">5</span></div>
+<div class="ranker-field"><label class="ranker-label" for="rk-sleeps">Sleeping capacity</label><input type="range" id="rk-sleeps" class="ranker-range" min="0" max="10" value="5" data-rk="sleeps" data-invert="0"><span class="ranker-val">5</span></div>
+</div>
+<div class="ranker-actions"><button type="button" class="ranker-sort-btn" id="rk-sort">Sort by priority</button><button type="button" class="ranker-reset linklike" id="rk-reset">Reset</button></div>
+</div>
+</details>
 <div class="xc-row xc-row-layout">
 <div class="x-stats" id="x-stats" aria-live="polite" aria-atomic="true"></div>
 <div class="xc-layout-actions">
