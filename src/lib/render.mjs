@@ -291,7 +291,7 @@ function renderBrowseLinks(t) {
   return `<div class="browse-links"><span class="browse-links-label">Browse similar:</span>${links.join('')}</div>`;
 }
 
-function specRow(label, value, { tip = false, unit = null, raw = null, pctData = null } = {}) {
+function specRow(label, value, { tip = false, unit = null, raw = null, pctData = null, fleetRange = null } = {}) {
   const glossary = tip && SPEC_GLOSSARY[label];
   const dtInner = glossary
     ? `<span class="spec-tip" tabindex="0" aria-label="${esc(label)}: ${esc(glossary)}"><span class="spec-tip-text">${esc(glossary)}</span>${esc(label)}</span>`
@@ -304,7 +304,16 @@ function specRow(label, value, { tip = false, unit = null, raw = null, pctData =
     const tier = pctData.pct >= 90 ? 'top10' : pctData.pct >= 80 ? 'top20' : 'top30';
     pctHtml = `<span class="spec-pct spec-pct--${tier}" title="${esc(pctData.label || '')}" aria-label="${esc(pctData.label || '')}"><span class="spec-pct-bar" style="width:${barW}%"></span><span class="spec-pct-text">Top ${100 - barW}%</span></span>`;
   }
-  return `<div class="spec"><dt>${dtInner}</dt><dd${unitAttr}>${esc(value)}${pctHtml}</dd></div>`;
+  // Fleet position bar — thin inline bar for ALL numeric specs showing where
+  // this value falls within the fleet min→max range.
+  let fleetHtml = '';
+  if (fleetRange) {
+    const pos = rangePosition(fleetRange.value, fleetRange.range);
+    if (pos != null) {
+      fleetHtml = `<span class="spec-fleet" aria-label="${esc(label)}: ${pos}th percentile in lineup" title="Fleet position: ${pos}%"><span class="spec-fleet-track"><span class="spec-fleet-fill" style="width:${pos}%"></span><span class="spec-fleet-dot" style="left:${pos}%"></span></span></span>`;
+    }
+  }
+  return `<div class="spec"><dt>${dtInner}</dt><dd${unitAttr}>${esc(value)}${pctHtml}${fleetHtml}</dd></div>`;
 }
 
 function tagChips(tags) {
@@ -1447,6 +1456,8 @@ function buildSpecText(t) {
     `Off-grid score: ${t.offGridScore}/100`,
     `MSRP: ${formatMsrp(t.msrp)}`,
   ].filter(Boolean);
+  // Append the canonical detail-page URL so pasted specs are traceable
+  lines.push(`https://airstream-explorer.pages.dev/m/${t.slug}.html`);
   // Use || separator (split back to \n in client JS for clipboard copy)
   return lines.join(' || ');
 }
@@ -1825,6 +1836,60 @@ function renderClearanceFit(t) {
 </section>`;
 }
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// RIG LENGTH CAMPSITE FIT — shows whether the total rig (trailer + tow
+// vehicle) fits in standard campsite sizes. Uses the trailer's official
+// length. Users set their tow vehicle length via the interactive slider.
+// ---------------------------------------------------------------------------
+
+const SITE_SIZES = [
+  { label: 'Compact back-in', lengthFt: 30, note: 'Tight national park loops' },
+  { label: 'Standard back-in', lengthFt: 40, note: 'Most state parks & KOA' },
+  { label: 'Large back-in', lengthFt: 50, note: 'Spacious private campgrounds' },
+  { label: 'Standard pull-through', lengthFt: 65, note: 'Easy hitch-and-go, no reversing' },
+  { label: 'Full-length pull-through', lengthFt: 80, note: 'Big rigs welcome' },
+];
+
+function renderRigLengthFit(t) {
+  if (!(t.lengthFt > 0)) return '';
+  const defaultVehicleFt = 19; // typical full-size truck
+  const totalFt = Math.ceil(t.lengthFt + defaultVehicleFt);
+
+  const rows = SITE_SIZES.map((site) => {
+    const fits = totalFt <= site.lengthFt;
+    const margin = site.lengthFt - totalFt;
+    const verdictCls = fits ? 'rigfit-verdict--yes' : 'rigfit-verdict--no';
+    const verdict = fits
+      ? `✓ Fits — ${Math.abs(margin)}' to spare`
+      : `✗ Over by ${Math.abs(margin)}'`;
+    const barPct = Math.min(Math.round((totalFt / site.lengthFt) * 100), 100);
+    return `<div class="rigfit-row ${fits ? 'rigfit-row--fits' : 'rigfit-row--over'}">
+<div class="rigfit-site">
+<span class="rigfit-site-name">${esc(site.label)}</span>
+<span class="rigfit-site-len">${site.lengthFt}' site</span>
+</div>
+<div class="rigfit-bar-wrap">
+<div class="rigfit-bar" style="width:${barPct}%">
+<span class="rigfit-rig-label">${totalFt}'</span>
+</div>
+</div>
+<span class="rigfit-verdict ${verdictCls}">${verdict}</span>
+</div>`;
+  }).join('\n');
+
+  return `<section class="rigfit collapsible" id="rigfit" aria-label="Campsite length fit">
+<h2>Will your rig fit the site?</h2>
+<p class="rigfit-intro">Your ${esc(t.model)} ${esc(t.floorplan)} is ${esc(formatLength(t.lengthFt))} long. Combined with a typical tow vehicle (~<span id="rigfit-vlen">${defaultVehicleFt}</span>'), the total rig is about <strong><span id="rigfit-total">${totalFt}</span> feet</strong>.</p>
+<div class="rigfit-slider-row">
+<label for="rigfit-vehicle">Your tow vehicle length</label>
+<input type="range" id="rigfit-vehicle" min="14" max="24" step="1" value="${defaultVehicleFt}" class="rigfit-slider" aria-label="Tow vehicle length in feet">
+<span class="rigfit-slider-val"><span id="rigfit-vlen2">${defaultVehicleFt}</span>'</span>
+</div>
+<div class="rigfit-chart" id="rigfit-chart" data-trailer-ft="${t.lengthFt}">${rows}</div>
+<p class="rigfit-note muted">Lengths are bumper-to-bumper. Add 2–3' for hitch gap. Always confirm site dimensions with the campground before booking.</p>
+</section>`;
+}
+
 const COST_NIGHT_DEFAULTS = {
   tripsYear: 12,
   nightsTrip: 3,
@@ -3220,6 +3285,14 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     const label = percentileLabel(field, r);
     return label ? { pct: r.pct, label } : null;
   };
+  // Fleet ranges for inline position bars on every numeric spec
+  const detailRanges = allTrailers.length >= 3 ? computeFleetRanges(allTrailers) : {};
+  const fleetFor = (field) => {
+    const range = detailRanges[field];
+    const value = t[field];
+    if (!range || typeof value !== 'number' || value <= 0) return null;
+    return { value, range };
+  };
   const totalMedia = a.gallery.length + (a.hero ? 1 : 0);
   const heroImg = a.hero
     ? `<button type="button" class="detail-hero-btn" data-lightbox data-full="../${esc(a.hero)}" data-index="0" data-caption="${esc(trailerTitle(t))} — hero" aria-label="View hero image full screen"><img src="../${esc(a.hero)}" alt="${esc(trailerTitle(t))}" class="detail-hero-img" width="1280" height="720" fetchpriority="high"><span class="hero-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`
@@ -3267,6 +3340,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     ['#specs', 'Specs'],
     ['#size-scale', 'Size'],
     (t.extHeightFt && t.extWidthFt) ? ['#clearance-fit', 'Clearance'] : null,
+    t.lengthFt ? ['#rigfit', 'Site Fit'] : null,
     ['#weight-context', 'Weight'],
     yearDiff ? ['#year-diff', '2025→26'] : null,
     t.gvwrLb ? ['#tow', 'Tow'] : null,
@@ -3365,21 +3439,21 @@ ${renderRadarChart(t)}
 <section class="spec-table" id="specs" aria-label="Specifications">
 <h2>Specifications</h2>
 <dl class="specs-grid">
-${specRow('Length', formatLength(t.lengthFt), { tip: true, unit: 'length', raw: t.lengthFt, pctData: pctFor('lengthFt') })}
+${specRow('Length', formatLength(t.lengthFt), { tip: true, unit: 'length', raw: t.lengthFt, pctData: pctFor('lengthFt'), fleetRange: fleetFor('lengthFt') })}
 ${specRow('Ext. width', formatDimFt(t.extWidthFt), { tip: true, unit: 'dimft', raw: t.extWidthFt })}
 ${specRow('Ext. height', formatDimFt(t.extHeightFt) + (t.extHeightFt ? ' (with A/C)' : ''), { tip: true, unit: 'dimft', raw: t.extHeightFt })}
 ${specRow('Interior height', formatDimFt(t.intHeightFt) + (t.intHeightFt ? ' (with A/C)' : ''), { tip: true, unit: 'dimft', raw: t.intHeightFt })}
-${specRow('Dry weight', formatWeight(t.weightLb), { tip: true, unit: 'weight', raw: t.weightLb, pctData: pctFor('weightLb') })}
-${specRow('GVWR', formatWeight(t.gvwrLb), { tip: true, unit: 'weight', raw: t.gvwrLb })}
-${specRow('Cargo capacity (CCC)', formatWeight(t.cccLb), { tip: true, unit: 'weight', raw: t.cccLb, pctData: pctFor('cccLb') })}
-${specRow('Hitch weight', formatWeight(t.hitchWeightLb), { tip: true, unit: 'weight', raw: t.hitchWeightLb, pctData: pctFor('hitchWeightLb') })}
-${specRow('Sleeps', String(t.sleeps), { tip: true })}
+${specRow('Dry weight', formatWeight(t.weightLb), { tip: true, unit: 'weight', raw: t.weightLb, pctData: pctFor('weightLb'), fleetRange: fleetFor('weightLb') })}
+${specRow('GVWR', formatWeight(t.gvwrLb), { tip: true, unit: 'weight', raw: t.gvwrLb, fleetRange: fleetFor('gvwrLb') })}
+${specRow('Cargo capacity (CCC)', formatWeight(t.cccLb), { tip: true, unit: 'weight', raw: t.cccLb, pctData: pctFor('cccLb'), fleetRange: fleetFor('cccLb') })}
+${specRow('Hitch weight', formatWeight(t.hitchWeightLb), { tip: true, unit: 'weight', raw: t.hitchWeightLb, pctData: pctFor('hitchWeightLb'), fleetRange: fleetFor('hitchWeightLb') })}
+${specRow('Sleeps', String(t.sleeps), { tip: true, fleetRange: fleetFor('sleeps') })}
 ${specRow('Axle', deriveAxle(t) === 'single' ? 'Single axle' : deriveAxle(t) === 'dual' ? 'Dual axle' : '—', { tip: true })}
 ${specRow('Fresh / gray / black', formatTanks(t.freshGal, t.grayGal, t.blackGal), { tip: true, unit: 'tanks', raw: [t.freshGal, t.grayGal, t.blackGal].join(',') })}
 ${specRow('Solar', t.solarW ? `${t.solarW} W ${t.solarStandard ? '(standard)' : '(optional)'}` : '—', { tip: true })}
 ${specRow('Battery', t.batteryKwh ? `${t.batteryKwh} kWh` : '—', { tip: true })}
-${specRow('Off-grid score', `${t.offGridScore} / 100`, { tip: true, pctData: pctFor('offGridScore') })}
-${specRow('MSRP', formatMsrp(t.msrp), { tip: true, pctData: pctFor('msrp') })}
+${specRow('Off-grid score', `${t.offGridScore} / 100`, { tip: true, pctData: pctFor('offGridScore'), fleetRange: fleetFor('offGridScore') })}
+${specRow('MSRP', formatMsrp(t.msrp), { tip: true, pctData: pctFor('msrp'), fleetRange: fleetFor('msrp') })}
 </dl>
 ${note}
 ${renderBrowseLinks(t)}
@@ -3387,6 +3461,7 @@ ${renderBrowseLinks(t)}
 ${renderYearDiff(t, allTrailers)}
 ${renderSizeScale(t)}
 ${renderClearanceFit(t)}
+${renderRigLengthFit(t)}
 ${renderWeightBar(t)}
 ${renderWeightContext(t)}
 ${renderWeightBudget(t)}
@@ -3639,6 +3714,7 @@ ${exploreTowVehicleOpts}
 <div class="x-stats" id="x-stats" aria-live="polite" aria-atomic="true"></div>
 <div class="xc-layout-actions">
 <button type="button" class="csv-export-btn" id="csv-export" title="Download visible catalog as CSV"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> CSV</button>
+<button type="button" class="csv-export-btn" id="x-share-view" title="Copy link to this filtered view"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"></path></svg> Share</button>
 <div class="xc-layout" id="x-layout" aria-label="View layout">
 <button type="button" class="xc-layout-btn is-active" data-layout="grid" aria-pressed="true" title="Grid view"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
 <button type="button" class="xc-layout-btn" data-layout="list" aria-pressed="false" title="List view"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>

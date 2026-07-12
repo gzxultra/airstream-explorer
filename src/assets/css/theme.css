@@ -93,6 +93,11 @@
 [data-theme="dark"] .tow-verdict.tow-over  { background: #2a1813; border-color: #5a3127; border-left-color: #d0593e; }
 [data-theme="dark"] .tow-verdict.tow-over .tow-verdict-label  { color: #ef9a82; }
 
+/* Tow insights panel + smart pick cards */
+[data-theme="dark"] .tow-summary { background: #221c16; border-color: #3A3228; border-left-color: var(--copper); }
+[data-theme="dark"] .tow-pick { background: var(--surface); border-color: var(--line); }
+[data-theme="dark"] .tow-pick:hover { border-color: var(--copper); box-shadow: 0 2px 8px rgba(217,139,94,.18); }
+
 [data-theme="dark"] .cg-fit-fits    { background: #16241a; color: #8fd494; }
 [data-theme="dark"] .cg-fit-tight   { background: #271f10; color: #e6bd5e; }
 [data-theme="dark"] .cg-fit-no      { background: #2a1813; color: #ef9a82; }
@@ -685,3 +690,15 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .ideal-desc,
 [data-theme="dark"] .advisor-why { color: var(--muted); }
 [data-theme="dark"] .advisor-q { color: var(--copper); }
+
+[data-theme="dark"] .spec-fleet-track { background: rgba(255,255,255,.12); }
+[data-theme="dark"] .spec-fleet-dot { border-color: var(--card, #2a2520); box-shadow: 0 0 0 1px var(--copper); }
+[data-theme="dark"] .rigfit-row { background: var(--card, #2a2520); border-color: var(--line); }
+[data-theme="dark"] .rigfit-row--over { background: rgba(198,40,40,.08); }
+[data-theme="dark"] .rigfit-bar-wrap { background: rgba(255,255,255,.08); }
+[data-theme="dark"] .rigfit-verdict--yes { color: #66bb6a; }
+[data-theme="dark"] .rigfit-verdict--no { color: #ef5350; }
+[data-theme="dark"] .rigfit-row--fits { border-color: rgba(46,125,50,.3); }
+[data-theme="dark"] .rigfit-row--over { border-color: rgba(198,40,40,.25); }
+[data-theme="dark"] .rigfit-row--fits .rigfit-bar { background: rgba(46,125,50,.65); }
+[data-theme="dark"] .rigfit-row--over .rigfit-bar { background: rgba(198,40,40,.65); }

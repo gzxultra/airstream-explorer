@@ -601,7 +601,7 @@ export function percentileLabel(field, pctData) {
 export function computeFleetRanges(trailers, motorhomes = []) {
   const all = [...trailers, ...motorhomes];
   if (!all.length) return {};
-  const fields = ['weightLb', 'msrp', 'lengthFt'];
+  const fields = ['weightLb', 'msrp', 'lengthFt', 'gvwrLb', 'cccLb', 'hitchWeightLb', 'offGridScore', 'freshGal', 'solarW', 'sleeps'];
   const ranges = {};
   for (const f of fields) {
     const vals = all.map((t) => t[f]).filter((v) => typeof v === 'number' && v > 0);

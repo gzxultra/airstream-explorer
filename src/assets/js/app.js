@@ -1005,11 +1005,53 @@
       if (towSummary) {
         if (state.tow) {
           towSummary.removeAttribute('hidden');
-          towSummary.textContent = 'With a ' + state.tow.toLocaleString('en-US') +
-            ' lb tow rating, ' + fit + ' of the ' + shown + ' shown ' +
-            (fit === 1 ? 'floorplan is' : 'floorplans are') + ' a safe match. Over-rating ones are dimmed.';
+          // Build rich insights: find compatible cards and pick recommendations
+          var compatible = visible.filter(function (c) {
+            var gvwr = num(c, 'data-gvwr');
+            return gvwr > 0 && gvwr <= state.tow;
+          });
+          var summaryHtml = '<span class="tow-insights-stat">' + fit + ' of ' + shown +
+            ' floorplans fit your ' + state.tow.toLocaleString('en-US') + ' lb tow rating.</span>';
+          if (compatible.length >= 2) {
+            // Smart picks: easiest (lightest GVWR), value (cheapest), off-grid (highest score)
+            var picks = [];
+            var sorted;
+            sorted = compatible.slice().sort(function (a, b) { return num(a, 'data-gvwr') - num(b, 'data-gvwr'); });
+            if (sorted[0]) {
+              var easiest = sorted[0];
+              picks.push({ icon: '🚗', label: 'Easiest to tow', name: easiest.getAttribute('data-model') + ' ' + easiest.getAttribute('data-floorplan'),
+                stat: num(easiest, 'data-gvwr').toLocaleString('en-US') + ' lb GVWR', slug: easiest.getAttribute('data-slug'), type: easiest.getAttribute('data-type') });
+            }
+            sorted = compatible.slice().sort(function (a, b) { return num(a, 'data-msrp') - num(b, 'data-msrp'); });
+            if (sorted[0] && sorted[0].getAttribute('data-slug') !== (picks[0] && picks[0].slug)) {
+              var cheapest = sorted[0];
+              var msrpK = Math.round(num(cheapest, 'data-msrp') / 1000);
+              picks.push({ icon: '💎', label: 'Best value', name: cheapest.getAttribute('data-model') + ' ' + cheapest.getAttribute('data-floorplan'),
+                stat: '$' + msrpK + 'k', slug: cheapest.getAttribute('data-slug'), type: cheapest.getAttribute('data-type') });
+            }
+            sorted = compatible.slice().sort(function (a, b) { return num(b, 'data-offgrid') - num(a, 'data-offgrid'); });
+            if (sorted[0] && num(sorted[0], 'data-offgrid') > 0) {
+              var bestOg = sorted[0];
+              var isDupe = picks.some(function (p) { return p.slug === bestOg.getAttribute('data-slug'); });
+              if (!isDupe) {
+                picks.push({ icon: '⛺', label: 'Best off-grid', name: bestOg.getAttribute('data-model') + ' ' + bestOg.getAttribute('data-floorplan'),
+                  stat: num(bestOg, 'data-offgrid') + '/100', slug: bestOg.getAttribute('data-slug'), type: bestOg.getAttribute('data-type') });
+              }
+            }
+            if (picks.length) {
+              summaryHtml += '<span class="tow-insights-picks">' + picks.map(function (p) {
+                var dir = p.type === 'motorhome' ? 'mm/' : 'm/';
+                return '<a class="tow-pick" href="' + dir + p.slug + '.html"><span class="tow-pick-icon" aria-hidden="true">' + p.icon +
+                  '</span><span class="tow-pick-body"><span class="tow-pick-label">' + p.label +
+                  '</span><span class="tow-pick-name">' + p.name +
+                  '</span><span class="tow-pick-stat">' + p.stat + '</span></span></a>';
+              }).join('') + '</span>';
+            }
+          }
+          towSummary.innerHTML = summaryHtml;
         } else {
           towSummary.setAttribute('hidden', '');
+          towSummary.innerHTML = '';
         }
       }
 
@@ -5989,6 +6031,27 @@
       });
     }
     applyHashOnLoad();
+
+    // Share View button — copies the current URL (with hash-encoded filters)
+    var shareViewBtn = document.getElementById('x-share-view');
+    if (shareViewBtn) {
+      shareViewBtn.addEventListener('click', function () {
+        // Ensure we're in the #all view with current filters encoded
+        var hash = location.hash || '';
+        var url = location.href;
+        if (hash.indexOf('all') === -1) {
+          // Force #all view URL
+          url = location.origin + location.pathname + '#' + encodeHash(currentState());
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(function () {
+            var orig = shareViewBtn.innerHTML;
+            shareViewBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!';
+            setTimeout(function () { shareViewBtn.innerHTML = orig; }, 2000);
+          });
+        }
+      });
+    }
   })();
 
 })();
@@ -8007,4 +8070,105 @@
         updateActiveState('');
       });
     });
+  })();
+
+
+  // =========================================================================
+  // RIG LENGTH CAMPSITE FIT — interactive slider updates the chart
+  // =========================================================================
+  (function rigLengthFit() {
+    var slider = document.getElementById('rigfit-vehicle');
+    var chart = document.getElementById('rigfit-chart');
+    if (!slider || !chart) return;
+
+    var trailerFt = parseFloat(chart.getAttribute('data-trailer-ft')) || 0;
+    var vlenEls = [document.getElementById('rigfit-vlen'), document.getElementById('rigfit-vlen2')];
+    var totalEl = document.getElementById('rigfit-total');
+    var SITES = [
+      { label: 'Compact back-in', ft: 30, note: 'Tight national park loops' },
+      { label: 'Standard back-in', ft: 40, note: 'Most state parks & KOA' },
+      { label: 'Large back-in', ft: 50, note: 'Spacious private campgrounds' },
+      { label: 'Standard pull-through', ft: 65, note: 'Easy hitch-and-go, no reversing' },
+      { label: 'Full-length pull-through', ft: 80, note: 'Big rigs welcome' }
+    ];
+
+    function update() {
+      var vFt = parseInt(slider.value, 10);
+      var total = Math.ceil(trailerFt + vFt);
+      vlenEls.forEach(function (el) { if (el) el.textContent = vFt; });
+      if (totalEl) totalEl.textContent = total;
+
+      chart.innerHTML = SITES.map(function (site) {
+        var fits = total <= site.ft;
+        var margin = site.ft - total;
+        var barPct = Math.min(Math.round((total / site.ft) * 100), 100);
+        var cls = fits ? 'rigfit-row--fits' : 'rigfit-row--over';
+        var vcls = fits ? 'rigfit-verdict--yes' : 'rigfit-verdict--no';
+        var verdict = fits
+          ? '✓ Fits — ' + Math.abs(margin) + '\' to spare'
+          : '✗ Over by ' + Math.abs(margin) + '\'';
+        return '<div class="rigfit-row ' + cls + '">' +
+          '<div class="rigfit-site"><span class="rigfit-site-name">' + site.label + '</span>' +
+          '<span class="rigfit-site-len">' + site.ft + '\' site</span></div>' +
+          '<div class="rigfit-bar-wrap"><div class="rigfit-bar" style="width:' + barPct + '%">' +
+          '<span class="rigfit-rig-label">' + total + '\'</span></div></div>' +
+          '<span class="rigfit-verdict ' + vcls + '">' + verdict + '</span></div>';
+      }).join('');
+    }
+
+    slider.addEventListener('input', update);
+  })();
+
+  // =========================================================================
+  // TOW VEHICLE MEMORY — persist selection across pages
+  // =========================================================================
+  (function towVehicleMemory() {
+    var TOW_KEY = 'ae:towVehicle';
+    // Detail page tow calculator
+    var detailSelect = document.getElementById('tow-vehicle');
+    // Explore page tow vehicle picker
+    var exploreSelect = document.getElementById('tow-vehicle-pick');
+
+    function save(id) {
+      if (id && id !== 'custom') {
+        try { localStorage.setItem(TOW_KEY, id); } catch (e) {}
+      }
+    }
+
+    function restore() {
+      try { return localStorage.getItem(TOW_KEY) || ''; } catch (e) { return ''; }
+    }
+
+    // Detail page: restore + save on change
+    if (detailSelect) {
+      var saved = restore();
+      if (saved) {
+        var opts = detailSelect.querySelectorAll('option');
+        for (var i = 0; i < opts.length; i++) {
+          if (opts[i].value === saved) {
+            detailSelect.value = saved;
+            // Trigger computation
+            detailSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            break;
+          }
+        }
+      }
+      detailSelect.addEventListener('change', function () { save(this.value); });
+    }
+
+    // Explore page: restore + save on change
+    if (exploreSelect) {
+      var savedExp = restore();
+      if (savedExp) {
+        var expOpts = exploreSelect.querySelectorAll('option');
+        for (var j = 0; j < expOpts.length; j++) {
+          if (expOpts[j].value === savedExp) {
+            exploreSelect.value = savedExp;
+            exploreSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            break;
+          }
+        }
+      }
+      exploreSelect.addEventListener('change', function () { save(this.value); });
+    }
   })();
