@@ -7,7 +7,8 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
 import { loadTrailers, validateDataset, groupByFamily, resolveAssets, loadDecor, resolveDecor } from '../src/lib/data.mjs';
-import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, renderSaved, renderGlossaryBody, page } from '../src/lib/render.mjs';
+import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, renderSaved, renderGlossaryBody, renderTowGuide, page } from '../src/lib/render.mjs';
+import { loadVehicles } from '../src/lib/tow.mjs';
 import { loadMotorhomes, validateMotorhomeDataset, groupMotorhomesByFamily, resolveMotorhomeAssets } from '../src/lib/motorhome-data.mjs';
 import { renderMotorhomeIndex, renderMotorhomeFamily, renderMotorhomeDetail } from '../src/lib/motorhome-render.mjs';
 import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
@@ -297,6 +298,31 @@ log('wrote stays.html (redirect → campsites.html)');
   log('wrote 404.html (branded, noindex)');
 }
 
+// 4f. Tow Guide — interactive vehicle-to-trailer matching page
+{
+  const vehicles = loadVehicles();
+  writeFileSync(join(DIST, 'towguide.html'), renderTowGuide(trailers, vehicles));
+  log(`wrote towguide.html (${vehicles.length} vehicles × 2026 trailers)`);
+}
+
+// 4g. Offline fallback page for service worker
+{
+  const offlineBody = `<header class="hero-head" style="text-align:center">
+<p class="eyebrow">OFFLINE</p>
+<h1>No connection</h1>
+<p class="lede" style="margin:0 auto 18px">You're offline right now. Pages you've visited before are still available — try the back button or check your connection.</p>
+<p class="hero-cta"><a class="home-hero-btn" href="/index.html">Back to home →</a></p>
+</header>`;
+  writeFileSync(join(DIST, 'offline.html'), page({
+    title: 'Offline — Airstream Explorer',
+    description: 'You are currently offline.',
+    body: offlineBody,
+    active: '',
+    head: '<meta name="robots" content="noindex,follow">\n',
+  }));
+  log('wrote offline.html (SW fallback)');
+}
+
 // 5. Static assets: CSS/JS from src, images from public
 cpSync(join(ROOT, 'src', 'assets', 'css'), join(DIST, 'assets', 'css'), { recursive: true });
 cpSync(join(ROOT, 'src', 'assets', 'js'), join(DIST, 'assets', 'js'), { recursive: true });
@@ -373,7 +399,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     }
     return out;
   };
-  const EXCLUDE = new Set(['stays.html', '404.html']); // legacy redirect + 404 (both noindex)
+  const EXCLUDE = new Set(['stays.html', '404.html', 'offline.html']); // legacy redirect + 404 + offline (all noindex)
   const urls = collectHtml(DIST)
     .map((abs) => relative(DIST, abs).split('\\').join('/'))
     .filter((rel) => !EXCLUDE.has(rel))
@@ -462,6 +488,8 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     join(DIST, 'credits.html'),
     join(DIST, 'glossary.html'),
     join(DIST, 'motorhomes.html'),
+    join(DIST, 'towguide.html'),
+    join(DIST, 'offline.html'),
     ...families.map((f) => join(DIST, 'f', `${f.slug}.html`)),
     ...trailers.map((t) => join(DIST, 'm', `${t.slug}.html`)),
     ...motorhomeFamilies.map((f) => join(DIST, 'mf', `${f.slug}.html`)),
@@ -482,6 +510,24 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     writeFileSync(file, html);
   }
   log(`rewrote image refs in HTML (${rewrites} path-substitutions)`);
+
+  // 6b. SERVICE WORKER — copy sw.js to dist root (NOT fingerprinted; browsers
+  //     expect /sw.js at a stable URL) and inject the build version + precache
+  //     manifest so the SW caches the real fingerprinted filenames.
+  {
+    let sw = readFileSync(join(ROOT, 'src', 'assets', 'sw.js'), 'utf8');
+    const buildHash = createHash('sha1').update(Date.now().toString()).digest('hex').slice(0, 8);
+    // Precache: the fingerprinted CSS + JS + offline fallback (the critical shell)
+    const precache = [];
+    for (const [, hashed] of manifest) {
+      if (/\.(css|js)$/.test(hashed)) precache.push('/' + hashed);
+    }
+    precache.push('/offline.html');
+    sw = sw.replace('__BUILD_VERSION__', buildHash);
+    sw = sw.replace('__PRECACHE_MANIFEST__', JSON.stringify(precache));
+    writeFileSync(join(DIST, 'sw.js'), sw);
+    log(`wrote sw.js (version ${buildHash}, ${precache.length} precache entries)`);
+  }
 }
 
 // 7. GUARDRAIL: every <img src> emitted into dist must resolve to a real file
@@ -501,6 +547,8 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     { file: join(DIST, 'glossary.html'), base: DIST },
     { file: join(DIST, 'motorhomes.html'), base: DIST },
     { file: join(DIST, '404.html'), base: DIST },
+    { file: join(DIST, 'towguide.html'), base: DIST },
+    { file: join(DIST, 'offline.html'), base: DIST },
     ...families.map((f) => ({ file: join(DIST, 'f', `${f.slug}.html`), base: join(DIST, 'f') })),
     ...trailers.map((t) => ({ file: join(DIST, 'm', `${t.slug}.html`), base: join(DIST, 'm') })),
     ...motorhomeFamilies.map((f) => ({ file: join(DIST, 'mf', `${f.slug}.html`), base: join(DIST, 'mf') })),

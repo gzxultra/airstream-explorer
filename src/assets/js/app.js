@@ -8863,3 +8863,200 @@
     obs.observe(countEl, { childList: true, characterData: true, subtree: true });
     update();
   })();
+
+  // =========================================================================
+  // SERVICE WORKER REGISTRATION — enables offline PWA and asset caching.
+  // =========================================================================
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js').catch(function () {
+        // SW registration failed (localhost without HTTPS, or unsupported) — silent.
+      });
+    });
+  }
+
+  // =========================================================================
+  // TOW GUIDE — vehicle-first compatibility matrix.
+  //     Reads tow-vehicle + trailer JSON islands, evaluates every combo,
+  //     and shows compatible trailers for the selected vehicle.
+  // =========================================================================
+  (function towGuide() {
+    var vehicleDataEl = document.getElementById('towguide-vehicles');
+    var trailerDataEl = document.getElementById('towguide-trailers');
+    if (!vehicleDataEl || !trailerDataEl) return;
+
+    var vehicles, trailers;
+    try {
+      vehicles = JSON.parse(vehicleDataEl.textContent);
+      trailers = JSON.parse(trailerDataEl.textContent);
+    } catch (e) { return; }
+
+    var grid = document.getElementById('towguide-grid');
+    var resultWrap = document.getElementById('towguide-results');
+    var resultTitle = document.getElementById('towguide-result-title');
+    var resultList = document.getElementById('towguide-result-list');
+    var resultEmpty = document.getElementById('towguide-empty');
+    if (!grid || !resultWrap || !resultList) return;
+
+    var TONGUE_PCT = 0.13;
+    var TRUCK_LOAD = 300;
+
+    function evaluate(v, t) {
+      var loaded = t.gvwrLb || t.weightLb || 0;
+      var tongue = Math.round(loaded * TONGUE_PCT);
+      var payUsed = tongue + TRUCK_LOAD;
+      var curb = v.curbWeightLb || 0;
+      var combined = loaded + curb + TRUCK_LOAD;
+
+      var checks = [
+        { key: 'tow', used: loaded, limit: v.maxTowLb },
+        { key: 'payload', used: payUsed, limit: v.payloadLb },
+        { key: 'gcwr', used: combined, limit: v.gcwrLb },
+      ];
+      var worst = 'comfortable';
+      var bindingFrac = 0;
+      for (var i = 0; i < checks.length; i++) {
+        var frac = checks[i].limit > 0 ? checks[i].used / checks[i].limit : 99;
+        checks[i].frac = frac;
+        if (frac > 1) worst = 'over';
+        else if (frac > 0.8 && worst !== 'over') worst = 'tight';
+        if (frac > bindingFrac) bindingFrac = frac;
+      }
+      return { verdict: worst, checks: checks, margin: Math.round((1 - bindingFrac) * 100) };
+    }
+
+    function fmtLb(n) { return n.toLocaleString('en-US') + ' lb'; }
+    function fmtPct(n) { return Math.round(n * 100) + '%'; }
+
+    var activeVehicle = null;
+
+    function selectVehicle(v) {
+      activeVehicle = v;
+      // Highlight selected card
+      var cards = grid.querySelectorAll('.tg-vehicle-card');
+      for (var i = 0; i < cards.length; i++) {
+        cards[i].classList.toggle('is-selected', cards[i].getAttribute('data-vid') === v.id);
+      }
+
+      // Evaluate all trailers
+      var results = [];
+      for (var j = 0; j < trailers.length; j++) {
+        var ev = evaluate(v, trailers[j]);
+        results.push({ trailer: trailers[j], eval: ev });
+      }
+      // Sort: comfortable first (highest margin), then tight, then over
+      var verdictOrder = { comfortable: 0, tight: 1, over: 2 };
+      results.sort(function (a, b) {
+        var vo = verdictOrder[a.eval.verdict] - verdictOrder[b.eval.verdict];
+        if (vo !== 0) return vo;
+        return b.eval.margin - a.eval.margin; // higher margin first
+      });
+
+      var comf = 0, tight = 0, over = 0;
+      for (var k = 0; k < results.length; k++) {
+        if (results[k].eval.verdict === 'comfortable') comf++;
+        else if (results[k].eval.verdict === 'tight') tight++;
+        else over++;
+      }
+
+      if (resultTitle) {
+        resultTitle.textContent = v.name + ' — ' + comf + ' comfortable, ' + tight + ' tight, ' + over + ' over';
+      }
+
+      var html = '';
+      for (var m = 0; m < results.length; m++) {
+        var r = results[m];
+        var t = r.trailer;
+        var ev2 = r.eval;
+        var verdictClass = 'tg-' + ev2.verdict;
+        var towPct = ev2.checks[0].frac;
+        var payPct = ev2.checks[1].frac;
+
+        html += '<a class="tg-result-card ' + verdictClass + '" href="m/' + t.slug + '.html">' +
+          '<div class="tg-result-head">' +
+          '<span class="tg-result-name">' + t.model + ' ' + t.floorplan + '</span>' +
+          '<span class="tg-result-year">' + t.year + '</span>' +
+          '</div>' +
+          '<div class="tg-result-bars">' +
+          '<div class="tg-bar-row"><span class="tg-bar-label">Tow</span><div class="tg-bar-track"><div class="tg-bar-fill tg-bar-fill--' + ev2.verdict + '" style="width:' + Math.min(towPct * 100, 100) + '%"></div></div><span class="tg-bar-pct">' + fmtPct(towPct) + '</span></div>' +
+          '<div class="tg-bar-row"><span class="tg-bar-label">Payload</span><div class="tg-bar-track"><div class="tg-bar-fill tg-bar-fill--' + ev2.verdict + '" style="width:' + Math.min(payPct * 100, 100) + '%"></div></div><span class="tg-bar-pct">' + fmtPct(payPct) + '</span></div>' +
+          '</div>' +
+          '<div class="tg-result-foot">' +
+          '<span class="tg-result-weight">' + fmtLb(t.gvwrLb || t.weightLb) + ' GVWR</span>' +
+          '<span class="tg-result-verdict">' + (ev2.verdict === 'comfortable' ? '✓ Comfortable' : ev2.verdict === 'tight' ? '⚠ Tight' : '✗ Over') + '</span>' +
+          '</div></a>';
+      }
+      resultList.innerHTML = html;
+      resultWrap.removeAttribute('hidden');
+      if (resultEmpty) resultEmpty.setAttribute('hidden', '');
+      resultWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Render vehicle cards grouped by class
+    var byClass = {};
+    var classOrder = [];
+    for (var i = 0; i < vehicles.length; i++) {
+      var cls = vehicles[i].class || 'Other';
+      if (!byClass[cls]) { byClass[cls] = []; classOrder.push(cls); }
+      byClass[cls].push(vehicles[i]);
+    }
+
+    var cardsHtml = '';
+    for (var ci = 0; ci < classOrder.length; ci++) {
+      var cls2 = classOrder[ci];
+      cardsHtml += '<div class="tg-class-group"><h3 class="tg-class-label">' + cls2 + '</h3><div class="tg-class-vehicles">';
+      for (var vi = 0; vi < byClass[cls2].length; vi++) {
+        var v2 = byClass[cls2][vi];
+        cardsHtml += '<button type="button" class="tg-vehicle-card" data-vid="' + v2.id + '">' +
+          '<span class="tg-v-name">' + v2.name + '</span>' +
+          '<span class="tg-v-specs">' + fmtLb(v2.maxTowLb) + ' tow · ' + fmtLb(v2.payloadLb) + ' payload</span>' +
+          '</button>';
+      }
+      cardsHtml += '</div></div>';
+    }
+    grid.innerHTML = cardsHtml;
+
+    // Wire click handlers
+    grid.addEventListener('click', function (e) {
+      var btn = e.target.closest('.tg-vehicle-card');
+      if (!btn) return;
+      var vid = btn.getAttribute('data-vid');
+      for (var i = 0; i < vehicles.length; i++) {
+        if (vehicles[i].id === vid) { selectVehicle(vehicles[i]); break; }
+      }
+    });
+
+    // Auto-select from stored preference
+    var stored = null;
+    try { stored = localStorage.getItem('ae:tow-vehicle'); } catch (e) {}
+    if (stored) {
+      for (var si = 0; si < vehicles.length; si++) {
+        if (vehicles[si].id === stored) { selectVehicle(vehicles[si]); break; }
+      }
+    }
+  })();
+
+  // =========================================================================
+  // SIZE LADDER — proportional lineup strip on the home page.
+  // =========================================================================
+  (function sizeLadder() {
+    var el = document.getElementById('size-ladder');
+    if (!el) return;
+    // Data comes from the rendered HTML data attributes on .sl-bar elements.
+    // CSS handles proportional widths; JS adds hover/click interaction.
+    var bars = el.querySelectorAll('.sl-bar');
+    if (!bars.length) return;
+
+    bars.forEach(function (bar) {
+      bar.addEventListener('click', function () {
+        var href = bar.getAttribute('data-href');
+        if (href) window.location.href = href;
+      });
+      bar.addEventListener('mouseenter', function () {
+        bars.forEach(function (b) { b.classList.toggle('sl-bar--dim', b !== bar); });
+      });
+    });
+    el.addEventListener('mouseleave', function () {
+      bars.forEach(function (b) { b.classList.remove('sl-bar--dim'); });
+    });
+  })();

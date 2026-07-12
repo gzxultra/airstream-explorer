@@ -129,6 +129,7 @@ ${body}
 <li><a href="${relRoot}campgrounds.html">Campground map</a></li>
 <li><a href="${relRoot}upgrades.html">Upgrades</a></li>
 <li><a href="${relRoot}maintenance.html">Maintenance</a></li>
+<li><a href="${relRoot}towguide.html">Tow guide</a></li>
 </ul>
 </div>
 <div class="footer-col">
@@ -847,6 +848,7 @@ ${cards}
 </main>
 ${editorsPicks}
 ${yearHighlights}
+${renderSizeLadder(families, trailers)}
 </section>
 <section class="hub-view" id="view-all" data-view="all" hidden>
 ${renderExploreSections(trailers, resolve, motorhomes, { headingLevel: 'h2' })}
@@ -4528,4 +4530,118 @@ export function renderWeightClassBar(trailers) {
     return `<span class="wc-legend-item"><span class="wc-legend-dot" style="background:${wc.color}"></span>${esc(wc.label)} · ${maxLabel}</span>`;
   }).join('')}</div>
 </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// TOW GUIDE PAGE — "What can your vehicle tow?" reverse compatibility finder.
+// Pick a tow vehicle, see all Airstreams ranked by compatibility.
+// ---------------------------------------------------------------------------
+
+export function renderTowGuide(trailers, vehicles = []) {
+  // Compact data islands: only the fields the client needs
+  const compactVehicles = vehicles.map((v) => ({
+    id: v.id, name: v.name, class: v.class || 'Other',
+    maxTowLb: v.maxTowLb, payloadLb: v.payloadLb,
+    gcwrLb: v.gcwrLb, curbWeightLb: v.curbWeightLb || 0,
+  }));
+  const compactTrailers = trailers.filter((t) => t.year === 2026).map((t) => ({
+    slug: t.slug, model: t.model, floorplan: t.floorplan, year: t.year,
+    weightLb: t.weightLb, gvwrLb: t.gvwrLb, hitchWeightLb: t.hitchWeightLb,
+    lengthFt: t.lengthFt, sleeps: t.sleeps, msrp: t.msrp,
+  }));
+  const vJson = JSON.stringify(compactVehicles).replace(/</g, '\\u003c');
+  const tJson = JSON.stringify(compactTrailers).replace(/</g, '\\u003c');
+
+  const body = `<header class="explore-head">
+<p class="eyebrow">TOW MATCH</p>
+<h1>What can your vehicle tow?</h1>
+<p class="lede">Pick your tow vehicle below and see every 2026 Airstream floorplan ranked by how well it fits your limits — tow rating, payload, and GCWR. Green means comfortable headroom, amber is tight but legal, red exceeds your vehicle's rating.</p>
+</header>
+<script type="application/json" id="towguide-vehicles">${vJson}</script>
+<script type="application/json" id="towguide-trailers">${tJson}</script>
+<section class="towguide-pick" aria-label="Pick your tow vehicle" id="towguide-grid">
+<p class="muted">Loading vehicles…</p>
+</section>
+<section class="towguide-results" id="towguide-results" hidden aria-label="Compatible trailers">
+<h2 id="towguide-result-title">Select a vehicle above</h2>
+<div class="towguide-result-grid" id="towguide-result-list"></div>
+</section>
+<p class="towguide-empty muted" id="towguide-empty">Pick a vehicle above to see which Airstreams it can tow.</p>
+<section class="towguide-notes">
+<h2>How we evaluate</h2>
+<p>Every trailer is tested against <strong>three real limits</strong> from your vehicle's spec sheet:</p>
+<ol>
+<li><strong>Tow rating</strong> — trailer's GVWR (fully loaded weight) vs. the vehicle's max trailer tow rating.</li>
+<li><strong>Payload</strong> — loaded tongue weight (13% of GVWR) + 300 lb for passengers/gear vs. the vehicle's payload capacity.</li>
+<li><strong>GCWR</strong> — truck + trailer + everything combined vs. the gross combined weight rating.</li>
+</ol>
+<p class="muted">Comfortable = all limits under 80%. Tight = 80–100% on at least one. Over = any limit exceeded. All vehicle data is sourced from official manufacturer publications — no invented numbers.</p>
+</section>`;
+
+  return page({
+    title: 'Tow Guide — what can your vehicle tow?',
+    description: `Pick your tow vehicle and see which of the ${compactTrailers.length} current Airstream floorplans it can safely tow, with real payload, tow rating, and GCWR checks against official specs.`,
+    body,
+    active: 'towguide',
+    canonicalPath: 'towguide.html',
+  });
+}
+
+// ---------------------------------------------------------------------------
+// SIZE LADDER — proportional visual strip showing all families by size.
+// Used on the home page to give an instant "lineup at a glance" feel.
+// ---------------------------------------------------------------------------
+
+export function renderSizeLadder(families, trailers = []) {
+  if (!families || !families.length) return '';
+
+  // For each family, compute range of lengths and prices across 2026 models
+  const famStats = families.map((fam) => {
+    const models = trailers.filter((t) => t.model === fam.family && t.year === 2026);
+    if (!models.length) return null;
+    const lengths = models.map((t) => t.lengthFt).filter(Boolean);
+    const prices = models.map((t) => t.msrp).filter(Boolean);
+    const weights = models.map((t) => t.weightLb).filter(Boolean);
+    if (!lengths.length) return null;
+    return {
+      name: fam.family,
+      slug: fam.slug,
+      count: models.length,
+      minLen: Math.min(...lengths),
+      maxLen: Math.max(...lengths),
+      avgLen: lengths.reduce((a, b) => a + b, 0) / lengths.length,
+      minPrice: prices.length ? Math.min(...prices) : 0,
+      maxPrice: prices.length ? Math.max(...prices) : 0,
+      minWeight: weights.length ? Math.min(...weights) : 0,
+      maxWeight: weights.length ? Math.max(...weights) : 0,
+    };
+  }).filter(Boolean).sort((a, b) => a.avgLen - b.avgLen);
+
+  if (!famStats.length) return '';
+
+  const maxLen = Math.max(...famStats.map((f) => f.maxLen));
+  const minLen = Math.min(...famStats.map((f) => f.minLen));
+
+  const bars = famStats.map((f) => {
+    const widthPct = Math.max(20, Math.round((f.avgLen / maxLen) * 100));
+    const priceLabel = f.minPrice === f.maxPrice
+      ? formatMsrpShort(f.minPrice)
+      : `${formatMsrpShort(f.minPrice)}–${formatMsrpShort(f.maxPrice)}`;
+    const lenLabel = f.minLen === f.maxLen
+      ? `${Math.round(f.minLen)}'`
+      : `${Math.round(f.minLen)}'–${Math.round(f.maxLen)}'`;
+    return `<div class="sl-bar" data-href="f/${esc(f.slug)}.html" style="--sl-w:${widthPct}%" role="button" tabindex="0" aria-label="${esc(f.name)}: ${lenLabel}, ${priceLabel}">
+<div class="sl-bar-fill"></div>
+<span class="sl-bar-name">${esc(f.name)}</span>
+<span class="sl-bar-stats">${lenLabel} · ${priceLabel}</span>
+</div>`;
+  }).join('\n');
+
+  return `<section class="size-ladder" id="size-ladder" aria-label="Lineup by size">
+<h2 class="sl-heading">The lineup at a glance</h2>
+<p class="sl-sub muted">All ${famStats.length} families, smallest to largest. Tap to explore.</p>
+<div class="sl-chart">
+${bars}
+</div>
+</section>`;
 }
