@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
 import { loadTrailers, validateDataset, groupByFamily, resolveAssets, loadDecor, resolveDecor } from '../src/lib/data.mjs';
-import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, renderSaved, page } from '../src/lib/render.mjs';
+import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, renderSaved, renderGlossaryBody, page } from '../src/lib/render.mjs';
 import { loadMotorhomes, validateMotorhomeDataset, groupMotorhomesByFamily, resolveMotorhomeAssets } from '../src/lib/motorhome-data.mjs';
 import { renderMotorhomeIndex, renderMotorhomeFamily, renderMotorhomeDetail } from '../src/lib/motorhome-render.mjs';
 import { loadCommunityPhotos, validateCommunity, renderCommunityBody, renderCreditsBody } from '../src/lib/community.mjs';
@@ -199,6 +199,19 @@ writeFileSync(
   }),
 );
 log('wrote community.html + credits.html');
+
+// 4b-ii. Glossary page (root-level, reference page)
+writeFileSync(
+  join(DIST, 'glossary.html'),
+  page({
+    title: 'RV & Airstream Glossary — every spec term explained',
+    description: 'Every term you\\u2019ll see on Airstream spec sheets and in campground descriptions — GVWR, CCC, boondocking, shore power, and more — explained in plain language.',
+    body: renderGlossaryBody(),
+    active: 'glossary',
+    canonicalPath: 'glossary.html',
+  }),
+);
+log('wrote glossary.html');
 
 // 4c. Upgrades & options page (root-level, so relRoot = '')
 writeFileSync(
@@ -447,6 +460,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     join(DIST, '404.html'),
     join(DIST, 'community.html'),
     join(DIST, 'credits.html'),
+    join(DIST, 'glossary.html'),
     join(DIST, 'motorhomes.html'),
     ...families.map((f) => join(DIST, 'f', `${f.slug}.html`)),
     ...trailers.map((t) => join(DIST, 'm', `${t.slug}.html`)),
@@ -484,6 +498,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     { file: join(DIST, 'campsites.html'), base: DIST },
     { file: join(DIST, 'community.html'), base: DIST },
     { file: join(DIST, 'credits.html'), base: DIST },
+    { file: join(DIST, 'glossary.html'), base: DIST },
     { file: join(DIST, 'motorhomes.html'), base: DIST },
     { file: join(DIST, '404.html'), base: DIST },
     ...families.map((f) => ({ file: join(DIST, 'f', `${f.slug}.html`), base: join(DIST, 'f') })),

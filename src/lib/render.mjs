@@ -136,6 +136,7 @@ ${body}
 <ul class="footer-links">
 <li><a href="${relRoot}community.html">Community photos</a></li>
 <li><a href="${relRoot}credits.html">Credits &amp; sources</a></li>
+<li><a href="${relRoot}glossary.html">RV glossary</a></li>
 <li><a href="https://www.airstream.com/" target="_blank" rel="noopener">airstream.com ↗</a></li>
 </ul>
 </div>
@@ -596,6 +597,100 @@ function renderQuiz() {
 }
 
 // ---------------------------------------------------------------------------
+// MODEL YEAR HIGHLIGHTS — auto-generated 2025→2026 changes summary
+// ---------------------------------------------------------------------------
+export function renderModelYearHighlights(trailers) {
+  const t2026 = trailers.filter((t) => t.year === 2026);
+  const t2025 = trailers.filter((t) => t.year === 2025);
+  if (t2026.length < 5 || t2025.length < 5) return '';
+
+  // Compute diffs for all models that exist in both years
+  const highlights = [];
+  for (const curr of t2026) {
+    const diff = computeYearDiff(curr, trailers);
+    if (!diff || !diff.diffs.length) continue;
+    // Pick the most notable change
+    const priceDiff = diff.diffs.find((d) => d.key === 'msrp');
+    const weightDiff = diff.diffs.find((d) => d.key === 'weightLb');
+    const solarDiff = diff.diffs.find((d) => d.key === 'solarW');
+    const battDiff = diff.diffs.find((d) => d.key === 'batteryKwh');
+    const cccDiff = diff.diffs.find((d) => d.key === 'cccLb');
+    highlights.push({ trailer: curr, diffs: diff.diffs, priceDiff, weightDiff, solarDiff, battDiff, cccDiff });
+  }
+  if (highlights.length < 3) return '';
+
+  // Aggregate stats
+  const priceChanges = highlights.filter((h) => h.priceDiff && h.priceDiff.delta !== 0);
+  const priceUp = priceChanges.filter((h) => h.priceDiff.delta > 0);
+  const priceDown = priceChanges.filter((h) => h.priceDiff.delta < 0);
+  const avgPriceDelta = priceChanges.length
+    ? Math.round(priceChanges.reduce((s, h) => s + h.priceDiff.delta, 0) / priceChanges.length)
+    : 0;
+  const solarUpgrades = highlights.filter((h) => h.solarDiff && h.solarDiff.delta > 0);
+  const weightChanges = highlights.filter((h) => h.weightDiff && h.weightDiff.delta !== 0);
+
+  // Pick 4 most interesting individual changes to feature
+  const featured = highlights
+    .map((h) => {
+      // Score how interesting this model's changes are
+      let score = h.diffs.length;
+      if (h.solarDiff && h.solarDiff.delta > 0) score += 3;
+      if (h.battDiff && h.battDiff.delta > 0) score += 3;
+      if (h.priceDiff && h.priceDiff.delta < 0) score += 2; // price drop is interesting
+      if (h.cccDiff && h.cccDiff.delta > 0) score += 2;
+      return { ...h, score };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4);
+
+  const formatDelta = (d) => {
+    if (!d || d.delta == null) return '';
+    const sign = d.delta > 0 ? '+' : '';
+    if (d.unit === '$') return `${sign}${formatMsrpShort(d.delta)}`;
+    if (d.unit === 'lb') return `${sign}${d.delta.toLocaleString('en-US')} lb`;
+    if (d.unit === 'W') return `${sign}${d.delta} W`;
+    if (d.unit === 'kWh') return `${sign}${d.delta} kWh`;
+    if (d.unit === 'gal') return `${sign}${d.delta} gal`;
+    return `${sign}${d.delta} ${d.unit}`;
+  };
+
+  const featuredCards = featured.map((h) => {
+    const topDiffs = h.diffs.slice(0, 3).map((d) => {
+      const cls = d.direction === 'up' ? 'myh-delta--up' : d.direction === 'down' ? 'myh-delta--down' : 'myh-delta--changed';
+      return `<span class="myh-change ${cls}">${esc(d.field)}: ${esc(formatDelta(d))}</span>`;
+    }).join('');
+    return `<a class="myh-card" href="m/${esc(h.trailer.slug)}.html#year-diff">
+<span class="myh-card-name">${esc(h.trailer.model)} ${esc(h.trailer.floorplan)}</span>
+<span class="myh-card-changes">${topDiffs}</span>
+</a>`;
+  }).join('\n');
+
+  // Summary stats bar
+  const statChips = [];
+  statChips.push(`<span class="myh-stat">${highlights.length} models updated</span>`);
+  if (avgPriceDelta !== 0) {
+    const dir = avgPriceDelta > 0 ? 'up' : 'down';
+    statChips.push(`<span class="myh-stat myh-stat--${dir}">Avg. price ${dir === 'up' ? '↑' : '↓'} ${esc(formatMsrpShort(Math.abs(avgPriceDelta)))}</span>`);
+  }
+  if (solarUpgrades.length) {
+    statChips.push(`<span class="myh-stat myh-stat--up">${solarUpgrades.length} solar upgrades</span>`);
+  }
+  if (weightChanges.length) {
+    const lighter = weightChanges.filter((h) => h.weightDiff.delta < 0).length;
+    if (lighter > 0) statChips.push(`<span class="myh-stat">${lighter} got lighter</span>`);
+  }
+
+  return `<section class="myh-section" id="model-year-highlights" aria-label="What's new for 2026">
+<div class="myh-head">
+<h2 class="myh-title">What's new for 2026</h2>
+<p class="myh-sub muted">${highlights.length} floorplans carry changes from 2025 — here's what moved.</p>
+</div>
+<div class="myh-stats">${statChips.join('')}</div>
+<div class="myh-grid">${featuredCards}</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
 // EDITOR'S PICKS — curated "best for" recommendation strips on the home page.
 // Computed from real spec data, 2026 models only, deduplicated per family.
 // ---------------------------------------------------------------------------
@@ -728,6 +823,7 @@ export function renderIndex(families, trailers = [], resolve = assetPaths, motor
 <a class="viewseg-btn" href="#all" data-view="all"><span class="viewseg-label">All floorplans</span><span class="viewseg-sub">${trailers.length + motorhomes.length} by the numbers</span></a>
 </nav>`;
   const editorsPicks = computeEditorsPicks(trailers, resolve);
+  const yearHighlights = renderModelYearHighlights(trailers);
   const body = `${heroBand}
 ${viewToggle}
 ${renderQuiz()}
@@ -740,6 +836,7 @@ ${renderQuiz()}
 ${cards}
 </main>
 ${editorsPicks}
+${yearHighlights}
 </section>
 <section class="hub-view" id="view-all" data-view="all" hidden>
 ${renderExploreSections(trailers, resolve, motorhomes, { headingLevel: 'h2' })}
@@ -3019,6 +3116,92 @@ ${rows}
 
 
 // ---------------------------------------------------------------------------
+// HOOKUP & ADAPTER REFERENCE — practical gear guide based on trailer specs
+// ---------------------------------------------------------------------------
+
+/** Derive the shore power plug type label from amp service. */
+function plugType(amps) {
+  return amps === 50 ? 'NEMA 14-50' : 'TT-30';
+}
+
+export function renderHookupGuide(t) {
+  const amps = deriveAmpService(t);
+  const plug = plugType(amps);
+  const isSmall = (t.lengthFt || 20) < 22;
+
+  // Build adapter list
+  const adapters = [];
+  if (amps === 30) {
+    adapters.push({ name: '30A → 15A adapter', plug: 'TT-30P to 5-15R', why: 'Use a household outlet in a pinch (limited to ~1,800W — no A/C)', icon: '🔌' });
+    adapters.push({ name: '15A → 30A dogbone', plug: '5-15P to TT-30R', why: 'Emergency power from any standard outlet', icon: '🦴' });
+    adapters.push({ name: '50A → 30A adapter', plug: '14-50R to TT-30P', why: 'Connect to a 50A pedestal when 30A is taken', icon: '🔄' });
+  } else {
+    adapters.push({ name: '50A → 30A adapter', plug: '14-50P to TT-30R', why: 'Most campgrounds outside resorts only offer 30A — you\'ll use this often', icon: '🔄' });
+    adapters.push({ name: '30A → 15A adapter', plug: 'TT-30P to 5-15R', why: 'Daisy-chain with 50→30 for household outlet (very limited power)', icon: '🔌' });
+  }
+
+  const adapterRows = adapters.map((a) =>
+    `<div class="hookup-adapter">
+<span class="hookup-adapter-icon" aria-hidden="true">${a.icon}</span>
+<div class="hookup-adapter-info">
+<span class="hookup-adapter-name">${esc(a.name)}</span>
+<span class="hookup-adapter-plug muted">${esc(a.plug)}</span>
+<span class="hookup-adapter-why">${esc(a.why)}</span>
+</div>
+</div>`
+  ).join('\n');
+
+  // Sewer hose recommendation based on trailer length
+  const hoseLen = isSmall ? '10–15' : '15–20';
+
+  // Water system items
+  const waterItems = [
+    { label: 'White potable water hose', note: 'Never use a garden hose — lead and BPA contamination risk', icon: '💧' },
+    { label: 'Inline water filter', note: 'Protects from sediment and chlorine at unfamiliar hookups', icon: '🚰' },
+    { label: 'Pressure regulator', note: 'Set to 40–45 PSI — campground pressure can spike to 80+ and damage plumbing', icon: '⚙️' },
+  ];
+
+  const sewerItems = [
+    { label: `Sewer hose (${hoseLen} ft)`, note: 'Standard 3″ bayonet fitting — all Airstreams use the same connection', icon: '🔧' },
+    { label: 'Clear sewer elbow adapter', note: 'Locks into dump station inlet — lets you see when tanks are clear', icon: '👁️' },
+    { label: 'Disposable gloves', note: 'Keep a box in the wet bay for every dump', icon: '🧤' },
+  ];
+
+  const gearSection = (title, items) => {
+    const rows = items.map((item) =>
+      `<div class="hookup-gear-item">
+<span class="hookup-gear-icon" aria-hidden="true">${item.icon}</span>
+<div class="hookup-gear-info">
+<span class="hookup-gear-label">${esc(item.label)}</span>
+<span class="hookup-gear-note muted">${esc(item.note)}</span>
+</div>
+</div>`
+    ).join('\n');
+    return `<div class="hookup-gear-group">
+<h3 class="hookup-gear-title">${esc(title)}</h3>
+${rows}
+</div>`;
+  };
+
+  return `<section class="hookup-guide collapsible" id="hookup" aria-label="Hookup &amp; adapter guide">
+<h2 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">
+Hookup &amp; adapter guide<span class="collapsible-icon" aria-hidden="true"></span>
+</h2>
+<div class="collapsible-body" hidden>
+<p class="hookup-intro">The ${esc(t.model)} ${esc(t.floorplan)} uses <strong>${amps}A shore power</strong> (${esc(plug)} plug). Here's the gear you need for a trouble-free hookup at any campsite.</p>
+<div class="hookup-section">
+<h3 class="hookup-section-title">⚡ Power adapters</h3>
+<p class="hookup-note muted">Your ${amps}A cord handles up to ${amps === 50 ? '12,000W' : '3,600W'} — enough for${amps === 50 ? ' dual A/C, microwave, and everything else simultaneously' : ' A/C or microwave (not both at once)'}.</p>
+<div class="hookup-adapter-grid">${adapterRows}</div>
+</div>
+${gearSection('Water hookup', waterItems)}
+${gearSection('Sewer & dump', sewerItems)}
+<p class="est-caveat muted">All Airstream travel trailers use standard RV connections. Adapters listed are the most common needs — your campground mix may vary. Always check polarity with a pedestal tester before plugging in.</p>
+</div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
 // LIFESTYLE FIT METER — how well a trailer matches common camping lifestyles
 // ---------------------------------------------------------------------------
 function renderLifestyleFit(t) {
@@ -3508,6 +3691,7 @@ export function renderDetail(t, resolve = assetPaths, campgrounds = null, decor 
     (t.freshGal || t.blackGal) ? ['#water-autonomy', 'Water'] : null,
     ['#propane', 'Propane'],
     ['#electrical', 'Power'],
+    ['#hookup', 'Hookup'],
     a.floorplan ? ['#floorplan', 'Floor plan'] : null,
     ['#trip-ready', 'Trip Ready'],
     ['#seasonal', 'Seasons'],
@@ -3635,6 +3819,7 @@ ${renderOffGridTool(t)}
 ${renderWaterAutonomy(t)}
 ${renderPropaneEstimator(t)}
 ${renderElectricalPlanner(t)}
+${renderHookupGuide(t)}
 ${floorplanSection}
 ${decorSection}
 ${campgrounds ? renderCampgroundFit(t, campgrounds) : ''}
@@ -4080,4 +4265,86 @@ export function renderSaved(trailers, resolve = assetPaths, motorhomes = []) {
     active: 'saved',
     canonicalPath: 'saved.html',
   });
+}
+
+// ---------------------------------------------------------------------------
+// GLOSSARY PAGE — standalone reference for all RV & Airstream terminology
+// ---------------------------------------------------------------------------
+
+const GLOSSARY_TERMS = [
+  // Specs & Weights
+  { term: 'Dry Weight', def: 'The weight of the trailer as it leaves the factory — no water, propane, or personal gear. The starting point for all weight calculations.', cat: 'weights', link: '#specs' },
+  { term: 'GVWR', def: 'Gross Vehicle Weight Rating — the maximum safe loaded weight set by Airstream. Everything you add (water, propane, food, gear) must keep total weight under this number.', cat: 'weights', link: '#specs' },
+  { term: 'CCC', def: 'Cargo Carrying Capacity — the difference between GVWR and dry weight. This is your total budget for water, propane, and personal cargo.', cat: 'weights', link: '#payload' },
+  { term: 'Hitch Weight', def: 'The downward force the trailer tongue exerts on the tow vehicle\'s hitch ball. Typically 10–15% of the trailer\'s loaded weight. Your tow vehicle\'s payload must handle this.', cat: 'weights', link: '#hitch-guide' },
+  { term: 'MSRP', def: 'Manufacturer\'s Suggested Retail Price — the base sticker price before dealer markup, options, or negotiation. Actual transaction prices vary.', cat: 'weights', link: '#finance' },
+  // Towing
+  { term: 'Max Tow Rating', def: 'The maximum trailer weight your tow vehicle is rated to pull, as stated by the vehicle manufacturer. Must exceed the trailer\'s GVWR.', cat: 'towing', link: '#tow' },
+  { term: 'GCWR', def: 'Gross Combined Weight Rating — the maximum combined weight of tow vehicle + trailer + all occupants and cargo. Set by the tow vehicle manufacturer.', cat: 'towing', link: '#tow' },
+  { term: 'WDH', def: 'Weight Distributing Hitch — a hitch system that uses spring bars to redistribute tongue weight across all axles. Recommended for trailers over 5,000 lb GVWR.', cat: 'towing', link: '#hitch-guide' },
+  { term: 'Anti-Sway Control', def: 'A device (friction bar, dual-cam, or electronic) that reduces lateral trailer sway in crosswinds or when passed by trucks. Essential for larger trailers.', cat: 'towing', link: '#hitch-guide' },
+  { term: 'Breakaway Switch', def: 'A safety device that activates the trailer\'s brakes automatically if it separates from the tow vehicle. Required by law in most states.', cat: 'towing', link: '#tow' },
+  { term: 'Tongue Weight', def: 'Synonym for hitch weight — the downward force on the hitch. The loaded tongue weight should be 10–15% of the total loaded trailer weight for safe handling.', cat: 'towing', link: '#hitch-guide' },
+  // Tanks & Plumbing
+  { term: 'Fresh Water Tank', def: 'Holds clean drinking water for the sinks, shower, and toilet. Capacity ranges from 21 to 54 gallons across the Airstream lineup.', cat: 'tanks', link: '#water-autonomy' },
+  { term: 'Gray Tank', def: 'Collects wastewater from sinks and shower. Empties at a dump station. Some smaller Airstreams combine gray and black into one "combo" waste tank.', cat: 'tanks', link: '#water-autonomy' },
+  { term: 'Black Tank', def: 'Holds toilet waste. Must be emptied at a dump station. Use only RV-specific toilet paper. On combo-tank models, the single waste tank handles both gray and black.', cat: 'tanks', link: '#water-autonomy' },
+  { term: 'Combo Waste Tank', def: 'A single tank that handles both gray (sink/shower) and black (toilet) waste. Found on the smallest Airstreams like the Basecamp 16X and Bambi 16RB.', cat: 'tanks', link: '#water-autonomy' },
+  { term: 'Dump Station', def: 'A facility where you empty gray and black tanks through a sewer hose. Found at campgrounds, rest areas, and some gas stations. Many are free.', cat: 'tanks', link: '' },
+  // Power & Solar
+  { term: 'Shore Power', def: 'Electrical hookup at a campsite, typically 30A (3,600W max) or 50A (12,000W max). Your trailer plugs in with its shore power cord.', cat: 'power', link: '#electrical' },
+  { term: '30A Service', def: '30-amp campsite power — a single 120V/30A circuit providing up to 3,600W. Enough for A/C or microwave, but not both simultaneously.', cat: 'power', link: '#hookup' },
+  { term: '50A Service', def: '50-amp campsite power — two 120V/50A circuits providing up to 12,000W. Runs everything including dual A/C units. Found at RV resorts and newer campgrounds.', cat: 'power', link: '#hookup' },
+  { term: 'House Battery', def: 'The 12V battery (or lithium bank) that powers lights, water pump, furnace fan, and USB outlets when not on shore power. Charged by solar, the alternator while driving, or shore power.', cat: 'power', link: '#electrical' },
+  { term: 'Solar (Rooftop)', def: 'Factory-installed photovoltaic panels that charge the house battery. Wattage ranges from 90W to 600W across the lineup. Higher wattage = longer off-grid stays.', cat: 'power', link: '#offgrid' },
+  { term: 'Off-Grid Score', def: 'A 0–100 composite rating based on battery capacity, solar wattage, and tank sizes relative to the rest of the lineup. Higher = more self-sufficient.', cat: 'power', link: '#offgrid' },
+  // Camping
+  { term: 'Boondocking', def: 'Camping without hookups — no water, sewer, or electrical connections. Relies entirely on tanks, battery, solar, and propane. Also called "dry camping" or "dispersed camping."', cat: 'camping', link: '#offgrid' },
+  { term: 'Full Hookups', def: 'A campsite with water, sewer, and electrical connections. The most convenient setup — unlimited water, instant waste disposal, and shore power.', cat: 'camping', link: '#hookup' },
+  { term: 'Pull-Through Site', def: 'A campsite you can drive straight through without backing up. Easier for longer rigs. Back-in sites require reversing the trailer into position.', cat: 'camping', link: '' },
+  { term: 'Leveling', def: 'Adjusting the trailer so it sits level using stabilizer jacks and/or leveling blocks. Important for fridge operation, sleeping comfort, and proper tank drainage.', cat: 'camping', link: '#trip-ready' },
+  // Airstream-specific
+  { term: 'Single Axle', def: 'One axle (two wheels). Lighter, shorter trailers — easier to maneuver and tow. Bambi, Basecamp, and Caravel models.', cat: 'airstream', link: '#specs' },
+  { term: 'Dual Axle', def: 'Two axles (four wheels). Larger, heavier trailers — more stable at highway speed and in crosswinds. Flying Cloud, International, Classic, and most others.', cat: 'airstream', link: '#specs' },
+  { term: 'Rock Guard', def: 'The protective front panel (black or body-color) that shields the trailer\'s aluminum shell from road debris kicked up by the tow vehicle.', cat: 'airstream', link: '' },
+  { term: 'A-Frame', def: 'The triangular steel tongue structure at the front of the trailer that connects to the hitch ball. Houses the propane tanks, battery, and breakaway switch.', cat: 'airstream', link: '' },
+];
+
+const GLOSSARY_CATS = [
+  { key: 'weights', label: 'Specs & Weights', icon: '⚖️' },
+  { key: 'towing', label: 'Towing', icon: '🚗' },
+  { key: 'tanks', label: 'Tanks & Plumbing', icon: '💧' },
+  { key: 'power', label: 'Power & Solar', icon: '⚡' },
+  { key: 'camping', label: 'Camping', icon: '⛺' },
+  { key: 'airstream', label: 'Airstream-Specific', icon: '🏕️' },
+];
+
+export function renderGlossaryBody() {
+  const sections = GLOSSARY_CATS.map((cat) => {
+    const terms = GLOSSARY_TERMS.filter((t) => t.cat === cat.key);
+    if (!terms.length) return '';
+    const rows = terms.map((t) => {
+      const linkHtml = t.link
+        ? ` <a class="glossary-link" href="index.html#all" aria-label="See ${esc(t.term)} in context">→ See in specs</a>`
+        : '';
+      return `<div class="glossary-term" id="gl-${esc(t.term.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}">
+<dt class="glossary-dt">${esc(t.term)}</dt>
+<dd class="glossary-dd">${esc(t.def)}${linkHtml}</dd>
+</div>`;
+    }).join('\n');
+    return `<section class="glossary-cat" aria-label="${esc(cat.label)}">
+<h2><span class="glossary-cat-icon" aria-hidden="true">${cat.icon}</span> ${esc(cat.label)}</h2>
+<dl class="glossary-dl">${rows}</dl>
+</section>`;
+  }).join('\n');
+
+  return `<header class="glossary-head">
+<p class="eyebrow">REFERENCE</p>
+<h1>RV & Airstream Glossary</h1>
+<p class="lede">Every term you'll see on spec sheets, in campground descriptions, and throughout this site — explained in plain language.</p>
+</header>
+<div class="glossary-toc">
+${GLOSSARY_CATS.map((c) => `<a class="glossary-toc-link" href="#gl-${esc(GLOSSARY_TERMS.find((t) => t.cat === c.key).term.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}">${c.icon} ${esc(c.label)}</a>`).join('\n')}
+</div>
+${sections}`;
 }

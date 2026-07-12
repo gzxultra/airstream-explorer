@@ -723,3 +723,23 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .budget-diff--less { background: rgba(46,160,67,.18); color: #56d364; }
 [data-theme="dark"] .budget-diff--more { background: rgba(176,92,50,.18); color: var(--copper); }
 [data-theme="dark"] .budget-diff--same { background: rgba(255,255,255,.08); color: var(--muted); }
+
+
+/* ── Hookup guide (dark) ──────────────────────────────────────────── */
+[data-theme="dark"] .hookup-adapter { background: var(--surface); border-color: var(--line); }
+[data-theme="dark"] .hookup-gear-item { border-color: var(--line); }
+
+/* ── Model year highlights (dark) ─────────────────────────────────── */
+[data-theme="dark"] .myh-stat { background: rgba(255,255,255,.06); border-color: var(--line); }
+[data-theme="dark"] .myh-stat--up { background: rgba(176,92,50,.2); color: var(--copper); }
+[data-theme="dark"] .myh-stat--down { background: rgba(46,160,67,.18); color: #56d364; }
+[data-theme="dark"] .myh-card { background: var(--card); border-color: var(--line); }
+[data-theme="dark"] .myh-card:hover { border-color: var(--copper); box-shadow: 0 2px 12px rgba(0,0,0,.3); }
+[data-theme="dark"] .myh-delta--up { background: rgba(176,92,50,.2); color: var(--copper); }
+[data-theme="dark"] .myh-delta--down { background: rgba(46,160,67,.18); color: #56d364; }
+[data-theme="dark"] .myh-delta--changed { background: rgba(255,255,255,.08); color: var(--muted); }
+
+/* ── Glossary (dark) ──────────────────────────────────────────────── */
+[data-theme="dark"] .glossary-toc-link { background: var(--surface); border-color: var(--line); }
+[data-theme="dark"] .glossary-toc-link:hover { border-color: var(--copper); }
+[data-theme="dark"] .glossary-term { border-color: var(--line); }
