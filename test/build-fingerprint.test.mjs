@@ -14,8 +14,11 @@ import { fileURLToPath } from 'node:url';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist');
 
-// Build once (CI and local both have node + the build script).
-execFileSync('node', ['scripts/build.mjs'], { cwd: ROOT, stdio: 'pipe' });
+// Reuse existing dist/ if already built (CI builds before tests).
+// Only rebuild if dist/ is missing (standalone local test runs).
+if (!existsSync(DIST) || !existsSync(join(DIST, 'index.html'))) {
+  execFileSync('node', ['scripts/build.mjs'], { cwd: ROOT, stdio: 'pipe' });
+}
 
 const htmlFiles = [];
 const collect = (dir) => {
