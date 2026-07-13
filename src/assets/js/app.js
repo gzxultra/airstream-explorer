@@ -243,6 +243,20 @@
     triggers.forEach(function (t, i) {
       t.addEventListener('click', function (e) { e.preventDefault(); open(i); });
     });
+    // Mosaic previews (data-lb-open) — open the lightbox at the matching index
+    // without being part of the lightbox items[] themselves (avoids duplicates).
+    Array.prototype.slice.call(document.querySelectorAll('[data-lb-open]')).forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        var targetFull = el.getAttribute('data-full');
+        // Find the matching item by URL
+        var matchIdx = -1;
+        for (var mi = 0; mi < items.length; mi++) {
+          if (items[mi].full === targetFull) { matchIdx = mi; break; }
+        }
+        open(matchIdx >= 0 ? matchIdx : 0);
+      });
+    });
     Array.prototype.slice.call(lb.querySelectorAll('[data-lb-close]')).forEach(function (el) {
       el.addEventListener('click', close);
     });

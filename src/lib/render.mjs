@@ -7,9 +7,10 @@ import {
   hitchPctOfGvwr,
   trailerTitle, trailerLabel, saveButton,
   formatDimFt,
+  ordinal,
 } from './format.mjs';
 import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy, computeFleetStandouts, generateGlanceSummary, deriveAxle, towDifficulty, winterizationGuide, computeIdealFor } from './data.mjs';
-import { motorhomeAssetPaths } from './motorhome-data.mjs';
+import { motorhomeAssetPaths, loadMotorhomes } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd, faqJsonLd } from './seo.mjs';
 import { lifestyleFit, deriveAmenities, storageGuide } from './lifestyle.mjs';
@@ -63,7 +64,7 @@ const NAV_ITEMS = [
 ];
 
 export function page({ title, description, body, relRoot = '', head = '', scripts = '', active = '', canonicalPath = '', ogImage = '', ogType = 'website' }) {
-  const _stats = catalogStats();
+  const _stats = catalogStats(null, loadMotorhomes());
   const navLinks = NAV_ITEMS.map(([href, label, key]) => {
     const on = key === active;
     // The Saved link carries a live count badge, populated client-side from
@@ -309,7 +310,7 @@ function specRow(label, value, { tip = false, unit = null, raw = null, pctData =
   if (fleetRange) {
     const pos = rangePosition(fleetRange.value, fleetRange.range);
     if (pos != null) {
-      fleetHtml = `<span class="spec-fleet" aria-label="${esc(label)}: ${pos}th percentile in lineup" title="Fleet position: ${pos}%"><span class="spec-fleet-track"><span class="spec-fleet-fill" style="width:${pos}%"></span><span class="spec-fleet-dot" style="left:${pos}%"></span></span></span>`;
+      fleetHtml = `<span class="spec-fleet" aria-label="${esc(label)}: ${ordinal(pos)} percentile in lineup" title="Fleet position: ${pos}%"><span class="spec-fleet-track"><span class="spec-fleet-fill" style="width:${pos}%"></span><span class="spec-fleet-dot" style="left:${pos}%"></span></span></span>`;
     }
   }
   // Year-over-year change indicator (2025→2026)
@@ -801,7 +802,7 @@ export function renderIndex(families, trailers = [], resolve = assetPaths, motor
   // collide. aria-pressed conveys state to AT; hash deep-links each view.
   const viewToggle = `<nav class="viewseg" id="view-toggle" aria-label="Browse mode">
 <a class="viewseg-btn is-active" href="#families" data-view="families" aria-current="page"><span class="viewseg-label">By family</span><span class="viewseg-sub">${allFamilies} model lines</span></a>
-<a class="viewseg-btn" href="#all" data-view="all"><span class="viewseg-label">All floorplans</span><span class="viewseg-sub">${trailers.length + motorhomes.length} by the numbers</span></a>
+<a class="viewseg-btn" href="#all" data-view="all"><span class="viewseg-label">All floorplans</span><span class="viewseg-sub">${totalPlans} floorplans</span></a>
 </nav>`;
   const editorsPicks = computeEditorsPicks(trailers, resolve);
   const body = `${heroBand}
@@ -3318,7 +3319,7 @@ export function renderDetail(t, resolve = assetPaths, decor = null, allTrailers 
   const galleryMosaic = a.gallery ? a.gallery.slice(0, 5).map((g, i) => {
     const cutout = a.galleryCutout && a.galleryCutout[i];
     const cls = i === 0 ? 'gallery-mosaic-hero' : 'gallery-mosaic-thumb';
-    return `<button type="button" class="gallery-mosaic-item ${cls}" data-lightbox data-full="../${esc(g)}" data-index="${i + heroOffset}" aria-label="Photo ${i + 1}"><img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="${i < 2 ? 'eager' : 'lazy'}" class="${cutout ? 'gallery-img--cutout' : 'gallery-img--photo'}"></button>`;
+    return `<button type="button" class="gallery-mosaic-item ${cls}" data-lb-open="${i + heroOffset}" data-full="../${esc(g)}" aria-label="Photo ${i + 1}"><img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="${i < 2 ? 'eager' : 'lazy'}" class="${cutout ? 'gallery-img--cutout' : 'gallery-img--photo'}"></button>`;
   }).join('\n') : '';
   const gallery = a.gallery
     .map(
@@ -3562,7 +3563,7 @@ ${pagerNav}`;
 function renderRangeBar(value, range, label) {
   const pos = rangePosition(value, range);
   if (pos == null) return '';
-  return `<span class="range-bar" aria-label="${esc(label)}: ${pos}th percentile in lineup" title="${esc(label)}: ${pos}th percentile"><span class="range-bar-track"><span class="range-bar-fill" style="width:${pos}%"></span></span></span>`;
+  return `<span class="range-bar" aria-label="${esc(label)}: ${ordinal(pos)} percentile in lineup" title="${esc(label)}: ${ordinal(pos)} percentile"><span class="range-bar-track"><span class="range-bar-fill" style="width:${pos}%"></span></span></span>`;
 }
 
 export function renderExploreCard(t, resolve = assetPaths, hidden = false, ranges = {}, fleetBadges = []) {
@@ -4283,4 +4284,65 @@ export function renderSizeLadder(families, trailers = []) {
 ${bars}
 </div>
 </section>`;
+}
+
+
+// ---------------------------------------------------------------------------
+// CREDITS & SOURCES PAGE
+// ---------------------------------------------------------------------------
+export function renderCreditsBody() {
+  return `<article class="credits-page">
+<header class="page-header">
+<p class="eyebrow">REFERENCE</p>
+<h1>Credits &amp; sources</h1>
+<p class="lede">Where the data comes from, and what this project is.</p>
+</header>
+
+<section class="credits-section">
+<h2>What is Airstream Explorer?</h2>
+<p>An independent, spec-accurate field guide to the current Airstream travel trailer and touring coach lineup. This is a personal project — not affiliated with, endorsed by, or sponsored by Airstream, Inc. or Thor Industries.</p>
+</section>
+
+<section class="credits-section">
+<h2>Spec data</h2>
+<p>All specifications (weights, dimensions, tank capacities, pricing, towing figures) are compiled from Airstream's officially published sources:</p>
+<ul>
+<li><a href="https://www.airstream.com/travel-trailers/" target="_blank" rel="noopener">airstream.com</a> — model pages and spec sheets</li>
+<li>Airstream's official PDF brochures and specification sheets for each model year</li>
+<li>Dexter Axle — axle and bearing specifications</li>
+<li>Suburban / Dometic / Atwood — appliance specifications referenced in maintenance</li>
+</ul>
+<p>When a spec could not be verified against an official source, it is marked as such. Verify any figure with your dealer before making a purchase decision.</p>
+</section>
+
+<section class="credits-section">
+<h2>Photography</h2>
+<p>Model imagery is official Airstream product photography sourced from Airstream's press and marketing materials. No user-submitted, AI-generated, or stock photography is used for model images.</p>
+</section>
+
+<section class="credits-section">
+<h2>Maintenance &amp; upgrades</h2>
+<p>Every maintenance interval and upgrade recommendation carries at least one primary source link — Airstream's own published schedule, the appliance or component manufacturer, or an industry authority (tire, propane, fire safety). See each item's disclosure for the specific source.</p>
+</section>
+
+<section class="credits-section">
+<h2>Tow guide</h2>
+<p>Tow vehicle ratings are sourced from manufacturer-published towing guides and spec sheets. These figures can vary by cab configuration, drivetrain, axle ratio, and packages — always confirm with your vehicle's door-jamb sticker or owner's manual.</p>
+</section>
+
+<section class="credits-section">
+<h2>Technology</h2>
+<ul>
+<li>Static site built with vanilla JavaScript and Node.js</li>
+<li>Hosted on Cloudflare Pages</li>
+<li>Maps powered by MapLibre GL JS (self-hosted, no external CDN)</li>
+<li>Fonts: Fraunces (display) and DM Sans (body), self-hosted</li>
+</ul>
+</section>
+
+<section class="credits-section">
+<h2>Contact</h2>
+<p>Found wrong data? <a href="https://github.com/gzxultra/airstream-explorer/issues" target="_blank" rel="noopener">Open an issue on GitHub</a>.</p>
+</section>
+</article>`;
 }

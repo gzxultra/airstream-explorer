@@ -239,9 +239,10 @@ export function groupByFamily(trailers) {
  * truth for the global footer line so it can never drift from the data
  * (no more hardcoded `${31}` that silently lies when the catalog changes).
  * Memoized: the dataset is static within a build.
+ * When `motorhomes` is passed, counts include both trailers and motorhomes.
  */
 let _catalogStats = null;
-export function catalogStats(trailers) {
+export function catalogStats(trailers, motorhomes) {
   if (!trailers) {
     if (_catalogStats) return _catalogStats;
     trailers = loadTrailers();
@@ -249,10 +250,17 @@ export function catalogStats(trailers) {
   const families = new Set(trailers.map((t) => t.model));
   const floorplans = new Set(trailers.map((t) => `${t.model}\u0000${t.floorplan}`));
   const years = [...new Set(trailers.map((t) => t.year))].sort((a, b) => b - a);
+  // Include motorhomes in the totals when provided
+  if (motorhomes && motorhomes.length) {
+    for (const m of motorhomes) families.add(m.model);
+    for (const m of motorhomes) floorplans.add(`${m.model}\u0000${m.floorplan}`);
+    for (const m of motorhomes) { if (!years.includes(m.year)) years.push(m.year); }
+    years.sort((a, b) => b - a);
+  }
   const stats = {
     familyCount: families.size,
     floorplanCount: floorplans.size,
-    entryCount: trailers.length,
+    entryCount: trailers.length + (motorhomes ? motorhomes.length : 0),
     years,
   };
   _catalogStats = stats;

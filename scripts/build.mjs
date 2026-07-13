@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
 import { loadTrailers, validateDataset, groupByFamily, resolveAssets, loadDecor, resolveDecor } from '../src/lib/data.mjs';
-import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, renderSaved, renderGlossaryBody, renderTowGuide, page } from '../src/lib/render.mjs';
+import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, renderSaved, renderGlossaryBody, renderCreditsBody, renderTowGuide, page } from '../src/lib/render.mjs';
 import { loadVehicles } from '../src/lib/tow.mjs';
 import { loadMotorhomes, validateMotorhomeDataset, groupMotorhomesByFamily, resolveMotorhomeAssets } from '../src/lib/motorhome-data.mjs';
 import { renderMotorhomeIndex, renderMotorhomeFamily, renderMotorhomeDetail } from '../src/lib/motorhome-render.mjs';
@@ -131,6 +131,19 @@ writeFileSync(
   }),
 );
 log('wrote glossary.html');
+
+// 4b-iii. Credits & sources page (root-level)
+writeFileSync(
+  join(DIST, 'credits.html'),
+  page({
+    title: 'Credits & sources — Airstream Explorer',
+    description: 'Where the spec data, photography, and maintenance intervals come from. An independent reference, not affiliated with Airstream, Inc.',
+    body: renderCreditsBody(),
+    active: '',
+    canonicalPath: 'credits.html',
+  }),
+);
+log('wrote credits.html');
 
 // 4c. Upgrades & options page (root-level, so relRoot = '')
 writeFileSync(
@@ -361,6 +374,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     join(DIST, 'maintenance.html'),
     join(DIST, '404.html'),
     join(DIST, 'glossary.html'),
+    join(DIST, 'credits.html'),
     join(DIST, 'motorhomes.html'),
     join(DIST, 'towguide.html'),
     join(DIST, 'offline.html'),
@@ -415,6 +429,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     { file: join(DIST, 'upgrades.html'), base: DIST },
     { file: join(DIST, 'maintenance.html'), base: DIST },
     { file: join(DIST, 'glossary.html'), base: DIST },
+    { file: join(DIST, 'credits.html'), base: DIST },
     { file: join(DIST, 'motorhomes.html'), base: DIST },
     { file: join(DIST, '404.html'), base: DIST },
     { file: join(DIST, 'towguide.html'), base: DIST },
