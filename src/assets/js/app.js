@@ -3387,8 +3387,7 @@
         }
         lines.push(summaryParts.join(' ' + String.fromCharCode(183) + ' '));
         lines.push('via Airstream Explorer');
-        var text = lines.join('
-');
+        var text = lines.join('\n');
 
         var prev = exportBtn.innerHTML;
         function flash(msg) {
@@ -3994,8 +3993,6 @@
       });
     }
   })();
-
-})();
 
   // -----------------------------------------------------------------------
   // QUICK VIEW — spec popover on explore cards with prev/next navigation
@@ -6637,3 +6634,6 @@
       bars.forEach(function (b) { b.classList.remove('sl-bar--dim'); });
     });
   })();
+
+})();
+})();
