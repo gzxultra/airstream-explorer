@@ -50,9 +50,9 @@ describe('weight class segment bar', () => {
 });
 
 describe('fleet snapshot dashboard', () => {
-  it('fleet-snapshot container is in built index.html', () => {
+  it('fleet-snapshot container is NOT in built index.html (removed 2026-09)', () => {
     const html = readSrc('dist/index.html');
-    assert.ok(html.includes('id="fleet-snapshot"'), 'fleet-snapshot container missing');
+    assert.ok(!html.includes('id="fleet-snapshot"'), 'fleet-snapshot container should be gone');
   });
 
   it('app.js contains fleetSnapshot IIFE', () => {

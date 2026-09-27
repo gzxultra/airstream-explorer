@@ -1,6 +1,67 @@
 // Client behavior for Airstream Explorer. CSP-safe: no eval, no innerHTML with
 // untrusted strings, no inline handlers. Independent modules guarded by the
 // elements they need, so one script serves every page.
+
+// Shared motion/a11y helpers (top-level so every IIFE below can use them).
+// P2: every JS-initiated smooth scroll goes through these so
+// prefers-reduced-motion: reduce is honored everywhere. (The CSS
+// `html { scroll-behavior: smooth }` already has its own media-query guard.)
+function aeMotionBehavior() {
+  return (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth';
+}
+function aeMergeMotionOpts(opts) {
+  var merged = { behavior: aeMotionBehavior() };
+  opts = opts || {};
+  for (var k in opts) merged[k] = opts[k];
+  return merged;
+}
+function aeSmoothIntoView(el, opts) {
+  if (!el || !el.scrollIntoView) return;
+  try { el.scrollIntoView(aeMergeMotionOpts(opts)); } catch (e) { try { el.scrollIntoView(); } catch (e2) {} }
+}
+function aeSmoothScrollTo(el, opts) {
+  el = el || window;
+  if (!el.scrollTo) return;
+  try { el.scrollTo(aeMergeMotionOpts(opts)); } catch (e) {}
+}
+// Generic focus trap for modal dialogs (P2): Tab cycles across all visible
+// focusable elements inside `container`; Escape calls onEscape.
+function aeTrapFocus(container, onEscape) {
+  if (!container) return function () {};
+  function focusables() {
+    var els = container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    return Array.prototype.filter.call(els, function (el) {
+      return !el.disabled && el.offsetParent !== null;
+    });
+  }
+  function onKey(e) {
+    if (e.key === 'Escape' && onEscape) { e.preventDefault(); onEscape(); return; }
+    if (e.key !== 'Tab') return;
+    var f = focusables();
+    if (!f.length) { e.preventDefault(); return; }
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+  container.addEventListener('keydown', onKey);
+  return function release() { container.removeEventListener('keydown', onKey); };
+}
+// P2: clamp any <input type="number"> to its min/max on change/focusout —
+// never mid-typing (input event), so typing stays undisturbed.
+function aeClampNumberInput(el) {
+  if (!el || el.tagName !== 'INPUT' || el.type !== 'number') return;
+  var raw = (el.value || '').trim();
+  if (!raw) return;
+  var n = parseFloat(raw);
+  if (isNaN(n)) return;
+  var min = el.hasAttribute('min') ? parseFloat(el.getAttribute('min')) : -Infinity;
+  var max = el.hasAttribute('max') ? parseFloat(el.getAttribute('max')) : Infinity;
+  var c = Math.min(max, Math.max(min, n));
+  if (c !== n) el.value = c;
+}
+document.addEventListener('change', function (e) { aeClampNumberInput(e.target); });
+document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target); });
+
 (function () {
   'use strict';
 
@@ -150,6 +211,141 @@
       apply(next);
     });
   })();
+    // =========================================================================
+  // 7. KEYBOARD SHORTCUTS — site-wide hotkeys for power users. ? opens the
+  //     help overlay, / focuses explore search, j/k navigates explore cards,
+  //     d toggles dark/light, s saves the current detail-page floorplan.
+  //     All shortcuts are suppressed when focus is inside an input, textarea,
+  //     select, or contenteditable element, so they never interfere with typing.
+  // =========================================================================
+  (function keyboardShortcuts() {
+    var helpEl = document.getElementById('kb-help');
+    if (!helpEl) return;
+    var isOpen = false;
+    var helpReleaseTrap = null; // P2: generic focus trap (aeTrapFocus)
+
+    function openHelp() {
+      helpEl.removeAttribute('hidden');
+      helpEl.setAttribute('aria-hidden', 'false');
+      isOpen = true;
+      helpReleaseTrap = aeTrapFocus(helpEl, closeHelp);
+    }
+    function closeHelp() {
+      if (helpReleaseTrap) { helpReleaseTrap(); helpReleaseTrap = null; }
+      helpEl.setAttribute('hidden', '');
+      helpEl.setAttribute('aria-hidden', 'true');
+      isOpen = false;
+    }
+    // Close buttons
+    Array.prototype.slice.call(helpEl.querySelectorAll('[data-kb-close]')).forEach(function (el) {
+      el.addEventListener('click', closeHelp);
+    });
+
+    // Explore card keyboard nav state
+    var kbIdx = -1;
+    function getVisibleCards() {
+      var grid = document.getElementById('xgrid');
+      if (!grid) return [];
+      return Array.prototype.slice.call(grid.querySelectorAll('.xcard:not([hidden])'));
+    }
+    function clearKbFocus() {
+      var old = document.querySelector('.xcard.is-kb-focus');
+      if (old) old.classList.remove('is-kb-focus');
+    }
+    function setKbFocus(cards, idx) {
+      clearKbFocus();
+      if (idx < 0 || idx >= cards.length) return;
+      kbIdx = idx;
+      cards[idx].classList.add('is-kb-focus');
+      aeSmoothIntoView(cards[idx], { block: 'nearest' });
+    }
+
+    function inInput(e) {
+      var tag = (e.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
+      if (e.target.isContentEditable) return true;
+      return false;
+    }
+
+    document.addEventListener('keydown', function (e) {
+      // Escape always closes overlays
+      if (e.key === 'Escape') {
+        if (isOpen) { closeHelp(); e.preventDefault(); return; }
+        clearKbFocus(); kbIdx = -1;
+        return;
+      }
+      // Don't intercept when typing in inputs
+      if (inInput(e)) return;
+      // Don't intercept modified keys (Ctrl, Alt, Meta)
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+      var key = e.key;
+
+      // ? — show help
+      if (key === '?') { e.preventDefault(); isOpen ? closeHelp() : openHelp(); return; }
+
+      // / — focus search
+      if (key === '/') {
+        var search = document.getElementById('x-search');
+        if (search) { e.preventDefault(); search.focus(); search.select(); }
+        return;
+      }
+
+      // d — toggle dark mode
+      if (key === 'd') {
+        var toggle = document.getElementById('theme-toggle');
+        if (toggle) { e.preventDefault(); toggle.click(); }
+        return;
+      }
+
+      // u — toggle imperial/metric units
+      if (key === 'u') {
+        var unitBtn = document.getElementById('unit-toggle');
+        if (unitBtn) { e.preventDefault(); unitBtn.click(); }
+        return;
+      }
+
+      // s — save/unsave on detail page
+      if (key === 's') {
+        var detailSave = document.querySelector('.save-btn--detail');
+        if (detailSave) { e.preventDefault(); detailSave.click(); }
+        return;
+      }
+
+      // j/k — navigate explore cards
+      if (key === 'j' || key === 'k') {
+        var cards = getVisibleCards();
+        if (!cards.length) return;
+        e.preventDefault();
+        if (key === 'j') {
+          setKbFocus(cards, kbIdx < cards.length - 1 ? kbIdx + 1 : 0);
+        } else {
+          setKbFocus(cards, kbIdx > 0 ? kbIdx - 1 : cards.length - 1);
+        }
+        return;
+      }
+
+      // Enter — open focused card
+      if (key === 'Enter' && kbIdx >= 0) {
+        var cards2 = getVisibleCards();
+        if (cards2[kbIdx]) {
+          var link = cards2[kbIdx].querySelector('.xcard-link');
+          if (link) { e.preventDefault(); link.click(); }
+        }
+        return;
+      }
+    });
+  })();
+
+})();
+
+  // =========================================================================
+  // 0b-LIGHTBOX — full-screen gallery viewer. Each gallery cell is a
+  //     <button data-lightbox data-full data-index data-caption> inside a
+  //     [data-gallery] grid. Opening reads the sibling buttons as the photo
+  //     set so prev/next wrap the whole gallery. Keyboard (←/→/Esc), touch
+  //     swipe, backdrop-click, and focus-trap + restore. Guarded by #lightbox.
+  // =========================================================================
   (function lightbox() {
     var lb = document.getElementById('lightbox');
     if (!lb) return;
@@ -263,19 +459,14 @@
     if (btnPrev) btnPrev.addEventListener('click', function () { go(-1); });
     if (btnNext) btnNext.addEventListener('click', function () { go(1); });
 
+    aeTrapFocus(lb, close);
     document.addEventListener('keydown', function (e) {
       if (lb.hidden) return;
       if (e.key === 'Escape') { e.preventDefault(); close(); }
       else if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
-      else if (e.key === 'Tab') {
-        // Simple focus trap across the visible controls.
-        var f = [elClose, btnPrev, btnNext].filter(function (b) { return b && b.offsetParent !== null; });
-        if (!f.length) return;
-        var first = f[0], last = f[f.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-      }
+      // Tab is handled by the generic focus trap (aeTrapFocus, covers close /
+      // prev / next / dots); see the keydown listener attached to #lightbox.
     });
 
     // Touch swipe on the image stage.
@@ -434,7 +625,7 @@
         if (v !== 'all' && v !== 'families') return;
         e.preventDefault();
         show(v, true);
-        if (v === 'all') { try { views.all.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e2) {} }
+        if (v === 'all') { try { aeSmoothIntoView(views.all, { block: 'start' }); } catch (e2) {} }
       });
     });
     window.addEventListener('popstate', function () { show(fromHash(), false); });
@@ -2330,6 +2521,49 @@
     var elChecks = document.getElementById('tow-checks');
     var elConfig = document.getElementById('tow-config');
     var elSources = document.getElementById('tow-sources');
+    var elDeclareVehicle = document.getElementById('tow-declare-vehicle');
+    var elMaxTow = document.getElementById('tow-maxtow');
+    var elPayload = document.getElementById('tow-payload');
+    var elGcwr = document.getElementById('tow-gcwr');
+    var elCopyLink = document.getElementById('tow-copylink');
+
+    // Combobox: display label ("Name — config") -> vehicle id. Labels are
+    // unique across the dataset (asserted at build time in tow.mjs tests).
+    var labelToId = {};
+    data.vehicles.forEach(function (v) { labelToId[v.name + ' \u2014 ' + v.config] = v.id; });
+
+    var currentVehicle = byId[data.defaultVehicleId] || data.vehicles[0];
+    // Door-jamb overrides: null = use the preset's value. Curb weight always
+    // comes from the selected preset (combined-weight math needs it, and we
+    // never invent it).
+    var overrides = { maxtow: null, payload: null, gcwr: null };
+
+    function effectiveVehicle(v) {
+      return {
+        maxTowLb: overrides.maxtow != null ? overrides.maxtow : v.maxTowLb,
+        payloadLb: overrides.payload != null ? overrides.payload : v.payloadLb,
+        gcwrLb: overrides.gcwr != null ? overrides.gcwr : v.gcwrLb,
+        curbWeightLb: v.curbWeightLb,
+      };
+    }
+
+    function vehicleLabel(v) { return v.name + ' \u2014 ' + v.config; }
+
+    function readOverride(el) {
+      if (!el) return null;
+      var raw = (el.value || '').trim();
+      if (!raw) return null;
+      var n = parseFloat(raw);
+      if (!isFinite(n) || n < 0) return null;
+      return Math.round(n);
+    }
+
+    function refillOverrides(v) {
+      overrides = { maxtow: null, payload: null, gcwr: null };
+      if (elMaxTow) elMaxTow.value = v.maxTowLb;
+      if (elPayload) elPayload.value = v.payloadLb;
+      if (elGcwr) elGcwr.value = v.gcwrLb;
+    }
 
     function fmtLbLocal(n) { return Math.round(n).toLocaleString('en-US') + ' lb'; }
     function pctLabel(frac) { return isFinite(frac) ? Math.round(frac * 100) + '%' : '—'; }
@@ -2402,10 +2636,10 @@
     }
 
     function compute() {
-      var v = byId[elVehicle.value] || data.vehicles[0];
+      var v = currentVehicle;
       var truckLoad = parseInt(elLoad.value, 10);
       if (isNaN(truckLoad)) truckLoad = data.defaultTruckLoadLb || 300;
-      var result = evaluate(v, truckLoad);
+      var result = evaluate(effectiveVehicle(v), truckLoad);
       var meta = VMETA[result.verdict];
 
       elVerdict.className = 'tow-verdict ' + meta.cls;
@@ -2413,6 +2647,8 @@
       elVLabel.textContent = meta.label;
       elVVehicle.textContent = v.name;
       elVBlurb.textContent = meta.blurb + ' Binds on ' + result.binding.label.toLowerCase() + ' at ' + pctLabel(result.binding.frac) + '.';
+      if (elDeclareVehicle) elDeclareVehicle.textContent = vehicleLabel(v) +
+        (overrides.maxtow != null || overrides.payload != null || overrides.gcwr != null ? ' (with your door-jamb overrides)' : '');
 
       rebuildChecks(result);
 
@@ -2425,10 +2661,127 @@
       rebuildSources(v);
     }
 
-    if (elVehicle) elVehicle.addEventListener('change', compute);
-    if (elLoad) elLoad.addEventListener('change', compute);
+    // ---- shareable tow state via URL hash: #tow&v=<id>&load=<lb>[&maxtow=..&payload=..&gcwr=..]
+    // Overrides are only included when they differ from the preset. replaceState
+    // keeps the back button clean. Never clobbers a non-tow anchor (e.g. #specs).
+    function syncTowHash(force) {
+      if (typeof history.replaceState !== 'function') return;
+      var cur = location.hash || '';
+      // Don't stomp an unrelated anchor (e.g. #specs) on passive re-computes.
+      // force=true is only used by the explicit Copy-link action, where the
+      // shared URL must always reflect the tool's current state.
+      if (cur && cur.indexOf('#tow') !== 0 && !force) return;
+      var v = currentVehicle;
+      var parts = ['tow', 'v=' + encodeURIComponent(v.id)];
+      var truckLoad = parseInt(elLoad.value, 10);
+      if (!isNaN(truckLoad)) parts.push('load=' + truckLoad);
+      if (overrides.maxtow != null && overrides.maxtow !== v.maxTowLb) parts.push('maxtow=' + overrides.maxtow);
+      if (overrides.payload != null && overrides.payload !== v.payloadLb) parts.push('payload=' + overrides.payload);
+      if (overrides.gcwr != null && overrides.gcwr !== v.gcwrLb) parts.push('gcwr=' + overrides.gcwr);
+      var hash = '#' + parts.join('&');
+      if (cur !== hash) {
+        try { history.replaceState(null, '', hash); } catch (e) {}
+      }
+    }
+
+    function setVehicleByLabel(label) {
+      var id = labelToId[label];
+      if (!id || !byId[id]) return false;
+      currentVehicle = byId[id];
+      refillOverrides(currentVehicle);
+      return true;
+    }
+
+    // Deep link: #tow&v=..&load=..&maxtow=.. — applied once on load, then we
+    // scroll to the tool (auto behavior: no animation on initial load).
+    var hashApplied = false;
+    (function applyTowHash() {
+      var h = (location.hash || '').replace(/^#/, '');
+      if (!h) return;
+      var sp;
+      try { sp = new URLSearchParams(h); } catch (e) { return; }
+      if (!sp.has('tow')) return;
+      var id = sp.get('v');
+      if (id && byId[id]) {
+        currentVehicle = byId[id];
+        refillOverrides(currentVehicle);
+      }
+      var load = parseInt(sp.get('load'), 10);
+      if (!isNaN(load) && load >= 0 && elLoad) {
+        // only accept loads the select actually offers
+        var ok = false;
+        for (var i = 0; i < elLoad.options.length; i++) {
+          if (parseInt(elLoad.options[i].value, 10) === load) { ok = true; break; }
+        }
+        if (ok) elLoad.value = String(load);
+      }
+      var ov = { maxtow: sp.get('maxtow'), payload: sp.get('payload'), gcwr: sp.get('gcwr') };
+      var map = { maxtow: elMaxTow, payload: elPayload, gcwr: elGcwr };
+      Object.keys(map).forEach(function (k) {
+        var n = parseFloat(ov[k]);
+        if (!isNaN(n) && n > 0 && map[k]) {
+          overrides[k] = Math.round(n);
+          map[k].value = overrides[k];
+        }
+      });
+      hashApplied = true;
+    })();
+
+    function onUserChange() { compute(); syncTowHash(); }
+
+    if (elVehicle) {
+      // SSR prefilled the input with the default vehicle's label; keep the
+      // field and state in sync, and refill overrides on vehicle switch.
+      elVehicle.value = vehicleLabel(currentVehicle);
+      elVehicle.addEventListener('change', function () {
+        var label = elVehicle.value.trim();
+        if (labelToId[label]) {
+          setVehicleByLabel(label);
+        } else {
+          // Unknown text: revert to the current vehicle rather than silently
+          // evaluating a stale/mismatched one.
+          elVehicle.value = vehicleLabel(currentVehicle);
+        }
+        onUserChange();
+      });
+    }
+    if (elLoad) elLoad.addEventListener('change', onUserChange);
+    [[elMaxTow, 'maxtow'], [elPayload, 'payload'], [elGcwr, 'gcwr']].forEach(function (pair) {
+      var el = pair[0], key = pair[1];
+      if (!el) return;
+      el.addEventListener('change', function () {
+        overrides[key] = readOverride(el);
+        onUserChange();
+      });
+    });
+    if (elCopyLink) elCopyLink.addEventListener('click', function () {
+      syncTowHash(true); // force the hash to reflect the tool state before copying
+      var url = location.href;
+      var btn = elCopyLink;
+      function flash(msg) {
+        var prev = btn.textContent;
+        btn.textContent = msg; btn.classList.add('is-copied');
+        setTimeout(function () { btn.textContent = prev; btn.classList.remove('is-copied'); }, 1600);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () { flash('Link copied \u2713'); }, function () { flash('Copy the URL'); });
+      } else {
+        flash('Copy the URL');
+      }
+    });
+    if (!hashApplied) refillOverrides(currentVehicle);
     compute();
+    if (hashApplied) {
+      var towSection = document.getElementById('tow');
+      if (towSection && towSection.scrollIntoView) {
+        try { towSection.scrollIntoView({ behavior: 'auto', block: 'start' }); } catch (e) {}
+      }
+    }
   })();
+  /* Interactive floorplan zones — touch/click/keyboard, no hover dependency.
+     Tap a numbered dot to open its bubble and highlight the matching legend
+     row; tap again, tap elsewhere, or press Escape to close. With JS off the
+     dots are still focusable labels and the legend lists every zone. */
   (function floorplanZones() {
     var section = document.querySelector('.floorplan--interactive');
     if (!section) return;
@@ -2575,8 +2928,12 @@
       var isEv = v.fuel === 'electric';
       applyMode(isEv ? 'electric' : 'gas');
 
-      var dist = parseFloat(elDistance.value) || data.defaults.distanceMi;
-      var price = parseFloat(elPrice.value) || lastPrice[curMode];
+      // P2: never compute with a negative/NaN distance or price (the global
+      // min/max clamp only fires on change/focusout, not mid-typing).
+      var distRaw = parseFloat(elDistance.value);
+      var dist = (isFinite(distRaw) && distRaw > 0) ? distRaw : data.defaults.distanceMi;
+      var priceRaw = parseFloat(elPrice.value);
+      var price = (isFinite(priceRaw) && priceRaw > 0) ? priceRaw : lastPrice[curMode];
       var trailerWt = data.trailer.gvwrLb || data.trailer.weightLb || 0;
       var vehicleCurb = v.curbWeightLb || 0;
       var ratio = (trailerWt > 0 && vehicleCurb > 0) ? trailerWt / vehicleCurb : 0;
@@ -2618,6 +2975,12 @@
     if (elPrice) elPrice.addEventListener('input', compute);
     compute();
   })();
+
+  // =========================================================================
+  // 9d. COLLAPSIBLE DETAIL SECTIONS
+  //     Tool sections on detail pages can be collapsed/expanded. State is
+  //     persisted per section id in localStorage. Sections are open by default.
+  // =========================================================================
   (function collapsibleSections() {
     var detail = document.querySelector('.detail');
     if (!detail) return;
@@ -2628,9 +2991,9 @@
 
     // Target sections: the estimator/tool sections (not specs, gallery, proscons)
     var selectors = [
-      '.towtool', '.fuel-tool', '.payload-tool', '.finance-tool',
-      '.ownership-tool', '.offgrid-tool', '.compat-vehicles',
-      '.year-diff', '.campground-fit',
+      '.towtool', '.fuel-tool', '.payload-tool',
+      '.offgrid-tool', '.compat-vehicles',
+      '.year-diff',
     ];
 
     selectors.forEach(function (sel) {
@@ -3017,66 +3380,36 @@
   })();
 
   // =========================================================================
-  // DETAIL COMPARE BUTTON — add/remove from compare selection on detail page
+  // DETAIL COMPARE BUTTON — add/remove from compare selection on detail page.
+  //     Uses the SAME shared cmpGet()/cmpSet() string-array format as the
+  //     Explore cards and the Compare page (localStorage key 'ae:compare').
+  //     Previously this wrote {slug,type} objects, which the Compare page's
+  //     slug-keyed lookup silently dropped — every detail-page Compare
+  //     button was dead. Format unified: plain slug strings everywhere.
   // =========================================================================
   (function detailCompare() {
     var btn = document.getElementById('detail-compare');
     if (!btn) return;
     var slug = btn.getAttribute('data-compare-slug');
-    var type = btn.getAttribute('data-compare-type') || 'trailer';
     if (!slug) return;
 
-    var CMP_KEY = 'ae:compare';
-
-    function readSet() {
-      try {
-        var raw = localStorage.getItem(CMP_KEY);
-        if (!raw) return [];
-        var parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (e) { return []; }
-    }
-    function writeSet(arr) {
-      try { localStorage.setItem(CMP_KEY, JSON.stringify(arr)); } catch (e) {}
-    }
+    var ICON = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> ';
 
     function updateUI() {
-      var set = readSet();
-      var inSet = set.some(function (item) {
-        return typeof item === 'string' ? item === slug : (item && item.slug === slug);
-      });
-      if (inSet) {
-        btn.classList.add('is-compared');
-        btn.setAttribute('aria-label', 'Remove from comparison');
-        btn.title = 'Remove from comparison';
-        btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> In compare';
-      } else {
-        btn.classList.remove('is-compared');
-        btn.setAttribute('aria-label', 'Add to comparison');
-        btn.title = 'Add to comparison';
-        btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Compare';
-      }
+      var inSet = cmpGet().indexOf(slug) !== -1;
+      btn.classList.toggle('is-compared', inSet);
+      btn.setAttribute('aria-label', inSet ? 'Remove from comparison' : 'Add to comparison');
+      btn.title = inSet ? 'Remove from comparison' : 'Add to comparison';
+      btn.innerHTML = ICON + (inSet ? 'In compare' : 'Compare');
     }
 
     btn.addEventListener('click', function () {
-      var set = readSet();
-      var idx = -1;
-      set.forEach(function (item, i) {
-        var s = typeof item === 'string' ? item : (item && item.slug);
-        if (s === slug) idx = i;
-      });
-      if (idx >= 0) {
-        set.splice(idx, 1);
-      } else {
-        set.push({ slug: slug, type: type });
-      }
-      writeSet(set);
+      var set = cmpGet();
+      var idx = set.indexOf(slug);
+      if (idx >= 0) set.splice(idx, 1);
+      else set.push(slug);
+      cmpSet(set); // shared helper caps at 3, same as Explore/Compare pages
       updateUI();
-      // Update nav badge if present
-      var badge = document.getElementById('nav-saved-count');
-      if (badge && set.length > 0) {
-        badge.removeAttribute('hidden');
-      }
     });
 
     updateUI();
@@ -3154,6 +3487,9 @@
       var waterFill = parseFloat(elWater.value) || 0;
       var propaneKey = elPropane.value;
       var propaneLb = (data.propanePresets[propaneKey] || {}).weightLb || 0;
+      // Factory-full propane is already inside CCC — only the delta vs the
+      // factory-full baseline consumes packing capacity.
+      var propaneDelta = propaneLb - (data.fullPropaneLb || 40);
       var waterLb = Math.round(freshGal * waterFill * WATER_LB);
 
       var gearLb = 0;
@@ -3161,7 +3497,7 @@
         if (cb.checked) gearLb += parseInt(cb.getAttribute('data-weight'), 10) || 0;
       });
 
-      var totalUsed = waterLb + propaneLb + gearLb;
+      var totalUsed = waterLb + propaneDelta + gearLb;
       var remaining = ccc - totalUsed;
       var usedPct = ccc > 0 ? totalUsed / ccc : 0;
       var status = usedPct > 1.0 ? 'over' : (usedPct > 0.85 ? 'tight' : 'ok');
@@ -3170,13 +3506,16 @@
       elRemaining.textContent = fmtLb(Math.abs(remaining)) + (remaining < 0 ? ' OVER' : '');
       elStatus.className = 'est-number-cap ' + meta.cls;
       elStatus.textContent = meta.label;
-      elDetail.textContent = 'Remaining for personal gear after consumables (' + Math.round(usedPct * 100) + '% of CCC used).';
+      elDetail.textContent = 'Remaining for personal gear after consumables (' + Math.round(usedPct * 100) + '% of CCC used). Propane is counted vs factory-full (already in CCC).';
 
       // Rebuild bars
       var barPct = function (lb) { return Math.max(2, Math.min(100, (lb / (ccc || 1)) * 100)); };
+      var propaneDeltaLabel = propaneDelta === 0
+        ? '0 lb — factory-full, already in CCC'
+        : fmtLb(propaneDelta) + ' vs factory-full';
       var rows = [
         ['Fresh water', waterLb, fmtLb(waterLb) + ' (' + freshGal + ' gal \u00d7 ' + waterFill * 100 + '%)'  ],
-        ['Propane', propaneLb, fmtLb(propaneLb)],
+        ['Propane (vs factory-full)', Math.abs(propaneDelta), propaneDeltaLabel],
       ];
       if (gearLb > 0) rows.push(['Gear', gearLb, fmtLb(gearLb)]);
 
@@ -3567,7 +3906,7 @@
       if (!ticking) { ticking = true; requestAnimationFrame(update); }
     }, { passive: true });
     btn.addEventListener('click', function () {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      aeSmoothScrollTo(window, { top: 0 });
     });
     update();
   })();
@@ -3607,7 +3946,7 @@
         if (nav.scrollWidth > nav.clientWidth) {
           var linkLeft = active.offsetLeft - nav.offsetLeft;
           var linkCenter = linkLeft + active.offsetWidth / 2;
-          nav.scrollTo({ left: linkCenter - nav.clientWidth / 2, behavior: 'smooth' });
+          aeSmoothScrollTo(nav, { left: linkCenter - nav.clientWidth / 2 });
         }
       }
     }
@@ -4029,6 +4368,7 @@
     var counterEl = document.getElementById('qv-counter');
     var savedFocus = null;
     var currentCard = null;
+    var releaseTrap = null; // P2: generic focus trap (aeTrapFocus)
 
     function fmtMoney(n) {
       if (!n || n <= 0) return '—';
@@ -4154,10 +4494,12 @@
       qv.hidden = false;
       qv.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
+      releaseTrap = aeTrapFocus(qv, close);
       qv.querySelector('[data-qv-close]').focus();
     }
 
     function close() {
+      if (releaseTrap) { releaseTrap(); releaseTrap = null; }
       qv.hidden = true;
       qv.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
@@ -4504,15 +4846,18 @@
     var currentStep = 1;
     var answers = {};
 
+    var releaseTrap = null;
     function open() {
       savedFocus = document.activeElement;
       overlay.hidden = false;
       overlay.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
       reset();
+      releaseTrap = aeTrapFocus(overlay, close);
       overlay.querySelector('.quiz-close').focus();
     }
     function close() {
+      if (releaseTrap) { releaseTrap(); releaseTrap = null; }
       overlay.hidden = true;
       overlay.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
@@ -4549,10 +4894,18 @@
 
     function scoreTrailers() {
       var cards = document.querySelectorAll('.xcard[data-type="trailer"]');
+      // Score the latest model year present in the cards (was hardcoded '2026';
+      // derived from the data so a future year never silently yields 0 —
+      // perf #34).
+      var latestYear = '';
+      for (var j = 0; j < cards.length; j++) {
+        var yj = cards[j].getAttribute('data-year') || '';
+        if (yj > latestYear) latestYear = yj;
+      }
       var results = [];
       for (var i = 0; i < cards.length; i++) {
         var c = cards[i];
-        if (c.getAttribute('data-year') !== '2026') continue;
+        if ((c.getAttribute('data-year') || '') !== latestYear) continue;
         var msrp = parseInt(c.getAttribute('data-msrp'), 10) || 0;
         var weight = parseInt(c.getAttribute('data-weight'), 10) || 0;
         var gvwr = parseInt(c.getAttribute('data-gvwr'), 10) || 0;
@@ -4733,10 +5086,34 @@
     if (restartBtn) restartBtn.addEventListener('click', reset);
     if (exploreBtn) exploreBtn.addEventListener('click', function () {
       close();
+      // P2: carry the quiz answers into the explore filters (group size ->
+      // sleeps minimum, budget -> price cap) so the grid reflects what the
+      // user just told us. Setting the controls + dispatching 'change' lets
+      // the existing explore module pick them up (it also syncs them to the
+      // URL hash, making the filtered view shareable).
+      var sleepsFor = { solo: '2', small: '4', large: '6' };
+      var priceFor = { '80000': '80000', '120000': '120000', '180000': '200000' };
+      var pairs = [
+        [document.getElementById('x-sleeps'), sleepsFor[answers.group]],
+        [document.getElementById('x-price'), priceFor[String(answers.budget)]],
+      ];
+      pairs.forEach(function (pair) {
+        var el = pair[0], v = pair[1];
+        if (el && v) {
+          el.value = v;
+          try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
+        }
+      });
       var allLink = document.querySelector('[data-view-go="all"]');
       if (allLink) allLink.click();
     });
   })();
+
+  // =========================================================================
+  // WEIGHT BAR ANIMATION — scroll-driven fill effect on detail pages.
+  //     The weight bar segments animate from 0% to their real width, and
+  //     the GVWR label counts up, when the bar scrolls into view.
+  // =========================================================================
   (function weightBarAnim() {
     var bar = document.querySelector('.weight-bar');
     if (!bar || !('IntersectionObserver' in window)) return;
@@ -5113,7 +5490,7 @@
     }, { passive: true });
 
     btn.addEventListener('click', function () {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      aeSmoothScrollTo(window, { top: 0 });
     });
 
     // Initial check
@@ -5253,7 +5630,7 @@
           setTimeout(function () {
             var navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 64;
             var y = target.getBoundingClientRect().top + window.scrollY - navH - 16;
-            window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+            aeSmoothScrollTo(window, { top: Math.max(0, y) });
           }, 100);
         });
       }
@@ -5493,7 +5870,8 @@
 
       var freshDays = calcDays(freshGal, u.freshGpd, p);
       var grayDays  = grayGal ? calcDays(grayGal, u.grayGpd, p) : null;
-      var blackDays = blackGal ? calcDays(blackGal, u.blackGpd, p) : null;
+      // Combined waste tank takes BOTH gray and black: drain rate is the sum.
+      var blackDays = blackGal ? calcDays(blackGal, combined ? u.grayGpd + u.blackGpd : u.blackGpd, p) : null;
 
       var allDays = [freshDays, grayDays, blackDays].filter(function(d) { return d != null && d > 0; });
       var minDays = allDays.length ? Math.min.apply(null, allDays) : null;
@@ -6649,5 +7027,4 @@
     });
   })();
 
-})();
 })();

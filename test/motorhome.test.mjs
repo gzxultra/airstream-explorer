@@ -141,13 +141,12 @@ test('validateMotorhome requires boolean solarStandard when solar is published',
 // Grouping and family helpers
 // ---------------------------------------------------------------------------
 
-test('groupMotorhomesByFamily covers 4 families', () => {
+test('groupMotorhomesByFamily covers 3 families', () => {
   const fams = groupMotorhomesByFamily(motorhomes);
-  assert.equal(fams.length, 4);
+  assert.equal(fams.length, 3);
   const names = fams.map((f) => f.family);
   assert.ok(names.includes('Atlas'));
-  assert.ok(names.includes('Interstate 24'));
-  assert.ok(names.includes('Interstate 19'));
+  assert.ok(names.includes('Interstate'));
   assert.ok(names.includes('Rangeline'));
 });
 
@@ -355,8 +354,8 @@ test('renderMotorhomeIndex produces a valid page with family cards', () => {
   const fams = groupMotorhomesByFamily(motorhomes);
   const html = renderMotorhomeIndex(fams, motorhomes);
   assert.ok(html.startsWith('<!DOCTYPE html>'));
-  // Should have family cards for Atlas, Interstate 24, Interstate 19, Rangeline
-  assert.equal((html.match(/class="fam"/g) || []).length, 4);
+  // Should have family cards for Atlas, Interstate, Rangeline
+  assert.equal((html.match(/class="fam"/g) || []).length, 3);
 });
 
 test('renderMotorhomeIndex has motorhome-specific content', () => {

@@ -93,10 +93,10 @@ describe('seasonal camping guide', () => {
     assert.ok(filledDots >= 4 && filledDots <= 20, 'filled dots should be between 4 and 20');
   });
 
-  it('includes seasonal guide in section nav', () => {
-    const html = renderDetail(trailers[0], assetPaths, null, trailers);
-    assert.ok(html.includes('#seasonal'), 'section nav should link to #seasonal');
-    assert.ok(html.includes('Seasons'), 'section nav should label it "Seasons"');
+  it('includes seasonal guide in the page (not a top-bar item)', () => {
+    const html = renderDetail(trailers[0], assetPaths, null, null, trailers);
+    assert.ok(html.includes('id="seasonal"'), 'seasonal section stays in page');
+    assert.ok(html.includes('Seasonal camping guide'), 'seasonal section keeps its heading');
   });
 
   it('uses real spec values in tips', () => {

@@ -65,17 +65,17 @@ test('renderExploreSections without motorhomes omits the type control (trailer-o
   assert.doesNotMatch(html, /id="x-type"/);
 });
 
-test('explore year select offers 2027 (motorhome years) alongside 2025/2026', () => {
+test('explore year select has no 2027 bait option (no trailer has 2027 data)', () => {
   const html = renderExploreSections(trailers, undefined, motorhomes);
-  assert.match(html, /<option value="2027">2027<\/option>/);
+  assert.doesNotMatch(html, /<option value="2027">2027<\/option>/);
   assert.match(html, /<option value="2026" selected>2026<\/option>/);
   assert.match(html, /<option value="2025">2025<\/option>/);
 });
 
-test('renderIndex by-family grid unifies trailer + motorhome families (16 total)', () => {
+test('renderIndex by-family grid unifies trailer + motorhome families (15 total)', () => {
   const html = renderIndex(families, trailers, undefined, motorhomes, motorhomeFamilies);
   const expected = families.length + motorhomeFamilies.length;
-  assert.equal(expected, 16);
+  assert.equal(expected, 15);
   assert.equal((html.match(/class="fam"/g) || []).length, expected);
   // a motorhome family link is present
   assert.match(html, /href="mf\//);

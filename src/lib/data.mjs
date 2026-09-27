@@ -172,7 +172,7 @@ export const OFFICIAL_URLS = {
   'trade-wind': 'https://www.airstream.com/travel-trailers/trade-wind/',
   classic: 'https://www.airstream.com/travel-trailers/classic/',
   'world-traveler': 'https://www.airstream.com/travel-trailers/world-traveler/',
-  'frank-lloyd-wright-limited-edition':
+  'frank-lloyd-wright-usonian-limited-edition':
     'https://www.airstream.com/explore-products/travel-trailers/dual-axle/frank-lloyd-wright-limited-edition',
   'stetson-6666-special-edition':
     'https://www.airstream.com/explore-products/travel-trailers/dual-axle/stetson-6666-special-edition',
@@ -714,8 +714,19 @@ export function towClass(gvwrLb) {
  * Uses 3 gal/person/day (conservative RV usage: drinking, cooking, quick
  * showers, basic washing). Returns null if no fresh tank data.
  */
-export function waterAutonomy(freshGal, people = 2) {
-  if (!freshGal || freshGal <= 0 || people <= 0) return null;
+/**
+ * Off-grid capability tier label for the 0–100 editorial composite score.
+ * The numeric composite stays in the data layer (sorting, quiz, compare);
+ * visible displays use these three tiers. Strong ≥75, Moderate 55–74, Basic <55.
+ */
+export function offGridTier(score) {
+  if (!(score > 0)) return null;
+  if (score >= 75) return 'Strong';
+  if (score >= 55) return 'Moderate';
+  return 'Basic';
+}
+
+export function waterAutonomy(freshGal, people = 2) {  if (!freshGal || freshGal <= 0 || people <= 0) return null;
   const GAL_PER_PERSON_PER_DAY = 3;
   return Math.round((freshGal / (GAL_PER_PERSON_PER_DAY * people)) * 10) / 10;
 }
@@ -860,7 +871,7 @@ const AXLE_MAP = {
   globetrotter:     'dual',
   'trade-wind':     'dual',
   classic:          'dual',
-  'frank-lloyd-wright-limited-edition': 'dual',
+  'frank-lloyd-wright-usonian-limited-edition': 'dual',
   'stetson-6666-special-edition':       'dual',
 };
 

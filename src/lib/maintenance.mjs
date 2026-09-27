@@ -498,8 +498,8 @@ ${filterLens(data)}
 ${controlBar()}
 ${budgetBar()}
 <nav class="mt-jump" aria-label="Jump to cadence">${jump}</nav>
-<main class="maintenance" id="mt-main">
+<div class="maintenance" id="mt-main">
 ${sections}
-</main>
+</div>
 ${footnote}`;
 }

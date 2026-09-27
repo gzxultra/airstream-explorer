@@ -59,13 +59,32 @@ test('every hashed asset the homepage references exists on disk', () => {
   }
 });
 
+test('every srcset/imagesrcset URL in built HTML exists on disk (post-fingerprint)', () => {
+  // perf #28: hero srcset + preload imagesrcset must resolve to fingerprinted
+  // files the build actually emitted — a typo'd variant name would 404.
+  const missing = [];
+  for (const f of htmlFiles) {
+    const html = readFileSync(f, 'utf8');
+    for (const m of html.matchAll(/(?:srcset|imagesrcset)="([^"]+)"/g)) {
+      for (const cand of m[1].split(',')) {
+        const url = cand.trim().split(/\s+/)[0];
+        const tail = url.match(/(assets\/img\/[^"]+)/);
+        if (!tail) continue;
+        const rel = tail[1].replace(/^(\.\.\/)+/, '');
+        if (!existsSync(join(DIST, rel))) missing.push(`${f.replace(ROOT, '')}: ${url}`);
+      }
+    }
+  }
+  assert.equal(missing.length, 0, `missing srcset targets:\n${missing.join('\n')}`);
+});
+
 // --- Unified Explore: built-output checks -----------------------------------
-test('index.html ships the unified grid (motorhome cards + type control + 16 families)', () => {
+test('index.html ships the unified grid (motorhome cards + type control + 15 families)', () => {
   const home = readFileSync(join(DIST, 'index.html'), 'utf8');
   assert.ok((home.match(/data-type="motorhome"/g) || []).length > 0, 'motorhome cards in grid');
   assert.match(home, /href="mm\//, 'an mm/ detail link in the grid');
   assert.match(home, /id="x-type"/, 'type segmented control present');
-  assert.equal((home.match(/class="fam"/g) || []).length, 16, '16 unified family cards');
+  assert.equal((home.match(/class="fam"/g) || []).length, 15, '15 unified family cards');
 });
 
 test('motorhomes.html still resolves as a unified entry: redirect shim + no-JS fallback', () => {

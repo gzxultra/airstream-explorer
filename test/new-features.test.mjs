@@ -101,10 +101,58 @@ describe('app.js has new modules', () => {
   });
 });
 
+describe('Size scale diagram on detail pages', () => {
+  it('renders size-scale section with reference bars', () => {
+    const html = readDist('m/classic-33fb-2026.html');
+    assert.ok(html.includes('id="size-scale"'), 'size-scale section present');
+    assert.ok(html.includes('size-ref-bar--trailer'), 'trailer bar highlighted');
+    assert.ok(html.includes('Standard parking'), 'parking space reference');
+    assert.ok(html.includes('Single garage'), 'garage reference');
+    assert.ok(html.includes('Typical RV site'), 'RV site reference');
+  });
+
+  it('shows correct fit verdicts for a short trailer', () => {
+    const html = readDist('m/bambi-16rb-2026.html');
+    // 16.25' should fit in a parking space (18'), single garage (20'), etc.
+    assert.ok(html.includes('size-ref--fits'), 'at least one reference fits');
+  });
+
+  it('present on every detail page with length', () => {
+    const html = readDist('m/basecamp-16x-2026.html');
+    assert.ok(html.includes('id="size-scale"'), 'size-scale on Basecamp');
+  });
+});
+
+// Cost-per-night calculator REMOVED per ruling 1A (2026-09-27).
+// This describe locks the removal: no detail page may carry it.
+describe('Cost per night calculator is GONE (ruling 1A)', () => {
+  it('no detail page contains cost-night markup or data islands', () => {
+    for (const f of ['m/classic-33fb-2026.html', 'm/bambi-16rb-2026.html']) {
+      const html = readDist(f);
+      assert.ok(!html.includes('id="cost-night"'), `${f} still has cost-night section`);
+      assert.ok(!html.includes('cost-night-data'), `${f} still has cost-night data island`);
+      assert.ok(!html.includes('cn-comparison'), `${f} still has cost-night layout`);
+      assert.ok(!html.includes('per camping night'), `${f} still has per-night label`);
+    }
+  });
+});
+
 describe('Tow vehicle persistence (app.js)', () => {
   it('app.js saves tow vehicle to localStorage', () => {
     const js = readFileSync(join(__dirname, '..', 'src', 'assets', 'js', 'app.js'), 'utf8');
     assert.ok(js.includes('ae:towVehicle'), 'stores tow vehicle key');
     assert.ok(js.includes('tow-banner'), 'tow banner module exists');
+  });
+
+});
+
+describe('Section nav includes new sections', () => {
+  it('detail pages keep size-scale section in page; Cost chapter links the fuel estimator (ruling 1A)', () => {
+    const html = readDist('m/classic-33fb-2026.html');
+    assert.ok(html.includes('id="size-scale"'), 'size-scale section stays in page');
+    assert.ok(!html.includes('href="#cost-night"'), 'cost-night must NOT be in secnav');
+    const nav = html.match(/<nav class="secnav"[^>]*>([\s\S]*?)<\/nav>/);
+    assert.ok(nav && nav[1].includes('href="#fuel"'), 'Cost chapter links #fuel');
+    assert.ok(nav[1].includes('>Cost<'), 'chapter labeled Cost');
   });
 });

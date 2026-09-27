@@ -23,9 +23,12 @@ describe('FAQ section', () => {
     }
   });
 
-  test('FAQ section appears in section nav', () => {
+  test('FAQ section is in the page but not the 6-chapter top nav', () => {
     const html = renderDetail(classic, undefined, null, trailers);
-    assert.match(html, /#faq"[^>]*>FAQ</);
+    // FAQ exists as an in-page section...
+    assert.match(html, /id="faq"/, 'FAQ section should be in the page');
+    // ...but the top bar shows 6 chapters only (perf/a11y #31); FAQ is reachable by scrolling
+    assert.ok(!html.match(/#faq"[^>]*>FAQ</), 'FAQ should not occupy a top-bar nav slot');
   });
 
   test('FAQ answers contain real spec data, not placeholders', () => {
@@ -86,41 +89,24 @@ describe('FAQPage JSON-LD', () => {
   });
 });
 
-// ── Budget Alternatives ──────────────────────────────────────────────────────
+// ── Budget Alternatives (REMOVED) ────────────────────────────────────────────
+// The "In your price range" cross-family budget section was removed in the
+// 2026-09 remediation (purchase-funnel cleanup). These tests lock the removal.
 
 describe('Budget alternatives', () => {
-  test('Classic 33FB has budget alternatives from other families', () => {
+  test('Classic 33FB has no budget alternatives section (removed)', () => {
     const html = renderDetail(classic, undefined, null, trailers);
-    assert.match(html, /id="budget"/, 'should have budget section');
-    assert.match(html, /In your price range/);
+    assert.ok(!html.includes('id="budget"'), 'budget section should be gone');
+    assert.ok(!html.includes('In your price range'), 'budget heading should be gone');
   });
 
-  test('budget alternatives shows models within ±25% MSRP', () => {
+  test('no budget cards render (feature removed)', () => {
     const html = renderDetail(classic, undefined, null, trailers);
-    // Classic 33FB MSRP is $222,900. ±25% = $167,175 – $278,625
-    // Budget section should mention the price range
-    assert.match(html, /budget-card/);
+    assert.ok(!html.includes('budget-card'), 'no budget cards should render');
   });
 
-  test('budget cards are from different families than current', () => {
+  test('budget section does not appear in section nav (removed)', () => {
     const html = renderDetail(classic, undefined, null, trailers);
-    // Should NOT contain another "Classic" in budget cards (that's the same family)
-    const budgetSection = html.split('id="budget"')[1]?.split('</section>')[0] || '';
-    assert.ok(!budgetSection.includes('>Classic <'), 'budget should not include same family');
-  });
-
-  test('budget section appears in section nav for priced trailers', () => {
-    const html = renderDetail(classic, undefined, null, trailers);
-    assert.match(html, /#budget"[^>]*>Budget</);
-  });
-
-  test('budget diff labels show correct direction', () => {
-    const html = renderDetail(bambi, undefined, null, trailers);
-    const budgetSection = html.split('id="budget"')[1]?.split('</section>')[0] || '';
-    // Should have budget-diff--less and/or budget-diff--more classes
-    const hasDiffs = budgetSection.includes('budget-diff--less') || budgetSection.includes('budget-diff--more');
-    if (budgetSection.includes('budget-card')) {
-      assert.ok(hasDiffs, 'budget cards should have price difference labels');
-    }
+    assert.ok(!html.includes('#budget'), 'no #budget in section nav');
   });
 });

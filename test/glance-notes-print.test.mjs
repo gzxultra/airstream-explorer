@@ -94,8 +94,10 @@ describe('Personal notes JS module', () => {
 });
 
 describe('Print spec sheet CSS', () => {
-  it('site.css has comprehensive print rules', () => {
-    const css = readFileSync(join(ROOT, 'src/assets/css/site.css'), 'utf8');
+  it('print.css has comprehensive print rules', () => {
+    // Print styles were split out of site.css into print.css (loaded with
+    // media="print" so they never block first paint) — assert on the new home.
+    const css = readFileSync(join(ROOT, 'src/assets/css/print.css'), 'utf8');
     // Check key print rules exist
     assert.ok(css.includes('.topnav,'), 'hides topnav in print');
     assert.ok(css.includes('.site-footer,'), 'hides footer in print');
@@ -118,11 +120,11 @@ describe('Dark mode support', () => {
 });
 
 describe('Build output verification', () => {
-  it('all 59 detail pages have glance and notes sections', () => {
+  it('all 58 detail pages have glance and notes sections', () => {
     const detailDir = join(ROOT, 'dist/m');
     const { readdirSync } = require_fs;
     const htmlFiles = readdirSync(detailDir).filter((f) => f.endsWith('.html'));
-    assert.ok(htmlFiles.length >= 59, `expected >=59 detail pages, got ${htmlFiles.length}`);
+    assert.ok(htmlFiles.length >= 58, `expected >=58 detail pages, got ${htmlFiles.length}`);
     let withGlance = 0;
     let withNotes = 0;
     for (const f of htmlFiles) {
@@ -130,7 +132,7 @@ describe('Build output verification', () => {
       if (content.includes('glance-summary')) withGlance++;
       if (content.includes('personal-notes')) withNotes++;
     }
-    assert.ok(withGlance >= 59, `expected >=59 pages with glance, got ${withGlance}`);
+    assert.ok(withGlance >= 58, `expected >=58 pages with glance, got ${withGlance}`);
     assert.strictEqual(withNotes, htmlFiles.length, 'every detail page has notes');
   });
 });

@@ -101,10 +101,10 @@ describe('detail page new sections', () => {
     assert.ok(html.includes('7-pin trailer connector'), 'mentions connector');
   });
 
-  test('section nav includes Journey and Tow Setup entries', () => {
+  test('section nav includes Grades and Hitch entries', () => {
     const html = renderDetail(sample);
-    assert.ok(html.includes('#journey'), 'nav has journey link');
-    assert.ok(html.includes('#tow-setup'), 'nav has tow-setup link');
+    assert.ok(html.includes('id="grade-climb"'), 'grade-climb section stays in page');
+    assert.ok(html.includes('id="hitch-guide"'), 'hitch-guide section stays in page');
   });
 });
 

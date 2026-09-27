@@ -5,22 +5,24 @@
 //
 // The problem: Airstream publishes a CCC (Cargo Carrying Capacity) number, but
 // that's the TOTAL you can add to the dry trailer. In practice, much of it is
-// consumed by water, propane, and the battery (if lithium upgrade). Users need
-// to know: "After I fill the tanks, how much is left for my stuff?"
+// consumed by water. Users need to know: "After I fill the tanks, how much is
+// left for my stuff?"
 //
 // This calculator decomposes CCC into:
 //   1. Water weight (fresh water tank × 8.34 lb/gal)
-//   2. Propane weight (standard dual 20 lb or 30 lb tanks)
-//   3. Battery weight (if upgraded from AGM to lithium, net change)
-//   4. Remaining personal cargo capacity
+//   2. Propane DELTA vs the factory-full baseline (see FULL_PROPANE_LB)
+//   3. Remaining personal cargo capacity
 //
 // Sources:
 //   - Water: 8.34 lb/gal (exact at 60°F, USGS)
 //   - Propane: 4.24 lb/gal liquid; standard 20 lb tank holds ~4.7 gal
 //   - Standard Airstream propane: two 20 lb tanks (40 lb total propane weight)
 //     or two 30 lb tanks on larger models
-//   - Airstream owner's manual: CCC includes full LP gas but NOT fresh water
-//     on some models. We model conservatively: CCC minus ALL consumables.
+//   - Airstream's Unit Base Weight (UBW) is published "with LP & Batteries":
+//     factory-full propane is ALREADY inside CCC (= GVWR − UBW). Subtracting it
+//     again would double-count ~40 lb (11.4% of a Bambi 16RB's CCC), so the
+//     propane control is modeled as a delta vs the factory-full baseline:
+//     traveling with empty tanks frees that weight back up for gear.
 
 // ---------------------------------------------------------------------------
 // CONSTANTS
@@ -43,6 +45,16 @@ export const PROPANE_PRESETS = {
 
 /** Default propane load (most Airstream models ship with dual 20 lb). */
 export const DEFAULT_PROPANE = 'dual20';
+
+/**
+ * Factory-full propane baseline, in lb of propane. Airstream's published
+ * Unit Base Weight includes full LP tanks, so CCC already contains this
+ * weight — the calculator only subtracts the DELTA vs this baseline
+ * (e.g. traveling with empty tanks frees ~40 lb back up for gear).
+ * Baseline assumes standard dual 20 lb tanks; models that ship dual 30 lb
+ * tanks carry 60 lb in CCC instead (per-model tank size is not in the dataset).
+ */
+export const FULL_PROPANE_LB = 40;
 
 /**
  * Common gear category presets with typical weights. These help users
@@ -79,6 +91,11 @@ export function waterWeight(tankGal, fillPct = 1.0) {
 /**
  * Calculate remaining cargo capacity after consumables.
  *
+ * Propane is modeled as a DELTA vs the factory-full baseline (FULL_PROPANE_LB):
+ * factory-full tanks are already inside CCC (UBW is published "with LP &
+ * Batteries"), so selecting "full" subtracts 0 while "empty" adds the weight
+ * back to your packing budget.
+ *
  * @param {object} trailer  trailer record (cccLb, freshGal)
  * @param {object} [opts]
  * @param {number} [opts.waterFillPct=1.0]  fresh water fill (0–1)
@@ -88,6 +105,7 @@ export function waterWeight(tankGal, fillPct = 1.0) {
  *   cccLb: number,
  *   waterLb: number,
  *   propaneLb: number,
+ *   propaneDeltaLb: number,
  *   additionalLb: number,
  *   consumablesLb: number,
  *   remainingLb: number,
@@ -103,7 +121,9 @@ export function calculatePayload(trailer, opts = {}) {
 
   const waterLb = waterWeight(trailer.freshGal, waterFill);
   const propaneLb = PROPANE_PRESETS[propaneKey].weightLb;
-  const consumablesLb = waterLb + propaneLb;
+  // Factory-full propane is already inside CCC — only the delta consumes capacity.
+  const propaneDeltaLb = propaneLb - FULL_PROPANE_LB;
+  const consumablesLb = waterLb + propaneDeltaLb;
   const totalUsed = consumablesLb + additional;
   const remainingLb = ccc - totalUsed;
 
@@ -118,6 +138,7 @@ export function calculatePayload(trailer, opts = {}) {
     cccLb: ccc,
     waterLb,
     propaneLb,
+    propaneDeltaLb,
     additionalLb: additional,
     consumablesLb,
     remainingLb,

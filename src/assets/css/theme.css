@@ -408,7 +408,6 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .filter-pill-x:hover { background: rgba(200,150,100,.2); }
 [data-theme="dark"] .scroll-top { background: var(--card); color: var(--ink); border-color: var(--line); box-shadow: 0 2px 12px rgba(0,0,0,.4); }
 [data-theme="dark"] .scroll-top:hover { background: var(--copper); color: #fff; border-color: var(--copper); }
-[data-theme="dark"] .finance-range-val { color: var(--ink); }
 [data-theme="dark"] .nextstep-card { background: var(--card); border-color: var(--line); }
 [data-theme="dark"] .nextstep-card:hover { border-color: var(--copper); box-shadow: 0 2px 12px rgba(0,0,0,.3); }
 
@@ -421,12 +420,6 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .diff-warn .diff-delta { color: #FF8A65; }
 [data-theme="dark"] .diff-good .diff-arrow { color: #66BB6A; }
 [data-theme="dark"] .diff-warn .diff-arrow { color: #FF8A65; }
-
-/* Ownership tool dark mode */
-[data-theme="dark"] .own-bar--insurance     { background: #7986CB; }
-[data-theme="dark"] .own-bar--storage       { background: #4DB6AC; }
-[data-theme="dark"] .own-bar--maintenance   { background: #FFB74D; }
-[data-theme="dark"] .own-bar--depreciation  { background: #90A4AE; }
 
 /* Collapsible chevron dark mode */
 [data-theme="dark"] .detail section[data-collapsible] > h2::after,
@@ -561,14 +554,6 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .csv-export-btn { border-color: var(--line); color: var(--muted); }
 [data-theme="dark"] .csv-export-btn:hover { border-color: var(--copper); color: var(--ink); }
 
-
-/* Resale value projector — dark mode */
-[data-theme="dark"] .resale-condition select { background: var(--surface); color: var(--ink); border-color: var(--line); }
-[data-theme="dark"] .resale-chart { border-bottom-color: var(--line); }
-[data-theme="dark"] .resale-hl { background: var(--surface); }
-
-/* Trip cost estimator — dark mode */
-[data-theme="dark"] .trip-cost-tool .finance-select { background: var(--surface); color: var(--ink); border-color: var(--line); }
 
 /* Smart presets / nearest matches / browse links — dark theme */
 [data-theme="dark"] .smart-preset {

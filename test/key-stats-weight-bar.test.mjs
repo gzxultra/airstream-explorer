@@ -33,7 +33,7 @@ describe('key stats dashboard', () => {
 
   it('shows correct values for Classic 33FB', () => {
     assert.ok(html.includes('8,425 lb'));  // dry weight
-    assert.ok(html.includes('65/100'));     // off-grid score
+    assert.ok(html.includes('Moderate'));  // off-grid tier (editorial composite 65/100)
   });
 
   it('renders key-stats on motorhome detail', () => {

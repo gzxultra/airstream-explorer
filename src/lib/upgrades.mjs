@@ -364,8 +364,8 @@ ${table}
 ${consensusLegend(data)}
 ${filterLens(data)}
 <nav class="up-jump" aria-label="Jump to category">${jump}</nav>
-<main class="upgrades" id="up-main">
+<div class="upgrades" id="up-main">
 ${sections}
-</main>
+</div>
 <p class="up-foot muted">Prices are typical 2025–2026 US street prices for reference, gathered from manufacturer and retailer listings and the owner sources cited on each card — not quotes. Factory option prices and availability vary by floorplan and model year; confirm with an Airstream dealer. Independent reference, not affiliated with Airstream, Inc.</p>`;
 }

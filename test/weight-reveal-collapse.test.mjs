@@ -107,3 +107,20 @@ describe('smooth collapsible JS', () => {
     assert.ok(chunk.includes('trip-ready'));
   });
 });
+
+describe('weight context in detail page', () => {
+  const trailers = loadTrailers();
+  const t = trailers.find((x) => x.slug === 'flying-cloud-25fb-2026') || trailers[0];
+
+  it('detail page includes weight-context section', () => {
+    const html = renderDetail(t, assetPaths, null, trailers);
+    assert.ok(html.includes('id="weight-context"'));
+  });
+
+  it('weight-context stays in the page as a Specs-chapter anchor (not a top-bar item)', () => {
+    const html = renderDetail(t, assetPaths, null, trailers);
+    assert.ok(html.includes('id="weight-context"'), 'weight-context section in page');
+    const nav = html.match(/<nav class="secnav"[^>]*>([\s\S]*?)<\/nav>/);
+    assert.ok(nav && !nav[1].includes('#weight-context'), 'weight-context not a top-bar item');
+  });
+});

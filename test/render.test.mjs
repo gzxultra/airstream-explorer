@@ -50,7 +50,9 @@ test('home subhead and footer agree on the floorplan count (distinct layouts)', 
   // footer uses catalogStats which loads all data.
   assert.match(html, new RegExp(`${families.length} families, ${distinct} floorplans`));
   // footer must DERIVE both numbers from live data — no stale hardcoded literals
-  assert.match(html, /\d+ floorplans across \d+ families/);
+  // Full catalog: 31 trailer floorplans + 11 motorhomes = 42 across 15 families (12+3)
+  assert.match(html, /42 floorplans across 15 families/);
+  assert.doesNotMatch(html, /58 floorplans across/);
   // guard against the old hardcoded `${31}` / `12` literals creeping back in
   assert.ok(distinct !== 0 && families.length !== 0);
 });
@@ -145,7 +147,7 @@ test('renderDetail labels standard vs optional factory solar (no bare wattage)',
   assert.match(stdHtml, /300 W \(standard\)/);
   // Bambi 16RB's 100 W solar is a factory OPTION, not standard. It must read
   // "(optional)" — a bare "100 W" would look identical to standard-equipped
-  // models and hide that it's a paid add-on. (43 of 59 trailers are optional.)
+  // models and hide that it's a paid add-on. (43 of 58 trailers are optional.)
   const optional = trailers.find((t) => t.slug === 'bambi-16rb-2026');
   assert.equal(optional.solarStandard, false, 'fixture precondition: Bambi 16RB solar is optional');
   const optHtml = renderDetail(optional);
@@ -242,12 +244,14 @@ test('no detail page contains an unescaped data-driven angle bracket in body tex
     const scripts = html.match(/<script/g) || [];
     // Legitimate scripts: the <head> no-flash theme script, the deferred
     // app.js, the application/ld+json Product structured-data block, the
-    // application/ld+json BreadcrumbList block, plus up to 10 application/json
-    // data islands (tow-data, fuel-data, payload-data, finance-data,
-    // ownership-data, cost-night-data, trip-cost-data, water-calc-data,
-    // propane-data, elec-data, grade-climb-data) depending on trailer specs.
-    // Minimum 5 (theme + app.js + ld+json product + ld+json breadcrumb + tow-data), maximum 16 (all tools + ld+json FAQ).
-    assert.ok(scripts.length >= 5 && scripts.length <= 16, `${t.slug} has unexpected <script> count: ${scripts.length}`);
+    // application/ld+json BreadcrumbList block, the application/ld+json FAQPage
+    // block, plus up to 7 application/json data islands (tow-data, fuel-data,
+    // payload-data, water-calc-data, propane-data, elec-data, grade-climb-data)
+    // depending on trailer specs.
+    // Finance data islands (finance-data, ownership-data, cost-night-data,
+    // resale, trip-cost-data) were removed per ruling 1A (2026-09-27).
+    // Minimum 5 (theme + app.js + ld+json product + ld+json breadcrumb + tow-data), maximum 12 (all tools + FAQ).
+    assert.ok(scripts.length >= 5 && scripts.length <= 12, `${t.slug} has unexpected <script> count: ${scripts.length}`);
     // No data island (json OR ld+json) should contain a raw </ breakout.
     const islands = html.match(/<script type="application\/(?:ld\+)?json"[^>]*>([\s\S]*?)<\/script>/g) || [];
     for (const m of islands) {

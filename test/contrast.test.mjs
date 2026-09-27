@@ -76,3 +76,45 @@ test('.eyebrow label uses the accessible copper, not bare --copper', () => {
   assert.ok(/color:\s*var\(--copper-text\)/.test(rule), '.eyebrow must use var(--copper-text)');
   assert.ok(!/color:\s*var\(--copper\)[;\s)]/.test(rule), '.eyebrow must not use bare var(--copper) for text');
 });
+
+// ---- Status/verdict text colors (perf #30) --------------------------------
+// Regression guard: these small-text status colors were darkened to clear
+// WCAG AA (4.5:1) on their real backgrounds. Each entry names the selector,
+// the color declaration, and the background it sits on. If anyone lightens a
+// status color again, this fails.
+const siteCss2 = readFileSync(join(__dirname, '..', 'src', 'assets', 'css', 'site.css'), 'utf8');
+const campCss = readFileSync(join(__dirname, '..', 'src', 'assets', 'css', 'campgrounds.css'), 'utf8');
+
+function declColor(cssText, selector) {
+  // find the rule block for the selector, then its `color:` declaration
+  const idx = cssText.indexOf(selector);
+  assert.ok(idx >= 0, `selector ${selector} must exist`);
+  const block = cssText.slice(idx, cssText.indexOf('}', idx));
+  const m = block.match(/color:\s*(#[0-9A-Fa-f]{6})/);
+  assert.ok(m, `${selector} must declare a 6-digit hex color`);
+  return m[1];
+}
+
+const STATUS_CASES = [
+  // [cssText, selector, background]
+  [siteCss2, '.elec-ok .elec-verdict', '#FDFBF7'],
+  [siteCss2, '.elec-tight .elec-verdict', '#FDFBF7'],
+  [siteCss2, '.tow-verdict.tow-tight .tow-verdict-label', '#FBF3E3'],
+  [siteCss2, '.payload-tight', '#FDFBF7'],
+  [siteCss2, '.compat-tight .compat-badge', '#fff3e0'],
+  [siteCss2, '.diff-warn .diff-delta', '#FDFBF7'],
+  [siteCss2, '.wb-verdict--ok', '#FDFBF7'],
+  [siteCss2, '.size-ref-verdict', '#FDFBF7'],
+  [siteCss2, '.notes-status--saved', '#FDFBF7'],
+  [siteCss2, '.grade-badge--grade-warn', '#fff3e0'],
+  [siteCss2, '.wz-cat--electrical .wz-group-title', '#FDFBF7'],
+  [campCss, '.cg-fit-tight', '#fbf0d8'],
+];
+
+test('status/verdict text colors all clear WCAG AA (4.5:1) on their backgrounds', () => {
+  for (const [cssText, selector, bg] of STATUS_CASES) {
+    const fg = declColor(cssText, selector);
+    const r = ratio(fg, bg);
+    assert.ok(r >= 4.5, `${selector}: ${fg} on ${bg} = ${r.toFixed(2)} (need ≥4.5)`);
+  }
+});

@@ -116,12 +116,15 @@ export function saveButton(slug, type, label, variant = 'card') {
   return `<button type="button" class="${cls}" data-save data-slug="${e(slug)}" data-type="${e(type)}" aria-pressed="false" aria-label="Save ${e(label)}" title="Save this floorplan">${heart}${text}</button>`;
 }
 
-/** Format height/width as ft + in. 9.42 -> "9' 5\"". Handles "with A/C" note. */
+/** Format height/width as ft + in, keeping half-inch precision (data is stored
+ *  in feet to 2 decimals; e.g. 8.46 = 8' 5.5"). 8.46 -> "8' 5.5\"".
+ *  Handles "with A/C" note. */
 export function formatDimFt(ft) {
   if (ft == null || Number.isNaN(ft)) return '—';
   const whole = Math.floor(ft);
-  const inches = Math.round((ft - whole) * 12);
+  const inches = Math.round((ft - whole) * 24) / 2; // nearest half inch
   if (inches === 0) return `${whole}'`;
   if (inches === 12) return `${whole + 1}'`;
-  return `${whole}' ${inches}"`;
+  const inStr = Number.isInteger(inches) ? String(inches) : inches.toFixed(1);
+  return `${whole}' ${inStr}"`;
 }

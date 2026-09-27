@@ -301,13 +301,34 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     // (matches the <link rel=canonical> the pages emit via seo.mjs).
     .map((rel) => (rel === 'index.html' ? '' : rel))
     .sort();
+  // lastmod honesty: dist/ is wiped and rewritten on every build, so file
+  // mtimes are always "today" — hardcoding today trains crawlers to ignore
+  // lastmod (the "crying wolf" P2). Instead we keep a content-hash manifest
+  // in the repo (scripts/sitemap-lastmod.json, committed): a URL keeps its
+  // previous lastmod when its rendered bytes are unchanged, and only moves
+  // to today when the content actually changed.
+  const MANIFEST_PATH = join(ROOT, 'scripts', 'sitemap-lastmod.json');
+  let lastmodManifest = {};
+  try { lastmodManifest = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8')); } catch (e) { /* first build */ }
+  const newManifest = {};
   const today = new Date().toISOString().slice(0, 10);
   const body = urls.map((u) => {
-    // Homepage + the major hub pages are highest priority; detail pages lower.
-    const isHub = u === '' || !u.includes('/');
-    const priority = u === '' ? '1.0' : isHub ? '0.8' : '0.6';
-    return `  <url>\n    <loc>${SITE_ORIGIN}/${u}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${priority}</priority>\n  </url>`;
+    // Priority: homepage 1.0 > family hubs 0.8 > top-level tool/hub pages 0.7
+    // > detail pages 0.6. (Was: every top-level page got 0.8, outranking the
+    // family hubs — the priority inversion flagged in expert review P2.)
+    let priority = '0.6';
+    if (u === '') priority = '1.0';
+    else if (u.startsWith('f/')) priority = '0.8';
+    else if (!u.includes('/')) priority = '0.7';
+    const abs = join(DIST, u === '' ? 'index.html' : u);
+    let hash = '';
+    try { hash = createHash('sha1').update(readFileSync(abs)).digest('hex'); } catch (e) {}
+    const prev = lastmodManifest[u];
+    const lastmod = (prev && prev.hash === hash && prev.lastmod) ? prev.lastmod : today;
+    newManifest[u] = { hash, lastmod };
+    return `  <url>\n    <loc>${SITE_ORIGIN}/${u}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <priority>${priority}</priority>\n  </url>`;
   }).join('\n');
+  writeFileSync(MANIFEST_PATH, JSON.stringify(newManifest, null, 2) + '\n');
   writeFileSync(join(DIST, 'sitemap.xml'),
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`);
   writeFileSync(join(DIST, 'robots.txt'),

@@ -124,19 +124,19 @@ test('section deep links: section IDs match section nav hrefs in detail pages', 
 // ---- Print rules ----
 
 test('print CSS: hides swipe hints and autocomplete', () => {
-  const css = read('src/assets/css/site.css');
+  const css = read('src/assets/css/print.css');
   const printBlocks = css.split('@media print');
-  const hasPrintRule = printBlocks.some(block =>
+  const hasPrintRule = css.includes('.swipe-hint') && css.includes('.x-suggest');
+  assert.ok(hasPrintRule || printBlocks.some(block =>
     block.includes('.swipe-hint') && block.includes('.x-suggest')
-  );
-  assert.ok(hasPrintRule, 'print stylesheet hides swipe and autocomplete elements');
+  ), 'print stylesheet hides swipe and autocomplete elements');
 });
 
 test('print CSS: hides detail pager and cross-family', () => {
-  const css = read('src/assets/css/site.css');
+  const css = read('src/assets/css/print.css');
   const printBlocks = css.split('@media print');
-  const hasPagerRule = printBlocks.some(block =>
+  const hasPagerRule = css.includes('.detail-pager') && css.includes('.cross-family');
+  assert.ok(hasPagerRule || printBlocks.some(block =>
     block.includes('.detail-pager') && block.includes('.cross-family')
-  );
-  assert.ok(hasPagerRule, 'print stylesheet hides pager and cross-family');
+  ), 'print stylesheet hides pager and cross-family');
 });

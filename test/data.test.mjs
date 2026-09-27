@@ -16,22 +16,22 @@ const hasAsset = (rel) => existsSync(join(PUBLIC, rel));
 
 const trailers = loadTrailers();
 
-test('dataset loads with 59 floorplans', () => {
-  assert.equal(trailers.length, 59);
+test('dataset loads with 58 floorplans', () => {
+  assert.equal(trailers.length, 58);
 });
 
 test('dataset passes full validation', () => {
   assert.equal(validateDataset(trailers), true);
 });
 
-test('year split is 31x2026 + 28x2025', () => {
+test('year split is 31x2026 + 27x2025', () => {
   const c = trailers.reduce((m, t) => ((m[t.year] = (m[t.year] || 0) + 1), m), {});
   assert.equal(c[2026], 31);
-  assert.equal(c[2025], 28);
+  assert.equal(c[2025], 27);
 });
 
 test('all slugs unique', () => {
-  assert.equal(new Set(trailers.map((t) => t.slug)).size, 59);
+  assert.equal(new Set(trailers.map((t) => t.slug)).size, 58);
 });
 
 test('CCC always equals GVWR minus dry weight', () => {
@@ -95,7 +95,7 @@ test('audited 2026 MSRPs match airstream.com Starting Price', () => {
     'international-30rb-2026': 149900,
     'trade-wind-23fb-2026': 129900, 'trade-wind-25fb-2026': 139900,
     'trade-wind-27fb-2026': 155400,
-    'world-traveler-22rb-2026': 69400,
+    'world-traveler-22rb-2026': 68300,
   };
   for (const [slug, price] of Object.entries(OFFICIAL_2026)) {
     const t = trailers.find((x) => x.slug === slug);
@@ -117,13 +117,13 @@ test('validateTrailer catches bad slug', () => {
 test('groupByModel covers all 12 families and every trailer', () => {
   const g = groupByModel(trailers);
   assert.equal(g.size, 12);
-  assert.equal([...g.values()].reduce((n, a) => n + a.length, 0), 59);
+  assert.equal([...g.values()].reduce((n, a) => n + a.length, 0), 58);
 });
 
 test('filterTrailers by year', () => {
   assert.equal(filterTrailers(trailers, { year: 2026 }).length, 31);
-  assert.equal(filterTrailers(trailers, { year: 2025 }).length, 28);
-  assert.equal(filterTrailers(trailers, { year: 'all' }).length, 59);
+  assert.equal(filterTrailers(trailers, { year: 2025 }).length, 27);
+  assert.equal(filterTrailers(trailers, { year: 'all' }).length, 58);
 });
 
 test('filterTrailers by model + year together', () => {
@@ -152,9 +152,9 @@ test('assetPaths shape', () => {
 
 test('slugify maps names to file slugs', () => {
   assert.equal(slugify('Flying Cloud'), 'flying-cloud');
-  assert.equal(slugify('Basecamp XE'), 'basecamp-xe');
-  assert.equal(slugify('Frank Lloyd Wright Limited Edition'), 'frank-lloyd-wright-limited-edition');
-  assert.equal(slugify('Stetson 6666 Special Edition'), 'stetson-6666-special-edition');
+  assert.equal(slugify('Basecamp Xe'), 'basecamp-xe');
+  assert.equal(slugify('Frank Lloyd Wright Usonian Limited Edition'), 'frank-lloyd-wright-usonian-limited-edition');
+  assert.equal(slugify('Stetson + 6666 Special Edition'), 'stetson-6666-special-edition');
 });
 
 test('every trailer hero is derived from the model (not heroFamily) and exists on disk', () => {
@@ -196,7 +196,7 @@ test('resolveAssets: a slug with no own gallery falls back to its 2025 twin', ()
   assert.ok(a.gallery.every((g) => g.includes('bambi-16rb-2025-')), 'should use 2025 twin files');
 });
 
-test('resolveAssets: every one of the 59 floorplans now has its OWN gallery on disk', () => {
+test('resolveAssets: every one of the 58 floorplans now has its OWN gallery on disk', () => {
   // The official-asset pass gave each floorplan its own photos; none rely on a twin.
   for (const t of trailers) {
     const ownCount = Array.from({ length: MAX_GALLERY }, (_, i) => i + 1).filter((i) =>
@@ -261,7 +261,7 @@ test('groupByFamily returns 12 families covering every floorplan exactly once', 
   const fams = groupByFamily(trailers);
   assert.equal(fams.length, 12);
   const total = fams.reduce((n, f) => n + f.trailers.length, 0);
-  assert.equal(total, 59);
+  assert.equal(total, 58);
 });
 
 test('groupByFamily is ordered by entry price descending (priced families)', () => {
@@ -364,7 +364,7 @@ test('officialUrl resolves by family slug, not exact string', () => {
   // any floorplan of a family resolves to the same family URL
   assert.equal(officialUrl('Flying Cloud'), OFFICIAL_URLS['flying-cloud']);
   assert.equal(officialUrl('World Traveler'), OFFICIAL_URLS['world-traveler']);
-  assert.equal(officialUrl('Basecamp XE'), OFFICIAL_URLS['basecamp-xe']);
+  assert.equal(officialUrl('Basecamp Xe'), OFFICIAL_URLS['basecamp-xe']);
 });
 
 test('officialUrl returns null for unknown model', () => {

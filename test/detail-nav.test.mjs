@@ -34,16 +34,24 @@ describe('back-to-top button', () => {
 });
 
 describe('section quick-nav', () => {
-  it('trailer detail page has section nav with all expected sections', () => {
+  it('trailer detail top bar shows exactly the 6 chapters (perf #31)', () => {
     const html = readDetail('classic-33fb-2026');
     assert.ok(html.includes('data-secnav'), 'secnav missing');
-    assert.ok(html.includes('href="#specs"'), 'Specs link missing');
-    assert.ok(html.includes('href="#tow-setup"'), 'Tow Setup link missing');
-    assert.ok(html.includes('href="#journey"'), 'Journey link missing');
-    assert.ok(html.includes('href="#weight-capacity"'), 'Weight link missing');
-    assert.ok(html.includes('href="#offgrid-dash"'), 'Off-grid link missing');
-    assert.ok(html.includes('href="#floorplan"'), 'Floor plan link missing');
-    assert.ok(html.includes('href="#gallery"'), 'Gallery link missing');
+    const nav = html.match(/<nav class="secnav"[^>]*>([\s\S]*?)<\/nav>/);
+    assert.ok(nav, 'secnav nav element found');
+    const links = [...nav[1].matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+    assert.deepEqual(links, ['#specs', '#floorplan', '#tow', '#fuel', '#offgrid', '#gallery'],
+      `top bar must be exactly 6 chapters, got: ${links.join(', ')}`);
+    assert.ok(nav[1].includes('>Cost<'), 'Cost chapter present (links the fuel-cost estimator)');
+  });
+  it('sub-sections stay in the page as in-chapter anchors, not top-bar items', () => {
+    const html = readDetail('classic-33fb-2026');
+    const nav = html.match(/<nav class="secnav"[^>]*>([\s\S]*?)<\/nav>/)[1];
+    for (const id of ['size-scale', 'payload', 'propane', 'electrical', 'year-diff', 'lifestyle-fit', 'storage', 'water-autonomy', 'grade-climb', 'hitch-guide', 'vehicles']) {
+      if (html.includes(`id="${id}"`)) {
+        assert.ok(!nav.includes(`#${id}`), `#${id} must not occupy a top-bar slot`);
+      }
+    }
   });
   it('section IDs exist on trailer detail page', () => {
     const html = readDetail('classic-33fb-2026');

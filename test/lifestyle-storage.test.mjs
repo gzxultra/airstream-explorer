@@ -185,13 +185,18 @@ describe('render integration', () => {
     assert.ok(html.includes('Maneuvering'), 'storage section should mention maneuvering');
   });
 
-  it('section nav includes Lifestyle and Storage', async () => {
+  it('Lifestyle and Storage stay in the page as in-chapter anchors (not top-bar items)', async () => {
     renderModule = renderModule || await import('../src/lib/render.mjs');
     const { loadTrailers } = await import('../src/lib/data.mjs');
     trailers = trailers || loadTrailers();
     const t = trailers.find(t => t.year === 2026) || trailers[0];
-    const html = renderModule.renderDetail(t, undefined, null, trailers);
-    assert.ok(html.includes('#lifestyle-fit'), 'secnav should link to lifestyle-fit');
-    assert.ok(html.includes('#storage'), 'secnav should link to storage');
+    const html = renderModule.renderDetail(t, undefined, null, null, trailers);
+    // Sections remain in the page; the 6-chapter top bar (perf #31) no longer
+    // lists every sub-section.
+    assert.ok(html.includes('id="lifestyle-fit"'), 'lifestyle-fit section in page');
+    assert.ok(html.includes('id="storage"'), 'storage section in page');
+    const nav = html.match(/<nav class="secnav"[^>]*>([\s\S]*?)<\/nav>/);
+    assert.ok(nav && !nav[1].includes('#lifestyle-fit'), 'lifestyle-fit not a top-bar item');
+    assert.ok(!nav[1].includes('#storage'), 'storage not a top-bar item');
   });
 });

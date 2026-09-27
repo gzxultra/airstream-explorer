@@ -1,0 +1,356 @@
+/* Print styles — loaded with media="print" so they never block first paint. Extracted from site.css. */
+
+
+
+/* --- Print: a clean checklist a phone-free owner can carry to the rig ---- */
+@media print {
+  body { background: #fff; color: #000; }
+  .site-header, .site-footer, .detail-nav, .mt-jump, .mt-lens, .mt-tools,
+  .mt-legend, .mt-empty, .mt-timeline, .mt-budget-seg { display: none !important; }
+  .mt-budget { border: 1px solid #000; background: none; }
+  .mt-card { break-inside: avoid; box-shadow: none; border: 1px solid #999; border-left: 3px solid #000; }
+  .mt-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .mt-do, .mt-diagram { background: none; }
+  .mt-diagram[open] .mt-fig-art svg { max-width: 160px; }
+  .mt-sources { display: none; }            /* keep the printout to action, not links */
+  .mt-check { display: block !important; }  /* always show a tick box on paper */
+  .mt-check-box { -webkit-appearance: none; appearance: none; width: 13px; height: 13px; border: 1.5px solid #000; }
+  a[href]::after { content: ""; }            /* suppress URL expansion */
+}
+
+
+/* ---- Print-optimized detail spec sheet ---- */
+@media print {
+  /* Hide chrome: nav, back-to-top, section quick-nav, lightbox, interactive tools */
+  .topnav, .back-to-top, [data-secnav], #lightbox, .theme-toggle,
+  .skip-link, .detail-nav, .save-btn, .tag-chips,
+  .tow-callout a, .official-head, footer,
+  .related, .back-link, .range-bar { display: none !important; }
+  /* Reset background and colors for clean B&W output */
+  body { background: #fff !important; color: #1a1a1a !important; margin: 0; padding: 0; font-size: 11pt; }
+  [data-theme="dark"] * { background: transparent !important; color: #1a1a1a !important; border-color: #ccc !important; }
+  /* Detail layout: remove max-width constraints for print */
+  .detail { max-width: 100%; padding: 0 0.5in; }
+  .detail-head { page-break-after: avoid; }
+  .detail-hero { max-height: 3.5in; overflow: hidden; margin: 8pt 0; }
+  .detail-hero-img { width: 100%; height: auto; max-height: 3.5in; object-fit: cover; }
+  .detail-desc { font-size: 10pt; margin: 4pt 0 12pt; }
+  /* Spec table: compact, bordered for print clarity */
+  .spec-table { page-break-inside: avoid; margin: 12pt 0; }
+  .specs-grid .spec { padding: 4pt 0; border-bottom: 0.5pt solid #ccc; }
+  .specs-grid .spec dt { font-size: 9pt; }
+  .specs-grid .spec dd { font-size: 10pt; }
+  /* Tow callout: keep it compact */
+  .tow-callout { border: 1pt solid #ccc; padding: 8pt 12pt; page-break-inside: avoid; }
+  /* Interactive tools: collapse to static summary */
+  .tool-card { page-break-inside: avoid; border: 0.5pt solid #ddd; padding: 8pt; margin: 8pt 0; }
+  .tool-card input, .tool-card select, .tool-card button,
+  .tool-controls, .tool-slider, .tool-range,
+  .expand-toggle, details summary { display: none !important; }
+  /* Floor plan */
+  .floorplan { page-break-inside: avoid; }
+  .floorplan-img { max-width: 100%; height: auto; max-height: 5in; }
+  /* Gallery: compact 3-column grid, no lightbox zoom icons */
+  .gallery { page-break-before: auto; }
+  .gallery-grid { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 4pt; }
+  .gallery-img-wrap { border: none; cursor: default; }
+  .gallery-zoom { display: none !important; }
+  .gallery-img { width: 100%; height: auto; max-height: 1.8in; object-fit: cover; }
+  /* Pros/cons side by side */
+  .proscons { display: flex; gap: 20pt; page-break-inside: avoid; }
+  .pros, .cons { flex: 1; }
+  /* Print URL at the bottom for reference */
+  .detail::after { content: "Printed from Airstream Explorer · " attr(data-canonical); display: block; margin-top: 16pt; padding-top: 8pt; border-top: 0.5pt solid #aaa; font-size: 8pt; color: #888; }
+  /* Share & copy buttons hidden in print */
+  .share-actions { display: none !important; }
+  /* Progress bar hidden */
+  .reading-progress { display: none !important; }
+  /* Swipe hints + autocomplete hidden */
+  .swipe-hint, .x-suggest { display: none !important; }
+  /* Detail pager nav + cross-family recs — not useful on paper */
+  .detail-pager, .cross-family, .seasonal-guide, .next-steps { display: none !important; }
+}
+
+@media print { .kb-help { display: none !important; } }
+
+@media print { .breadcrumb { display: none !important; } }
+
+@media print { .floorplan-zoom-hint { display: none !important; } }
+
+@media print { .detail-sticky-summary { display: none !important; } }
+
+@media print { .cmp-radar-wrap { display: none !important; } }
+
+@media print { .size-scale { break-inside: avoid; } }
+
+@media print { .weight-context { break-inside: avoid; } }
+
+@media print { .tow-banner { break-inside: avoid; } }
+
+
+/* ====================== PRINT SPEC SHEET — professional layout ====================== */
+@media print {
+  /* Hide everything interactive and non-essential */
+  .topnav,
+  .site-footer,
+  .back-link,
+  .detail-nav,
+  .breadcrumb,
+  .secnav,
+  .detail-sticky-summary,
+  .reading-progress,
+  .share-actions,
+  .official-head,
+  .save-btn,
+  .standout-badges,
+  .tow-callout,
+  .tow-banner,
+  .collapsible-trigger .collapsible-icon,
+  .detail-pager,
+  .gallery,
+  .gallery-autoplay,
+  .lightbox,
+  .quick-view,
+  #back-to-top,
+  #scroll-top,
+  .scroll-to-top,
+  #kb-help,
+  .skip-link,
+  .next-steps,
+  .cross-family,
+  .related-section,
+  .trip-reset,
+  .quiz-overlay,
+  .cmp-bar,
+  .theme-toggle,
+  .unit-toggle,
+  .tow-tool,
+  .explore-controls,
+  .xc-layout,
+  .xc-layout-actions,
+  .csv-export-btn,
+  .filter-pill,
+  .active-filters,
+  .xcount,
+  .x-stats,
+  .tagfilter,
+  .layoutfilter,
+  .xc-reset,
+  .fab,
+  .hero-zoom,
+  .gallery-zoom,
+  .floorplan-zoom-hint,
+  .floorplan-zoom-btn,
+  .detail-hero-btn,
+  .notes-hint {
+    display: none !important;
+  }
+
+  /* Reset page basics */
+  body {
+    font-size: 11pt;
+    color: #1a1a1a;
+    background: #fff;
+    margin: 0;
+    padding: 0;
+  }
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Detail page print layout */
+  .detail {
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+  .detail-head {
+    text-align: center;
+    padding-bottom: 0.5cm;
+    border-bottom: 2px solid #1a1a1a;
+    margin-bottom: 0.5cm;
+  }
+  .detail-head h1 {
+    font-size: 20pt;
+    margin: 0 0 2pt;
+  }
+  .eyebrow {
+    font-size: 9pt;
+    color: #666;
+  }
+
+  /* Hero image — full width, not too tall */
+  .detail-hero {
+    margin: 0.3cm 0;
+    text-align: center;
+  }
+  .detail-hero img {
+    max-width: 100%;
+    max-height: 7cm;
+    object-fit: contain;
+    border-radius: 0;
+  }
+
+  /* Overview + glance summary compact */
+  .detail-overview {
+    margin: 0.3cm 0;
+    page-break-inside: avoid;
+  }
+  .detail-desc {
+    font-size: 10pt;
+    margin: 0 0 0.3cm;
+  }
+  .glance-summary {
+    background: #f7f5f2;
+    border-left: 3px solid #a67c52;
+    padding: 0.3cm 0.5cm;
+    margin: 0.3cm 0;
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .glance-heading {
+    font-size: 8pt;
+    color: #a67c52;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .glance-item {
+    font-size: 9pt;
+    line-height: 1.4;
+  }
+
+  /* Specs table — compact 2-column */
+  .spec-table {
+    page-break-inside: avoid;
+    margin: 0.3cm 0;
+  }
+  .spec-table h2 {
+    font-size: 13pt;
+    margin: 0 0 0.2cm;
+  }
+  .specs-grid {
+    font-size: 10pt;
+  }
+  .spec {
+    padding: 3pt 0;
+    border-bottom: 0.5pt solid #ddd;
+  }
+  .spec dt { font-size: 9pt; }
+  .spec-tip-text { display: none !important; }
+  .spec-pct { display: none !important; }
+
+  /* Weight budget — keep it, compact */
+  .weight-budget {
+    page-break-inside: avoid;
+    margin: 0.3cm 0;
+  }
+  .wb-bar-wrap {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Collapsible sections: force all open for print */
+  .collapsible-body,
+  .section-collapse-body {
+    display: block !important;
+    max-height: none !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+  }
+  [hidden] {
+    /* Don't force all hidden elements visible — only collapsible bodies above */
+  }
+  .is-collapsed .section-collapse-body {
+    max-height: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Tool sections — hide interactive inputs, keep static output */
+  .est-head select,
+  .est-head input,
+  .tow-config,
+  .tow-sources,
+  .fuel-sub,
+  .own-slider-row,
+  .cn-slider-row,
+  .og-controls,
+  #payload-controls,
+  .payload-presets {
+    display: none !important;
+  }
+
+  /* Notes — show content but hide textarea chrome */
+  .personal-notes {
+    page-break-inside: avoid;
+    border: 1pt solid #ccc;
+    padding: 0.3cm;
+    margin: 0.3cm 0;
+  }
+  .notes-status { display: none !important; }
+
+  /* Key stats row */
+  .key-stats {
+    page-break-inside: avoid;
+    margin: 0.2cm 0;
+  }
+
+  /* Radar chart — keep, it's visual context */
+  .cmp-radar-wrap {
+    max-width: 8cm;
+    margin: 0.3cm auto;
+    page-break-inside: avoid;
+  }
+
+  /* Size scale diagram */
+  .size-scale {
+    page-break-inside: avoid;
+    margin: 0.3cm 0;
+  }
+
+  /* Floorplan — essential for print */
+  .floorplan {
+    page-break-inside: avoid;
+    margin: 0.3cm 0;
+  }
+  .floorplan-img {
+    max-height: 10cm;
+  }
+
+  /* Seasonal guide */
+  .seasonal-guide {
+    page-break-inside: avoid;
+  }
+
+  /* Pros/cons */
+  .proscons {
+    page-break-inside: avoid;
+  }
+
+  /* Page footer for print */
+  @page {
+    margin: 1.5cm;
+    @bottom-center {
+      content: "Airstream Explorer · airstream-explorer.pages.dev";
+      font-size: 8pt;
+      color: #999;
+    }
+  }
+}
+
+@media print { .section-anchor { display: none !important; } }
+
+
+@media print { .winterization { break-inside: avoid; } }
+
+
+@media print { .tow-diff-tip { display: none; } }
+
+@media print { .clearance-fit { break-inside: avoid; } }
+
+
+@media print {
+  .lifestyle-fit, .storage-guide { break-inside: avoid; }
+}
+

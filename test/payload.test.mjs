@@ -46,13 +46,23 @@ test('calculatePayload: basic calculation with defaults', () => {
   const r = calculatePayload(trailer);
   // water = 39 × 8.34 = 325 lb (rounded)
   assert.equal(r.waterLb, 325);
-  // propane = dual20 = 40 lb
+  // propane = dual20 = 40 lb, but factory-full propane is already inside CCC,
+  // so the delta vs baseline is 0
   assert.equal(r.propaneLb, 40);
-  // consumables = 325 + 40 = 365
-  assert.equal(r.consumablesLb, 365);
-  // remaining = 1100 - 365 = 735
-  assert.equal(r.remainingLb, 735);
+  assert.equal(r.propaneDeltaLb, 0);
+  // consumables = 325 + 0 = 325
+  assert.equal(r.consumablesLb, 325);
+  // remaining = 1100 - 325 = 775
+  assert.equal(r.remainingLb, 775);
   assert.equal(r.status, 'ok');
+});
+
+test('calculatePayload: empty propane frees the factory-full baseline back up', () => {
+  const trailer = { cccLb: 1000, freshGal: 0 };
+  const none = calculatePayload(trailer, { propane: 'none' });
+  // empty tanks free the 40 lb factory-full baseline: delta = -40
+  assert.equal(none.propaneDeltaLb, -40);
+  assert.equal(none.remainingLb, 1040);
 });
 
 test('calculatePayload: empty water tank leaves more capacity', () => {
@@ -69,6 +79,9 @@ test('calculatePayload: propane presets work correctly', () => {
   const dual30 = calculatePayload(trailer, { propane: 'dual30' });
   assert.equal(none.propaneLb, 0);
   assert.equal(dual30.propaneLb, 60);
+  // deltas vs the 40 lb factory-full baseline
+  assert.equal(none.propaneDeltaLb, -40);
+  assert.equal(dual30.propaneDeltaLb, 20);
   assert.ok(none.remainingLb > dual30.remainingLb);
 });
 
@@ -81,9 +94,9 @@ test('calculatePayload: additional cargo weight reduces remaining', () => {
 });
 
 test('calculatePayload: status is "over" when exceeding CCC', () => {
-  // Small CCC, full water + propane + heavy gear
+  // Small CCC, full water + heavy gear (propane delta = 0 at factory-full)
   const trailer = { cccLb: 350, freshGal: 23 }; // Bambi 16RB
-  // water = 192, propane = 40, additional = 200 → total 432 > 350
+  // water = 192, propane delta = 0, additional = 200 → total 392 > 350
   const r = calculatePayload(trailer, { additionalLb: 200 });
   assert.equal(r.status, 'over');
   assert.ok(r.remainingLb < 0);
@@ -91,17 +104,17 @@ test('calculatePayload: status is "over" when exceeding CCC', () => {
 
 test('calculatePayload: status is "tight" when 85-100% used', () => {
   const trailer = { cccLb: 500, freshGal: 30 };
-  // water = 250, propane = 40 → consumables = 290
-  // need additional to push to 85-100%: 500*0.85=425, so additional = 425-290 = 135
-  const r = calculatePayload(trailer, { additionalLb: 140 });
-  // total = 290 + 140 = 430, pct = 430/500 = 0.86 → tight
+  // water = 250, propane delta = 0 → consumables = 250
+  // need additional to push to 85-100%: 500*0.85=425, so additional = 180 → 430 → 0.86
+  const r = calculatePayload(trailer, { additionalLb: 180 });
   assert.equal(r.status, 'tight');
 });
 
 test('calculatePayload: usedPct is correct', () => {
   const trailer = { cccLb: 1000, freshGal: 0 };
+  // propane 'none' → delta -40; additional 500 → totalUsed = 460 → 0.46
   const r = calculatePayload(trailer, { propane: 'none', additionalLb: 500 });
-  assert.equal(r.usedPct, 0.5);
+  assert.equal(r.usedPct, 0.46);
 });
 
 test('calculatePayload: handles zero CCC gracefully', () => {
@@ -116,7 +129,8 @@ test('calculatePayload: handles missing freshGal gracefully', () => {
   const trailer = { cccLb: 1000 }; // no freshGal
   const r = calculatePayload(trailer);
   assert.equal(r.waterLb, 0);
-  assert.equal(r.remainingLb, 1000 - PROPANE_PRESETS[DEFAULT_PROPANE].weightLb);
+  // factory-full propane delta = 0, so nothing is consumed
+  assert.equal(r.remainingLb, 1000);
 });
 
 // ---------------------------------------------------------------------------
@@ -124,16 +138,16 @@ test('calculatePayload: handles missing freshGal gracefully', () => {
 // ---------------------------------------------------------------------------
 
 test('real-world: Bambi 16RB has very limited cargo after water', () => {
-  // CCC 350, fresh 23 gal → water 192, propane 40 → only 118 lb for gear
+  // CCC 350, fresh 23 gal → water 192; propane delta = 0 (factory-full is in CCC) → 158 lb for gear
   const trailer = { cccLb: 350, freshGal: 23 };
   const r = calculatePayload(trailer);
   assert.equal(r.waterLb, 192);
-  assert.equal(r.remainingLb, 350 - 192 - 40); // 118 lb
-  assert.ok(r.remainingLb < 150, 'Bambi 16RB should have <150 lb remaining');
+  assert.equal(r.remainingLb, 350 - 192); // 158 lb
+  assert.ok(r.remainingLb < 200, 'Bambi 16RB should have <200 lb remaining');
 });
 
 test('real-world: Classic 30RB has generous cargo capacity', () => {
-  // CCC ~2100, fresh 51 gal → water 425, propane 40 → 1635 lb for gear
+  // CCC ~2100, fresh 51 gal → water 425; propane delta = 0 → 1675 lb for gear
   const trailer = { cccLb: 2100, freshGal: 51 };
   const r = calculatePayload(trailer);
   assert.ok(r.remainingLb > 1500, 'Classic should have >1500 lb remaining');

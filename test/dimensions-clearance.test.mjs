@@ -20,6 +20,20 @@ describe('formatDimFt', () => {
   it('formats feet + fractional inches', () => {
     assert.equal(formatDimFt(9.5), "9' 6\"");
   });
+  it('keeps half-inch precision (no truncation to whole inches)', () => {
+    // 2026-09-26 fix: official 8' 5.5" was truncated to 8' 5" before conversion.
+    assert.equal(formatDimFt(8.46), "8' 5.5\"");
+    assert.equal(formatDimFt(9.54), "9' 6.5\"");
+    assert.equal(formatDimFt(6.54), "6' 6.5\"");
+    assert.equal(formatDimFt(23.92), "23' 11\"");
+    assert.equal(formatDimFt(9.42), "9' 5\"");
+  });
+  it('width data keeps half inches after the truncation fix', () => {
+    const c33 = trailers.find((t) => t.slug === 'classic-33fb-2026');
+    assert.equal(c33.extWidthFt, 8.46);
+    const tw = trailers.find((t) => t.slug === 'trade-wind-23fb-2026');
+    assert.equal(tw.intHeightFt, 6.54);
+  });
   it('formats real trailer heights', () => {
     const classic = trailers.find((t) => t.slug === 'classic-33fb-2026');
     assert.ok(classic && classic.extHeightFt);
@@ -100,8 +114,8 @@ describe('clearance fit section', () => {
     assert.match(html, /class="clearance-fit"/);
   });
 
-  it('section nav includes dimensions link', () => {
-    assert.match(html, /#dimensions/);
+  it('clearance-fit stays in the page as a Specs-chapter anchor (not a top-bar item)', () => {
+    assert.match(html, /id="clearance-fit"/);
   });
 
   it('shows trailer dimensions in intro text', () => {

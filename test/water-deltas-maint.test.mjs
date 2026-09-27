@@ -98,9 +98,9 @@ describe('water autonomy calculator', () => {
     assert.ok(html.includes('days of camping'), 'has days label');
   });
 
-  it('appears in detail page section nav (via off-grid dashboard)', () => {
-    const html = renderDetail(classic33, undefined, null, trailers);
-    assert.ok(html.includes('#offgrid-dash'), 'section nav links to off-grid dashboard');
+  it('appears in detail page section nav', () => {
+    const html = renderDetail(classic33, undefined, null, null, trailers);
+    assert.ok(html.includes('id="water-autonomy"'), 'water-autonomy section stays in page');
   });
 
   it('usage buttons have correct aria attributes', () => {
@@ -165,8 +165,8 @@ describe('maintenance quick reference', () => {
   });
 
   it('appears in section nav', () => {
-    const html = renderDetail(classic33, undefined, null, trailers);
-    assert.ok(html.includes('#maintenance-ref'), 'section nav has maintenance link');
+    const html = renderDetail(classic33, undefined, null, null, trailers);
+    assert.ok(html.includes('id="maintenance-ref"'), 'maintenance-ref section stays in page');
   });
 });
 

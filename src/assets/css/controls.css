@@ -18,6 +18,7 @@
   --copper-soft: rgba(176,92,50,.10);
 }
 
+
 /* --- Unified text/number/search inputs + selects ------------------------- */
 .cg-ctl select,
 .cg-ctl input[type="search"],
@@ -42,6 +43,7 @@
   appearance: none;
 }
 
+
 /* Native select: kill the OS chevron, draw our own copper one */
 .cg-ctl select,
 .explore-controls select,
@@ -55,9 +57,11 @@
   padding-right: 40px;
   cursor: pointer;
 }
+
 .cg-ctl select::-ms-expand,
 .explore-controls select::-ms-expand,
 .est-field select::-ms-expand { display: none; }
+
 
 /* Hover: subtle lift + warmer border so controls feel alive */
 .cg-ctl select:hover,
@@ -74,6 +78,7 @@
   background-color: var(--ctl-bg-hover);
   box-shadow: var(--ctl-shadow-hover);
 }
+
 
 /* Focus: copper border + soft ring (replaces the hard 2px outline) */
 .cg-ctl select:focus,
@@ -97,6 +102,7 @@
   background-color: var(--ctl-bg-hover);
 }
 
+
 /* Search fields get a magnifier glyph + room for it */
 .cg-ctl input[type="search"],
 .xc-search input,
@@ -108,17 +114,18 @@
   background-size: 16px 16px;
   padding-left: 38px;
 }
+
 /* Hide the ugly native search clear button (we have Reset) */
 .cg-ctl input[type="search"]::-webkit-search-decoration,
 .cg-ctl input[type="search"]::-webkit-search-cancel-button,
 .xc-search input::-webkit-search-cancel-button,
 #cmp-search::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
 
+
 /* Length number field: keep it tidy, hide spinners */
 .cg-len-wrap input[type="number"],
 #tow-input { -moz-appearance: textfield; }
-.cg-len-wrap input[type="number"]::-webkit-outer-spin-button,
-.cg-len-wrap input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
 
 /* --- Field labels: quieter, more editorial -------------------------------- */
 .cg-ctl > label,
@@ -130,12 +137,14 @@
   color: var(--muted);
 }
 
+
 /* --- Custom checkboxes (Only posted limits / Comfortable fits / solar) ---- */
 .cg-check,
 .est-check,
 .xcard-compare {
   -webkit-tap-highlight-color: transparent;
 }
+
 .cg-check input[type="checkbox"],
 .est-check input[type="checkbox"],
 .xcard-compare input[type="checkbox"] {
@@ -152,18 +161,21 @@
   flex: 0 0 auto;
   transition: background-color .14s ease, border-color .14s ease, box-shadow .14s ease;
 }
+
 .cg-check input[type="checkbox"]:hover,
 .est-check input[type="checkbox"]:hover,
 .xcard-compare input[type="checkbox"]:hover {
   border-color: var(--copper);
   box-shadow: var(--ctl-shadow-hover);
 }
+
 .cg-check input[type="checkbox"]:checked,
 .est-check input[type="checkbox"]:checked,
 .xcard-compare input[type="checkbox"]:checked {
   background: var(--copper);
   border-color: var(--copper);
 }
+
 .cg-check input[type="checkbox"]:checked::after,
 .est-check input[type="checkbox"]:checked::after,
 .xcard-compare input[type="checkbox"]:checked::after {
@@ -175,12 +187,14 @@
   border-width: 0 2px 2px 0;
   transform: rotate(43deg);
 }
+
 .cg-check input[type="checkbox"]:focus-visible,
 .est-check input[type="checkbox"]:focus-visible,
 .xcard-compare input[type="checkbox"]:focus-visible {
   outline: none;
   box-shadow: var(--ctl-ring);
 }
+
 
 /* --- Segmented control (model-year switch) -------------------------------- */
 .seg {
@@ -191,13 +205,18 @@
   gap: 2px;
   background: var(--ctl-bg);
 }
+
 .seg-btn {
   border-radius: calc(var(--ctl-radius) - 3px);
   transition: background-color .15s ease, color .15s ease;
 }
+
 .seg-btn + .seg-btn { border-left: 0; }
+
 .seg-btn:hover:not(.is-active) { color: var(--copper-deep); background: var(--copper-soft); }
+
 .seg-btn.is-active { box-shadow: 0 1px 2px rgba(138,69,36,.25); }
+
 
 /* --- Reset buttons: tactile ---------------------------------------------- */
 .cg-reset, .xc-reset {
@@ -205,12 +224,15 @@
   box-shadow: var(--ctl-shadow);
   transition: border-color .15s ease, background-color .15s ease, color .15s ease, box-shadow .15s ease, transform .12s ease;
 }
+
 .cg-reset:hover, .xc-reset:hover {
   box-shadow: var(--ctl-shadow-hover);
   border-color: var(--copper);
   color: var(--copper-deep);
 }
+
 .cg-reset:active, .xc-reset:active { transform: translateY(1px); }
+
 
 /* --- Pill tag filters (use-case chips on Explore) ------------------------- */
 .tagfilter {
@@ -218,8 +240,11 @@
   box-shadow: var(--ctl-shadow);
   transition: border-color .15s ease, color .15s ease, background-color .15s ease, box-shadow .15s ease, transform .12s ease;
 }
+
 .tagfilter:hover { box-shadow: var(--ctl-shadow-hover); transform: translateY(-1px); }
+
 .tagfilter[aria-pressed="true"] { box-shadow: 0 2px 6px rgba(138,69,36,.22); }
+
 
 /* --- Tow presets get the same tactile treatment -------------------------- */
 .tow-preset {
@@ -227,8 +252,11 @@
   box-shadow: var(--ctl-shadow);
   transition: border-color .15s ease, background-color .15s ease, color .15s ease, box-shadow .15s ease, transform .12s ease;
 }
+
 .tow-preset:hover { box-shadow: var(--ctl-shadow-hover); border-color: var(--ctl-line-hover); }
+
 .tow-preset:active { transform: translateY(1px); }
+
 
 /* Respect reduced-motion */
 @media (prefers-reduced-motion: reduce) {

@@ -70,7 +70,7 @@ Brief 说"off-grid math 在 app.js↔estimate.mjs 重复，有 parity test"。**
 
 ### 1.4 死代码 / 重复 —— 基本干净
 
-- 搜了 `finance/mortgage/loan/月供` 等（brief 提到历史上有被移除的金融代码），**当前 src/ 无残留**（命中的都是月份名数组、map 变量名误匹配）。fingerprint 机制注释也确认旧金融代码已靠 content-hash 清掉。
+- 搜了 `finance/mortgage/loan/月供` 等（brief 提到历史上有被移除的金融代码），**2026-06-19 写下时 src/ 确实无残留**（命中的都是月份名数组、map 变量名误匹配）。fingerprint 机制注释也确认旧金融代码已靠 content-hash 清掉。**CORRECTION 2026-09-27：这句话在当时是真的，但已过时——后续自动功能周期在 2026-06-19 之后重新加入了 7 组金融/购买漏斗（月供、ownership cost、cost-per-night、resale value、trip cost、Explore 卡片月供、dealer/build-and-price next-steps 链接），2026-09-27 按用户裁决 1A 再次全部移除。原结论是过时，不是撒谎。**
 - `explore.html` 现为 shim（老书签跳转），是有意保留的兼容层，非死代码。
 - **结论：** 无显著死代码。最大"重复"就是 1.3 的镜像常量——靠 parity 测试管理而非消除（客户端确实需要不依赖网络的本地副本），方向正确，只是覆盖面要补齐。
 

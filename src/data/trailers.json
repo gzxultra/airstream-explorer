@@ -4,6 +4,7 @@
     "model": "Bambi",
     "floorplan": "16RB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 16.25,
     "weightLb": 3150,
     "gvwrLb": 3500,
@@ -84,6 +85,7 @@
     "model": "Bambi",
     "floorplan": "20FB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 20.58,
     "weightLb": 3900,
     "gvwrLb": 5000,
@@ -164,6 +166,7 @@
     "model": "Bambi",
     "floorplan": "22FB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 21.92,
     "weightLb": 3850,
     "gvwrLb": 5000,
@@ -244,6 +247,7 @@
     "model": "Basecamp",
     "floorplan": "16X",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 16.17,
     "weightLb": 2700,
     "gvwrLb": 3500,
@@ -322,6 +326,7 @@
     "model": "Basecamp",
     "floorplan": "20X",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 20.17,
     "weightLb": 3500,
     "gvwrLb": 4300,
@@ -399,9 +404,10 @@
   },
   {
     "slug": "basecamp-xe-20xe-2025",
-    "model": "Basecamp XE",
+    "model": "Basecamp Xe",
     "floorplan": "20",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 20.17,
     "weightLb": 3750,
     "gvwrLb": 4500,
@@ -439,7 +445,7 @@
   },
   {
     "slug": "basecamp-xe-20xe-2026",
-    "model": "Basecamp XE",
+    "model": "Basecamp Xe",
     "floorplan": "20",
     "year": 2026,
     "lengthFt": 20.17,
@@ -482,6 +488,7 @@
     "model": "Caravel",
     "floorplan": "16RB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 16.58,
     "weightLb": 3450,
     "gvwrLb": 4300,
@@ -515,7 +522,7 @@
     "heroFamily": "caravel",
     "extWidthFt": 8.0,
     "extHeightFt": 9.42,
-    "intHeightFt": 6.5
+    "intHeightFt": 6.54
   },
   {
     "slug": "caravel-16rb-2026",
@@ -555,13 +562,14 @@
     "heroFamily": "caravel",
     "extWidthFt": 8.0,
     "extHeightFt": 9.42,
-    "intHeightFt": 6.5
+    "intHeightFt": 6.54
   },
   {
     "slug": "caravel-20fb-2025",
     "model": "Caravel",
     "floorplan": "20FB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 21,
     "weightLb": 4100,
     "gvwrLb": 5000,
@@ -594,7 +602,7 @@
     "heroFamily": "caravel",
     "extWidthFt": 8.0,
     "extHeightFt": 9.42,
-    "intHeightFt": 6.5
+    "intHeightFt": 6.54
   },
   {
     "slug": "caravel-20fb-2026",
@@ -633,13 +641,14 @@
     "heroFamily": "caravel",
     "extWidthFt": 8.0,
     "extHeightFt": 9.42,
-    "intHeightFt": 6.5
+    "intHeightFt": 6.54
   },
   {
     "slug": "caravel-22fb-2025",
     "model": "Caravel",
     "floorplan": "22FB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 22.17,
     "weightLb": 4050,
     "gvwrLb": 5000,
@@ -671,7 +680,7 @@
     "heroFamily": "caravel",
     "extWidthFt": 8.0,
     "extHeightFt": 9.42,
-    "intHeightFt": 6.5
+    "intHeightFt": 6.54
   },
   {
     "slug": "caravel-22fb-2026",
@@ -709,13 +718,14 @@
     "heroFamily": "caravel",
     "extWidthFt": 8.0,
     "extHeightFt": 9.42,
-    "intHeightFt": 6.5
+    "intHeightFt": 6.54
   },
   {
     "slug": "classic-28rb-2025",
     "model": "Classic",
     "floorplan": "28RB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 28.83,
     "weightLb": 7650,
     "gvwrLb": 8800,
@@ -748,7 +758,7 @@
       "Premium price point"
     ],
     "heroFamily": "classic",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -789,7 +799,7 @@
       "Premium price point"
     ],
     "heroFamily": "classic",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -798,6 +808,7 @@
     "model": "Classic",
     "floorplan": "30RB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 31.42,
     "weightLb": 7725,
     "gvwrLb": 10000,
@@ -830,7 +841,7 @@
       "Premium price point"
     ],
     "heroFamily": "classic",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -871,7 +882,7 @@
       "Premium price point"
     ],
     "heroFamily": "classic",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -880,6 +891,7 @@
     "model": "Classic",
     "floorplan": "33FB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 33.25,
     "weightLb": 8425,
     "gvwrLb": 10000,
@@ -912,7 +924,7 @@
       "Premium price point"
     ],
     "heroFamily": "classic",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -953,7 +965,7 @@
       "Premium price point"
     ],
     "heroFamily": "classic",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -962,6 +974,7 @@
     "model": "Flying Cloud",
     "floorplan": "23FB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 23.92,
     "weightLb": 5000,
     "gvwrLb": 6000,
@@ -992,8 +1005,8 @@
     ],
     "heroFamily": "flyingcloud",
     "extWidthFt": 8.0,
-    "extHeightFt": 9.5,
-    "intHeightFt": 6.5
+    "extHeightFt": 9.54,
+    "intHeightFt": 6.54
   },
   {
     "slug": "flying-cloud-23fb-2026",
@@ -1030,14 +1043,15 @@
     ],
     "heroFamily": "flyingcloud",
     "extWidthFt": 8.0,
-    "extHeightFt": 9.5,
-    "intHeightFt": 6.5
+    "extHeightFt": 9.54,
+    "intHeightFt": 6.54
   },
   {
     "slug": "flying-cloud-25fb-2025",
     "model": "Flying Cloud",
     "floorplan": "25FB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 26.17,
     "weightLb": 5650,
     "gvwrLb": 7300,
@@ -1067,7 +1081,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "flyingcloud",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1105,7 +1119,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "flyingcloud",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1114,6 +1128,7 @@
     "model": "Flying Cloud",
     "floorplan": "27FB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 28.17,
     "weightLb": 5950,
     "gvwrLb": 7600,
@@ -1144,7 +1159,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "flyingcloud",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1183,7 +1198,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "flyingcloud",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1192,6 +1207,7 @@
     "model": "Flying Cloud",
     "floorplan": "28RB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 28.17,
     "weightLb": 5900,
     "gvwrLb": 7600,
@@ -1222,7 +1238,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "flyingcloud",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1261,7 +1277,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "flyingcloud",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1270,6 +1286,7 @@
     "model": "Flying Cloud",
     "floorplan": "30FB Bunk",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 31.17,
     "weightLb": 6700,
     "gvwrLb": 8800,
@@ -1300,7 +1317,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "flyingcloud",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1339,13 +1356,13 @@
       "Plan payload carefully"
     ],
     "heroFamily": "flyingcloud",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
   {
     "slug": "frank-lloyd-wright-limited-edition-28rb-2026",
-    "model": "Frank Lloyd Wright Limited Edition",
+    "model": "Frank Lloyd Wright Usonian Limited Edition",
     "floorplan": "28RB",
     "year": 2026,
     "lengthFt": 28.17,
@@ -1379,7 +1396,7 @@
       "Premium price point"
     ],
     "heroFamily": "flw",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1388,6 +1405,7 @@
     "model": "Globetrotter",
     "floorplan": "25FB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 26.17,
     "weightLb": 5975,
     "gvwrLb": 7300,
@@ -1417,7 +1435,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "globetrotter",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1455,7 +1473,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "globetrotter",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1464,6 +1482,7 @@
     "model": "Globetrotter",
     "floorplan": "27FB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 28.17,
     "weightLb": 6300,
     "gvwrLb": 7600,
@@ -1494,7 +1513,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "globetrotter",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1533,7 +1552,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "globetrotter",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1542,6 +1561,7 @@
     "model": "Globetrotter",
     "floorplan": "30RB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 31.17,
     "weightLb": 6925,
     "gvwrLb": 8800,
@@ -1574,7 +1594,7 @@
       "Premium price point"
     ],
     "heroFamily": "globetrotter",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1615,7 +1635,7 @@
       "Premium price point"
     ],
     "heroFamily": "globetrotter",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1624,6 +1644,7 @@
     "model": "International",
     "floorplan": "23FB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 23.92,
     "weightLb": 5100,
     "gvwrLb": 6000,
@@ -1654,8 +1675,8 @@
     ],
     "heroFamily": "international",
     "extWidthFt": 8.0,
-    "extHeightFt": 9.5,
-    "intHeightFt": 6.5
+    "extHeightFt": 9.54,
+    "intHeightFt": 6.54
   },
   {
     "slug": "international-23fb-2026",
@@ -1692,14 +1713,15 @@
     ],
     "heroFamily": "international",
     "extWidthFt": 8.0,
-    "extHeightFt": 9.5,
-    "intHeightFt": 6.5
+    "extHeightFt": 9.54,
+    "intHeightFt": 6.54
   },
   {
     "slug": "international-25fb-2025",
     "model": "International",
     "floorplan": "25FB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 26.17,
     "weightLb": 5700,
     "gvwrLb": 7300,
@@ -1729,7 +1751,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "international",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1767,7 +1789,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "international",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1776,6 +1798,7 @@
     "model": "International",
     "floorplan": "27FB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 28.17,
     "weightLb": 6000,
     "gvwrLb": 7600,
@@ -1806,7 +1829,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "international",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1847,7 +1870,7 @@
       "Premium price point"
     ],
     "heroFamily": "international",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1856,6 +1879,7 @@
     "model": "International",
     "floorplan": "28RB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 28.17,
     "weightLb": 5900,
     "gvwrLb": 7600,
@@ -1886,7 +1910,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "international",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1925,7 +1949,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "international",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -1934,6 +1958,7 @@
     "model": "International",
     "floorplan": "30RB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 31.17,
     "weightLb": 6600,
     "gvwrLb": 8800,
@@ -1964,7 +1989,7 @@
       "Plan payload carefully"
     ],
     "heroFamily": "international",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -2005,13 +2030,13 @@
       "Premium price point"
     ],
     "heroFamily": "international",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
   {
     "slug": "stetson-6666-special-edition-27fb-2026",
-    "model": "Stetson 6666 Special Edition",
+    "model": "Stetson + 6666 Special Edition",
     "floorplan": "27FB",
     "year": 2026,
     "lengthFt": 28.17,
@@ -2046,7 +2071,7 @@
       "Premium price point"
     ],
     "heroFamily": "stetson",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 9.58,
     "intHeightFt": 6.58
   },
@@ -2055,11 +2080,12 @@
     "model": "Trade Wind",
     "floorplan": "23FB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 23.92,
     "weightLb": 5650,
-    "gvwrLb": 6500,
+    "gvwrLb": 6300,
     "hitchWeightLb": 600,
-    "cccLb": 850,
+    "cccLb": 650,
     "freshGal": 37,
     "grayGal": 37,
     "blackGal": 17,
@@ -2086,7 +2112,7 @@
     "heroFamily": "tradewind",
     "extWidthFt": 8.0,
     "extHeightFt": 9.83,
-    "intHeightFt": 6.5
+    "intHeightFt": 6.54
   },
   {
     "slug": "trade-wind-23fb-2026",
@@ -2124,13 +2150,14 @@
     "heroFamily": "tradewind",
     "extWidthFt": 8.0,
     "extHeightFt": 9.83,
-    "intHeightFt": 6.5
+    "intHeightFt": 6.54
   },
   {
     "slug": "trade-wind-25fb-2025",
     "model": "Trade Wind",
     "floorplan": "25FB",
     "year": 2025,
+    "dataProvenance": "inherited-2026-unverified",
     "lengthFt": 26.17,
     "weightLb": 6300,
     "gvwrLb": 7600,
@@ -2145,7 +2172,7 @@
     "batteryKwh": 10.3,
     "solarStandard": true,
     "offGridScore": 93,
-    "specNote": null,
+    "specNote": "Width conflict: the 2025 official brochure lists 8 ft 5.5 in while airstream.com lists 8 ft; the site follows the website figure and flags the conflict instead of picking a side.",
     "description": "Sleeps up to 5, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Connected Lounge, Rear Hatch Available",
     "tags": [
       "family",
@@ -2203,47 +2230,6 @@
     "intHeightFt": 6.58
   },
   {
-    "slug": "trade-wind-27fb-2025",
-    "model": "Trade Wind",
-    "floorplan": "27FB",
-    "year": 2025,
-    "lengthFt": 28.17,
-    "weightLb": 7025,
-    "gvwrLb": 8300,
-    "hitchWeightLb": 925,
-    "cccLb": 1275,
-    "freshGal": 39,
-    "grayGal": 39,
-    "blackGal": 39,
-    "sleeps": 5,
-    "msrp": 155400,
-    "solarW": 600,
-    "batteryKwh": 18.5,
-    "solarStandard": true,
-    "offGridScore": 93,
-    "specNote": null,
-    "description": "Sleeps up to 5, Front Primary Bed, Two-Piece Mid-Ship Shower and Lavvy, Convertible Booth Style Dinette with Connected Lounge, Rear Hatch Available",
-    "tags": [
-      "family",
-      "off-grid",
-      "luxury",
-      "full-time"
-    ],
-    "pros": [
-      "Balanced size for most parks",
-      "Strong solar / off-grid ready",
-      "Sleeps 5"
-    ],
-    "cons": [
-      "Requires heavy-duty tow vehicle",
-      "Premium price point"
-    ],
-    "heroFamily": "tradewind",
-    "extWidthFt": 8.42,
-    "extHeightFt": 10.0,
-    "intHeightFt": 6.58
-  },
-  {
     "slug": "trade-wind-27fb-2026",
     "model": "Trade Wind",
     "floorplan": "27FB",
@@ -2280,7 +2266,7 @@
       "Premium price point"
     ],
     "heroFamily": "tradewind",
-    "extWidthFt": 8.42,
+    "extWidthFt": 8.46,
     "extHeightFt": 10.0,
     "intHeightFt": 6.58
   },
@@ -2292,13 +2278,13 @@
     "lengthFt": 22.17,
     "weightLb": 3700,
     "gvwrLb": 4500,
-    "hitchWeightLb": 450,
+    "hitchWeightLb": 440,
     "cccLb": 800,
     "freshGal": 19,
     "grayGal": 24,
     "blackGal": 12,
     "sleeps": 4,
-    "msrp": 69400,
+    "msrp": 68300,
     "solarW": 300,
     "batteryKwh": 2.5,
     "solarStandard": false,

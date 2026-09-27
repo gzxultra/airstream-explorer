@@ -84,16 +84,17 @@ test('compat table for heavy trailer shows many over-limit vehicles', () => {
   assert.ok(overCount >= 10, `most vehicles should be OVER for Classic 33FB (got ${overCount})`);
 });
 
-test('compat table shows margin with + for safe vehicles', () => {
+test('compat table shows margin with + for safe vehicles, on the binding limit', () => {
   const t = trailers.find(t => t.slug === 'bambi-16rb-2026');
-  const html = renderDetail(t, undefined, null, trailers);
-  assert.ok(html.includes('+'), 'positive margin shown with + prefix');
-  assert.ok(html.includes('lb margin'), 'margin units shown');
+  const html = renderDetail(t, undefined, null, null, trailers);
+  assert.ok(html.includes('compat-margin'), 'margin column present');
+  assert.ok(html.match(/\+\d[\d,]* lb/), 'positive margin shown with + prefix and lb units');
+  assert.ok(html.includes('compat-binding'), 'binding-limit tag shown per row');
+  assert.ok(html.includes('binding of three checks'), 'intro explains the three-limit verdict');
 });
 
-test('detail section nav includes Vehicles link', () => {
+test('detail page keeps vehicles section as a Tow-chapter anchor (not a top-bar item)', () => {
   const t = trailers.find(t => t.slug === 'flying-cloud-25fb-2026');
-  const html = renderDetail(t, undefined, null, trailers);
-  assert.ok(html.includes('#vehicles'), 'vehicles anchor in section nav');
-  assert.ok(html.includes('>Vehicles<'), 'Vehicles label in nav');
+  const html = renderDetail(t, undefined, null, null, trailers);
+  assert.ok(html.includes('id="vehicles"'), 'vehicles section stays in page');
 });

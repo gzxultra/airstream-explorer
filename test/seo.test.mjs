@@ -54,13 +54,14 @@ test('socialMeta falls back to the brand default image when none given', () => {
   assert.ok(html.includes(`${SITE_ORIGIN}/assets/img/heroes/classic.webp`));
 });
 
-test('productJsonLd is valid schema.org Product with brand + image, and NO offers/price', () => {
+test('productJsonLd emits price-only offers (no availability/buy signal)', () => {
   const block = productJsonLd({
     name: '2026 Airstream Classic 33FB',
     description: 'specs',
     imagePath: 'assets/img/heroes/classic.webp',
     canonicalPath: 'm/classic-33fb-2026.html',
     category: 'Travel Trailer',
+    msrp: 189400,
   });
   assert.ok(block.startsWith('<script type="application/ld+json">'));
   const json = block.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
@@ -71,10 +72,26 @@ test('productJsonLd is valid schema.org Product with brand + image, and NO offer
   assert.equal(data.category, 'Travel Trailer');
   assert.equal(data.image, `${SITE_ORIGIN}/assets/img/heroes/classic.webp`);
   assert.equal(data.url, `${SITE_ORIGIN}/m/classic-33fb-2026.html`);
-  // Enthusiast reference, NOT a storefront: never emit a commercial signal.
-  assert.ok(!('offers' in data), 'must not contain offers');
-  assert.ok(!('price' in data), 'must not contain price');
-  assert.ok(!JSON.stringify(data).toLowerCase().includes('price'));
+  // P2: offers carries the MSRP already on the page (rich-result eligibility).
+  // Price + currency ONLY — never availability, seller, or buy URL: this is an
+  // enthusiast reference, not a storefront.
+  assert.equal(data.offers['@type'], 'Offer');
+  assert.equal(data.offers.price, 189400);
+  assert.equal(data.offers.priceCurrency, 'USD');
+  assert.ok(!('availability' in data.offers), 'must not claim availability');
+  assert.ok(!('seller' in data.offers), 'must not name a seller');
+  assert.ok(!('url' in data.offers), 'must not link a buy action');
+});
+
+test('productJsonLd omits offers when MSRP is unknown', () => {
+  const block = productJsonLd({
+    name: '2026 Airstream Classic 33FB',
+    description: 'specs',
+    category: 'Travel Trailer',
+  });
+  const json = block.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
+  const data = JSON.parse(json.replace(/<\\\//g, '</'));
+  assert.ok(!('offers' in data), 'no MSRP -> no offers block');
 });
 
 test('productJsonLd neutralizes any </script> breakout in its payload', () => {
@@ -83,8 +100,8 @@ test('productJsonLd neutralizes any </script> breakout in its payload', () => {
   assert.ok(!inner.includes('</script>'), 'raw </script> must not appear in the data island');
 });
 
-test('every trailer detail page carries canonical, og:image (its hero) and Product JSON-LD', () => {
-  for (const t of trailers) {
+test('2026 trailer detail pages carry canonical, og:image and Product JSON-LD', () => {
+  for (const t of trailers.filter((x) => x.year === 2026)) {
     const html = renderDetail(t);
     assert.ok(html.includes(`rel="canonical" href="${SITE_ORIGIN}/m/${t.slug}.html"`), `${t.slug} canonical`);
     assert.ok(html.includes('property="og:image"'), `${t.slug} og:image`);
@@ -93,6 +110,35 @@ test('every trailer detail page carries canonical, og:image (its hero) and Produ
     assert.ok(html.includes('og:type" content="product"'), `${t.slug} og:type product`);
     // og:image must point at this model's own hero, absolute.
     assert.ok(/og:image" content="https:\/\/[^"]+\/assets\/img\/heroes\/[^"]+\.webp"/.test(html), `${t.slug} hero og:image`);
+  }
+});
+
+test('2025 trailer detail pages canonicalize to 2026 and emit no Product JSON-LD (2B ruling)', () => {
+  // 2025 figures are inherited from 2026 and unverified: the Product entity
+  // lives on the canonical 2026 page; the 2025 page keeps breadcrumb JSON-LD.
+  for (const t of trailers.filter((x) => x.year === 2025)) {
+    const twin = `${t.slug.replace(/-2025$/, '-2026')}.html`;
+    const html = renderDetail(t, undefined, null, trailers);
+    assert.ok(html.includes(`rel="canonical" href="${SITE_ORIGIN}/m/${twin}"`), `${t.slug} canonical → 2026 twin`);
+    assert.ok(!html.includes('"@type":"Product"'), `${t.slug} must not emit Product JSON-LD`);
+    assert.ok(html.includes('application/ld+json'), `${t.slug} keeps breadcrumb json-ld`);
+    assert.ok(html.includes('inherited-note'), `${t.slug} shows inherited-data annotation`);
+    assert.ok(html.includes('inherited from the 2026 model year'), `${t.slug} annotation text`);
+  }
+});
+
+test('2026 detail pages with a 2025 counterpart show the disabled year-diff disclosure', () => {
+  for (const t of trailers.filter((x) => x.year === 2026)) {
+    const hasPrev = trailers.some((x) => x.model === t.model && x.floorplan === t.floorplan && x.year === 2025);
+    const html = renderDetail(t, undefined, null, trailers);
+    if (hasPrev) {
+      assert.ok(html.includes('id="year-diff"'), `${t.slug} year-diff anchor`);
+      assert.ok(html.includes('What changed from 2025'), `${t.slug} year-diff heading`);
+      assert.ok(html.includes('Comparison withheld'), `${t.slug} disabled-comparison disclosure`);
+      assert.ok(!html.includes('year-diff-table'), `${t.slug} must not render a diff table`);
+    } else {
+      assert.ok(!html.includes('id="year-diff"'), `${t.slug} no year-diff without 2025 counterpart`);
+    }
   }
 });
 

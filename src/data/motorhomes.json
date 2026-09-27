@@ -99,7 +99,7 @@
   },
   {
     "slug": "interstate-24gtx-2026",
-    "model": "Interstate 24",
+    "model": "Interstate",
     "floorplan": "24GTX",
     "year": 2026,
     "type": "motorhome",
@@ -148,7 +148,7 @@
   },
   {
     "slug": "interstate-24glx-2027",
-    "model": "Interstate 24",
+    "model": "Interstate",
     "floorplan": "24GLX",
     "year": 2027,
     "type": "motorhome",
@@ -197,7 +197,7 @@
   },
   {
     "slug": "interstate-24gt-2027",
-    "model": "Interstate 24",
+    "model": "Interstate",
     "floorplan": "24GT",
     "year": 2027,
     "type": "motorhome",
@@ -246,7 +246,7 @@
   },
   {
     "slug": "interstate-24gl-2027",
-    "model": "Interstate 24",
+    "model": "Interstate",
     "floorplan": "24GL",
     "year": 2027,
     "type": "motorhome",
@@ -261,8 +261,8 @@
     "lengthFt": 24.5,
     "heightFt": 9.75,
     "gvwrLb": 11030,
-    "weightLb": 9763,
-    "nccLb": 1267,
+    "weightLb": 9441,
+    "nccLb": 1589,
     "towCapacityLb": 5000,
     "freshGal": 23,
     "grayGal": 24,
@@ -295,7 +295,7 @@
   },
   {
     "slug": "interstate-19gtx-2027",
-    "model": "Interstate 19",
+    "model": "Interstate",
     "floorplan": "19GTX",
     "year": 2027,
     "type": "motorhome",
@@ -344,7 +344,7 @@
   },
   {
     "slug": "interstate-19gt-2027",
-    "model": "Interstate 19",
+    "model": "Interstate",
     "floorplan": "19GT",
     "year": 2027,
     "type": "motorhome",
@@ -393,7 +393,7 @@
   },
   {
     "slug": "interstate-19x-2027",
-    "model": "Interstate 19",
+    "model": "Interstate",
     "floorplan": "19X",
     "year": 2027,
     "type": "motorhome",
@@ -513,7 +513,8 @@
     "grayGal": 19,
     "blackGal": 12,
     "fuelTankGal": 24,
-    "sleeps": 4,
+    "sleeps": 2,
+    "sleepsNote": "Sleeps 2 as standard; 4 only with the optional pop-top.",
     "seats": 4,
     "msrp": 161400,
     "solarW": 200,

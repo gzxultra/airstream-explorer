@@ -103,9 +103,11 @@ export function socialMeta({ title, description, canonicalPath = '', imagePath, 
  * Google can understand each floorplan as a distinct product and surface a
  * richer result (name, image, brand).
  *
- * DELIBERATELY no `offers`/price: this is an independent enthusiast reference,
- * not a storefront. We never emit a commercial/buyable signal — Product +
- * brand + category + image is valid structured data on its own.
+ * `offers` carries the factory MSRP already displayed on the page — price +
+ * currency only, deliberately NO availability / buy URL. This is an
+ * independent enthusiast reference, not a storefront: we state the
+ * manufacturer's suggested price as a fact, we never signal that the item
+ * can be bought here.
  *
  * @param {object} o
  * @param {string} o.name        full model name
@@ -113,9 +115,10 @@ export function socialMeta({ title, description, canonicalPath = '', imagePath, 
  * @param {string} [o.imagePath] root-relative hero (canonical, pre-hash)
  * @param {string} [o.canonicalPath] root-relative page path
  * @param {string} [o.category] e.g. 'Travel Trailer', 'Class B Motorhome'
+ * @param {number} [o.msrp]      factory MSRP in USD (omitted when falsy)
  * @returns {string} a <script type="application/ld+json"> block
  */
-export function productJsonLd({ name, description, imagePath, canonicalPath = '', category = 'Travel Trailer' } = {}) {
+export function productJsonLd({ name, description, imagePath, canonicalPath = '', category = 'Travel Trailer', msrp = 0 } = {}) {
   const data = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -125,6 +128,9 @@ export function productJsonLd({ name, description, imagePath, canonicalPath = ''
     url: absUrl(canonicalPath),
     category,
     brand: { '@type': 'Brand', name: 'Airstream' },
+    // P2: offers for rich results. Price-only (no availability, no seller,
+    // no buy action) — the MSRP is a stated fact, not a storefront signal.
+    ...(msrp > 0 ? { offers: { '@type': 'Offer', price: msrp, priceCurrency: 'USD' } } : {}),
   };
   // JSON.stringify already escapes </ safely for our content, but guard the
   // script-close sequence defensively in case any field ever contains it.

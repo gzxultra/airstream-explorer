@@ -1,12 +1,29 @@
 // Tow-safety calculator: can a given vehicle safely tow a given Airstream?
 //
-// Pure functions over a trailer's REAL spec fields and a tow vehicle's OFFICIAL
-// ratings — no DOM, no I/O — so the exact same math is unit-tested here and
-// mirrored in the client. We never invent a number; we model how the trailer's
-// real loaded weight plays against the vehicle's published limits, and we say
-// which limit binds, because that's the number that actually decides safety.
+// Pure functions over a trailer's REAL spec fields and a tow vehicle's ratings
+// — no DOM, no I/O — so the exact same math is unit-tested here and mirrored
+// in the client. We never invent a trailer number; we model how the trailer's
+// real loaded weight plays against the vehicle's limits, and we say which
+// limit binds, because that's the number that actually decides safety.
 //
-// The four limits a tow setup must respect (all from the vehicle's spec sheet):
+// HONESTY NOTE on GCWR (read this before touching it): per the dataset's own
+// _meta.method.gcwr, GCWR is manufacturer-published WHERE AVAILABLE; where it
+// is not published, the dataset stores a DERIVED planning value:
+//   gcwrLb = curbWeightLb + maxTowLb + 300 lb occupant allowance
+// (the SAE J2807 basis Ram/Ford use on their own charts). As of 2026-09-26,
+// 16 of the 26 vehicles' gcwrLb values are this derived formula, NOT an
+// official published GCWR for that configuration. The math treats them as
+// limits either way, and the UI must say so — never call these "official
+// published GCWR" for every vehicle. If you update this dataset, check
+// _meta.method.gcwr and keep this comment true.
+//
+// The four limits a tow setup must respect:
+//   1. Max trailer tow rating  — the towed weight ceiling, properly equipped.
+//   2. GCWR (gross combined)   — truck + trailer + everything, all-up ceiling.
+//   3. Payload                 — cargo + passengers the truck itself can carry;
+//                                the trailer's TONGUE WEIGHT eats into this.
+//   4. Hitch receiver rating   — not modeled per-vehicle (varies by hitch);
+//                                disclosed as a caveat instead of guessed.
 //   1. Max trailer tow rating  — the towed weight ceiling, properly equipped.
 //   2. GCWR (gross combined)   — truck + trailer + everything, all-up ceiling.
 //   3. Payload                 — cargo + passengers the truck itself can carry;
@@ -58,8 +75,11 @@ export const DEFAULT_TRUCK_OCCUPANT_LB = 300; // ~2 adults + modest gear in cab
 // ---------------------------------------------------------------------------
 
 /**
- * Load the tow-vehicle dataset. Each vehicle carries OFFICIAL, SOURCED ratings
- * for one clearly-stated representative configuration.
+ * Load the tow-vehicle dataset. Each vehicle carries SOURCED ratings for one
+ * clearly-stated representative configuration: max tow, payload, and curb
+ * weight are manufacturer-published; GCWR is published where available and
+ * otherwise a derived planning value (curb + maxTow + 300 lb) — see the
+ * HONESTY NOTE at the top of this file and _meta.method.gcwr in the dataset.
  */
 export function loadVehicles(file = join(__dirname, '..', 'data', 'tow-vehicles.json')) {
   const raw = JSON.parse(readFileSync(file, 'utf8'));

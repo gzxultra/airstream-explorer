@@ -60,8 +60,10 @@ describe('propane estimator rendering', () => {
     assert.ok(html.includes('data-prop-key="stove"'), 'missing stove slider');
   });
 
-  it('propane appears in section nav', () => {
-    assert.ok(html.includes('#propane'), 'propane missing from secnav');
+  it('propane section stays in page (Off-grid chapter anchor, not a top-bar item)', () => {
+    assert.ok(html.includes('id="propane"'), 'propane section in page');
+    const nav = html.match(/<nav class="secnav"[^>]*>([\s\S]*?)<\/nav>/);
+    assert.ok(nav && !nav[1].includes('#propane'), 'propane not a top-bar item');
   });
 });
 
@@ -103,8 +105,8 @@ describe('electrical load planner rendering', () => {
     }
   });
 
-  it('electrical appears in section nav', () => {
-    assert.ok(html.includes('#electrical'), 'electrical missing from secnav');
+  it('electrical section stays in page (Off-grid chapter anchor, not a top-bar item)', () => {
+    assert.ok(html.includes('id="electrical"'), 'electrical section in page');
   });
 });
 

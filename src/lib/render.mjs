@@ -9,7 +9,7 @@ import {
   formatDimFt,
   ordinal,
 } from './format.mjs';
-import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy, computeFleetStandouts, generateGlanceSummary, deriveAxle, towDifficulty, winterizationGuide, computeIdealFor } from './data.mjs';
+import { assetPaths, familySlug, officialUrl, catalogStats, computeStandouts, computePercentiles, percentileLabel, computeFleetRanges, rangePosition, deriveLayoutFeatures, LAYOUT_META, computeYearDiff, towClass, waterAutonomy, offGridTier, computeFleetStandouts, generateGlanceSummary, deriveAxle, towDifficulty, winterizationGuide, computeIdealFor } from './data.mjs';
 import { motorhomeAssetPaths, loadMotorhomes } from './motorhome-data.mjs';
 import { renderMotorhomeExploreCard, renderMotorhomeFamilyCard } from './motorhome-render.mjs';
 import { socialMeta, productJsonLd, iconMeta, breadcrumbJsonLd, faqJsonLd } from './seo.mjs';
@@ -31,7 +31,7 @@ import {
 } from './fuel.mjs';
 import {
   calculatePayload, waterWeight, formatRemaining, formatLb,
-  WATER_LB_PER_GAL, PROPANE_PRESETS, DEFAULT_PROPANE, GEAR_PRESETS,
+  WATER_LB_PER_GAL, PROPANE_PRESETS, DEFAULT_PROPANE, FULL_PROPANE_LB, GEAR_PRESETS,
 } from './payload.mjs';
 
 // Tow-vehicle dataset is loaded once at module load (pure read) and reused for
@@ -89,6 +89,7 @@ ${iconMeta(relRoot)}
 <link rel="stylesheet" href="${relRoot}assets/css/controls.css">
 <link rel="stylesheet" href="${relRoot}assets/css/premium.css">
 <link rel="stylesheet" href="${relRoot}assets/css/theme.css">
+<link rel="stylesheet" href="${relRoot}assets/css/print.css" media="print">
 <meta name="view-transition" content="same-origin">
 ${head}</head>
 <body>
@@ -108,8 +109,9 @@ ${navLinks}
 </nav>
 </div>
 </header>
-<a id="main-content" tabindex="-1"></a>
+<main id="main-content" tabindex="-1">
 ${body}
+</main>
 <footer class="site-footer">
 <div class="footer-grid">
 <div class="footer-col">
@@ -139,7 +141,7 @@ ${body}
 </div>
 <div class="footer-col footer-col-about">
 <p class="footer-heading">Airstream Explorer</p>
-<p class="footer-about">${_stats.floorplanCount} floorplans across ${_stats.familyCount} families. An independent, spec-accurate field guide to the current Airstream lineup.</p>
+<p class="footer-about">${_stats.floorplanCount} floorplans across ${_stats.familyCount} families. An independent field guide to Airstream's 2025–2026 lineup — Airstream has since moved to model year 2027. Trailer specs checked against official Airstream sources (Sept 2026); 2025 figures are inherited from 2026 and unverified.</p>
 </div>
 </div>
 <p class="footer-legal muted">Independent reference. Not affiliated with Airstream, Inc. Specs compiled from published sources; verify with a dealer before purchase. Model imagery is manufacturer product photography.</p>
@@ -206,19 +208,19 @@ ${scripts}</body>
 // Glossary of spec terms — shown as tooltips on the detail spec table.
 // Each key matches the label used in specRow(); only detail-page rows get tips.
 const SPEC_GLOSSARY = {
-  'Length': 'Overall bumper-to-hitch length, including the tongue.',
+  'Length': 'Exterior body length as published by Airstream — excludes the hitch/tongue. Allow about 3 ft extra for the true bumper-to-hitch length.',
   'Ext. width': 'Widest point of the exterior shell — determines lane fit and campsite clearance.',
   'Ext. height': 'Overall height with A/C unit — the clearance you need for bridges, tunnels, and covered campsites.',
   'Interior height': 'Standing headroom inside with A/C unit — measured at the tallest point.',
-  'Dry weight': 'Empty weight from the factory — no water, propane, or personal gear.',
+  'Dry weight': 'Airstream "Unit Base Weight" — as shipped from the factory with full propane tanks and batteries. No water, options, or personal gear.',
   'GVWR': 'Gross Vehicle Weight Rating — the maximum safe total weight when fully loaded.',
   'Cargo capacity (CCC)': 'GVWR minus dry weight. Everything you add (water, propane, gear) must fit within this.',
   'Hitch weight': 'The downward force the tongue puts on your tow vehicle\'s hitch.',
   'Fresh / gray / black': 'Fresh = clean drinking water. Gray = sink/shower drainage. Black = toilet waste.',
   'Solar': 'Factory rooftop solar panel wattage for charging the house battery off-grid.',
   'Battery': 'House battery capacity in kilowatt-hours — powers lights, outlets, and appliances.',
-  'Off-grid score': 'A 0–100 composite: battery kWh, solar watts, and tank sizes vs. the lineup.',
-  'MSRP': 'Manufacturer\'s Suggested Retail Price — the base sticker price before options or dealer markup.',
+  'Off-grid score': 'An editorial 0–100 composite from this site — battery kWh, solar watts, and tank sizes vs. the lineup. Tiers: Strong (75+), Moderate (55–74), Basic (<55). Not an official Airstream rating.',
+  'MSRP': 'Manufacturer\'s Suggested Retail Price. Airstream does not publish per-floorplan starting prices — this figure is an estimate, rounded to the nearest $100.',
   'Sleeps': 'Maximum sleeping positions from the factory floorplan layout.',
   'Axle': 'Single-axle trailers are lighter and easier to maneuver; dual-axle adds stability for larger, heavier models.',
 };
@@ -291,7 +293,7 @@ function renderBrowseLinks(t) {
   return `<div class="browse-links"><span class="browse-links-label">Browse similar:</span>${links.join('')}</div>`;
 }
 
-function specRow(label, value, { tip = false, unit = null, raw = null, pctData = null, fleetRange = null, yearDelta = null } = {}) {
+function specRow(label, value, { tip = false, unit = null, raw = null, pctData = null, pctField = null, fleetRange = null, yearDelta = null } = {}) {
   const glossary = tip && SPEC_GLOSSARY[label];
   const dtInner = glossary
     ? `<span class="spec-tip" tabindex="0" aria-label="${esc(label)}: ${esc(glossary)}"><span class="spec-tip-text">${esc(glossary)}</span>${esc(label)}</span>`
@@ -302,7 +304,10 @@ function specRow(label, value, { tip = false, unit = null, raw = null, pctData =
   if (pctData && pctData.pct >= 70) {
     const barW = pctData.pct;
     const tier = pctData.pct >= 90 ? 'top10' : pctData.pct >= 80 ? 'top20' : 'top30';
-    pctHtml = `<span class="spec-pct spec-pct--${tier}" title="${esc(pctData.label || '')}" aria-label="${esc(pctData.label || '')}"><span class="spec-pct-bar" style="width:${barW}%"></span><span class="spec-pct-text">Top ${100 - barW}%</span></span>`;
+    // Direction-aware badge text: "Top 10%" is ambiguous on price — a cheap
+    // trailer is "top" only in the affordability sense.
+    const pctText = pctField === 'msrp' ? `Lowest-priced ${100 - barW}%` : `Top ${100 - barW}%`;
+    pctHtml = `<span class="spec-pct spec-pct--${tier}" title="${esc(pctData.label || '')}" aria-label="${esc(pctData.label || '')}"><span class="spec-pct-bar" style="width:${barW}%"></span><span class="spec-pct-text">${pctText}</span></span>`;
   }
   // Fleet position bar — thin inline bar for ALL numeric specs showing where
   // this value falls within the fleet min→max range.
@@ -342,12 +347,13 @@ function renderKeyStats(t) {
     { icon: '⚖️', value: formatWeight(t.weightLb), label: 'Dry weight', unit: 'weight', raw: t.weightLb },
     { icon: '🛏️', value: String(t.sleeps), label: 'Sleeps' },
     { icon: '💰', value: formatMsrpShort(t.msrp), label: 'Base MSRP' },
-    t.offGridScore ? { icon: '🔋', value: `${t.offGridScore}/100`, label: 'Off-grid' } : null,
+    t.offGridScore ? { icon: '🔋', value: offGridTier(t.offGridScore), label: 'Off-grid', title: `Editorial composite ${t.offGridScore}/100 — not an official Airstream rating` } : null,
     days ? { icon: '💧', value: `~${days}`, label: 'Water days (2 ppl)' } : null,
   ].filter(Boolean);
   return `<div class="key-stats" aria-label="Key specifications at a glance">${stats.map((s) => {
     const unitAttr = s.unit && s.raw != null ? ` data-unit="${esc(s.unit)}" data-raw="${esc(String(s.raw))}"` : '';
-    return `<div class="key-stat"><span class="key-stat-icon" aria-hidden="true">${s.icon}</span><span class="key-stat-value"${unitAttr}>${esc(s.value)}</span><span class="key-stat-label">${esc(s.label)}</span></div>`;
+    const titleAttr = s.title ? ` title="${esc(s.title)}"` : '';
+    return `<div class="key-stat"><span class="key-stat-icon" aria-hidden="true">${s.icon}</span><span class="key-stat-value"${unitAttr}${titleAttr}>${esc(s.value)}</span><span class="key-stat-label">${esc(s.label)}</span></div>`;
   }).join('')}</div>`;
 }
 
@@ -381,8 +387,61 @@ const WEIGHT_REFS = [
   { label: 'Ford Expedition', lb: 5700, icon: '🚐' },
   { label: 'African elephant', lb: 13000, icon: '🐘' },
 ];
+
+export function renderWeightContext(t) {
+  if (!(t.weightLb > 0)) return '';
+  const w = t.weightLb;
+
+  const comparisons = WEIGHT_REFS
+    .map((r) => {
+      const ratio = w / r.lb;
+      let text;
+      if (ratio >= 0.95 && ratio <= 1.05) {
+        text = `About the same as one ${r.label}`;
+      } else if (ratio > 1.05) {
+        const rounded = Math.round(ratio * 10) / 10;
+        const plural = rounded === 1 ? r.label : r.label + 's';
+        text = `About ${rounded}× a ${r.label}`;
+        if (rounded === Math.round(rounded)) {
+          text = `About ${Math.round(rounded)} ${plural}`;
+        }
+      } else {
+        const pct = Math.round(ratio * 100);
+        text = `About ${pct}% of a ${r.label}`;
+      }
+      return { ...r, ratio, text, distance: Math.abs(Math.log(ratio)) };
+    })
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, 3);
+
+  const items = comparisons
+    .map((c) => {
+      const barPct = Math.min(100, Math.max(4, Math.round((w / c.lb) * 50)));
+      const refPct = Math.min(100, Math.max(4, 50));
+      return `<div class="wctx-item">
+<span class="wctx-icon" aria-hidden="true">${c.icon}</span>
+<div class="wctx-detail">
+<span class="wctx-text">${esc(c.text)}</span>
+<div class="wctx-bars">
+<div class="wctx-bar wctx-bar--trailer" style="width:${barPct}%"><span class="wctx-bar-label">${esc(formatWeight(w))}</span></div>
+<div class="wctx-bar wctx-bar--ref" style="width:${refPct}%"><span class="wctx-bar-label">${esc(c.label)} ${esc(formatWeight(c.lb))}</span></div>
+</div>
+</div>
+</div>`;
+    })
+    .join('\n');
+
+  return `<section class="weight-context" id="weight-context" aria-label="Weight in context">
+<h2>How heavy is ${esc(formatWeight(w))}?</h2>
+<p class="wctx-intro muted">Your ${esc(t.model)} ${esc(t.floorplan)} weighs ${esc(formatWeight(w))} dry — here's how that compares to everyday objects.</p>
+<div class="wctx-grid">${items}</div>
+</section>`;
+}
+
 // ---------------------------------------------------------------------------
-// WEIGHT BUDGET WATERFALL — shows how CCC gets consumed by fluids + propane
+// WEIGHT BUDGET WATERFALL — shows how CCC gets consumed by fluids.
+// Note: factory-full propane is ALREADY inside CCC (Airstream publishes UBW
+// "with LP & Batteries"), so it is not a CCC-consuming segment here.
 // ---------------------------------------------------------------------------
 
 function renderWeightBudget(t) {
@@ -392,8 +451,7 @@ function renderWeightBudget(t) {
   const grayLb = t.grayGal ? Math.round(t.grayGal * WPG) : 0;
   const blackLb = t.blackGal ? Math.round(t.blackGal * WPG) : 0;
   const wasteLb = grayLb + blackLb;
-  const propaneLb = 40; // standard dual 20 lb tanks
-  const totalFluids = freshLb + wasteLb + propaneLb;
+  const totalFluids = freshLb + wasteLb;
   const gearLb = Math.max(0, t.cccLb - totalFluids);
   const ccc = t.cccLb;
   // When fluids exceed CCC (common on compact models), normalize to total
@@ -402,12 +460,10 @@ function renderWeightBudget(t) {
   const base = overBudget ? totalFluids : ccc;
   const freshPct = Math.round((freshLb / base) * 100);
   const wastePct = Math.round((wasteLb / base) * 100);
-  const propPct = Math.round((propaneLb / base) * 100);
-  const gearPct = overBudget ? 0 : Math.max(0, 100 - freshPct - wastePct - propPct);
+  const gearPct = overBudget ? 0 : Math.max(0, 100 - freshPct - wastePct);
   const segments = [
     freshLb > 0 ? { cls: 'wb-fresh', pct: freshPct, label: 'Fresh water', value: `${freshLb} lb (${t.freshGal} gal)` } : null,
     wasteLb > 0 ? { cls: 'wb-waste', pct: wastePct, label: wasteLb === grayLb ? 'Gray tank' : (grayLb && blackLb ? 'Gray + black' : 'Waste tank'), value: `${wasteLb} lb` } : null,
-    { cls: 'wb-propane', pct: propPct, label: 'Propane (2×20 lb)', value: `${propaneLb} lb` },
     !overBudget ? { cls: 'wb-gear', pct: gearPct, label: 'Your gear & supplies', value: `${formatWeight(gearLb)}` } : null,
   ].filter(Boolean);
   const bars = segments.map((s) =>
@@ -418,14 +474,14 @@ function renderWeightBudget(t) {
   ).join('');
   const overAmt = totalFluids - ccc;
   const verdict = overBudget
-    ? `<p class="wb-verdict wb-verdict--tight">⚠ Full tanks + propane (${formatWeight(totalFluids)}) exceed your ${formatWeight(ccc)} CCC by ${formatWeight(overAmt)}. Travel with tanks partially filled or skip propane loading to leave room for personal gear.</p>`
+    ? `<p class="wb-verdict wb-verdict--tight">⚠ Full tanks (${formatWeight(totalFluids)}) exceed your ${formatWeight(ccc)} CCC by ${formatWeight(overAmt)}. Travel with tanks partially filled to leave room for personal gear. (Propane ships full from the factory and is already inside your CCC.)</p>`
     : gearLb < 200
     ? '<p class="wb-verdict wb-verdict--ok">Enough for essentials, but budget carefully for longer trips.</p>'
     : '<p class="wb-verdict wb-verdict--good">Comfortable margin for gear, food, and supplies.</p>';
   return `<div class="weight-budget collapsible" id="weight-budget" aria-label="Weight budget breakdown">
 <h3 class="collapsible-trigger" aria-expanded="false" tabindex="0" role="button">Weight budget: where your ${esc(formatWeight(ccc))} goes<span class="collapsible-icon" aria-hidden="true"></span></h3>
 <div class="collapsible-body" hidden>
-<p class="wb-intro">When all tanks are full and propane is loaded, here\'s how your ${esc(formatWeight(ccc))} cargo capacity (CCC) breaks down.${overBudget ? ' <strong>On this model, full fluids exceed CCC — plan accordingly.</strong>' : ''}</p>
+<p class="wb-intro">When all tanks are full, here's how your ${esc(formatWeight(ccc))} cargo capacity (CCC) breaks down. Propane is not listed: it ships with full tanks from the factory and is already counted inside CCC.${overBudget ? ' <strong>On this model, full fluids exceed CCC — plan accordingly.</strong>' : ''}</p>
 <div class="wb-bar-wrap"><div class="wb-bar">${bars}</div></div>
 <div class="wb-legend">${legend}</div>
 ${verdict}
@@ -781,19 +837,19 @@ export function renderIndex(families, trailers = [], resolve = assetPaths, motor
   const heroImg = heroFam && heroFam.hero;
   const heroBand = heroImg
     ? `<header class="home-hero">
-<img class="home-hero-img" src="${esc(heroImg)}" alt="An Airstream travel trailer at golden hour" width="1280" height="720" fetchpriority="high">
+<img class="home-hero-img" src="${esc(heroImg)}" ${heroImgAttrs(heroImg)} alt="An Airstream travel trailer at golden hour" width="1280" height="720" fetchpriority="high">
 <div class="home-hero-shade"></div>
 <div class="home-hero-inner">
 <p class="eyebrow eyebrow-light">AIRSTREAM · 2026 + 2025</p>
 <h1>Every Airstream, by family</h1>
-<p class="lede">A cinematic, spec-accurate field guide to the current Airstream lineup — <span class="hero-stat" data-hero-num="${allFamilies}">${allFamilies}</span> families, <span class="hero-stat" data-hero-num="${totalPlans}">${totalPlans}</span> floorplans across travel trailers and motorhomes.</p>
+<p class="lede">A cinematic field guide to Airstream's 2025–2026 lineup — <span class="hero-stat" data-hero-num="${allFamilies}">${allFamilies}</span> families, <span class="hero-stat" data-hero-num="${totalPlans}">${totalPlans}</span> floorplans across travel trailers and motorhomes. Specs checked against official Airstream sources.</p>
 <p class="home-hero-cta"><a class="home-hero-btn" href="#all" data-view-go="all">Explore all floorplans</a><button type="button" class="home-hero-ghost quiz-trigger" id="quiz-open">Find your Airstream →</button></p>
 </div>
 </header>`
     : `<header class="hero-head">
 <p class="eyebrow">AIRSTREAM · 2026 + 2025</p>
 <h1>Every Airstream, by family</h1>
-<p class="lede">A cinematic, spec-accurate field guide to the current Airstream lineup — ${allFamilies} families, ${totalPlans} floorplans across travel trailers and motorhomes. Start with a family, then dive into each floorplan’s full specs.</p>
+<p class="lede">A cinematic field guide to Airstream's 2025–2026 lineup — ${allFamilies} families, ${totalPlans} floorplans across travel trailers and motorhomes. Start with a family, then dive into each floorplan’s full specs.</p>
 <p class="hero-cta"><a href="#all" data-view-go="all">Explore all floorplans →</a></p>
 </header>`;
   // Editorial segmented control — styled as a magazine section divider
@@ -813,9 +869,9 @@ ${renderQuiz()}
 <div class="home-recent-strip" id="home-recent-grid"></div>
 </section>
 <section class="hub-view" id="view-families" data-view="families">
-<main class="fam-grid" id="families">
+<div class="fam-grid" id="families">
 ${cards}
-</main>
+</div>
 ${editorsPicks}
 ${renderWhatsNew2026(trailers)}
 ${renderSizeLadder(families, trailers)}
@@ -825,10 +881,11 @@ ${renderExploreSections(trailers, resolve, motorhomes, { headingLevel: 'h2' })}
 </section>`;
   return page({
     title: 'Airstream Explorer — the full lineup by family',
-    description: `A spec-accurate, cinematic catalog of every current Airstream travel trailer and motorhome family: ${allFamilies} families, ${totalPlans} floorplans, with dimensions, weights, off-grid and pricing.`,
+    description: `A cinematic catalog of Airstream travel trailer and motorhome families (2025–2027 model years): ${allFamilies} families, ${totalPlans} floorplans, with dimensions, weights, off-grid and pricing.`,
     body,
     active: 'index',
     canonicalPath: 'index.html',
+    head: heroImg ? heroPreloadLink(heroImg) : '',
   });
 }
 
@@ -959,7 +1016,7 @@ ${allFamilies.map(f => `<a class="famnav-link${f.slug === fam.slug ? ' is-curren
     : '';
   const body = `${famNav}<nav class="breadcrumb" aria-label="Breadcrumb"><ol class="breadcrumb-list"><li><a href="../index.html">Home</a></li><li aria-current="page">${esc(fam.family)}</li></ol></nav>
 <header class="fam-hero">
-<img class="fam-hero-img" src="../${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" width="1280" height="720" fetchpriority="high" style="view-transition-name:vt-hero-${esc(fam.slug)}">
+<img class="fam-hero-img" src="../${esc(fam.hero)}" ${fam.hero ? heroImgAttrs(fam.hero, '../') : ''} alt="Airstream ${esc(fam.family)}" width="1280" height="720" fetchpriority="high" style="view-transition-name:vt-hero-${esc(fam.slug)}">
 <div class="fam-hero-overlay">
 <p class="eyebrow eyebrow-light">AIRSTREAM ${esc(fam.years.join(' + '))}</p>
 <h1>${esc(fam.family)} ${limited}</h1>
@@ -971,9 +1028,9 @@ ${famOfficial ? `<p class="fam-hero-official"><a class="official-link official-l
 ${yearSeg}
 <span class="count" id="result-count" aria-live="polite" aria-atomic="true">${shownCount} floorplan${shownCount === 1 ? '' : 's'}</span>
 </section>
-<main class="cards" id="cards">
+<div class="cards" id="cards">
 ${cards}
-</main>
+</div>
 ${renderFamilyCompare(fam)}
 ${renderFamilyAdvisor(fam)}`;
   // Breadcrumb trail: Home → Family
@@ -989,7 +1046,7 @@ ${renderFamilyAdvisor(fam)}`;
     active: 'index',
     canonicalPath: `f/${fam.slug}.html`,
     ogImage: fam.hero || '',
-    head: breadcrumbJsonLd(famBreadcrumbItems),
+    head: breadcrumbJsonLd(famBreadcrumbItems) + (fam.hero ? '\n' + heroPreloadLink(fam.hero, '../') : ''),
   });
 }
 
@@ -1129,10 +1186,14 @@ export function renderTowTool(t) {
   const defResult = evaluateTow(def, trailer, { truckLoadLb: DEFAULT_TRUCK_OCCUPANT_LB });
   const defMeta = TOW_VERDICT_META[defResult.verdict];
 
+  // Searchable combobox (datalist progressive enhancement): alphabetical by
+  // name so a 200-item list stays scannable. The input's display text is the
+  // unique "Name — config" string; app.js maps it back to the vehicle id.
+  const vehicleLabel = (v) => `${v.name} — ${v.config}`;
   const vehicleOpts = TOW_VEHICLES
     .slice()
-    .sort((a, b) => b.maxTowLb - a.maxTowLb)
-    .map((v) => `<option value="${esc(v.id)}"${v.id === def.id ? ' selected' : ''}>${esc(v.name)} — ${esc(v.config)}</option>`)
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((v) => `<option value="${esc(vehicleLabel(v))}"></option>`)
     .join('');
 
   // CSP-safe data island: the full vehicle table for the client. No inline JS;
@@ -1160,11 +1221,13 @@ export function renderTowTool(t) {
 <div class="tow-head">
 <h2>Can your vehicle tow it?</h2>
 <p class="tow-sub">Checks this floorplan's <strong>loaded</strong> weight (${esc(formatWeight(t.gvwrLb))} GVWR) against a tow vehicle's three real limits — tow rating, payload, and combined weight (GCWR). Pick your vehicle:</p>
+<p class="tow-declare" id="tow-declare">Ratings shown for <strong id="tow-declare-vehicle">${esc(def.name)} — ${esc(def.config)}</strong>. Your door-jamb certification label wins over any number here.</p>
 </div>
 <div class="tow-controls">
 <div class="tow-field tow-field-wide">
 <label for="tow-vehicle">Tow vehicle</label>
-<select id="tow-vehicle">${vehicleOpts}</select>
+<input id="tow-vehicle" type="text" role="combobox" aria-autocomplete="list" aria-controls="tow-vehicle-list" autocomplete="off" spellcheck="false" value="${esc(vehicleLabel(def))}">
+<datalist id="tow-vehicle-list">${vehicleOpts}</datalist>
 </div>
 <div class="tow-field">
 <label for="tow-load">People &amp; gear in the cab</label>
@@ -1175,6 +1238,27 @@ export function renderTowTool(t) {
 <option value="800">~800 lb (family + gear)</option>
 </select>
 </div>
+</div>
+<fieldset class="tow-overrides">
+<legend>Your door-jamb numbers <span class="tow-override-hint">optional — overrides the preset</span></legend>
+<p class="tow-override-note">Prefilled from the selected vehicle. Type your door-jamb ratings to override a limit; clear a field to use the preset again. Curb weight always comes from the selected preset — combined-weight math needs it.</p>
+<div class="tow-controls">
+<div class="tow-field">
+<label for="tow-maxtow">Max tow rating (lb)</label>
+<input type="number" id="tow-maxtow" min="0" step="100" inputmode="numeric" value="${esc(String(def.maxTowLb))}">
+</div>
+<div class="tow-field">
+<label for="tow-payload">Payload (lb)</label>
+<input type="number" id="tow-payload" min="0" step="50" inputmode="numeric" value="${esc(String(def.payloadLb))}">
+</div>
+<div class="tow-field">
+<label for="tow-gcwr">GCWR (lb)</label>
+<input type="number" id="tow-gcwr" min="0" step="100" inputmode="numeric" value="${esc(String(def.gcwrLb))}">
+</div>
+</div>
+</fieldset>
+<div class="tow-actions">
+<button type="button" class="tow-copylink" id="tow-copylink">Copy link to this setup</button>
 </div>
 <div class="tow-verdict ${esc(defMeta.cls)}" id="tow-verdict" aria-live="polite" aria-atomic="true"
  data-verdict="${esc(defResult.verdict)}">
@@ -1188,11 +1272,11 @@ export function renderTowTool(t) {
 <p class="tow-config muted" id="tow-config">Modeled config: ${esc(def.config)}. <span id="tow-sources">${sourceLinks}</span></p>
 <details class="tow-method">
 <summary>How this is calculated</summary>
-<p>Three checks, each from the tow vehicle's <strong>published ${esc(def.year)}-spec</strong> ratings for one stated configuration:</p>
+<p>Three checks against one stated configuration of the tow vehicle. Max tow, payload, and curb weight are manufacturer-published; GCWR is published where available and otherwise a derived planning value (curb + max tow + 300 lb — not an official published GCWR, see below).</p>
 <ul>
 <li><strong>Trailer tow rating</strong> — the trailer at its loaded weight (GVWR, not dry) vs. the truck's max tow rating.</li>
 <li><strong>Payload</strong> — loaded tongue weight (modeled at ${Math.round(TONGUE_PCT_LOADED * 100)}% of trailer GVWR, the mid of the 10–15% rule) plus people &amp; gear in the cab vs. the truck's payload.</li>
-<li><strong>Combined weight (GCWR)</strong> — truck + trailer + everything vs. the gross combined weight rating.</li>
+<li><strong>Combined weight (GCWR)</strong> — truck + trailer + everything vs. the gross combined weight rating. <em>GCWR honesty note:</em> where a manufacturer publishes a GCWR we use it; where it does not, the dataset carries a derived planning value (curb weight + max tow + 300 lb, the SAE J2807 basis) — not an official published GCWR for that configuration.</li>
 </ul>
 <p>The verdict is the <em>worst</em> of the three: ≤80% of a limit is comfortable, 80–100% is tight, over 100% exceeds it. Manufacturers' "max tow" and "max payload" usually come from <em>different</em> configurations and are mutually exclusive, so each vehicle here uses ONE coherent, sourced config. These are planning figures — your truck's door-jamb certification label is the final word.</p>
 </details>
@@ -1311,11 +1395,6 @@ export function renderFuelTool(t) {
  * Server-renders a default scenario (full water, dual 20 lb propane).
  */
 
-// ---------------------------------------------------------------------------
-// FINANCING CALCULATOR: estimated monthly payment based on MSRP
-// ---------------------------------------------------------------------------
-
-/** Default financing assumptions — reasonable RV loan terms. */
 export function renderPayloadTool(t) {
   if (!(t.cccLb > 0)) return '';
   const def = calculatePayload(t);
@@ -1340,11 +1419,14 @@ export function renderPayloadTool(t) {
   };
   const statusMeta = STATUS_META[def.status];
 
-  // Breakdown bars
+  // Breakdown bars (propane shown as delta vs the factory-full baseline already in CCC)
   const barPct = (lb) => Math.max(2, Math.min(100, (lb / (def.cccLb || 1)) * 100));
+  const propaneDeltaDetail = def.propaneDeltaLb === 0
+    ? '0 lb — factory-full propane is already inside your CCC'
+    : `${def.propaneDeltaLb > 0 ? '+' : ''}${esc(formatLb(def.propaneDeltaLb))} vs factory-full`;
   const bars = [
     ['Fresh water', def.waterLb, `${esc(formatLb(def.waterLb))} (${t.freshGal || 0} gal × 8.34 lb/gal)`],
-    ['Propane', def.propaneLb, esc(formatLb(def.propaneLb))],
+    ['Propane (vs factory-full)', Math.abs(def.propaneDeltaLb), propaneDeltaDetail],
   ];
 
   const barsHtml = bars.map(([label, lb, detail]) =>
@@ -1361,6 +1443,7 @@ export function renderPayloadTool(t) {
     cccLb: t.cccLb,
     freshGal: t.freshGal || 0,
     propanePresets: PROPANE_PRESETS,
+    fullPropaneLb: FULL_PROPANE_LB,
     gearPresets: GEAR_PRESETS,
     waterLbPerGal: WATER_LB_PER_GAL,
   }).replace(/<\//g, '<\\/');
@@ -1370,7 +1453,7 @@ export function renderPayloadTool(t) {
 <script type="application/json" id="payload-data">${dataIsland}</script>
 <div class="est-head">
 <h2>How much can you pack?</h2>
-<p class="est-sub">This ${esc(t.model)} ${esc(t.floorplan)} has ${esc(formatWeight(t.cccLb))} of cargo carrying capacity (CCC). Water and propane eat into that before you load a single bag — here's what's left for your gear.</p>
+<p class="est-sub">This ${esc(t.model)} ${esc(t.floorplan)} has ${esc(formatWeight(t.cccLb))} of cargo carrying capacity (CCC). Water eats into that before you load a single bag — here's what's left for your gear. Propane ships with full tanks from the factory, so it's already inside your CCC: the propane control only counts the difference vs factory-full.</p>
 </div>
 <div class="est-controls">
 <div class="est-field">
@@ -1453,6 +1536,24 @@ function buildSectionNav(items) {
   return `<nav class="secnav" aria-label="Page sections" data-secnav>${links}<button type="button" class="secnav-expand-all" id="secnav-expand-all" aria-label="Expand all sections" title="Expand all sections"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 13 12 18 17 13"></polyline><polyline points="7 6 12 11 17 6"></polyline></svg></button></nav>`;
 }
 
+// ---------------------------------------------------------------------------
+// HERO RESPONSIVE VARIANTS (perf #28). Every 1280x720 hero ships with -640 and
+// -960 WebP variants (scripts/gen-hero-variants.sh). The build's fingerprint
+// step rewrites every 'assets/img/...' tail in emitted HTML — srcset and
+// preload included — so these canonical paths are safe to emit pre-build.
+// ---------------------------------------------------------------------------
+function heroSrcset(canonHero, prefix = '') {
+  const dot = canonHero.lastIndexOf('.');
+  const stem = canonHero.slice(0, dot), ext = canonHero.slice(dot);
+  return `${prefix}${stem}-640${ext} 640w, ${prefix}${stem}-960${ext} 960w, ${prefix}${canonHero} 1280w`;
+}
+function heroPreloadLink(canonHero, prefix = '') {
+  return `<link rel="preload" as="image" imagesrcset="${esc(heroSrcset(canonHero, prefix))}" imagesizes="100vw">`;
+}
+function heroImgAttrs(canonHero, prefix = '') {
+  return `srcset="${esc(heroSrcset(canonHero, prefix))}" sizes="100vw"`;
+}
+
 /** Build a plain-text spec summary for clipboard copy. */
 function buildSpecText(t) {
   const lines = [
@@ -1469,7 +1570,7 @@ function buildSpecText(t) {
     `Tanks: ${formatTanks(t.freshGal, t.grayGal, t.blackGal)}`,
     t.solarW ? `Solar: ${t.solarW}W ${t.solarStandard ? '(standard)' : '(optional)'}` : null,
     t.batteryKwh ? `Battery: ${t.batteryKwh} kWh` : null,
-    `Off-grid score: ${t.offGridScore}/100`,
+    `Off-grid: ${offGridTier(t.offGridScore) || '—'} (editorial composite ${t.offGridScore}/100)`,
     `MSRP: ${formatMsrp(t.msrp)}`,
   ].filter(Boolean);
   // Append the canonical detail-page URL so pasted specs are traceable
@@ -1604,70 +1705,21 @@ function trailerDistance(a, b) {
 // YEAR-OVER-YEAR DIFF — "What changed in 2026" section for detail pages
 // ---------------------------------------------------------------------------
 
-function formatDiffValue(val, unit) {
-  if (val == null) return '—';
-  if (unit === '$') return formatMsrp(val);
-  if (unit === 'lb') return formatWeight(val);
-  if (unit === 'ft') return formatLength(val);
-  if (unit === 'gal') return formatGal(val);
-  return `${val} ${unit}`.trim();
-}
-
-function formatDiffDelta(delta, unit) {
-  if (delta == null) return '';
-  const sign = delta > 0 ? '+' : '';
-  if (unit === '$') return `${sign}$${Math.abs(delta).toLocaleString('en-US')}`;
-  if (unit === 'lb') return `${sign}${delta.toLocaleString('en-US')} lb`;
-  if (unit === 'gal') return `${sign}${delta} gal`;
-  if (unit === 'ft') return `${sign}${delta} ft`;
-  return `${sign}${delta} ${unit}`.trim();
-}
-
 function renderYearDiff(t, allTrailers) {
-  const diff = computeYearDiff(t, allTrailers);
-  if (!diff) return '';
-
-  const rows = diff.diffs.map((d) => {
-    const arrow = d.direction === 'up' ? '↑' : d.direction === 'down' ? '↓' : '~';
-    const cls = d.direction === 'up'
-      ? (d.key === 'msrp' || d.key === 'weightLb' ? 'diff-warn' : 'diff-good')
-      : d.direction === 'down'
-        ? (d.key === 'msrp' || d.key === 'weightLb' ? 'diff-good' : 'diff-warn')
-        : 'diff-neutral';
-    return `<tr class="${cls}">
-<td class="diff-field">${esc(d.field)}</td>
-<td class="diff-from">${formatDiffValue(d.from, d.unit)}</td>
-<td class="diff-arrow">${arrow}</td>
-<td class="diff-to">${formatDiffValue(d.to, d.unit)}</td>
-<td class="diff-delta">${d.delta != null ? formatDiffDelta(d.delta, d.unit) : '—'}</td>
-</tr>`;
-  }).join('\n');
+  // 2025 dataset ruling (2B): 2025 figures are inherited from the 2026 model
+  // year and were never independently sourced. A 2025->2026 diff table would
+  // just compare 2026 against itself, so the comparison is DISABLED and the
+  // reason is stated explicitly instead of rendering a table.
+  if (!t || t.year !== 2026) return '';
+  const prev = allTrailers.find(
+    (x) => x.model === t.model && x.floorplan === t.floorplan && x.year === 2025);
+  if (!prev) return '';
 
   return `<section class="year-diff" id="year-diff" aria-label="Year-over-year changes">
 <h2>What changed from 2025</h2>
-<p class="year-diff-sub">Spec differences between the ${esc(t.model)} ${esc(t.floorplan)} across model years.</p>
-<div class="year-diff-table-wrap">
-<table class="year-diff-table">
-<thead><tr><th>Spec</th><th>2025</th><th></th><th>2026</th><th>Change</th></tr></thead>
-<tbody>
-${rows}
-</tbody>
-</table>
-</div>
-<p class="muted year-diff-note">All figures are official Airstream base specifications.</p>
+<p class="year-diff-sub">Comparison withheld: the 2025 figures on this site are inherited from the 2026 model year and were not independently verified, so a year-over-year table would be circular. The <a href="${esc(prev.slug)}.html">${esc(t.model)} ${esc(t.floorplan)} 2025 page</a> carries the same inherited figures with this caveat.</p>
 </section>`;
 }
-
-// ---------------------------------------------------------------------------
-// TOTAL COST OF OWNERSHIP ESTIMATOR
-// ---------------------------------------------------------------------------
-
-const OWNERSHIP_DEFAULTS = {
-  insurancePct: 1.5,     // % of MSRP per year
-  storageMo: 150,        // $/month
-  maintenanceYr: 800,    // $/year
-  depreciationPct: 12,   // % of current value first year
-};
 
 // ---------------------------------------------------------------------------
 // SIZE SCALE — visual length comparison against everyday reference objects.
@@ -1681,8 +1733,37 @@ const SIZE_REFS = [
   { label: 'School bus',          ft: 35,  cls: 'size-ref--bus'      },
   { label: 'Typical RV site',     ft: 40,  cls: 'size-ref--site'     },
 ];
-// ---------------------------------------------------------------------------
-// COST-PER-NIGHT — compares camping cost to hotel, key purchase justification.
+function renderSizeScale(t) {
+  if (!(t.lengthFt > 0)) return '';
+  // Use the longest reference as 100% scale
+  const maxFt = Math.max(SIZE_REFS[SIZE_REFS.length - 1].ft, t.lengthFt + 2);
+  const pct = (ft) => Math.round((ft / maxFt) * 1000) / 10;
+  const trailerPct = pct(t.lengthFt);
+  const wholeFt = Math.floor(t.lengthFt);
+  const inches = Math.round((t.lengthFt - wholeFt) * 12);
+  const lenLabel = inches ? `${wholeFt}'${inches}"` : `${wholeFt}'`;
+
+  const refs = SIZE_REFS.map((r) => {
+    const fit = t.lengthFt <= r.ft;
+    return `<div class="size-ref-row ${r.cls}${fit ? ' size-ref--fits' : ''}">
+<span class="size-ref-label">${esc(r.label)} <span class="size-ref-ft">${r.ft}'</span></span>
+<div class="size-ref-track"><div class="size-ref-bar" style="width:${pct(r.ft)}%"></div></div>
+${fit ? '<span class="size-ref-verdict">✓ fits</span>' : '<span class="size-ref-verdict size-ref-verdict--no">too short</span>'}
+</div>`;
+  }).join('\n');
+
+  return `<section class="size-scale" id="size-scale" aria-label="Size comparison">
+<h2>How big is ${esc(lenLabel)}?</h2>
+<p class="size-scale-intro">Your ${esc(t.model)} ${esc(t.floorplan)} is ${esc(lenLabel)} bumper to hitch. Here's how it measures up.</p>
+<div class="size-scale-chart">
+<div class="size-ref-row size-ref--trailer">
+<span class="size-ref-label size-ref-label--trailer">${esc(t.model)} ${esc(t.floorplan)} <span class="size-ref-ft">${esc(lenLabel)}</span></span>
+<div class="size-ref-track"><div class="size-ref-bar size-ref-bar--trailer" style="width:${trailerPct}%"></div></div>
+</div>
+${refs}
+</div>
+</section>`;
+}
 
 // ---------------------------------------------------------------------------
 // CLEARANCE FIT — shows whether the trailer clears common height/width gates.
@@ -1715,40 +1796,6 @@ ${payload ? `<div class="weight-payload">${payload}</div>` : ''}
 }
 
 // ---------------------------------------------------------------------------
-// MERGED: Off-grid Capability — power endurance + water autonomy
-// ---------------------------------------------------------------------------
-function renderOffGridDashboard(t) {
-  const power = renderOffGridTool(t);
-  const water = renderWaterAutonomy(t);
-  if (!power && !water) return '';
-  return `<section class="offgrid-dashboard" id="offgrid-dash" aria-label="Off-grid capability">
-<h2>Off-grid capability</h2>
-<p class="offgrid-dash-intro">How long the ${esc(t.model)} ${esc(t.floorplan)} can sustain off-grid — power endurance and water autonomy in one view.</p>
-<div class="offgrid-dash-grid">
-${power}
-${water}
-</div>
-</section>`;
-}
-
-// ---------------------------------------------------------------------------
-// MERGED: Journey Performance — fuel costs + grade climbing
-// ---------------------------------------------------------------------------
-function renderJourneyPerformance(t) {
-  const fuel = renderFuelTool(t);
-  const grade = renderGradeClimb(t);
-  if (!fuel && !grade) return '';
-  return `<section class="journey-section" id="journey" aria-label="Journey performance">
-<h2>Journey performance</h2>
-<p class="journey-intro">Fuel costs and terrain challenges for towing the ${esc(t.model)} ${esc(t.floorplan)}.</p>
-<div class="journey-grid">
-${fuel}
-${grade}
-</div>
-</section>`;
-}
-
-// ---------------------------------------------------------------------------
 // MERGED: Tow Setup — safety calculator + hitch guide
 // ---------------------------------------------------------------------------
 function renderTowSetup(t) {
@@ -1761,6 +1808,61 @@ function renderTowSetup(t) {
 ${tow}
 ${hitch}
 </div>
+</section>`;
+}
+
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// RIG LENGTH CAMPSITE FIT — shows whether the total rig (trailer + tow
+// vehicle) fits in standard campsite sizes. Uses the trailer's official
+// length. Users set their tow vehicle length via the interactive slider.
+// ---------------------------------------------------------------------------
+
+const SITE_SIZES = [
+  { label: 'Compact back-in', lengthFt: 30, note: 'Tight national park loops' },
+  { label: 'Standard back-in', lengthFt: 40, note: 'Most state parks & KOA' },
+  { label: 'Large back-in', lengthFt: 50, note: 'Spacious private campgrounds' },
+  { label: 'Standard pull-through', lengthFt: 65, note: 'Easy hitch-and-go, no reversing' },
+  { label: 'Full-length pull-through', lengthFt: 80, note: 'Big rigs welcome' },
+];
+
+function renderRigLengthFit(t) {
+  if (!(t.lengthFt > 0)) return '';
+  const defaultVehicleFt = 19; // typical full-size truck
+  const totalFt = Math.ceil(t.lengthFt + defaultVehicleFt);
+
+  const rows = SITE_SIZES.map((site) => {
+    const fits = totalFt <= site.lengthFt;
+    const margin = site.lengthFt - totalFt;
+    const verdictCls = fits ? 'rigfit-verdict--yes' : 'rigfit-verdict--no';
+    const verdict = fits
+      ? `✓ Fits — ${Math.abs(margin)}' to spare`
+      : `✗ Over by ${Math.abs(margin)}'`;
+    const barPct = Math.min(Math.round((totalFt / site.lengthFt) * 100), 100);
+    return `<div class="rigfit-row ${fits ? 'rigfit-row--fits' : 'rigfit-row--over'}">
+<div class="rigfit-site">
+<span class="rigfit-site-name">${esc(site.label)}</span>
+<span class="rigfit-site-len">${site.lengthFt}' site</span>
+</div>
+<div class="rigfit-bar-wrap">
+<div class="rigfit-bar" style="width:${barPct}%">
+<span class="rigfit-rig-label">${totalFt}'</span>
+</div>
+</div>
+<span class="rigfit-verdict ${verdictCls}">${verdict}</span>
+</div>`;
+  }).join('\n');
+
+  return `<section class="rigfit collapsible" id="rigfit" aria-label="Campsite length fit">
+<h2>Will your rig fit the site?</h2>
+<p class="rigfit-intro">Your ${esc(t.model)} ${esc(t.floorplan)} is ${esc(formatLength(t.lengthFt))} long. Combined with a typical tow vehicle (~<span id="rigfit-vlen">${defaultVehicleFt}</span>'), the total rig is about <strong><span id="rigfit-total">${totalFt}</span> feet</strong>.</p>
+<div class="rigfit-slider-row">
+<label for="rigfit-vehicle">Your tow vehicle length</label>
+<input type="range" id="rigfit-vehicle" min="14" max="24" step="1" value="${defaultVehicleFt}" class="rigfit-slider" aria-label="Tow vehicle length in feet">
+<span class="rigfit-slider-val"><span id="rigfit-vlen2">${defaultVehicleFt}</span>'</span>
+</div>
+<div class="rigfit-chart" id="rigfit-chart" data-trailer-ft="${t.lengthFt}">${rows}</div>
+<p class="rigfit-note muted">Lengths are bumper-to-bumper. Add 2–3' for hitch gap. Always confirm site dimensions with the campground before booking.</p>
 </section>`;
 }
 
@@ -1819,121 +1921,10 @@ function renderClearanceFit(t) {
 <p class="clearance-note muted">Height includes rooftop A/C. Without A/C the trailer is ~2\u20133\u2033 shorter. Always measure your specific unit before a tight clearance.</p>
 </section>`;
 }
-// ---------------------------------------------------------------------------
-// ---------------------------------------------------------------------------
-// RIG LENGTH CAMPSITE FIT — shows whether the total rig (trailer + tow
-// vehicle) fits in standard campsite sizes. Uses the trailer's official
-// length. Users set their tow vehicle length via the interactive slider.
-// ---------------------------------------------------------------------------
-
-const SITE_SIZES = [
-  { label: 'Compact back-in', lengthFt: 30, note: 'Tight national park loops' },
-  { label: 'Standard back-in', lengthFt: 40, note: 'Most state parks & KOA' },
-  { label: 'Large back-in', lengthFt: 50, note: 'Spacious private campgrounds' },
-  { label: 'Standard pull-through', lengthFt: 65, note: 'Easy hitch-and-go, no reversing' },
-  { label: 'Full-length pull-through', lengthFt: 80, note: 'Big rigs welcome' },
-];
-
-function renderRigLengthFit(t) {
-  if (!(t.lengthFt > 0)) return '';
-  const defaultVehicleFt = 19; // typical full-size truck
-  const totalFt = Math.ceil(t.lengthFt + defaultVehicleFt);
-
-  const rows = SITE_SIZES.map((site) => {
-    const fits = totalFt <= site.lengthFt;
-    const margin = site.lengthFt - totalFt;
-    const verdictCls = fits ? 'rigfit-verdict--yes' : 'rigfit-verdict--no';
-    const verdict = fits
-      ? `✓ Fits — ${Math.abs(margin)}' to spare`
-      : `✗ Over by ${Math.abs(margin)}'`;
-    const barPct = Math.min(Math.round((totalFt / site.lengthFt) * 100), 100);
-    return `<div class="rigfit-row ${fits ? 'rigfit-row--fits' : 'rigfit-row--over'}">
-<div class="rigfit-site">
-<span class="rigfit-site-name">${esc(site.label)}</span>
-<span class="rigfit-site-len">${site.lengthFt}' site</span>
-</div>
-<div class="rigfit-bar-wrap">
-<div class="rigfit-bar" style="width:${barPct}%">
-<span class="rigfit-rig-label">${totalFt}'</span>
-</div>
-</div>
-<span class="rigfit-verdict ${verdictCls}">${verdict}</span>
-</div>`;
-  }).join('\n');
-
-  return `<section class="rigfit collapsible" id="rigfit" aria-label="Campsite length fit">
-<h2>Will your rig fit the site?</h2>
-<p class="rigfit-intro">Your ${esc(t.model)} ${esc(t.floorplan)} is ${esc(formatLength(t.lengthFt))} long. Combined with a typical tow vehicle (~<span id="rigfit-vlen">${defaultVehicleFt}</span>'), the total rig is about <strong><span id="rigfit-total">${totalFt}</span> feet</strong>.</p>
-<div class="rigfit-slider-row">
-<label for="rigfit-vehicle">Your tow vehicle length</label>
-<input type="range" id="rigfit-vehicle" min="14" max="24" step="1" value="${defaultVehicleFt}" class="rigfit-slider" aria-label="Tow vehicle length in feet">
-<span class="rigfit-slider-val"><span id="rigfit-vlen2">${defaultVehicleFt}</span>'</span>
-</div>
-<div class="rigfit-chart" id="rigfit-chart" data-trailer-ft="${t.lengthFt}">${rows}</div>
-<p class="rigfit-note muted">Lengths are bumper-to-bumper. Add 2–3' for hitch gap. Always confirm site dimensions with the campground before booking.</p>
-</section>`;
-}
-
-const COST_NIGHT_DEFAULTS = {
-  tripsYear: 12,
-  nightsTrip: 3,
-  hotelNight: 200,
-  campFee: 40,
-};
 /**
  * "You might also like" — spec-similar trailers from OTHER families.
  * Complements renderRelated() which stays within the same family.
  */
-// ---------------------------------------------------------------------------
-// RESALE VALUE PROJECTOR — Airstream-specific 10-year value retention curve.
-// Airstreams famously hold value better than nearly any other RV brand.
-// The curve uses a compound depreciation model: steep in year 1, gentler
-// over time — reflecting real Airstream resale patterns.
-// ---------------------------------------------------------------------------
-
-// Airstream depreciation rates by year bracket (% of current value lost/year).
-// Sourced from industry resale data: Airstreams lose ~12% in year 1 (vs 20-25%
-// for typical RVs), then settle to ~6-8%/yr in years 2-5, and ~3-4%/yr after
-// that. Well-maintained Airstreams commonly retain 55-65% at year 10.
-const RESALE_RATES = {
-  excellent: { y1: 0.10, y2_5: 0.055, y6_10: 0.030 },
-  good:      { y1: 0.12, y2_5: 0.070, y6_10: 0.040 },
-  fair:      { y1: 0.15, y2_5: 0.085, y6_10: 0.055 },
-};
-
-// Industry average (typical non-Airstream RV) for comparison
-const INDUSTRY_AVG = { y1: 0.22, y2_5: 0.12, y6_10: 0.08 };
-
-export function projectResale(msrp, condition = 'good') {
-  const rates = RESALE_RATES[condition] || RESALE_RATES.good;
-  const milestones = [0, 1, 3, 5, 7, 10];
-  const airstream = [];
-  const industry = [];
-  for (const yr of milestones) {
-    let asVal = msrp, indVal = msrp;
-    for (let y = 1; y <= yr; y++) {
-      const asRate = y <= 1 ? rates.y1 : y <= 5 ? rates.y2_5 : rates.y6_10;
-      const indRate = y <= 1 ? INDUSTRY_AVG.y1 : y <= 5 ? INDUSTRY_AVG.y2_5 : INDUSTRY_AVG.y6_10;
-      asVal *= (1 - asRate);
-      indVal *= (1 - indRate);
-    }
-    airstream.push({ year: yr, value: Math.round(asVal), pct: Math.round((asVal / msrp) * 100) });
-    industry.push({ year: yr, value: Math.round(indVal), pct: Math.round((indVal / msrp) * 100) });
-  }
-  return { milestones, airstream, industry };
-}
-// ---------------------------------------------------------------------------
-// TRIP COST ESTIMATOR — total cost for a specific trip.
-// Combines fuel, campground fees, and propane into one number.
-// ---------------------------------------------------------------------------
-
-const CAMPGROUND_PRESETS = {
-  free: { label: 'Free / BLM / dispersed', perNight: 0 },
-  state: { label: 'State / county park', perNight: 30 },
-  private: { label: 'Private campground', perNight: 55 },
-  resort: { label: 'RV resort', perNight: 85 },
-};
-
 // ---------------------------------------------------------------------------
 // GRADE CLIMBING PERFORMANCE CALCULATOR
 // ---------------------------------------------------------------------------
@@ -2122,64 +2113,6 @@ function renderHitchGuide(t) {
 </div>
 </section>`;
 }
-
-const TRIP_DEFAULTS = {
-  distanceMi: 500,
-  nights: 5,
-  campType: 'state',
-  towMpg: 10,
-};
-
-// ---------------------------------------------------------------------------
-// BUDGET ALTERNATIVES — "In your price range" cross-family recommendations.
-// Shows 4 models from OTHER families within ±25% of the current trailer's
-// MSRP, sorted by price proximity. Different lens from renderCrossFamily
-// (which uses spec distance) — this helps budget-focused cross-shopping.
-// ---------------------------------------------------------------------------
-
-function renderBudgetAlternatives(current, allTrailers, resolve) {
-  if (!current.msrp || current.msrp <= 0 || allTrailers.length < 10) return '';
-  const minPrice = current.msrp * 0.75;
-  const maxPrice = current.msrp * 1.25;
-  const candidates = allTrailers
-    .filter((t) => t.model !== current.model && t.year === current.year
-      && t.slug !== current.slug && t.msrp >= minPrice && t.msrp <= maxPrice)
-    .map((t) => ({ t, priceDist: Math.abs(t.msrp - current.msrp) }))
-    .sort((a, b) => a.priceDist - b.priceDist);
-  // Deduplicate by family (at most one per family)
-  const seen = new Set();
-  const picks = [];
-  for (const { t } of candidates) {
-    if (seen.has(t.model)) continue;
-    seen.add(t.model);
-    picks.push(t);
-    if (picks.length >= 4) break;
-  }
-  if (picks.length < 2) return '';
-  const cards = picks.map((t) => {
-    const a = resolve(t);
-    const priceDiff = t.msrp - current.msrp;
-    const diffLabel = priceDiff === 0 ? 'Same price'
-      : priceDiff > 0 ? `+${formatMsrpShort(priceDiff)} more` : `${formatMsrpShort(Math.abs(priceDiff))} less`;
-    const diffClass = priceDiff === 0 ? 'budget-diff--same'
-      : priceDiff > 0 ? 'budget-diff--more' : 'budget-diff--less';
-    return `<a class="budget-card" href="${esc(t.slug)}.html">
-<div class="budget-media"><img src="../${esc(a.thumb)}" alt="${esc(trailerTitle(t))}" loading="lazy" width="400" height="260"></div>
-<div class="budget-body">
-<p class="budget-title">${esc(t.model)} <span>${esc(t.floorplan)}</span></p>
-<p class="budget-price">${esc(formatMsrp(t.msrp))}</p>
-<span class="budget-diff ${diffClass}">${esc(diffLabel)}</span>
-<p class="budget-specs">${esc(formatLength(t.lengthFt))} · ${esc(formatWeight(t.weightLb))} · sleeps ${t.sleeps}</p>
-</div>
-</a>`;
-  }).join('\n');
-  return `<section class="budget-alts" id="budget" aria-label="In your price range">
-<h2>In your price range</h2>
-<p class="budget-sub muted">Other Airstream families between ${esc(formatMsrp(Math.round(minPrice)))} and ${esc(formatMsrp(Math.round(maxPrice)))}</p>
-<div class="budget-grid">${cards}</div>
-</section>`;
-}
-
 function renderCrossFamily(current, allTrailers, resolve) {
   if (allTrailers.length < 10) return '';
   const candidates = allTrailers
@@ -2252,8 +2185,13 @@ export function renderWaterAutonomy(t) {
   const usage = WATER_USAGE.moderate;
   const freshDays = computeTankDays(t.freshGal, usage.freshGpd, people);
   const grayDays = t.grayGal ? computeTankDays(t.grayGal, usage.grayGpd, people) : null;
-  const blackDays = t.blackGal ? computeTankDays(t.blackGal, usage.blackGpd, people) : null;
   const combined = !t.grayGal && t.blackGal; // combined waste tank
+  // A combined tank takes BOTH gray and black waste, so its effective drain
+  // rate is (grayGpd + blackGpd) * people — not blackGpd alone. A 30 gal
+  // combo tank at 2 people / moderate usage lasts ~2.1 days, not ~7.5.
+  const blackDays = t.blackGal
+    ? computeTankDays(t.blackGal, combined ? usage.grayGpd + usage.blackGpd : usage.blackGpd, people)
+    : null;
 
   // Find the constraining factor
   const allDays = [freshDays, grayDays, blackDays].filter(d => d != null && d > 0);
@@ -3084,7 +3022,7 @@ function generateFaqItems(t) {
   if (t.msrp > 0) {
     faqs.push({
       question: `How much does the ${t.year} ${title} cost?`,
-      answer: `The base MSRP for the ${t.year} ${title} is ${formatMsrp(t.msrp)}. Actual dealer prices may vary; options and packages can add to the total. Use the financing calculator on this page to estimate monthly payments, and the ownership cost tool for total cost of ownership over time.`,
+      answer: `The base MSRP for the ${t.year} ${title} is ${formatMsrp(t.msrp)}. Actual dealer prices may vary; options and packages can add to the total.`,
     });
   }
 
@@ -3129,20 +3067,15 @@ function renderFaq(t) {
 function renderNextSteps(t) {
   const official = officialUrl(t.model);
   const links = [];
-  links.push(`<a class="nextstep-card" href="https://www.airstream.com/find-a-dealer/" target="_blank" rel="noopener">
-<span class="nextstep-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1118 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
-<span class="nextstep-text"><span class="nextstep-title">Find a dealer</span><span class="nextstep-sub">Locate an authorized Airstream dealer near you</span></span>
-<span class="nextstep-arrow" aria-hidden="true">↗</span></a>`);
   if (official) {
     links.push(`<a class="nextstep-card" href="${esc(official)}" target="_blank" rel="noopener">
 <span class="nextstep-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg></span>
 <span class="nextstep-text"><span class="nextstep-title">Official ${esc(t.model)} page</span><span class="nextstep-sub">Full details, options &amp; configurator on airstream.com</span></span>
 <span class="nextstep-arrow" aria-hidden="true">↗</span></a>`);
   }
-  links.push(`<a class="nextstep-card" href="https://www.airstream.com/build-your-own/" target="_blank" rel="noopener">
-<span class="nextstep-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"></path></svg></span>
-<span class="nextstep-text"><span class="nextstep-title">Build &amp; price</span><span class="nextstep-sub">Configure your Airstream with factory options</span></span>
-<span class="nextstep-arrow" aria-hidden="true">↗</span></a>`);
+  // Purchase funnels (dealer links, build-and-price/configurator CTAs) are
+  // permanently forbidden by ruling 1A (2026-06-13, reaffirmed 2026-09-27).
+  // Only the official model page reference link is kept.
   return `<section class="next-steps" aria-label="Next steps">
 <h2>Ready for the next step?</h2>
 <div class="nextstep-grid">${links.join('')}</div>
@@ -3254,30 +3187,39 @@ ${specDelta(current, t)}
  * Shows which tow vehicles from the database can safely tow this trailer,
  * color-coded by margin. Gives buyers a quick "what can tow this?" answer.
  */
+// ---------------------------------------------------------------------------
+// "WHAT CAN TOW IT?" summary table. Uses the SAME three-limit verdict as the
+// detailed tow-safety calculator (evaluateTow in tow.mjs: tow rating, truck
+// payload, GCWR — the binding/worst limit decides the verdict, with the same
+// 300 lb default truck load). The old table only checked maxTow, which is why
+// it could show "Comfortable" while the calculator showed "Over a limit"
+// for the same pairing (e.g. Hummer EV SUV x Flying Cloud 23FB: fine on tow
+// rating, 129% on payload). Same mouth, both places.
+// ---------------------------------------------------------------------------
 function renderCompatibleVehicles(t) {
   if (!(t.gvwrLb > 0) || !TOW_VEHICLES.length) return '';
   const sorted = TOW_VEHICLES.slice().sort((a, b) => a.maxTowLb - b.maxTowLb);
-  const rows = sorted.map((v) => {
-    const pct = (t.gvwrLb / v.maxTowLb) * 100;
-    let cls, label;
-    if (pct > 100) { cls = 'compat-over'; label = 'Over limit'; }
-    else if (pct > 80) { cls = 'compat-tight'; label = 'Tight'; }
-    else { cls = 'compat-ok'; label = 'Comfortable'; }
-    const margin = v.maxTowLb - t.gvwrLb;
-    const marginStr = margin > 0 ? `+${margin.toLocaleString()} lb margin` : `${margin.toLocaleString()} lb`;
+  const evs = sorted.map((v) => ({ v, ev: evaluateTow(v, t, { truckLoadLb: DEFAULT_TRUCK_OCCUPANT_LB }) }));
+  const rows = evs.map(({ v, ev }) => {
+    const cls = ev.verdict === 'over' ? 'compat-over' : ev.verdict === 'tight' ? 'compat-tight' : 'compat-ok';
+    const label = ev.verdict === 'over' ? 'Over limit' : ev.verdict === 'tight' ? 'Tight' : 'Comfortable';
+    const b = ev.binding;
+    const margin = Math.round(b.limit - b.used);
+    const marginStr = (margin >= 0 ? '+' : '') + margin.toLocaleString('en-US') + ' lb';
+    const bindShort = b.key === 'tow' ? 'tow rating' : b.key === 'payload' ? 'payload' : 'GCWR';
     return `<tr class="${cls}">
 <td class="compat-name">${esc(v.name)}</td>
 <td class="compat-rating" data-unit="weight" data-raw="${v.maxTowLb}">${formatWeight(v.maxTowLb)}</td>
-<td class="compat-margin">${esc(marginStr)}</td>
+<td class="compat-margin"><span title="Binding limit: ${esc(b.label)}">${esc(marginStr)}</span> <span class="compat-binding" title="Binding limit: ${esc(b.label)}">${esc(bindShort)}</span></td>
 <td class="compat-verdict"><span class="compat-badge">${esc(label)}</span></td>
 </tr>`;
   }).join('\n');
 
-  const okCount = sorted.filter((v) => t.gvwrLb <= v.maxTowLb).length;
+  const okCount = evs.filter(({ ev }) => ev.verdict !== 'over').length;
 
   return `<section class="compat-vehicles" id="vehicles" aria-label="Compatible tow vehicles">
 <h2>What can tow it?</h2>
-<p class="compat-intro">${okCount} of ${sorted.length} popular tow vehicles can handle this trailer\'s ${formatWeight(t.gvwrLb)} GVWR. Green = comfortable (under 80%), yellow = within limit, red = exceeds rating.</p>
+<p class="compat-intro">${okCount} of ${sorted.length} popular tow vehicles can tow this trailer\'s ${formatWeight(t.gvwrLb)} GVWR without exceeding a limit. Verdict = the binding of three checks &mdash; tow rating, truck payload, and GCWR &mdash; the same math as the tow-safety calculator above (300 lb people + gear in the truck). Green = comfortable (binding limit under 80% used), yellow = tight but within limits, red = over a limit. Margin shown is on the binding limit.</p>
 <div class="compat-table-wrap">
 <table class="compat-table">
 <thead><tr><th>Vehicle</th><th>Tow rating</th><th>Margin</th><th>Verdict</th></tr></thead>
@@ -3292,6 +3234,13 @@ export function renderDetail(t, resolve = assetPaths, decor = null, allTrailers 
   const a = resolve(t);
   const fam = familySlug(t.model);
   const official = officialUrl(t.model);
+  // 2025 dataset ruling (2B): 2025 figures are inherited from the 2026 model
+  // year and were never independently sourced. 2025 pages are annotated,
+  // canonicalized to their 2026 twin, and emit no Product JSON-LD.
+  const is2025 = t.year === 2025;
+  const slug2026 = t.slug.replace(/-2025$/, '-2026');
+  const hasPrev2025 = t.year === 2026 && allTrailers.some(
+    (x) => x.model === t.model && x.floorplan === t.floorplan && x.year === 2025);
   // Compute percentile rankings for this trailer in its year cohort
   const pctMap = allTrailers.length >= 3 ? computePercentiles(allTrailers) : new Map();
   const rankings = pctMap.get(t.slug) || {};
@@ -3311,7 +3260,7 @@ export function renderDetail(t, resolve = assetPaths, decor = null, allTrailers 
   };
   const totalMedia = a.gallery.length + (a.hero ? 1 : 0);
   const heroImg = a.hero
-    ? `<button type="button" class="detail-hero-btn" data-lightbox data-full="../${esc(a.hero)}" data-index="0" data-caption="${esc(trailerTitle(t))} — hero" aria-label="View hero image full screen"><img src="../${esc(a.hero)}" alt="${esc(trailerTitle(t))}" class="detail-hero-img" width="1280" height="720" fetchpriority="high"><span class="hero-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`
+    ? `<button type="button" class="detail-hero-btn" data-lightbox data-full="../${esc(a.hero)}" data-index="0" data-caption="${esc(trailerTitle(t))} — hero" aria-label="View hero image full screen"><img src="../${esc(a.hero)}" ${heroImgAttrs(a.hero, '../')} alt="${esc(trailerTitle(t))}" class="detail-hero-img" width="1280" height="720" fetchpriority="high"><span class="hero-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`
     : '';
   const galleryCount = a.gallery.length;
   const heroOffset = a.hero ? 1 : 0;
@@ -3324,7 +3273,7 @@ export function renderDetail(t, resolve = assetPaths, decor = null, allTrailers 
   const gallery = a.gallery
     .map(
       (g, i) =>
-        `<button type="button" class="gallery-img-wrap${a.galleryCutout && a.galleryCutout[i] ? ' is-cutout' : ' is-photo'}" data-lightbox data-full="../${esc(g)}" data-index="${i + heroOffset}" data-caption="${esc(trailerLabel(t))} — photo ${i + 1} of ${galleryCount}" aria-label="Open photo ${i + 1} of ${galleryCount} full screen"><img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="lazy" class="gallery-img${a.galleryCutout && a.galleryCutout[i] ? ' gallery-img--cutout' : ' gallery-img--photo'}" width="920" height="600"><span class="gallery-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`,
+        `<button type="button" class="gallery-img-wrap${a.galleryCutout && a.galleryCutout[i] ? ' is-cutout' : ' is-photo'}" data-lightbox data-full="../${esc(g)}" data-index="${i + heroOffset}" data-caption="${esc(trailerLabel(t))} — photo ${i + 1} of ${galleryCount}" aria-label="Open photo ${i + 1} of ${galleryCount} full screen"><img src="../${esc(g)}" alt="${esc(a.galleryCutout && a.galleryCutout[i] ? trailerLabel(t) + ' — studio exterior view' : trailerLabel(t) + ' — gallery photo ' + (i + 1) + ' of ' + galleryCount)}" loading="lazy" class="gallery-img${a.galleryCutout && a.galleryCutout[i] ? ' gallery-img--cutout' : ' gallery-img--photo'}" width="920" height="600"><span class="gallery-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`,
     )
     .join('\n');
   const fpZones = renderFloorplanZones(t.floorplan, t.slug);
@@ -3356,7 +3305,17 @@ export function renderDetail(t, resolve = assetPaths, decor = null, allTrailers 
 <p class="tow-callout-note">This is the official Airstream GVWR — the most this floorplan can weigh loaded, and the minimum tow rating your vehicle needs.${t.hitchWeightLb ? ` Official hitch (tongue) weight is ${esc(formatWeight(t.hitchWeightLb))}${hitchPct ? ` (~${hitchPct}% of GVWR)` : ''}.` : ''} <a href="../index.html#all">Match it to your vehicle →</a></p>
 </section>`
     : '';
-  // Section quick-nav: built from sections present on this page
+  // Section quick-nav: top bar shows 6 chapters only (perf/a11y #31).
+  // Sub-sections keep their ids as in-chapter anchors and no longer occupy
+  // top-bar slots. Chapter grouping:
+  //   Specs: #specs #size-scale #clearance-fit #weight-context #year-diff
+  //   Floor plan: #floorplan
+  //   Tow: #tow #grade-climb #hitch-guide #vehicles #payload
+  //   Cost: #fuel (existing trip fuel-cost estimator; no finance features)
+  //   Off-grid: #offgrid #water-autonomy #propane #electrical
+  //   Gallery: #gallery
+  // (#trip-ready #seasonal #lifestyle-fit #winterization #storage
+  //  #maintenance-ref stay in the page, reachable by scrolling.)
   const yearDiff = computeYearDiff(t, allTrailers);
   // Build a quick lookup: spec key → formatted delta for inline indicators
   const ydMap = {};
@@ -3377,33 +3336,17 @@ export function renderDetail(t, resolve = assetPaths, decor = null, allTrailers 
   }
   const sectionNav = buildSectionNav([
     ['#specs', 'Specs'],
-    (t.extHeightFt || t.lengthFt) ? ['#dimensions', 'Size & Fit'] : null,
-    yearDiff ? ['#year-diff', '2025→26'] : null,
-    (t.weightLb || t.cccLb) ? ['#weight-capacity', 'Weight'] : null,
-    t.gvwrLb ? ['#tow-setup', 'Tow Setup'] : null,
-    t.gvwrLb ? ['#vehicles', 'Vehicles'] : null,
-    t.gvwrLb ? ['#journey', 'Journey'] : null,
-    (t.batteryKwh || t.freshGal) ? ['#offgrid-dash', 'Off-grid'] : null,
-    ['#propane', 'Propane'],
-    ['#electrical', 'Power'],
-    ['#hookup', 'Hookup'],
     a.floorplan ? ['#floorplan', 'Floor plan'] : null,
-    ['#trip-ready', 'Trip Ready'],
-    ['#seasonal', 'Seasons'],
-    ['#lifestyle-fit', 'Lifestyle'],
-    ['#winterization', 'Winterize'],
-    ['#storage', 'Storage'],
-    ['#maintenance-ref', 'Maint.'],
-    ['#faq', 'FAQ'],
+    t.gvwrLb ? ['#tow', 'Tow'] : null,
+    t.gvwrLb ? ['#fuel', 'Cost'] : null,
+    ['#offgrid', 'Off-grid'],
     galleryCount ? ['#gallery', 'Gallery'] : null,
-    t.msrp > 0 ? ['#budget', 'Budget'] : null,
   ].filter(Boolean));
   // Related floorplans: same family, different floorplan, prefer same year
   const faq = renderFaq(t);
   const relatedSection = renderRelated(t, allTrailers, resolve);
   // Cross-family: spec-similar trailers from other model lines
   const crossFamilySection = renderCrossFamily(t, allTrailers, resolve);
-  const budgetSection = renderBudgetAlternatives(t, allTrailers, resolve);
   // Prev/next pager: navigate between floorplans (sorted model+floorplan+year)
   const sorted = [...allTrailers].sort((a, b) =>
     `${a.model} ${a.floorplan} ${a.year}`.localeCompare(`${b.model} ${b.floorplan} ${b.year}`));
@@ -3446,6 +3389,7 @@ ${sectionNav}
 <article class="detail" data-canonical="m/${esc(t.slug)}.html" data-spec-text="${esc(buildSpecText(t))}"${prevT ? ` data-prev-href="${esc(prevT.slug)}.html"` : ''}${nextT ? ` data-next-href="${esc(nextT.slug)}.html"` : ''}>
 <header class="detail-head">
 <p class="eyebrow">${esc(t.year)} MODEL YEAR</p>
+${is2025 ? `<p class="inherited-note" role="note"><strong>2025 data note:</strong> the 2025 figures below were <strong>inherited from the 2026 model year</strong> and were not independently verified. <a href="${esc(slug2026)}.html">See the 2026 page →</a></p>` : ''}
 <div class="detail-head-row">
 <h1>${esc(t.model)} <span>${esc(t.floorplan)}</span></h1>
 ${saveButton(t.slug, 'trailer', trailerLabel(t), 'detail')}
@@ -3485,20 +3429,25 @@ ${specRow('Axle', deriveAxle(t) === 'single' ? 'Single axle' : deriveAxle(t) ===
 ${specRow('Fresh / gray / black', formatTanks(t.freshGal, t.grayGal, t.blackGal), { tip: true, unit: 'tanks', raw: [t.freshGal, t.grayGal, t.blackGal].join(',') })}
 ${specRow('Solar', t.solarW ? `${t.solarW} W ${t.solarStandard ? '(standard)' : '(optional)'}` : '—', { tip: true })}
 ${specRow('Battery', t.batteryKwh ? `${t.batteryKwh} kWh` : '—', { tip: true })}
-${specRow('Off-grid score', `${t.offGridScore} / 100`, { tip: true, pctData: pctFor('offGridScore'), fleetRange: fleetFor('offGridScore'), yearDelta: ydMap.offGridScore })}
-${specRow('MSRP', formatMsrp(t.msrp), { tip: true, pctData: pctFor('msrp'), fleetRange: fleetFor('msrp'), yearDelta: ydMap.msrp })}
+${specRow('Off-grid score', offGridTier(t.offGridScore) || '—', { tip: true, pctData: pctFor('offGridScore'), fleetRange: fleetFor('offGridScore'), yearDelta: ydMap.offGridScore })}
+${specRow('MSRP', formatMsrp(t.msrp), { tip: true, pctData: pctFor('msrp'), pctField: 'msrp', fleetRange: fleetFor('msrp'), yearDelta: ydMap.msrp })}
 </dl>
 ${note}
 ${renderBrowseLinks(t)}
 </section>
 ${renderYearDiff(t, allTrailers)}
+${renderSizeScale(t)}
 ${renderDimensions(t)}
 ${renderWeightCapacity(t)}
+${renderWeightContext(t)}
 ${towCallout}
 ${renderTowSetup(t)}
 ${renderCompatibleVehicles(t)}
-${renderJourneyPerformance(t)}
-${renderOffGridDashboard(t)}
+${renderFuelTool(t)}
+${renderGradeClimb(t)}
+${renderHitchGuide(t)}
+${renderOffGridTool(t)}
+${renderWaterAutonomy(t)}
 ${renderPropaneEstimator(t)}
 ${renderElectricalPlanner(t)}
 ${renderHookupGuide(t)}
@@ -3528,7 +3477,6 @@ ${renderNextSteps(t)}
 ${renderNotes(t.slug)}
 ${relatedSection}
 ${crossFamilySection}
-${budgetSection}
 </article>
 ${pagerNav}`;
   return page({
@@ -3537,16 +3485,19 @@ ${pagerNav}`;
     body,
     relRoot: '../',
     active: 'index',
-    canonicalPath: `m/${t.slug}.html`,
+    // 2025 pages canonicalize to their 2026 twin (2B ruling) and emit no
+    // Product JSON-LD: the entity lives on the canonical 2026 page.
+    canonicalPath: `m/${is2025 ? slug2026 : t.slug}.html`,
     ogImage: a.hero || '',
     ogType: 'product',
-    head: productJsonLd({
+    head: (is2025 ? '' : productJsonLd({
       name: trailerTitle(t),
       description: `${trailerTitle(t)}: ${formatLength(t.lengthFt)}, ${formatWeight(t.weightLb)} dry, sleeps ${t.sleeps}, ${formatMsrp(t.msrp)}.`,
       imagePath: a.hero || '',
       canonicalPath: `m/${t.slug}.html`,
       category: 'Travel Trailer',
-    }) + '\n' + breadcrumbJsonLd(breadcrumbItems) + '\n' + faq.jsonLd,
+      msrp: t.msrp,
+    }) + '\n') + breadcrumbJsonLd(breadcrumbItems) + '\n' + faq.jsonLd + (a.hero ? '\n' + heroPreloadLink(a.hero, '../') : ''),
   });
 }
 
@@ -3788,7 +3739,7 @@ ${exploreTowVehicleOpts}
 </div>
 <div class="xc-year">
 <label for="x-year">Year</label>
-<select id="x-year"><option value="2026" selected>2026</option><option value="2025">2025</option><option value="2027">2027</option><option value="">All years</option></select>
+<select id="x-year"><option value="2026" selected>2026</option><option value="2025">2025</option><option value="">All years</option></select>
 </div>
 </div>
 <div class="xc-row xc-row-2">
@@ -3847,10 +3798,9 @@ ${exploreTowVehicleOpts}
 </div>
 </div>
 <p class="xcount"><span id="x-count">${total}</span> floorplans</p>
-<div class="fleet-snapshot" id="fleet-snapshot" aria-label="Fleet snapshot"></div>
-<main class="xgrid" id="xgrid">
+<div class="xgrid" id="xgrid">
 ${cards}
-</main>
+</div>
 <p class="xempty" id="x-empty" hidden>No floorplans match those filters. <button type="button" class="linklike" id="x-empty-reset">Reset filters</button></p>
 <div class="x-nearest" id="x-nearest" hidden>
 <p class="x-nearest-title">Closest matches:</p>
@@ -3871,7 +3821,8 @@ ${cards}
  * 404 and the build's fingerprint + image-guardrail lists stay valid. It is
  * NOT in the top nav. With JS it redirects to the canonical hub (index.html#all);
  * without JS it still shows the full Explore & match experience inline so the
- * page is never a dead end.
+ * page is never a dead end. Its canonical is itself (explore.html): the page
+ * renders real content, so it must not canonicalize to index.html.
  */
 export function renderExplore(trailers, resolve = assetPaths) {
   const body = `<div class="explore-shim" data-redirect="index.html#all">
@@ -3883,7 +3834,7 @@ ${renderExploreSections(trailers, resolve)}
     description: `Search, sort and filter all ${trailers.length} Airstream floorplans by price, weight, sleeps and use. Enter your tow vehicle rating to see what you can safely tow.`,
     body,
     active: 'index',
-    canonicalPath: 'index.html',
+    canonicalPath: 'explore.html',
   });
 }
 
@@ -4062,7 +4013,7 @@ const GLOSSARY_TERMS = [
   { term: 'GVWR', def: 'Gross Vehicle Weight Rating — the maximum safe loaded weight set by Airstream. Everything you add (water, propane, food, gear) must keep total weight under this number.', cat: 'weights', link: '#specs' },
   { term: 'CCC', def: 'Cargo Carrying Capacity — the difference between GVWR and dry weight. This is your total budget for water, propane, and personal cargo.', cat: 'weights', link: '#payload' },
   { term: 'Hitch Weight', def: 'The downward force the trailer tongue exerts on the tow vehicle\'s hitch ball. Typically 10–15% of the trailer\'s loaded weight. Your tow vehicle\'s payload must handle this.', cat: 'weights', link: '#hitch-guide' },
-  { term: 'MSRP', def: 'Manufacturer\'s Suggested Retail Price — the base sticker price before dealer markup, options, or negotiation. Actual transaction prices vary.', cat: 'weights', link: '#finance' },
+  { term: 'MSRP', def: 'Manufacturer\'s Suggested Retail Price — the base sticker price before dealer markup, options, or negotiation. Actual transaction prices vary.', cat: 'weights', link: '#specs' },
   // Towing
   { term: 'Max Tow Rating', def: 'The maximum trailer weight your tow vehicle is rated to pull, as stated by the vehicle manufacturer. Must exceed the trailer\'s GVWR.', cat: 'towing', link: '#tow' },
   { term: 'GCWR', def: 'Gross Combined Weight Rating — the maximum combined weight of tow vehicle + trailer + all occupants and cargo. Set by the tow vehicle manufacturer.', cat: 'towing', link: '#tow' },

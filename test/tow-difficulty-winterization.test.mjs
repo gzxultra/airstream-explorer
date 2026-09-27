@@ -151,8 +151,8 @@ describe('render integration', () => {
 
   it('detail page includes winterization in section nav', () => {
     const t = trailers.find((x) => x.slug === 'flying-cloud-25fb-2026');
-    const html = renderDetail(t, assetPaths, null, trailers);
-    assert.ok(html.includes('#winterization'), 'winterization nav link missing');
+    const html = renderDetail(t, assetPaths, null, null, trailers);
+    assert.ok(html.includes('id="winterization"'), 'winterization section stays in page');
     assert.ok(html.includes('Storage'), 'Storage label in section nav missing');
   });
 

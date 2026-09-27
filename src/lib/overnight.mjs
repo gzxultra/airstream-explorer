@@ -273,8 +273,8 @@ export function renderOvernightBody(data, relRoot = '') {
 </header>
 ${lensLegend(byLens)}
 ${filterLens(byLens, total)}
-<main class="ov-wrap" id="ov-main">
+<div class="ov-wrap" id="ov-main">
 <div class="ov-grid">${cards}</div>
-</main>
+</div>
 <p class="ov-foot muted">Hand-picked from public Recreation.gov (RIDB) data — rated 4.5★ or higher, road-accessible to a trailer, no tent-only or hike-in sites. Ratings, prices, length limits and availability change; confirm on each facility's Recreation.gov page before you go. Trailer length shown only where the published figure is reliable. Independent reference, not affiliated with Recreation.gov.</p>`;
 }

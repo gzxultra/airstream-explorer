@@ -58,8 +58,9 @@ test('motorhome detail emits data-canonical', () => {
 
 // --- CSS ---
 
-test('site.css has @media print rules hiding chrome', () => {
-  const css = readFileSync('src/assets/css/site.css', 'utf8');
+test('print.css has @media print rules hiding chrome', () => {
+  // Print styles were split out of site.css into print.css (media="print", perf #26).
+  const css = readFileSync('src/assets/css/print.css', 'utf8');
   assert.ok(css.includes('@media print'), 'missing @media print');
   // Key elements hidden
   assert.ok(css.includes('.reading-progress'), 'print should reference reading-progress');

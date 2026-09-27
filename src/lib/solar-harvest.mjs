@@ -95,7 +95,12 @@ export function solarHarvestAt({ lat, panelWatts, month }) {
   if (!panelWatts || panelWatts <= 0) {
     return { dailyWh: 0, peakSunHours: 0, ghiUsed: 0 };
   }
-  const m = Math.max(0, Math.min(11, Math.round(month)));
+  // Guard: NaN lat/month must not propagate into the estimate (P2). A bad
+  // latitude yields a zero harvest rather than NaN math downstream.
+  if (!Number.isFinite(lat)) {
+    return { dailyWh: 0, peakSunHours: 0, ghiUsed: 0 };
+  }
+  const m = Number.isFinite(month) ? Math.max(0, Math.min(11, Math.round(month))) : 0;
   const ghi = interpolateGHI(lat, m);
 
   // GHI in kWh/m²/day is numerically equivalent to "peak sun hours" for a

@@ -27,7 +27,7 @@ describe('deriveAxle', () => {
     assert.equal(deriveAxle({ model: 'World Traveler', floorplan: '22RB' }), 'single');
   });
   it('returns "single" for Basecamp XE', () => {
-    assert.equal(deriveAxle({ model: 'Basecamp XE', floorplan: '20' }), 'single');
+    assert.equal(deriveAxle({ model: 'Basecamp Xe', floorplan: '20' }), 'single');
   });
   it('returns "dual" for Flying Cloud', () => {
     assert.equal(deriveAxle({ model: 'Flying Cloud', floorplan: '25FB' }), 'dual');
@@ -39,10 +39,10 @@ describe('deriveAxle', () => {
     assert.equal(deriveAxle({ model: 'International', floorplan: '28RB' }), 'dual');
   });
   it('returns "dual" for FLW LE', () => {
-    assert.equal(deriveAxle({ model: 'Frank Lloyd Wright Limited Edition', floorplan: '28RB' }), 'dual');
+    assert.equal(deriveAxle({ model: 'Frank Lloyd Wright Usonian Limited Edition', floorplan: '28RB' }), 'dual');
   });
   it('returns "dual" for Stetson', () => {
-    assert.equal(deriveAxle({ model: 'Stetson 6666 Special Edition', floorplan: '27FB' }), 'dual');
+    assert.equal(deriveAxle({ model: 'Stetson + 6666 Special Edition', floorplan: '27FB' }), 'dual');
   });
   it('returns "dual" for Trade Wind', () => {
     assert.equal(deriveAxle({ model: 'Trade Wind', floorplan: '25FB' }), 'dual');
@@ -53,7 +53,7 @@ describe('deriveAxle', () => {
   it('returns null for unknown model', () => {
     assert.equal(deriveAxle({ model: 'FakeModel', floorplan: '99Z' }), null);
   });
-  it('covers all 59 trailers (no nulls)', () => {
+  it('covers all 58 trailers (no nulls)', () => {
     for (const t of trailers) {
       const axle = deriveAxle(t);
       assert.ok(axle === 'single' || axle === 'dual',
@@ -94,7 +94,7 @@ describe('axle explore filter', () => {
     const duals = (indexHtml.match(/data-axle="dual"/g) || []).length;
     assert.ok(singles > 0, 'expected some single-axle cards');
     assert.ok(duals > 0, 'expected some dual-axle cards');
-    assert.equal(singles + duals, 59, 'all 59 cards should have data-axle');
+    assert.equal(singles + duals, 58, 'all 58 cards should have data-axle');
   });
   it('app.js wires up axle filter', () => {
     const js = readFileSync('src/assets/js/app.js', 'utf8');

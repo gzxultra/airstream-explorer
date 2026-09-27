@@ -28,6 +28,7 @@
   --ease-soft: cubic-bezier(.2,.7,.2,1);
 }
 
+
 /* ===========================================================================
    1. OPTICAL TYPOGRAPHY
    =========================================================================== */
@@ -35,18 +36,23 @@
    optical axis to size so big display titles get the high-contrast "display"
    cut and small text stays legible. */
 html { font-optical-sizing: auto; text-rendering: optimizeLegibility; }
+
 body { font-feature-settings: "kern" 1, "liga" 1, "calt" 1; }
+
 
 /* Display headings: balance line breaks so titles never leave one orphan word
    on the last line, and tighten tracking the bigger they get. */
 h1, h2, h3 { text-wrap: balance; }
+
 .hero-head h1, .home-hero-inner h1, .fam-hero-overlay h1,
 .detail-head h1, .explore-head h1, .cg-hero h1 {
   letter-spacing: -.018em;
   font-variation-settings: "opsz" 72, "wght" 600;
 }
+
 /* The copper accent word inside titles reads as one optical unit. */
 .detail-head h1 span, .card-title span, .home-hero-inner h1 span { letter-spacing: -.02em; }
+
 
 /* Long editorial prose: prettier rag, hung punctuation where supported. */
 .detail-desc, .cg-hero .lede, .explore-head .lede, .hero-head .lede,
@@ -55,9 +61,11 @@ h1, h2, h3 { text-wrap: balance; }
   hanging-punctuation: first last;
 }
 
+
 /* Eyebrows/kickers: a touch more air + a hairline copper tick for editorial
    structure (the small uppercase labels that open each section). */
 .eyebrow { letter-spacing: .2em; }
+
 
 /* Numerals in spec/stat contexts: lining tabular figures so columns align and
    ranges read like a spec sheet, not body copy. (Belt-and-suspenders with the
@@ -66,18 +74,23 @@ h1, h2, h3 { text-wrap: balance; }
 .specs-grid .spec dd, .cmp-table tbody td, .fam-range,
 .est-number, .tow-callout-value { font-feature-settings: "tnum" 1, "lnum" 1; }
 
+
 /* ===========================================================================
    2. SPACING & RHYTHM
    =========================================================================== */
 /* A hair more breathing room between the hero band and the grids below, and a
    calmer, more even vertical cadence on the home family grid. */
 .fam-grid { gap: 30px 26px; }
+
 .cards { gap: 28px 24px; }
+
 .xgrid { gap: 26px 22px; }
+
 
 /* Section dividers (Upgrades / Community) get more space above so each section
    reads as its own editorial spread. */
 .up-sec, .csec { scroll-margin-top: 88px; }
+
 
 /* ===========================================================================
    3. SURFACES — unified radius + softer cards
@@ -86,8 +99,11 @@ h1, h2, h3 { text-wrap: balance; }
    used 6px — unify to the softer 6px so every browsable card matches. (Spec
    tables, chips, and the sharp 2px editorial accents are left untouched.) */
 .card { border-radius: 8px; }
+
 .fam { border-radius: 8px; }
+
 .card-media { border-radius: 0; }
+
 
 /* ===========================================================================
    4. MICRO-INTERACTIONS (restrained, fast, tasteful)
@@ -97,15 +113,18 @@ h1, h2, h3 { text-wrap: balance; }
 .card, .fam, .xcard, .cg-card, .up-card {
   transition: transform .26s var(--ease-out), box-shadow .26s var(--ease-out);
 }
+
 .card:hover, .xcard:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); }
+
 .fam:hover { transform: translateY(-5px); box-shadow: var(--shadow-lift); }
-.cg-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+
 
 /* Image-in-frame easing: slower, softer zoom so the photo glides rather than
    snaps. (Frames already clip via overflow:hidden.) */
 .card-media img, .xcard-media img, .fam-media img, .up-media img {
   transition: transform .6s var(--ease-soft);
 }
+
 
 /* Animated underline for in-body editorial links — a copper rule that wipes in
    from the left instead of the default browser underline. Scoped to prose so
@@ -120,10 +139,12 @@ h1, h2, h3 { text-wrap: balance; }
   transition: background-size .28s var(--ease-out);
   padding-bottom: 1px;
 }
+
 .detail-desc a:hover, .up-why a:hover, .cg-src a:hover, .est-detail a:hover,
 .community-foot a:hover, .cg-fit-src a:hover, .spec-note a:hover {
   background-size: 100% 1.5px; text-decoration: none;
 }
+
 
 /* Unified, accessible focus ring across every interactive element. Replaces the
    assorted hard 2px outlines with a soft copper halo that only shows for
@@ -135,10 +156,13 @@ input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
   border-radius: 4px;
 }
 
+
 /* Brand mark in the top nav: a whisper of motion on hover so the wordmark feels
    alive without being cute. */
 .brandbar { transition: color .18s var(--ease-out); }
+
 .brandbar:hover .brandbar-mark { color: var(--copper-deep); }
+
 
 /* ===========================================================================
    5. IMAGE FRAMING
@@ -150,19 +174,23 @@ input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
   background:
     linear-gradient(to top, rgba(18,14,10,.88) 0%, rgba(18,14,10,.50) 40%, rgba(18,14,10,.12) 72%, rgba(18,14,10,.28) 100%);
 }
+
 .fam-hero-overlay {
   background: linear-gradient(to top, rgba(18,14,10,.86) 0%, rgba(18,14,10,.46) 52%, rgba(18,14,10,0) 100%);
 }
 
+
 /* Detail hero image: unify to the cinematic 16/9 frame the rest of the site
    uses, with the same soft shadow, so it stops being a raw full-bleed photo. */
 .detail-hero-img { aspect-ratio: 16/9; object-fit: cover; }
+
 
 /* A faint inner hairline on framed media so photos read as matted prints rather
    than floating rectangles. Uses inset shadow → no layout shift. */
 .card-media, .xcard-media, .fam-media, .up-media, .detail-hero, .cg-card-img {
   box-shadow: inset 0 0 0 1px rgba(31,27,22,.05);
 }
+
 
 /* ===========================================================================
    REDUCED MOTION — degrade everything above to instant
@@ -176,6 +204,7 @@ input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
   }
   .card:hover, .fam:hover, .xcard:hover, .cg-card:hover { transform: none; }
 }
+
 
 /* ===========================================================================
    ACCESSIBILITY — skip link (T-2)
@@ -197,14 +226,17 @@ input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
   box-shadow: var(--shadow);
   transition: top .18s ease;
 }
+
 .skip-link:focus,
 .skip-link:focus-visible {
   top: 12px;
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
+
 /* The jump target carries no layout; just a focus anchor. */
 #main-content { scroll-margin-top: 72px; }
+
 
 /* ===========================================================================
    VIEW TRANSITIONS — native MPA cross-fade between pages (QW-6)
@@ -218,6 +250,7 @@ input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
     animation-duration: .26s;
   }
 }
+
 @media (prefers-reduced-motion: reduce) {
   /* Kill the cross-fade entirely for motion-sensitive users. */
   ::view-transition-group(*),
