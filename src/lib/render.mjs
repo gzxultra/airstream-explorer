@@ -3470,7 +3470,7 @@ ${gallery ? `<section class="gallery gallery-immersive" id="gallery" aria-label=
 <div class="gallery-mosaic" data-gallery data-count="${galleryCount}">
 ${galleryMosaic}
 </div>
-<button type="button" class="gallery-show-all" data-gallery-all aria-label="View all photos">View all ${galleryCount} photos</button>
+<button type="button" class="gallery-show-all" data-gallery-all aria-label="View all photos">View all photos</button>
 <div class="gallery-grid" data-gallery hidden>${gallery}</div>
 </section>` : ''}
 ${renderNextSteps(t)}
