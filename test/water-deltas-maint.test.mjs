@@ -39,7 +39,7 @@ describe('spec deltas on recommendation cards', () => {
   it('delta chips include weight and price', () => {
     const html = renderDetail(classic33, undefined, null, trailers);
     // Classic 33FB is the heaviest/most expensive, so related cards should show - deltas
-    const relSection = html.slice(html.indexOf('class="related"'));
+    const relSection = html.slice(html.indexOf('more-block--related'));
     // Should contain lb and $k references in delta chips
     assert.ok(relSection.includes(' lb</span>') || relSection.includes('lb</span>'), 'has weight deltas');
     assert.ok(relSection.includes('$') && relSection.includes('k</span>'), 'has price deltas');
@@ -52,7 +52,7 @@ describe('spec deltas on recommendation cards', () => {
 describe('water autonomy calculator', () => {
   it('renders for trailers with tanks', () => {
     const html = renderWaterAutonomy(classic33);
-    assert.ok(html.includes('water-autonomy'), 'has water-autonomy section id');
+    assert.ok(html.includes('water-calc'), 'has water-calc class');
     assert.ok(html.includes('water-calc-data'), 'has data island');
     assert.ok(html.includes('wc-people'), 'has people slider');
     assert.ok(html.includes('wc-usage-btn'), 'has usage level buttons');
@@ -98,9 +98,11 @@ describe('water autonomy calculator', () => {
     assert.ok(html.includes('days of camping'), 'has days label');
   });
 
-  it('appears in detail page section nav', () => {
+  it('appears in the Off-grid tab panel (redesign 2026-09-27)', () => {
     const html = renderDetail(classic33, undefined, null, null, trailers);
-    assert.ok(html.includes('id="water-autonomy"'), 'water-autonomy section stays in page');
+    assert.ok(html.includes('id="offgrid"'), 'offgrid section stays in page');
+    assert.ok(html.includes('water-calc'), 'water calculator stays in page');
+    assert.ok(html.includes('id="og-water"'), 'water tab exists');
   });
 
   it('usage buttons have correct aria attributes', () => {
@@ -115,15 +117,17 @@ describe('water autonomy calculator', () => {
 // MAINTENANCE QUICK-REF
 // ---------------------------------------------------------------------------
 describe('maintenance quick reference', () => {
-  it('renders on every detail page', () => {
+  it('renders maintenance cycles in the Care section (redesign 2026-09-27)', () => {
     const html = renderDetail(classic33, undefined, null, trailers);
-    assert.ok(html.includes('maintenance-ref'), 'has maintenance section id');
-    assert.ok(html.includes('maint-table'), 'has maintenance table');
+    assert.ok(html.includes('id="care"'), 'care section present');
+    assert.ok(html.includes('>Maintenance</h3>'), 'maintenance heading present');
+    assert.ok(html.includes('maint-rows'), 'has maintenance rows');
+    assert.ok(html.includes('maint-row'), 'has maintenance row items');
   });
 
   it('includes core maintenance items', () => {
     const html = renderDetail(classic33, undefined, null, trailers);
-    assert.ok(html.includes('Tire pressure check'), 'has tire pressure');
+    assert.ok(html.includes('Tire pressure'), 'has tire pressure');
     assert.ok(html.includes('Wheel bearing service'), 'has wheel bearings');
     assert.ok(html.includes('Winterization'), 'has winterization');
     assert.ok(html.includes('Fire extinguisher'), 'has fire extinguisher');
@@ -144,29 +148,30 @@ describe('maintenance quick reference', () => {
     }
   });
 
-  it('has priority badges', () => {
+  it('has no priority badges (redesign 2026-09-27: simplified to task/interval rows)', () => {
     const html = renderDetail(classic33, undefined, null, trailers);
-    assert.ok(html.includes('maint-badge--safety'), 'has safety badges');
-    assert.ok(html.includes('maint-badge--routine'), 'has routine badges');
-    assert.ok(html.includes('maint-badge--seasonal'), 'has seasonal badges');
+    assert.ok(!html.includes('maint-badge--safety'), 'no safety badges');
+    assert.ok(!html.includes('maint-badge--routine'), 'no routine badges');
+    assert.ok(!html.includes('maint-badge--seasonal'), 'no seasonal badges');
   });
 
-  it('links to full maintenance page', () => {
+  it('links to full maintenance guide (owner\'s guide tab)', () => {
     const html = renderDetail(classic33, undefined, null, trailers);
-    assert.ok(html.includes('maintenance.html'), 'links to full maintenance guide');
+    assert.ok(html.includes('owners-guide.html#maintenance'), 'links to owner\'s guide maintenance tab');
   });
 
-  it('is collapsible', () => {
+  it('care section is a folded details element (redesign 2026-09-27)', () => {
     const html = renderDetail(classic33, undefined, null, trailers);
-    const maintIdx = html.indexOf('id="maintenance-ref"');
-    const maintSection = html.slice(maintIdx, maintIdx + 500);
-    assert.ok(maintSection.includes('collapsible'), 'has collapsible class');
-    assert.ok(maintSection.includes('collapsible-trigger'), 'has trigger');
+    const careIdx = html.indexOf('id="care"');
+    const careSection = html.slice(careIdx, careIdx + 800);
+    assert.ok(careSection.includes('<details'), 'care uses details fold');
+    assert.ok(careSection.includes('fold--care'), 'has care fold class');
   });
 
-  it('appears in section nav', () => {
+  it('maintenance stays in the page inside Care (redesign 2026-09-27)', () => {
     const html = renderDetail(classic33, undefined, null, null, trailers);
-    assert.ok(html.includes('id="maintenance-ref"'), 'maintenance-ref section stays in page');
+    assert.ok(html.includes('id="care"'), 'care section stays in page');
+    assert.ok(html.includes('maint-rows'), 'maintenance rows stay in page');
   });
 });
 

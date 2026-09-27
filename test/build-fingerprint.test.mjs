@@ -79,23 +79,27 @@ test('every srcset/imagesrcset URL in built HTML exists on disk (post-fingerprin
 });
 
 // --- Unified Explore: built-output checks -----------------------------------
-test('index.html ships the unified grid (motorhome cards + type control + 15 families)', () => {
+test('index.html ships the unified grid (motorhome payload + type control + 15 families)', () => {
   const home = readFileSync(join(DIST, 'index.html'), 'utf8');
-  assert.ok((home.match(/data-type="motorhome"/g) || []).length > 0, 'motorhome cards in grid');
-  assert.match(home, /href="mm\//, 'an mm/ detail link in the grid');
+  // Cards are client-rendered: the unified grid ships as a JSON payload.
+  const m = home.match(/<script type="application\/json" id="xdata">([\s\S]*?)<\/script>/);
+  assert.ok(m, '#xdata payload present');
+  const items = JSON.parse(m[1]);
+  assert.ok(items.some((i) => i.type === 'motorhome'), 'motorhome items in payload');
+  assert.ok(items.some((i) => i.type === 'trailer'), 'trailer items in payload');
+  assert.equal(items.length, 69, '69 records in the payload');
   assert.match(home, /id="x-type"/, 'type segmented control present');
   assert.equal((home.match(/class="fam"/g) || []).length, 15, '15 unified family cards');
 });
 
-test('motorhomes.html still resolves as a unified entry: redirect shim + no-JS fallback', () => {
+test('motorhomes.html is a real page with inline family sections', () => {
   const p = join(DIST, 'motorhomes.html');
   assert.ok(existsSync(p), 'motorhomes.html exists');
   const html = readFileSync(p, 'utf8');
-  // JS redirect into the unified hub, pre-filtered to motorhomes
-  assert.match(html, /data-redirect="index\.html#all&type=motorhome"/);
-  // no-JS fallback still renders the full motorhome catalog inline
-  assert.match(html, /id="xgrid"/);
-  assert.ok((html.match(/data-type="motorhome"/g) || []).length > 0, 'fallback motorhome cards');
+  // A genuine page now: no redirect shim.
+  assert.ok(!html.includes('http-equiv="refresh"'), 'motorhomes.html must not redirect');
+  assert.equal((html.match(/id="mf-/g) || []).length, 3, 'three inline family sections');
+  assert.equal((html.match(/mh-family-hero/g) || []).length, 3, 'each family section has a hero');
 });
 
 test('built app.js hides the tow matcher for the motorhome type', () => {

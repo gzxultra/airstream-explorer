@@ -91,7 +91,7 @@ describe('explore card gallery URLs', () => {
 });
 
 describe('expand-all / collapse-all toggle', () => {
-  it('section nav includes expand-all button', async () => {
+  it('no expand-all button (redesign 2026-09-27: section nav removed)', async () => {
     const { renderDetail } = await getRender();
     const t = {
       slug: 'test-20fb-2026', model: 'Test', floorplan: '20FB', year: 2026,
@@ -109,8 +109,8 @@ describe('expand-all / collapse-all toggle', () => {
       floorplan: null,
     });
     const html = renderDetail(t, resolve, null, [t]);
-    assert.ok(html.includes('id="secnav-expand-all"'), 'expand-all button missing from section nav');
-    assert.ok(html.includes('secnav-expand-all'), 'expand-all class missing');
+    assert.ok(!html.includes('id="secnav-expand-all"'), 'no expand-all button');
+    assert.ok(!html.includes('secnav-expand-all'), 'no expand-all class');
   });
 
   it('app.js contains expandCollapseAll IIFE', () => {

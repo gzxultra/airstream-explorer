@@ -34,39 +34,53 @@ describe('back-to-top button', () => {
 });
 
 describe('section quick-nav', () => {
-  it('trailer detail top bar shows exactly the 6 chapters (perf #31)', () => {
+  it('trailer detail has no section nav (redesign 2026-09-27: removed)', () => {
     const html = readDetail('classic-33fb-2026');
-    assert.ok(html.includes('data-secnav'), 'secnav missing');
-    const nav = html.match(/<nav class="secnav"[^>]*>([\s\S]*?)<\/nav>/);
-    assert.ok(nav, 'secnav nav element found');
-    const links = [...nav[1].matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
-    assert.deepEqual(links, ['#specs', '#floorplan', '#tow', '#fuel', '#offgrid', '#gallery'],
-      `top bar must be exactly 6 chapters, got: ${links.join(', ')}`);
-    assert.ok(nav[1].includes('>Cost<'), 'Cost chapter present (links the fuel-cost estimator)');
+    assert.ok(!html.includes('data-secnav'), 'secnav removed in redesign');
+    assert.ok(!html.includes('class="secnav"'), 'secnav nav removed in redesign');
   });
-  it('sub-sections stay in the page as in-chapter anchors, not top-bar items', () => {
+  it('trailer detail renders the fixed 11-module body in order (redesign 2026-09-27)', () => {
     const html = readDetail('classic-33fb-2026');
-    const nav = html.match(/<nav class="secnav"[^>]*>([\s\S]*?)<\/nav>/)[1];
-    for (const id of ['size-scale', 'payload', 'propane', 'electrical', 'year-diff', 'lifestyle-fit', 'storage', 'water-autonomy', 'grade-climb', 'hitch-guide', 'vehicles']) {
-      if (html.includes(`id="${id}"`)) {
-        assert.ok(!nav.includes(`#${id}`), `#${id} must not occupy a top-bar slot`);
-      }
+    // plan.md §二: the 11 modules in magazine order. The first three use
+    // existing class anchors (no test-only ids added).
+    const modules = [
+      ['header', 'class="detail-head"'],
+      ['hero+keystats', 'class="detail-hero"'],
+      ['overview', 'detail-overview'],
+      ['gallery', 'id="gallery"'],
+      ['floorplan', 'id="floorplan"'],
+      ['specs', 'id="specs"'],
+      ['tow', 'id="tow"'],
+      ['offgrid', 'id="offgrid"'],
+      ['care', 'id="care"'],
+      ['proscons', 'id="proscons"'],
+      ['more', 'id="more"'],
+    ];
+    assert.equal(modules.length, 11, 'must lock all 11 modules');
+    const order = modules.map(([name, needle]) => {
+      const idx = html.indexOf(needle);
+      assert.ok(idx !== -1, `${name} module anchor missing (${needle})`);
+      return idx;
+    });
+    for (let i = 1; i < order.length; i++) {
+      assert.ok(order[i] > order[i - 1], `module order wrong: ${modules[i][0]} should come after ${modules[i - 1][0]}`);
     }
+    assert.ok(html.includes('dsec-title'), 'dsec-title section heads missing');
   });
   it('section IDs exist on trailer detail page', () => {
     const html = readDetail('classic-33fb-2026');
     assert.ok(html.includes('id="specs"'), 'specs id missing');
-    assert.ok(html.includes('id="tow-setup"') || html.includes('id="tow"'), 'tow section id missing');
-    assert.ok(html.includes('id="journey"') || html.includes('id="fuel"'), 'fuel/journey section id missing');
-    assert.ok(html.includes('id="weight-capacity"') || html.includes('id="payload"'), 'payload/weight section id missing');
-    assert.ok(html.includes('id="offgrid-dash"') || html.includes('id="offgrid"'), 'offgrid section id missing');
+    assert.ok(html.includes('id="tow"'), 'tow section id missing');
+    assert.ok(html.includes('id="offgrid"'), 'offgrid section id missing');
     assert.ok(html.includes('id="gallery"'), 'gallery id missing');
+    assert.ok(html.includes('id="care"'), 'care id missing');
+    assert.ok(html.includes('id="more"'), 'more id missing');
   });
-  it('motorhome detail page has section nav', () => {
+  it('motorhome detail page has no section nav (redesign 2026-09-27: removed)', () => {
     const html = readMotorhomeDetail('atlas-25ms-2027');
-    assert.ok(html.includes('data-secnav'), 'motorhome secnav missing');
-    assert.ok(html.includes('href="#specs"'), 'motorhome Specs link missing');
-    assert.ok(html.includes('href="#offgrid"'), 'motorhome Off-grid link missing');
+    assert.ok(!html.includes('data-secnav'), 'motorhome secnav removed in redesign');
+    assert.ok(html.includes('id="specs"'), 'motorhome specs id present');
+    assert.ok(html.includes('id="offgrid"'), 'motorhome offgrid id present');
   });
 });
 

@@ -62,40 +62,35 @@ describe('rangePosition', () => {
   });
 });
 
-describe('explore card range bars', () => {
+describe('explore card has no range bars (editorial)', () => {
   const ranges = computeFleetRanges(trailers);
 
-  it('trailer explore cards include range-bar elements', () => {
+  it('trailer explore cards omit range-bar elements', () => {
     const t = trailers.find((x) => x.year === 2026);
     const html = renderExploreCard(t, undefined, false, ranges);
-    assert.ok(html.includes('range-bar'), 'should have range-bar class');
-    assert.ok(html.includes('range-bar-track'), 'should have track');
-    assert.ok(html.includes('range-bar-fill'), 'should have fill');
-    // Should have 6 range bars (length, weight, ccc, off-grid, fresh, msrp)
-    const barCount = (html.match(/range-bar-fill/g) || []).length;
-    assert.equal(barCount, 6, 'should have exactly 6 range bars');
+    assert.ok(html.includes('xcard'), 'card renders');
+    assert.ok(!html.includes('range-bar-fill'), 'no range bars on editorial card');
+    assert.ok(!html.includes('range-bar-track'), 'no range bar tracks');
   });
 
-  it('explore cards without ranges still render correctly', () => {
+  it('editorial cards keep the three spec rows instead', () => {
     const t = trailers[0];
     const html = renderExploreCard(t, undefined, false, {});
-    assert.ok(html.includes('xcard'), 'card renders');
-    const barCount = (html.match(/range-bar-fill/g) || []).length;
-    assert.equal(barCount, 0, 'no range bars without ranges');
+    assert.match(html, /<dt>GVWR<\/dt>/);
+    assert.match(html, /<dt>Length<\/dt>/);
+    assert.match(html, /<dt>MSRP<\/dt>/);
   });
 });
 
-describe('motorhome explore card range bars', () => {
-  it('motorhome explore cards include range-bar elements when ranges provided', () => {
+describe('motorhome explore card has no range bars (editorial)', () => {
+  it('motorhome explore cards omit range-bar elements', () => {
     let mhData;
     try { mhData = JSON.parse(readFileSync('src/data/motorhomes.json', 'utf8')); }
     catch { return; /* skip if no motorhome data */ }
     if (!mhData.length) return;
     const ranges = computeFleetRanges(trailers, mhData);
     const html = renderMotorhomeExploreCard(mhData[0], undefined, false, ranges);
-    assert.ok(html.includes('range-bar'), 'should have range-bar');
-    const barCount = (html.match(/range-bar-fill/g) || []).length;
-    assert.equal(barCount, 3, 'should have 3 range bars');
+    assert.ok(!html.includes('range-bar-fill'), 'no range bars on editorial motorhome card');
   });
 });
 
@@ -149,10 +144,10 @@ describe('hero parallax', () => {
 });
 
 describe('built output includes new features', () => {
-  it('built index.html has range bars on explore cards', () => {
+  it('built index.html has no range bars on explore cards', () => {
     const html = readFileSync('dist/index.html', 'utf8');
     const barCount = (html.match(/range-bar-fill/g) || []).length;
-    assert.ok(barCount >= 30, `expected 30+ range bars in index, got ${barCount}`);
+    assert.equal(barCount, 0, `expected no range bars in index, got ${barCount}`);
   });
 
   it('built detail page has parallax hero class', () => {
@@ -162,12 +157,12 @@ describe('built output includes new features', () => {
     assert.ok(!html.includes('range-bar-fill'), 'no range bars on detail page');
   });
 
-  it('built CSS has shimmer and range-bar rules', () => {
+  it('built CSS has shimmer; range-bar dead rules removed', () => {
     const files = readdirSync('dist/assets/css');
     const siteCss = files.find((f) => f.startsWith('site.') && f.endsWith('.css'));
     assert.ok(siteCss, 'fingerprinted site.css exists');
     const css = readFileSync(`dist/assets/css/${siteCss}`, 'utf8');
     assert.ok(css.includes('img-shimmer'), 'shimmer in built CSS');
-    assert.ok(css.includes('range-bar'), 'range-bar in built CSS');
+    assert.ok(!css.includes('range-bar'), 'dead range-bar CSS removed (redesign 2026-09-27)');
   });
 });

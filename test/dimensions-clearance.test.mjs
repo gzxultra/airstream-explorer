@@ -109,19 +109,19 @@ describe('clearance fit section', () => {
   const classic = trailers.find((t) => t.slug === 'classic-33fb-2026');
   const html = renderDetail(classic);
 
-  it('renders clearance-fit section for trailers with dimensions', () => {
-    assert.match(html, /id="clearance-fit"/);
-    assert.match(html, /class="clearance-fit"/);
+  it('renders fit-check block for trailers with dimensions (redesign 2026-09-27)', () => {
+    assert.match(html, /class="fit-check"/);
+    assert.match(html, /dsec-sub">Fit check/);
   });
 
-  it('clearance-fit stays in the page as a Specs-chapter anchor (not a top-bar item)', () => {
-    assert.match(html, /id="clearance-fit"/);
+  it('fit-check stays in the page inside Specifications (redesign 2026-09-27)', () => {
+    assert.match(html, /class="fit-check"/);
+    assert.ok(!html.includes('id="clearance-fit"'), 'old clearance-fit id removed');
   });
 
   it('shows trailer dimensions in intro text', () => {
     assert.match(html, /Classic 33FB/);
-    assert.match(html, /tall \(with A\/C\)/);
-    assert.match(html, /wide/);
+    assert.match(html, /with A\/C/);
   });
 
   it('renders standard garage door, tall garage door, RV garage door, standard overpass, covered campsite', () => {
@@ -133,8 +133,8 @@ describe('clearance fit section', () => {
   });
 
   it('uses correct verdict classes', () => {
-    assert.match(html, /clearance-verdict--yes|clearance-verdict--no/);
-    assert.match(html, /clearance-row--fits|clearance-row--blocked/);
+    assert.match(html, /fitcheck-row is-fits|fitcheck-row is-blocked/);
+    assert.match(html, /fitcheck-verdict/);
   });
 });
 

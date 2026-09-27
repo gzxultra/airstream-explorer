@@ -114,10 +114,14 @@ test('pages have multi-column editorial footer', () => {
   assert.match(html, /class="footer-heading"/);
   assert.match(html, /class="footer-links"/);
   assert.match(html, /class="footer-legal/);
-  // Check all 4 columns exist
+  // Check the 3 link columns exist (2026-09 redesign: Browse / Ownership /
+  // Reference; the 4th column is the about blurb)
   assert.match(html, /Browse/);
-  assert.match(html, /Plan your trip/);
-  assert.match(html, /Community/);
+  assert.match(html, /Ownership/);
+  assert.match(html, /Reference/);
+  assert.match(html, /Owner's guide/);
+  assert.match(html, /Tow guide/);
+  assert.match(html, /RV glossary/);
   assert.match(html, /Airstream Explorer/);
   // External link
   assert.match(html, /airstream\.com/);

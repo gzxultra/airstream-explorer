@@ -127,18 +127,11 @@ test('2025 trailer detail pages canonicalize to 2026 and emit no Product JSON-LD
   }
 });
 
-test('2026 detail pages with a 2025 counterpart show the disabled year-diff disclosure', () => {
+test('2026 detail pages have no year-diff section (redesign 2026-09-27: removed)', () => {
   for (const t of trailers.filter((x) => x.year === 2026)) {
-    const hasPrev = trailers.some((x) => x.model === t.model && x.floorplan === t.floorplan && x.year === 2025);
     const html = renderDetail(t, undefined, null, trailers);
-    if (hasPrev) {
-      assert.ok(html.includes('id="year-diff"'), `${t.slug} year-diff anchor`);
-      assert.ok(html.includes('What changed from 2025'), `${t.slug} year-diff heading`);
-      assert.ok(html.includes('Comparison withheld'), `${t.slug} disabled-comparison disclosure`);
-      assert.ok(!html.includes('year-diff-table'), `${t.slug} must not render a diff table`);
-    } else {
-      assert.ok(!html.includes('id="year-diff"'), `${t.slug} no year-diff without 2025 counterpart`);
-    }
+    assert.ok(!html.includes('id="year-diff"'), `${t.slug} no year-diff`);
+    assert.ok(!html.includes('What changed from 2025'), `${t.slug} no year-diff heading`);
   }
 });
 

@@ -289,7 +289,7 @@ test('renderMotorhomeDetail shows motorhome-specific specs', () => {
   // Should NOT have tow calculator (motorhomes are self-propelled)
   assert.doesNotMatch(html, /class="towtool"/);
   // Should have off-grid estimator
-  assert.match(html, /class="estimator offgrid-tool"/);
+  assert.match(html, /offgrid-tool/);
   assert.match(html, /How long off-grid\?/);
 });
 
@@ -350,12 +350,25 @@ test('renderMotorhomeFamily shows all models in the family', () => {
 // Rendering: motorhome index page
 // ---------------------------------------------------------------------------
 
-test('renderMotorhomeIndex produces a valid page with family cards', () => {
+test('renderMotorhomeIndex produces a valid page with inline family sections', () => {
   const fams = groupMotorhomesByFamily(motorhomes);
   const html = renderMotorhomeIndex(fams, motorhomes);
   assert.ok(html.startsWith('<!DOCTYPE html>'));
-  // Should have family cards for Atlas, Interstate, Rangeline
-  assert.equal((html.match(/class="fam"/g) || []).length, 3);
+  // The old /mf/ family pages are absorbed: one section per family —
+  // Atlas, Interstate, Rangeline.
+  assert.equal((html.match(/id="mf-/g) || []).length, 3);
+  for (const fam of fams) {
+    assert.match(html, new RegExp(`id="mf-${fam.slug}"`), `${fam.family} section present`);
+  }
+});
+
+test('renderMotorhomeIndex family sections include hero image, intro and cards', () => {
+  const fams = groupMotorhomesByFamily(motorhomes);
+  const html = renderMotorhomeIndex(fams, motorhomes);
+  assert.equal((html.match(/mh-family-hero/g) || []).length, 3, 'each family section has a hero');
+  assert.match(html, /mh-family-intro/, 'family intro present');
+  assert.match(html, /Atlas/, 'Atlas content present');
+  assert.match(html, /airstream\.com/, 'official link present');
 });
 
 test('renderMotorhomeIndex has motorhome-specific content', () => {
@@ -381,13 +394,15 @@ test('renderMotorhomeExploreCard carries numeric data attributes', () => {
 // Navigation: Motorhome entry exists
 // ---------------------------------------------------------------------------
 
-test('motorhome index (redirect shim) keeps the unified Explore nav — no Motorhomes top tab', () => {
+test('motorhomes.html is a real page (not a redirect shim) with no Motorhomes top tab', () => {
   const fams = groupMotorhomesByFamily(motorhomes);
   const html = renderMotorhomeIndex(fams, motorhomes);
-  // Motorhomes is no longer a top-nav tab — it's a type filter inside Explore.
+  // A genuine page: no meta-refresh redirect.
+  assert.ok(!html.includes('http-equiv="refresh"'), 'motorhomes.html must not redirect');
+  // Motorhomes is not a top-nav tab (NAV_ITEMS is frozen) — families are
+  // reached in-page via #mf- anchors.
   const nav = html.match(/<nav class="topnav-links"[^>]*>([\s\S]*?)<\/nav>/);
   assert.ok(nav, 'has a topnav-links nav');
   assert.doesNotMatch(nav[1], /href="[^"]*motorhomes\.html"/);
-  // but the page still routes users into the unified Explore hub
-  assert.match(html, /index\.html#all&type=motorhome/);
+  assert.match(html, /href="#mf-atlas"|id="mf-atlas"/, 'Atlas reachable via in-page anchor');
 });

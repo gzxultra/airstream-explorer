@@ -43,13 +43,18 @@ test('renderMotorhomeExploreCard emits data-type="motorhome" + mm/ link + a cmp-
   assert.match(html, /class="xcard-foot"/);
 });
 
-test('renderExploreSections merges motorhome cards into the grid when given motorhomes', () => {
+test('renderExploreSections embeds both types in the #xdata card payload', () => {
   const html = renderExploreSections(trailers, undefined, motorhomes);
-  // both types of card present
-  assert.ok((html.match(/data-type="trailer"/g) || []).length >= trailers.length);
-  assert.ok((html.match(/data-type="motorhome"/g) || []).length >= motorhomes.length);
-  // an mm/ link is in the grid
-  assert.match(html, /href="mm\//);
+  // The grid is client-rendered now: both types arrive in the JSON payload.
+  const m = html.match(/<script type="application\/json" id="xdata">([\s\S]*?)<\/script>/);
+  assert.ok(m, '#xdata payload present');
+  const items = JSON.parse(m[1]);
+  assert.equal(items.length, trailers.length + motorhomes.length);
+  assert.equal(items.filter((i) => i.type === 'trailer').length, trailers.length);
+  assert.equal(items.filter((i) => i.type === 'motorhome').length, motorhomes.length);
+  // motorhome items carry everything the client needs to build mm/ links
+  const mh = items.find((i) => i.type === 'motorhome');
+  assert.ok(mh && mh.slug, 'motorhome payload item has slug');
 });
 
 test('renderExploreSections includes the All/Travel trailers/Motorhomes type control', () => {
@@ -77,10 +82,10 @@ test('renderIndex by-family grid unifies trailer + motorhome families (15 total)
   const expected = families.length + motorhomeFamilies.length;
   assert.equal(expected, 15);
   assert.equal((html.match(/class="fam"/g) || []).length, expected);
-  // a motorhome family link is present
-  assert.match(html, /href="mf\//);
-  // and the explore grid below has motorhome cards too
-  assert.match(html, /data-type="motorhome"/);
+  // motorhome families link in-page on motorhomes.html (no more /mf/ pages)
+  assert.match(html, /motorhomes\.html#mf-/);
+  // and the explore payload below carries motorhome items too
+  assert.match(html, /"type":"motorhome"/);
 });
 
 test('renderIndex still renders 12 family cards when called trailer-only (back-compat)', () => {

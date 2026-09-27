@@ -16,12 +16,12 @@ const trailers = loadTrailers();
 const hasAsset = (rel) => existsSync(join(ROOT, 'public', rel));
 
 describe('year-over-year spec delta indicators', () => {
-  it('specRow accepts yearDelta parameter without error', () => {
-    // The specRow function should work with and without yearDelta
+  it('spec lede renders without yearDelta (redesign 2026-09-27: year delta removed)', () => {
+    // The spec lede function should work; year delta is no longer rendered
     const t2026 = trailers.find((t) => t.year === 2026);
     assert.ok(t2026, 'should have at least one 2026 trailer');
     const html = renderDetail(t2026, (t) => resolveAssets(t, hasAsset), null, trailers);
-    assert.ok(html.includes('class="spec"'), 'should have spec rows');
+    assert.ok(html.includes('spec-lede'), 'should have spec lede');
   });
 
   it('computeYearDiff returns null for 2025 trailers', () => {
@@ -50,7 +50,7 @@ describe('year-over-year spec delta indicators', () => {
     assert.ok(diff.diffs.some((d) => d.key === 'msrp'), 'should include msrp diff');
   });
 
-  it('spec-yd markup appears when yearDelta is provided', () => {
+  it('no spec-yd markup (redesign 2026-09-27: year delta removed)', () => {
     // Force a spec diff by modifying a copy
     const t2026 = trailers.find((t) => t.year === 2026 && trailers.some(
       (t2) => t2.model === t.model && t2.floorplan === t.floorplan && t2.year === 2025
@@ -63,8 +63,7 @@ describe('year-over-year spec delta indicators', () => {
     if (!prev) return;
     prev.msrp = prev.msrp - 2000; // 2026 is +$2000
     const html = renderDetail(t2026, (t) => resolveAssets(t, hasAsset), null, allCopy);
-    assert.ok(html.includes('spec-yd'), 'should contain spec-yd markup');
-    assert.ok(html.includes('spec-yd--up') || html.includes('spec-yd--down'), 'should have direction class');
+    assert.ok(!html.includes('spec-yd'), 'no spec-yd markup');
   });
 });
 

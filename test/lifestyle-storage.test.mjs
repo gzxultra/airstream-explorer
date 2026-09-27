@@ -148,16 +148,15 @@ describe('render integration', () => {
   let renderModule;
   let trailers;
 
-  it('renderDetail includes lifestyle-fit section', async () => {
+  it('renderDetail does not include lifestyle-fit section (redesign 2026-09-27: removed)', async () => {
     // Lazy import to avoid circular/heavy loads unless this test runs
     renderModule = renderModule || await import('../src/lib/render.mjs');
     const { loadTrailers } = await import('../src/lib/data.mjs');
     trailers = trailers || loadTrailers();
     const t = trailers.find(t => t.year === 2026) || trailers[0];
     const html = renderModule.renderDetail(t, undefined, null, trailers);
-    assert.ok(html.includes('id="lifestyle-fit"'), 'detail page should have lifestyle-fit section');
-    assert.ok(html.includes('lf-dot'), 'lifestyle fit should render dots');
-    assert.ok(html.includes('lf-row'), 'lifestyle fit should render rows');
+    assert.ok(!html.includes('id="lifestyle-fit"'), 'no lifestyle-fit section');
+    assert.ok(!html.includes('lf-dot'), 'no lifestyle fit dots');
   });
 
   it('renderDetail includes amenity-summary chips', async () => {
@@ -172,31 +171,23 @@ describe('render integration', () => {
     assert.ok(html.includes('amenity-chip'), 'amenity summary should have chips');
   });
 
-  it('renderDetail includes storage guide section', async () => {
+  it('renderDetail includes storage as a Care line (redesign 2026-09-27: merged into Care)', async () => {
     renderModule = renderModule || await import('../src/lib/render.mjs');
     const { loadTrailers } = await import('../src/lib/data.mjs');
     trailers = trailers || loadTrailers();
     const t = trailers.find(t => t.year === 2026 && t.lengthFt) || trailers[0];
     const html = renderModule.renderDetail(t, undefined, null, trailers);
-    assert.ok(html.includes('id="storage"'), 'detail page should have storage section');
-    assert.ok(html.includes('sg-card'), 'storage section should have cards');
-    assert.ok(html.includes('Storage unit'), 'storage section should mention storage unit');
-    assert.ok(html.includes('Garage fit'), 'storage section should mention garage');
-    assert.ok(html.includes('Maneuvering'), 'storage section should mention maneuvering');
+    assert.ok(html.includes('id="care"'), 'detail page should have care section');
+    assert.ok(html.includes('care-storage'), 'care should have storage line');
+    assert.ok(!html.includes('id="storage"'), 'no standalone storage section');
   });
 
-  it('Lifestyle and Storage stay in the page as in-chapter anchors (not top-bar items)', async () => {
+  it('no section nav (redesign 2026-09-27: removed)', async () => {
     renderModule = renderModule || await import('../src/lib/render.mjs');
     const { loadTrailers } = await import('../src/lib/data.mjs');
     trailers = trailers || loadTrailers();
     const t = trailers.find(t => t.year === 2026) || trailers[0];
     const html = renderModule.renderDetail(t, undefined, null, null, trailers);
-    // Sections remain in the page; the 6-chapter top bar (perf #31) no longer
-    // lists every sub-section.
-    assert.ok(html.includes('id="lifestyle-fit"'), 'lifestyle-fit section in page');
-    assert.ok(html.includes('id="storage"'), 'storage section in page');
-    const nav = html.match(/<nav class="secnav"[^>]*>([\s\S]*?)<\/nav>/);
-    assert.ok(nav && !nav[1].includes('#lifestyle-fit'), 'lifestyle-fit not a top-bar item');
-    assert.ok(!nav[1].includes('#storage'), 'storage not a top-bar item');
+    assert.ok(!html.includes('class="secnav"'), 'no section nav');
   });
 });

@@ -1,7 +1,10 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTrailers, groupByFamily } from '../src/lib/data.mjs';
-import { renderWhatsNew2026, renderIndex, renderSaved } from '../src/lib/render.mjs';
+import { renderWhatsNew2026, renderIndex } from '../src/lib/render.mjs';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { SORT_KEYS, sortTrailers } from '../src/lib/explore.mjs';
 
 const trailers = loadTrailers();
@@ -65,20 +68,18 @@ describe('SORT_KEYS year-desc', () => {
 });
 
 // ---------------------------------------------------------------------------
-// 3. Saved page export button
+// 3. Saved page retired (saved.html no longer generated)
 // ---------------------------------------------------------------------------
-describe('renderSaved export button', () => {
-  const savedHtml = renderSaved(trailers);
-
-  it('includes the export button', () => {
-    assert.ok(savedHtml.includes('id="saved-export"'), 'should have saved-export button');
+describe('saved page retired', () => {
+  it('renderSaved is not exported', async () => {
+    const mod = await import('../src/lib/render.mjs');
+    assert.ok(!('renderSaved' in mod), 'renderSaved must not be exported');
   });
 
-  it('has correct button text', () => {
-    assert.ok(savedHtml.includes('Export list'), 'should show Export list text');
-  });
-
-  it('uses share-btn class', () => {
-    assert.ok(savedHtml.includes('class="share-btn" id="saved-export"'), 'should use share-btn styling class');
+  it('build.mjs does not generate saved.html', () => {
+    const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+    const build = readFileSync(join(ROOT, 'scripts', 'build.mjs'), 'utf8');
+    assert.ok(!/saved\.html/.test(build.replace(/saved\.html retired/g, '')),
+      'build must not write a saved.html page');
   });
 });

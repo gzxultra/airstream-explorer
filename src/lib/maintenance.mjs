@@ -438,7 +438,7 @@ function budgetBar() {
   return `<div class="mt-budget" id="mt-budget" hidden aria-live="polite">
 <div class="mt-budget-main">
 <span class="mt-budget-label">Estimated yearly upkeep</span>
-<span class="mt-budget-figure" id="mt-budget-fig">\u2014</span>
+<span class="mt-budget-figure" id="mt-budget-fig">n/a</span>
 <div class="mt-budget-seg" role="group" aria-label="Cost basis">
 <button type="button" class="mt-seg-btn is-on" id="mt-basis-diy" aria-pressed="true">Do it myself</button>
 <button type="button" class="mt-seg-btn" id="mt-basis-pro" aria-pressed="false">Pay a shop</button>
@@ -460,7 +460,8 @@ ${cap}
 }
 
 /** The Maintenance page body. `relRoot` lets it live at site root (''). */
-export function renderMaintenanceBody(data, relRoot = '') {
+export function renderMaintenanceBody(data, relRoot = '', opts = {}) {
+  const bare = opts.bare === true;
   const sections = data.categories
     .map((cat) => {
       const blurb = cat.blurb ? `<p class="mt-sec-blurb">${esc(cat.blurb)}</p>` : '';
@@ -485,13 +486,13 @@ ${blurb}
   const cadCount = data.categories.length;
   const heroStat = `<p class="mt-hero-stat"><strong>${taskCount}</strong> sourced tasks <span>·</span> <strong>${cadCount}</strong> cadences <span>·</span> every interval &amp; cost cited</p>`;
 
-  return `<nav class="detail-nav"><a href="${relRoot}index.html" class="back-link">\u2190 All families</a></nav>
+  return `${bare ? '' : `<nav class="detail-nav"><a href="${relRoot}index.html" class="back-link">\u2190 All families</a></nav>
 <header class="hero-head">
 <p class="eyebrow">CARE &amp; MAINTENANCE \u00B7 SOURCED SERVICE CALENDAR</p>
 <h1>Keep your Airstream road-ready</h1>
 <p class="lede">${esc(data.intro)}</p>
 ${heroStat}
-</header>
+</header>`}
 ${timelineRibbon(data)}
 ${legend(data)}
 ${filterLens(data)}

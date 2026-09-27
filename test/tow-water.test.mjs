@@ -114,33 +114,50 @@ describe('rendered family card contains tow badge + weight', () => {
   });
 });
 
-describe('rendered explore card contains tow badge', () => {
+describe('rendered explore card is editorial (no tow badge)', () => {
   const trailers = loadTrailers();
   const bambi = trailers.find((t) => t.slug === 'bambi-16rb-2026');
 
-  it('explore card has xcard-tow badge', () => {
+  it('explore card renders no tow badge element', () => {
     const html = renderExploreCard(bambi);
-    assert.match(html, /xcard-tow/);
-    assert.match(html, /tow-badge/);
+    assert.ok(!html.includes('xcard-tow'), 'editorial card must not render a tow badge');
+    assert.ok(!html.includes('tow-badge'), 'editorial card must not render tow-badge classes');
   });
 
-  it('Bambi 16RB (GVWR 3500) is half-ton', () => {
+  it('Bambi 16RB keeps the tow-relevant data contract (data-gvwr="3500")', () => {
+    // The tow matcher now reads GVWR from data-* client-side instead of a badge.
     const html = renderExploreCard(bambi);
-    assert.match(html, /half-ton/);
+    assert.match(html, /data-gvwr="3500"/);
+    assert.match(html, /data-type="trailer"/);
+  });
+
+  it('explore card shows exactly the three editorial spec rows', () => {
+    const html = renderExploreCard(bambi);
+    assert.match(html, /<dt>GVWR<\/dt>/);
+    assert.match(html, /<dt>Length<\/dt>/);
+    assert.match(html, /<dt>MSRP<\/dt>/);
+    assert.ok(!html.includes('<dt>Dry weight</dt>'), 'dry weight is not one of the three numbers');
+  });
+
+  it('explore card has lede, Save and Compare', () => {
+    const html = renderExploreCard(bambi);
+    assert.match(html, /xcard-lede/);
+    assert.match(html, /data-save/);
+    assert.match(html, /class="cmp-box"/);
   });
 });
 
-describe('built detail pages have water days key-stat', () => {
-  it('Classic 33FB has ~8.8 water days', () => {
+describe('built detail pages have water calculator in Off-grid (redesign 2026-09-27: not in key-stats)', () => {
+  it('Classic 33FB has water calculator in Off-grid', () => {
     const html = readFileSync(join(__dirname, '..', 'dist', 'm', 'classic-33fb-2026.html'), 'utf8');
-    assert.match(html, /~8\.8/);
-    assert.match(html, /Water days/);
+    assert.ok(html.includes('wc-total-days'), 'water calculator present');
+    assert.ok(html.includes('id="offgrid"'), 'offgrid section present');
   });
 
-  it('Basecamp 16X has ~3.5 water days', () => {
+  it('Basecamp 16X has water calculator in Off-grid', () => {
     const html = readFileSync(join(__dirname, '..', 'dist', 'm', 'basecamp-16x-2026.html'), 'utf8');
-    assert.match(html, /~3\.5/);
-    assert.match(html, /Water days/);
+    assert.ok(html.includes('wc-total-days'), 'water calculator present');
+    assert.ok(html.includes('id="offgrid"'), 'offgrid section present');
   });
 });
 

@@ -777,12 +777,91 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
   })();
 
   // =========================================================================
+  // 2a. EXPLORE CARD TEMPLATE — the "All floorplans" grid is no longer
+  // server-rendered; it arrives as a compact JSON payload (#xdata) and this
+  // template builds the .xcard markup client-side. The data-* contract MUST
+  // stay identical to the SSR reference (renderExploreCard /
+  // renderMotorhomeExploreCard): filters, sort, tow matcher, quick-view, CSV
+  // export, compare tray and the gallery carousel all read from it.
+  function xEsc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+  var X_PHOTO_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+  var X_EYE_SVG = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var X_HEART_SVG = '<svg class="save-heart" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M12 20.3 4.6 12.9a4.6 4.6 0 1 1 6.5-6.5l.9.9.9-.9a4.6 4.6 0 1 1 6.5 6.5z"/></svg>';
+
+  function xSpecRow(label, value, unit, raw) {
+    var hasUnit = unit && raw != null && raw !== '';
+    var unitAttr = hasUnit ? ' data-unit="' + unit + '" data-raw="' + xEsc(raw) + '"' : '';
+    return '<div class="spec"><dt>' + xEsc(label) + '</dt><dd' + unitAttr + '>' + xEsc(value) + '</dd></div>';
+  }
+
+  function xcardHTML(it) {
+    var dir = it.type === 'motorhome' ? 'mm/' : 'm/';
+    var gal = it.gallery || [];
+    var photos = gal.length
+      ? '<span class="xcard-photos" aria-label="' + gal.length + ' photos">' + X_PHOTO_SVG + ' ' + gal.length + '</span>'
+      : '';
+    var peek = '<button type="button" class="xcard-peek" data-peek aria-label="Quick view ' + xEsc(it.label) + '" title="Quick view">' + X_EYE_SVG + '</button>';
+    var attrs = ' data-slug="' + xEsc(it.slug) + '" data-type="' + it.type + '"'
+      + ' data-model="' + xEsc(it.model) + '" data-floorplan="' + xEsc(it.floorplan) + '"'
+      + ' data-year="' + xEsc(it.year) + '" data-msrp="' + xEsc(it.msrp) + '"'
+      + ' data-weight="' + xEsc(it.weightLb) + '" data-gvwr="' + xEsc(it.gvwrLb) + '"'
+      + ' data-length="' + xEsc(it.lengthFt) + '" data-sleeps="' + xEsc(it.sleeps) + '"'
+      + ' data-offgrid="' + xEsc(it.offGridScore) + '" data-tags="' + xEsc(it.tags) + '"'
+      + ' data-layout="' + xEsc(it.layout) + '" data-name="' + xEsc((it.model + ' ' + it.floorplan).toLowerCase()) + '"'
+      + ' data-ccc="' + xEsc(it.ccc) + '" data-fresh="' + xEsc(it.fresh) + '"'
+      + ' data-gray="' + xEsc(it.gray) + '" data-black="' + xEsc(it.black) + '"'
+      + ' data-solar="' + xEsc(it.solar) + '" data-hitch="' + xEsc(it.hitch) + '"'
+      + ' data-axle="' + xEsc(it.axle) + '" data-desc="' + xEsc(it.desc) + '"'
+      + ' data-thumb="' + xEsc(it.thumb) + '" data-gallery-urls="' + xEsc(gal.join('|')) + '"';
+    var lede = it.lede ? '<p class="xcard-lede">' + xEsc(it.lede) + '</p>' : '';
+    var save = '<button type="button" class="save-btn save-btn--card" data-save data-slug="' + xEsc(it.slug) + '" data-type="' + it.type + '" aria-pressed="false" aria-label="Save ' + xEsc(it.label) + '" title="Save this floorplan">' + X_HEART_SVG + '</button>';
+    return '<article class="xcard"' + attrs + '>'
+      + '<a class="xcard-link" href="' + dir + xEsc(it.slug) + '.html">'
+      + '<div class="xcard-media">'
+      + '<img src="' + xEsc(it.thumb) + '" alt="' + xEsc(it.alt) + '" loading="lazy" width="400" height="260">'
+      + photos + peek
+      + '</div>'
+      + '<div class="xcard-body">'
+      + '<h3 class="xcard-title">' + xEsc(it.model) + ' <span>' + xEsc(it.floorplan) + '</span></h3>'
+      + lede
+      + '<dl class="xcard-specs">'
+      + xSpecRow('GVWR', it.gvwrFmt, 'weight', it.gvwrLb)
+      + xSpecRow('Length', it.lenFmt, 'length', it.lengthFt)
+      + xSpecRow('MSRP', it.msrpFmt)
+      + '</dl>'
+      + '</div>'
+      + '</a>'
+      + '<div class="xcard-foot">'
+      + '<span class="xcard-fit" data-fit hidden></span>'
+      + '<div class="xcard-foot-actions">' + save
+      + '<label class="xcard-compare"><input type="checkbox" class="cmp-box" data-slug="' + xEsc(it.slug) + '" data-type="' + it.type + '" aria-label="Add ' + xEsc(it.label) + ' to compare"> Compare</label>'
+      + '</div>'
+      + '</div>'
+      + '</article>';
+  }
+
+  /** Render the explore grid from the #xdata JSON payload (no-op if cards exist). */
+  function renderXCards(grid) {
+    if (grid.querySelector('.xcard')) return;
+    var dataEl = document.getElementById('xdata');
+    if (!dataEl) return;
+    var items = null;
+    try { items = JSON.parse(dataEl.textContent || '[]'); } catch (e) { return; }
+    if (!items || !items.length) return;
+    grid.innerHTML = items.map(xcardHTML).join('');
+  }
+
   // 2. EXPLORE PAGE — search / sort / filter + tow-vehicle matcher
 
   // =========================================================================
   (function explore() {
     var grid = document.getElementById('xgrid');
     if (!grid) return;
+    renderXCards(grid); // client-rendered from the #xdata JSON payload
     var cards = Array.prototype.slice.call(grid.querySelectorAll('.xcard'));
 
     var elSearch = document.getElementById('x-search');
@@ -1316,51 +1395,6 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
     var emptyReset = document.getElementById('x-empty-reset');
     if (emptyReset) emptyReset.addEventListener('click', resetAll);
 
-    // ---- Smart presets — one-click filter combinations --------------------
-    var presetBtns = Array.prototype.slice.call(document.querySelectorAll('.smart-preset'));
-    var activePreset = null;
-    presetBtns.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var id = btn.getAttribute('data-preset');
-        var filters;
-        try { filters = JSON.parse(btn.getAttribute('data-filters')); } catch (e) { return; }
-        // Toggle: clicking active preset deactivates it
-        if (activePreset === id) {
-          activePreset = null;
-          presetBtns.forEach(function (b) { b.classList.remove('is-active'); });
-          resetAll();
-          return;
-        }
-        // Reset first, then apply preset filters
-        state.q = ''; state.sort = 'price-asc'; state.year = '2026'; state.sleeps = 0;
-        state.tags = []; state.tow = 0; state.price = 0; state.maxLength = 0;
-        state.maxWeight = 0; state.axle = ''; state.layoutKeys = [];
-        if (filters.msrpMax) state.price = filters.msrpMax;
-        if (filters.maxWeight) state.maxWeight = filters.maxWeight;
-        if (filters.sleepsMin) state.sleeps = filters.sleepsMin;
-        if (filters.axle) state.axle = filters.axle;
-        if (filters.sort) state.sort = filters.sort;
-        if (filters.tags) state.tags = filters.tags.slice();
-        // Sync UI controls
-        if (elSearch) elSearch.value = '';
-        if (elSort) elSort.value = state.sort;
-        if (elYear) elYear.value = state.year;
-        if (elSleeps) elSleeps.value = state.sleeps || '';
-        if (elPrice) elPrice.value = state.price || '';
-        if (elLength) elLength.value = '';
-        if (elWeight) elWeight.value = state.maxWeight || '';
-        if (elAxle) elAxle.value = state.axle;
-        tagBtns.forEach(function (tb) {
-          var pressed = state.tags.indexOf(tb.getAttribute('data-tag')) !== -1;
-          tb.setAttribute('aria-pressed', pressed ? 'true' : 'false');
-          tb.classList.toggle('is-active', pressed);
-        });
-        activePreset = id;
-        presetBtns.forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-preset') === id); });
-        persistX(); apply();
-      });
-    });
-
     // ---- Compare selection on explore cards -------------------------------
     var boxes = Array.prototype.slice.call(grid.querySelectorAll('.cmp-box'));
     var cmpBar = document.getElementById('cmp-bar');
@@ -1442,10 +1476,10 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
     // Read shareable explore filters from URL hash (before deep-link/hydrate)
     readHashFilters();
 
-    // Deep-link: motorhomes.html bounces here with #all&type=motorhome (or
-    // ?type=motorhome). When present it WINS over saved prefs so the nav link
+    // Deep-link: #all&type=motorhome (or ?type=motorhome) pre-filters to the
+    // motorhome lineup. When present it WINS over saved prefs so the nav link
     // always lands on the motorhomes view.
-    (function readTypeDeepLink() {
+    function readTypeDeepLink() {
       var hash = location.hash || '';
       var search = location.search || '';
       var m = (hash + '&' + search).match(/type=(trailer|motorhome|all)/);
@@ -1455,8 +1489,8 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
         // differ between trailers and motorhomes), not just the 2026 default.
         if (state.type !== 'all') state.year = '';
       }
-    })();
-    (function hydrateXControls() {
+    }
+    function hydrateXControls() {
       if (elSort && state.sort) elSort.value = state.sort;
       if (elYear) elYear.value = state.year;
       if (elSleeps) elSleeps.value = state.sleeps ? String(state.sleeps) : '';
@@ -1479,7 +1513,27 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
       });
       if (state.tow > 0) setTow(state.tow, { persist: false });
       if (elAxle && state.axle) elAxle.value = state.axle;
-    })();
+    }
+
+    // The home page's browse index deep-links into pre-filtered views
+    // (#all&len=20&sort=length-asc …). A hashchange from one in-page link to
+    // another must re-apply filters from scratch, not just toggle views —
+    // exploreHub's own hashchange only switches the visible view.
+    window.addEventListener('hashchange', function () {
+      var hash = location.hash || '';
+      if (hash.indexOf('#all') !== 0) return;
+      state.q = ''; state.sort = 'price-asc'; state.year = '2026'; state.sleeps = 0;
+      state.tags = []; state.tow = 0; state.type = 'all'; state.price = 0;
+      state.maxLength = 0; state.maxWeight = 0; state.axle = ''; state.layoutKeys = [];
+      if (elSearch) elSearch.value = '';
+      if (elLength) elLength.value = '';
+      if (elWeight) elWeight.value = '';
+      readHashFilters();
+      readTypeDeepLink();
+      hydrateXControls();
+      persistX();
+      apply();
+    });
 
     apply();
     syncCompare();
@@ -1823,7 +1877,7 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
         lo += bl * freq; hi += bh * freq; counted++;
       });
       lo = Math.round(lo); hi = Math.round(hi);
-      if (figEl) figEl.textContent = counted ? (lo === hi ? '$' + lo + '/yr' : '$' + lo + '\u2013' + hi + '/yr') : '\u2014';
+      if (figEl) figEl.textContent = counted ? (lo === hi ? '$' + lo + '/yr' : '$' + lo + '\u2013' + hi + '/yr') : 'n/a';
       if (noteEl) {
         noteEl.textContent = (basis === 'diy'
           ? 'Parts & consumables only, doing the work yourself. '
@@ -2069,22 +2123,22 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
     // value (1=higher better, -1=lower better, 0=none).
     var ROWS_TRAILER = [
       ['Length', function (d) { return d.lengthFt; }, function (v) { return fmtLen2(v); }, -1],
-      ['Ext. width', function (d) { return d.extWidthFt; }, function (v) { return v ? fmtLen2(v) : '\u2014'; }, -1],
-      ['Ext. height', function (d) { return d.extHeightFt; }, function (v) { return v ? fmtLen2(v) : '\u2014'; }, -1],
-      ['Interior height', function (d) { return d.intHeightFt; }, function (v) { return v ? fmtLen2(v) : '\u2014'; }, 1],
+      ['Ext. width', function (d) { return d.extWidthFt; }, function (v) { return v ? fmtLen2(v) : 'n/a'; }, -1],
+      ['Ext. height', function (d) { return d.extHeightFt; }, function (v) { return v ? fmtLen2(v) : 'n/a'; }, -1],
+      ['Interior height', function (d) { return d.intHeightFt; }, function (v) { return v ? fmtLen2(v) : 'n/a'; }, 1],
       ['Dry weight', function (d) { return d.weightLb; }, fmtLb, -1],
       ['GVWR', function (d) { return d.gvwrLb; }, fmtLb, 0],
       ['Cargo capacity', function (d) { return d.cccLb; }, fmtLb, 1],
       ['Hitch weight', function (d) { return d.hitchWeightLb; }, fmtLb, 0],
       ['Sleeps', function (d) { return d.sleeps; }, function (v) { return String(v); }, 1],
-      ['Fresh water', function (d) { return d.freshGal; }, function (v) { return v == null ? '\u2014' : v + ' gal'; }, 1],
+      ['Fresh water', function (d) { return d.freshGal; }, function (v) { return v == null ? 'n/a' : v + ' gal'; }, 1],
       ['Gray / black', function (d) { return null; }, function (v, d) {
-        var g = (d.grayGal == null) ? '\u2014' : d.grayGal;
-        var b = (d.blackGal == null) ? '\u2014' : d.blackGal;
+        var g = (d.grayGal == null) ? 'n/a' : d.grayGal;
+        var b = (d.blackGal == null) ? 'n/a' : d.blackGal;
         return g + ' / ' + b + ' gal';
       }, 0],
-      ['Solar', function (d) { return d.solarW; }, function (v) { return v ? v + ' W' : '\u2014'; }, 1],
-      ['Battery', function (d) { return d.batteryKwh; }, function (v) { return v ? v + ' kWh' : '\u2014'; }, 1],
+      ['Solar', function (d) { return d.solarW; }, function (v) { return v ? v + ' W' : 'n/a'; }, 1],
+      ['Battery', function (d) { return d.batteryKwh; }, function (v) { return v ? v + ' kWh' : 'n/a'; }, 1],
       ['Off-grid score', function (d) { return d.offGridScore; }, function (v) { return v + ' / 100'; }, 1],
       ['MSRP', function (d) { return d.msrp; }, fmtUsd, -1],
     ];
@@ -2093,20 +2147,20 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
       ['Base weight', function (d) { return d.weightLb; }, fmtLb, -1],
       ['GVWR', function (d) { return d.gvwrLb; }, fmtLb, 0],
       ['Net carrying cap.', function (d) { return d.nccLb; }, fmtLb, 1],
-      ['Chassis', function (d) { return null; }, function (v, d) { return d.chassis || '\u2014'; }, 0],
-      ['Engine', function (d) { return null; }, function (v, d) { return d.engine || '\u2014'; }, 0],
-      ['Fuel', function (d) { return null; }, function (v, d) { return d.fuelType || '\u2014'; }, 0],
-      ['Fuel tank', function (d) { return d.fuelTankGal; }, function (v) { return v ? v + ' gal' : '\u2014'; }, 0],
+      ['Chassis', function (d) { return null; }, function (v, d) { return d.chassis || 'n/a'; }, 0],
+      ['Engine', function (d) { return null; }, function (v, d) { return d.engine || 'n/a'; }, 0],
+      ['Fuel', function (d) { return null; }, function (v, d) { return d.fuelType || 'n/a'; }, 0],
+      ['Fuel tank', function (d) { return d.fuelTankGal; }, function (v) { return v ? v + ' gal' : 'n/a'; }, 0],
       ['Sleeps', function (d) { return d.sleeps; }, function (v) { return String(v); }, 1],
-      ['Seats', function (d) { return d.seats; }, function (v) { return v ? String(v) : '\u2014'; }, 0],
-      ['Fresh water', function (d) { return d.freshGal; }, function (v) { return v == null ? '\u2014' : v + ' gal'; }, 1],
+      ['Seats', function (d) { return d.seats; }, function (v) { return v ? String(v) : 'n/a'; }, 0],
+      ['Fresh water', function (d) { return d.freshGal; }, function (v) { return v == null ? 'n/a' : v + ' gal'; }, 1],
       ['Gray / black', function (d) { return null; }, function (v, d) {
-        var g = (d.grayGal == null) ? '\u2014' : d.grayGal;
-        var b = (d.blackGal == null) ? '\u2014' : d.blackGal;
+        var g = (d.grayGal == null) ? 'n/a' : d.grayGal;
+        var b = (d.blackGal == null) ? 'n/a' : d.blackGal;
         return g + ' / ' + b + ' gal';
       }, 0],
-      ['Solar', function (d) { return d.solarW; }, function (v) { return v ? v + ' W' : '\u2014'; }, 1],
-      ['Battery', function (d) { return d.batteryKwh; }, function (v) { return v ? v + ' kWh' : '\u2014'; }, 1],
+      ['Solar', function (d) { return d.solarW; }, function (v) { return v ? v + ' W' : 'n/a'; }, 1],
+      ['Battery', function (d) { return d.batteryKwh; }, function (v) { return v ? v + ' kWh' : 'n/a'; }, 1],
       ['Off-grid score', function (d) { return d.offGridScore; }, function (v) { return v + ' / 100'; }, 1],
       ['MSRP', function (d) { return d.msrp; }, fmtUsd, -1],
     ];
@@ -2227,7 +2281,7 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
             fpimg.width = 200; fpimg.height = 325;
             fptd.appendChild(fpimg);
           } else {
-            fptd.textContent = '\u2014';
+            fptd.textContent = 'n/a';
           }
           fptr.appendChild(fptd);
         });
@@ -4268,7 +4322,7 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
       controls[c].addEventListener('change', scheduleHashUpdate);
     }
     // Tag + type button clicks
-    var clickables = document.querySelectorAll('.tagfilter, .layoutfilter, #x-type .xc-type-btn, .tow-preset, .smart-preset, #x-reset, #x-empty-reset, #tow-clear');
+    var clickables = document.querySelectorAll('.tagfilter, .layoutfilter, #x-type .xc-type-btn, .tow-preset, #x-reset, #x-empty-reset, #tow-clear');
     for (var d = 0; d < clickables.length; d++) {
       clickables[d].addEventListener('click', function () { setTimeout(scheduleHashUpdate, 50); });
     }
@@ -4827,287 +4881,6 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
     }
   })();
 
-
-  // =========================================================================
-  // LIFESTYLE QUIZ — "Find Your Airstream" recommendation wizard.
-  //     Reads explore-card data-* attributes to score & rank all floorplans
-  //     against the user's stated preferences. Pure client-side.
-  // =========================================================================
-  (function lifestyleQuiz() {
-    var overlay = document.getElementById('quiz');
-    if (!overlay) return;
-    var openBtn = document.getElementById('quiz-open');
-    var backBtn = document.getElementById('quiz-back');
-    var fillBar = document.getElementById('quiz-fill');
-    var stepsEl = document.getElementById('quiz-steps');
-    var matchesEl = document.getElementById('quiz-matches');
-    var criteriaEl = document.getElementById('quiz-criteria');
-    var savedFocus = null;
-    var currentStep = 1;
-    var answers = {};
-
-    var releaseTrap = null;
-    function open() {
-      savedFocus = document.activeElement;
-      overlay.hidden = false;
-      overlay.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-      reset();
-      releaseTrap = aeTrapFocus(overlay, close);
-      overlay.querySelector('.quiz-close').focus();
-    }
-    function close() {
-      if (releaseTrap) { releaseTrap(); releaseTrap = null; }
-      overlay.hidden = true;
-      overlay.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-      if (savedFocus) savedFocus.focus();
-    }
-    function reset() {
-      currentStep = 1;
-      answers = {};
-      showStep(1);
-      // Clear selected states
-      var opts = overlay.querySelectorAll('.quiz-opt');
-      for (var i = 0; i < opts.length; i++) opts[i].classList.remove('is-selected');
-    }
-    function showStep(n) {
-      currentStep = n;
-      var steps = stepsEl.querySelectorAll('.quiz-step');
-      for (var i = 0; i < steps.length; i++) {
-        var s = steps[i];
-        var stepVal = s.getAttribute('data-step');
-        s.classList.toggle('is-active', stepVal === String(n) || (n === 5 && stepVal === 'results'));
-      }
-      fillBar.style.width = (n === 5 ? 100 : (n * 25)) + '%';
-      backBtn.hidden = (n <= 1);
-    }
-
-    function advance(key, val) {
-      answers[key] = val;
-      if (currentStep < 4) {
-        showStep(currentStep + 1);
-      } else {
-        showResults();
-      }
-    }
-
-    function scoreTrailers() {
-      var cards = document.querySelectorAll('.xcard[data-type="trailer"]');
-      // Score the latest model year present in the cards (was hardcoded '2026';
-      // derived from the data so a future year never silently yields 0 —
-      // perf #34).
-      var latestYear = '';
-      for (var j = 0; j < cards.length; j++) {
-        var yj = cards[j].getAttribute('data-year') || '';
-        if (yj > latestYear) latestYear = yj;
-      }
-      var results = [];
-      for (var i = 0; i < cards.length; i++) {
-        var c = cards[i];
-        if ((c.getAttribute('data-year') || '') !== latestYear) continue;
-        var msrp = parseInt(c.getAttribute('data-msrp'), 10) || 0;
-        var weight = parseInt(c.getAttribute('data-weight'), 10) || 0;
-        var gvwr = parseInt(c.getAttribute('data-gvwr'), 10) || 0;
-        var length = parseFloat(c.getAttribute('data-length')) || 0;
-        var sleeps = parseInt(c.getAttribute('data-sleeps'), 10) || 0;
-        var offgrid = parseInt(c.getAttribute('data-offgrid'), 10) || 0;
-        var ccc = parseInt(c.getAttribute('data-ccc'), 10) || 0;
-        var fresh = parseInt(c.getAttribute('data-fresh'), 10) || 0;
-        var slug = c.getAttribute('data-slug');
-        var model = c.getAttribute('data-model');
-        var floorplan = c.getAttribute('data-floorplan') || '';
-        var thumb = c.getAttribute('data-thumb') || '';
-        var tags = (c.getAttribute('data-tags') || '').split(' ');
-        var score = 0;
-        var reasons = [];
-
-        // Group size scoring
-        var g = answers.group;
-        if (g === 'solo') {
-          if (sleeps <= 3) { score += 20; reasons.push('Right-sized for 1–2'); }
-          else if (sleeps <= 4) score += 10;
-          else score -= 5;
-        } else if (g === 'small') {
-          if (sleeps >= 3 && sleeps <= 5) { score += 20; reasons.push('Sleeps your crew of 3–4'); }
-          else if (sleeps >= 2) score += 5;
-        } else if (g === 'large') {
-          if (sleeps >= 6) { score += 25; reasons.push('Sleeps ' + sleeps + ' — room for everyone'); }
-          else if (sleeps >= 5) { score += 10; reasons.push('Sleeps ' + sleeps); }
-        }
-
-        // Budget scoring
-        var b = parseInt(answers.budget, 10);
-        if (b === 80000) {
-          if (msrp <= 80000) { score += 20; reasons.push('Under $80k'); }
-          else if (msrp <= 100000) score += 5;
-          else score -= 15;
-        } else if (b === 120000) {
-          if (msrp > 80000 && msrp <= 120000) { score += 20; reasons.push('In your $80–120k range'); }
-          else if (msrp <= 80000) { score += 10; reasons.push('Under budget'); }
-          else if (msrp <= 140000) score += 5;
-          else score -= 10;
-        } else if (b === 180000) {
-          if (msrp > 120000 && msrp <= 180000) { score += 20; reasons.push('In your $120–180k range'); }
-          else if (msrp <= 120000) { score += 10; reasons.push('Under budget'); }
-          else score -= 10;
-        } else {
-          if (msrp > 180000) { score += 20; reasons.push('Flagship tier'); }
-          else if (msrp > 120000) score += 10;
-        }
-
-        // Travel style
-        var st = answers.style;
-        if (st === 'weekend') {
-          if (weight < 5000) { score += 15; reasons.push('Light — easy weekend hookup'); }
-          else if (weight < 6500) score += 5;
-        } else if (st === 'extended') {
-          if (fresh >= 30 && ccc >= 800) { score += 15; reasons.push('Big tanks + cargo for the road'); }
-          else if (fresh >= 20) score += 5;
-        } else if (st === 'offgrid') {
-          if (offgrid >= 60) { score += 20; reasons.push('Off-grid score ' + offgrid + '/100'); }
-          else if (offgrid >= 40) { score += 10; reasons.push('Off-grid ' + offgrid + '/100'); }
-          if (tags.indexOf('off-grid') >= 0) score += 5;
-        } else if (st === 'fulltime') {
-          if (length >= 28 && sleeps >= 4) { score += 15; reasons.push('Full-size living space'); }
-          else if (length >= 23) score += 5;
-          if (ccc >= 1000) { score += 5; reasons.push('Generous cargo capacity'); }
-        }
-
-        // Priority
-        var p = answers.priority;
-        if (p === 'tow') {
-          if (weight <= 4000) { score += 20; reasons.push('Under 4,000 lb dry'); }
-          else if (weight <= 5500) { score += 10; reasons.push(weight.toLocaleString() + ' lb dry'); }
-          score += Math.max(0, 10 - Math.floor(length / 3));
-        } else if (p === 'space') {
-          if (length >= 30) { score += 20; reasons.push(Math.floor(length) + "' of living space"); }
-          else if (length >= 25) { score += 10; reasons.push(Math.floor(length) + "' long"); }
-          if (sleeps >= 6) score += 5;
-        } else if (p === 'offgrid') {
-          if (offgrid >= 65) { score += 20; reasons.push('Top-tier off-grid'); }
-          else if (offgrid >= 45) score += 10;
-        } else if (p === 'value') {
-          // Value = most features per dollar (sleeps * offgrid / msrp proxy)
-          var valueScore = (sleeps * (offgrid || 30) * ccc) / (msrp || 100000);
-          if (valueScore > 1.5) { score += 20; reasons.push('Outstanding value'); }
-          else if (valueScore > 0.8) { score += 10; reasons.push('Strong value'); }
-        }
-
-        if (score > 0) {
-          results.push({
-            slug: slug, model: model, floorplan: floorplan, thumb: thumb,
-            msrp: msrp, weight: weight, sleeps: sleeps, offgrid: offgrid,
-            length: length, score: score, reasons: reasons,
-            type: c.getAttribute('data-type') || 'trailer'
-          });
-        }
-      }
-      results.sort(function (a, b) { return b.score - a.score; });
-      return results.slice(0, 5);
-    }
-
-    function fmtMoney(n) {
-      return n > 0 ? '$' + Number(n).toLocaleString('en-US') : '—';
-    }
-
-    function showResults() {
-      var matches = scoreTrailers();
-      var criteriaText = [];
-      if (answers.group === 'solo') criteriaText.push('1–2 people');
-      else if (answers.group === 'small') criteriaText.push('3–4 people');
-      else criteriaText.push('5+ people');
-      var bv = parseInt(answers.budget, 10);
-      if (bv === 80000) criteriaText.push('under $80k');
-      else if (bv === 120000) criteriaText.push('$80–120k');
-      else if (bv === 180000) criteriaText.push('$120–180k');
-      else criteriaText.push('$180k+');
-      criteriaText.push(answers.style === 'offgrid' ? 'off-grid' : answers.style);
-      criteriaText.push('priority: ' + answers.priority);
-      criteriaEl.textContent = 'Based on: ' + criteriaText.join(' · ');
-
-      if (matches.length === 0) {
-        matchesEl.innerHTML = '<p class="quiz-no-match">No perfect matches — try adjusting your answers or <a href="#all" data-view-go="all">explore all floorplans</a>.</p>';
-      } else {
-        matchesEl.innerHTML = matches.map(function (m, idx) {
-          var prefix = m.type === 'motorhome' ? 'mm/' : 'm/';
-          var reasons = m.reasons.slice(0, 3).map(function (r) {
-            return '<span class="quiz-reason">' + r + '</span>';
-          }).join('');
-          var wholeFt = Math.floor(m.length);
-          var inch = Math.round((m.length - wholeFt) * 12);
-          var lenStr = inch ? wholeFt + "\'" + inch + '\"' : wholeFt + "\'";
-          return '<a class="quiz-match" href="' + prefix + m.slug + '.html">' +
-            '<div class="quiz-match-rank">' + (idx + 1) + '</div>' +
-            (m.thumb ? '<img class="quiz-match-img" src="' + m.thumb + '" alt="' + m.model + ' ' + m.floorplan + '" loading="lazy" width="200" height="130">' : '') +
-            '<div class="quiz-match-info">' +
-            '<h3 class="quiz-match-title">' + m.model + ' ' + m.floorplan + '</h3>' +
-            '<p class="quiz-match-specs">' + fmtMoney(m.msrp) + ' \u00B7 ' + lenStr + ' \u00B7 sleeps ' + m.sleeps + ' \u00B7 off-grid ' + m.offgrid + '/100</p>' +
-            '<div class="quiz-match-reasons">' + reasons + '</div>' +
-            '</div></a>';
-        }).join('');
-      }
-      showStep(5);
-    }
-
-    // Event wiring
-    if (openBtn) openBtn.addEventListener('click', open);
-
-    // Close buttons
-    var closeEls = overlay.querySelectorAll('[data-quiz-close]');
-    for (var ci = 0; ci < closeEls.length; ci++) {
-      closeEls[ci].addEventListener('click', close);
-    }
-
-    // Escape key
-    overlay.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') { close(); e.stopPropagation(); }
-    });
-
-    // Option selection
-    stepsEl.addEventListener('click', function (e) {
-      var opt = e.target.closest('.quiz-opt');
-      if (!opt) return;
-      var step = opt.closest('.quiz-step');
-      var siblings = step.querySelectorAll('.quiz-opt');
-      for (var si = 0; si < siblings.length; si++) siblings[si].classList.remove('is-selected');
-      opt.classList.add('is-selected');
-      setTimeout(function () { advance(opt.getAttribute('data-key'), opt.getAttribute('data-val')); }, 250);
-    });
-
-    // Back button
-    backBtn.addEventListener('click', function () {
-      if (currentStep > 1) showStep(currentStep - 1);
-    });
-
-    // Restart + explore buttons
-    var restartBtn = document.getElementById('quiz-restart');
-    var exploreBtn = document.getElementById('quiz-explore');
-    if (restartBtn) restartBtn.addEventListener('click', reset);
-    if (exploreBtn) exploreBtn.addEventListener('click', function () {
-      close();
-      // P2: carry the quiz answers into the explore filters (group size ->
-      // sleeps minimum, budget -> price cap) so the grid reflects what the
-      // user just told us. Setting the controls + dispatching 'change' lets
-      // the existing explore module pick them up (it also syncs them to the
-      // URL hash, making the filtered view shareable).
-      var sleepsFor = { solo: '2', small: '4', large: '6' };
-      var priceFor = { '80000': '80000', '120000': '120000', '180000': '200000' };
-      var pairs = [
-        [document.getElementById('x-sleeps'), sleepsFor[answers.group]],
-        [document.getElementById('x-price'), priceFor[String(answers.budget)]],
-      ];
-      pairs.forEach(function (pair) {
-        var el = pair[0], v = pair[1];
-        if (el && v) {
-          el.value = v;
-          try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
-        }
-      });
-      var allLink = document.querySelector('[data-view-go="all"]');
-      if (allLink) allLink.click();
-    });
-  })();
 
   // =========================================================================
   // WEIGHT BAR ANIMATION — scroll-driven fill effect on detail pages.

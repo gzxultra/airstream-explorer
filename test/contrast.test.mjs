@@ -68,13 +68,14 @@ test('--copper still clears the 3:1 non-text bar (borders, fills, ≥24px icons)
   assert.ok(ratio(COPPER, BG) >= 3, `--copper on --bg = ${ratio(COPPER, BG).toFixed(2)} (need ≥3 for non-text)`);
 });
 
-test('.eyebrow label uses the accessible copper, not bare --copper', () => {
+test('.eyebrow label uses ink, not copper (2026-09 copper discipline)', () => {
   // .eyebrow is the small uppercase label used on nearly every page.
+  // Copper is reserved for the single main action + title accents; labels go ink.
   const m = css.match(/\.eyebrow\s*\{[^}]*\}/);
   assert.ok(m, '.eyebrow rule must exist');
   const rule = m[0];
-  assert.ok(/color:\s*var\(--copper-text\)/.test(rule), '.eyebrow must use var(--copper-text)');
-  assert.ok(!/color:\s*var\(--copper\)[;\s)]/.test(rule), '.eyebrow must not use bare var(--copper) for text');
+  assert.ok(/color:\s*var\(--ink\)/.test(rule), '.eyebrow must use var(--ink)');
+  assert.ok(!/var\(--copper/.test(rule), '.eyebrow must not reference any copper token');
 });
 
 // ---- Status/verdict text colors (perf #30) --------------------------------
@@ -82,8 +83,9 @@ test('.eyebrow label uses the accessible copper, not bare --copper', () => {
 // WCAG AA (4.5:1) on their real backgrounds. Each entry names the selector,
 // the color declaration, and the background it sits on. If anyone lightens a
 // status color again, this fails.
+// 2026-09 redesign: campgrounds.css was deleted (dead resource, no page ever
+// loaded it), so its status-color case is gone with the file.
 const siteCss2 = readFileSync(join(__dirname, '..', 'src', 'assets', 'css', 'site.css'), 'utf8');
-const campCss = readFileSync(join(__dirname, '..', 'src', 'assets', 'css', 'campgrounds.css'), 'utf8');
 
 function declColor(cssText, selector) {
   // find the rule block for the selector, then its `color:` declaration
@@ -99,7 +101,7 @@ const STATUS_CASES = [
   // [cssText, selector, background]
   [siteCss2, '.elec-ok .elec-verdict', '#FDFBF7'],
   [siteCss2, '.elec-tight .elec-verdict', '#FDFBF7'],
-  [siteCss2, '.tow-verdict.tow-tight .tow-verdict-label', '#FBF3E3'],
+  [siteCss2, '.tow-verdict.tow-tight .tow-verdict-label', '#FFFFFF'], // 2026-09: verdict cards went paper (var(--surface))
   [siteCss2, '.payload-tight', '#FDFBF7'],
   [siteCss2, '.compat-tight .compat-badge', '#fff3e0'],
   [siteCss2, '.diff-warn .diff-delta', '#FDFBF7'],
@@ -108,7 +110,6 @@ const STATUS_CASES = [
   [siteCss2, '.notes-status--saved', '#FDFBF7'],
   [siteCss2, '.grade-badge--grade-warn', '#fff3e0'],
   [siteCss2, '.wz-cat--electrical .wz-group-title', '#FDFBF7'],
-  [campCss, '.cg-fit-tight', '#fbf0d8'],
 ];
 
 test('status/verdict text colors all clear WCAG AA (4.5:1) on their backgrounds', () => {

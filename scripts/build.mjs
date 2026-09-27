@@ -7,10 +7,10 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
 import { loadTrailers, validateDataset, groupByFamily, resolveAssets, loadDecor, resolveDecor } from '../src/lib/data.mjs';
-import { renderIndex, renderFamily, renderDetail, renderExplore, renderCompare, renderSaved, renderGlossaryBody, renderCreditsBody, renderTowGuide, page } from '../src/lib/render.mjs';
+import { renderIndex, renderFamily, renderDetail, renderCompare, renderGlossaryBody, renderCreditsBody, renderTowGuide, renderOwnersGuideBody, page } from '../src/lib/render.mjs';
 import { loadVehicles } from '../src/lib/tow.mjs';
 import { loadMotorhomes, validateMotorhomeDataset, groupMotorhomesByFamily, resolveMotorhomeAssets } from '../src/lib/motorhome-data.mjs';
-import { renderMotorhomeIndex, renderMotorhomeFamily, renderMotorhomeDetail } from '../src/lib/motorhome-render.mjs';
+import { renderMotorhomeIndex, renderMotorhomeDetail } from '../src/lib/motorhome-render.mjs';
 import { loadUpgrades, validateUpgrades, renderUpgradesBody } from '../src/lib/upgrades.mjs';
 import { loadMaintenance, validateMaintenance, renderMaintenanceBody } from '../src/lib/maintenance.mjs';
 import { loadOvernight, validateOvernight, renderOvernightBody } from '../src/lib/overnight.mjs';
@@ -85,7 +85,6 @@ rmSync(DIST, { recursive: true, force: true });
 mkdirSync(join(DIST, 'm'), { recursive: true });
 mkdirSync(join(DIST, 'f'), { recursive: true });
 mkdirSync(join(DIST, 'mm'), { recursive: true });
-mkdirSync(join(DIST, 'mf'), { recursive: true });
 
 // 3. Explore hub (index.html) — family grid + all-floorplans, one page
 writeFileSync(join(DIST, 'index.html'), renderIndex(families, trailers, resolve, motorhomes, motorhomeFamilies));
@@ -93,7 +92,8 @@ log('wrote index.html (Explore hub: family grid + all-floorplans)');
 
 // 3b. Family pages
 for (const fam of families) {
-  writeFileSync(join(DIST, 'f', `${fam.slug}.html`), renderFamily(fam, resolve, families));
+  const famDecor = fam.trailers.length ? resolveDecor(fam.trailers[0], decorMap, hasAsset) : [];
+  writeFileSync(join(DIST, 'f', `${fam.slug}.html`), renderFamily(fam, resolve, families, famDecor));
 }
 log(`wrote ${families.length} family pages`);
 
@@ -103,21 +103,20 @@ for (const t of trailers) {
 }
 log(`wrote ${trailers.length} detail pages`);
 
-// 4a. Explore & match + Compare (root-level, relRoot = '')
-writeFileSync(join(DIST, 'explore.html'), renderExplore(trailers, resolve));
+// 4a. Explore lives on index.html#all now; explore.html is a pure
+// meta-refresh stub so old links/bookmarks keep working.
+writeFileSync(join(DIST, 'explore.html'),
+  `<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>Explore \u2014 Airstream Explorer</title>\n<meta name="robots" content="noindex">\n<meta http-equiv="refresh" content="0; url=index.html#all">\n<link rel="canonical" href="${SITE_ORIGIN}/index.html">\n</head>\n<body>\n<p>This page has moved: <a href="index.html#all">explore all floorplans</a>.</p>\n</body>\n</html>\n`);
 writeFileSync(join(DIST, 'compare.html'), renderCompare(trailers, resolve, motorhomes));
-writeFileSync(join(DIST, 'saved.html'), renderSaved(trailers, resolve, motorhomes));
-log('wrote explore.html + compare.html + saved.html');
+log('wrote explore.html (redirect stub) + compare.html (saved.html retired)');
 
-// 4a-mh. Motorhome pages
+// 4a-mh. Motorhome pages — motorhomes.html now absorbs the three family
+// pages (no more /mf/); only the /mm/ detail pages remain.
 writeFileSync(join(DIST, 'motorhomes.html'), renderMotorhomeIndex(motorhomeFamilies, motorhomes, resolveMH));
-for (const fam of motorhomeFamilies) {
-  writeFileSync(join(DIST, 'mf', `${fam.slug}.html`), renderMotorhomeFamily(fam, resolveMH));
-}
 for (const mh of motorhomes) {
   writeFileSync(join(DIST, 'mm', `${mh.slug}.html`), renderMotorhomeDetail(mh, resolveMH, motorhomes));
 }
-log(`wrote motorhomes.html + ${motorhomeFamilies.length} family pages + ${motorhomes.length} detail pages`);
+log(`wrote motorhomes.html (all families inline) + ${motorhomes.length} detail pages`);
 
 // 4b-ii. Glossary page (root-level, reference page)
 writeFileSync(
@@ -145,31 +144,28 @@ writeFileSync(
 );
 log('wrote credits.html');
 
-// 4c. Upgrades & options page (root-level, so relRoot = '')
+// 4c. Owner's guide — Upgrades + Maintenance as two tabs (2026-09 redesign).
+// The nav's "Owner's guide" tab points here; the old standalone pages are
+// meta-refresh stubs so existing links keep working.
 writeFileSync(
-  join(DIST, 'upgrades.html'),
+  join(DIST, 'owners-guide.html'),
   page({
-    title: 'Airstream upgrades & options owners actually add',
-    description: 'The most-recommended Airstream upgrades — lithium, solar, soft start, anti-sway hitch, TPMS and more — split into factory options and aftermarket mods, each with a price reference and sources.',
-    body: renderUpgradesBody(upgrades, ''),
-    active: 'upgrades',
-    canonicalPath: 'upgrades.html',
+    title: "Owner's guide — upgrades & maintenance",
+    description: 'What Airstream owners actually add to their trailers, and the sourced service calendar that keeps them road-ready. Every recommendation and interval traced to a primary source.',
+    body: renderOwnersGuideBody(
+      renderUpgradesBody(upgrades, '', { bare: true }),
+      renderMaintenanceBody(maintenance, '', { bare: true }),
+    ),
+    active: 'owners',
+    canonicalPath: 'owners-guide.html',
   }),
 );
-log('wrote upgrades.html');
-
-// 4c-2. Maintenance schedule page (root-level, so relRoot = '')
-writeFileSync(
-  join(DIST, 'maintenance.html'),
-  page({
-    title: 'Airstream maintenance schedule — a sourced service calendar',
-    description: 'A real maintenance calendar for Airstream travel trailers, organized by cadence from before-every-trip to seasonal winterizing. Every interval is traced to a primary source — Airstream\u2019s own schedule, Dexter, Suburban/Dometic, and the tire industry — with the Airstream-specific gotchas (Nev-R-Lube sealed bearings, aluminum sealed seams, Suburban-only anode rods) called out.',
-    body: renderMaintenanceBody(maintenance, ''),
-    active: 'maintenance',
-    canonicalPath: 'maintenance.html',
-  }),
-);
-log('wrote maintenance.html');
+log('wrote owners-guide.html');
+const guideStub = (title, hash, label) =>
+  `<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>${title} \u2014 Airstream Explorer</title>\n<meta name="robots" content="noindex">\n<meta http-equiv="refresh" content="0; url=owners-guide.html${hash}">\n<link rel="canonical" href="${SITE_ORIGIN}/owners-guide.html">\n</head>\n<body>\n<p>This page has moved: <a href="owners-guide.html${hash}">${label}</a>.</p>\n</body>\n</html>\n`;
+writeFileSync(join(DIST, 'upgrades.html'), guideStub('Upgrades & options', '#upgrades', "owner's guide: upgrades"));
+writeFileSync(join(DIST, 'maintenance.html'), guideStub('Maintenance schedule', '#maintenance', "owner's guide: maintenance"));
+log('wrote upgrades.html + maintenance.html (redirect stubs to owner\'s guide)');
 
 // 4e. Custom 404 — Cloudflare Pages serves /404.html for unmatched routes.
 //     A branded, navigable 404 (full site chrome via page()) beats Cloudflare's
@@ -390,7 +386,7 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     join(DIST, 'index.html'),
     join(DIST, 'explore.html'),
     join(DIST, 'compare.html'),
-    join(DIST, 'saved.html'),
+    join(DIST, 'owners-guide.html'),
     join(DIST, 'upgrades.html'),
     join(DIST, 'maintenance.html'),
     join(DIST, '404.html'),
@@ -401,7 +397,6 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     join(DIST, 'offline.html'),
     ...families.map((f) => join(DIST, 'f', `${f.slug}.html`)),
     ...trailers.map((t) => join(DIST, 'm', `${t.slug}.html`)),
-    ...motorhomeFamilies.map((f) => join(DIST, 'mf', `${f.slug}.html`)),
     ...motorhomes.map((mh) => join(DIST, 'mm', `${mh.slug}.html`)),
   ];
   let rewrites = 0;
@@ -457,7 +452,6 @@ if (existsSync(join(PUBLIC, 'assets', 'img'))) {
     { file: join(DIST, 'offline.html'), base: DIST },
     ...families.map((f) => ({ file: join(DIST, 'f', `${f.slug}.html`), base: join(DIST, 'f') })),
     ...trailers.map((t) => ({ file: join(DIST, 'm', `${t.slug}.html`), base: join(DIST, 'm') })),
-    ...motorhomeFamilies.map((f) => ({ file: join(DIST, 'mf', `${f.slug}.html`), base: join(DIST, 'mf') })),
     ...motorhomes.map((mh) => ({ file: join(DIST, 'mm', `${mh.slug}.html`), base: join(DIST, 'mm') })),
   ];
   const broken = [];

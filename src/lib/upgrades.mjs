@@ -335,7 +335,8 @@ function filterLens(data) {
 }
 
 /** The Upgrades page body. `relRoot` lets it live at site root (''). */
-export function renderUpgradesBody(data, relRoot = '') {
+export function renderUpgradesBody(data, relRoot = '', opts = {}) {
+  const bare = opts.bare === true;
   const sections = data.categories
     .map((cat) => {
       const blurb = cat.blurb ? `<p class="up-sec-blurb">${esc(cat.blurb)}</p>` : '';
@@ -355,12 +356,12 @@ ${table}
     .map((c) => `<a href="#${esc(c.id)}">${esc(c.title)}</a>`)
     .join('');
 
-  return `<nav class="detail-nav"><a href="${relRoot}index.html" class="back-link">← All families</a></nav>
+  return `${bare ? '' : `<nav class="detail-nav"><a href="${relRoot}index.html" class="back-link">← All families</a></nav>
 <header class="hero-head">
 <p class="eyebrow">OPTIONS &amp; UPGRADES · OWNER-RECOMMENDED</p>
 <h1>What owners actually add</h1>
 <p class="lede">${esc(data.intro)}</p>
-</header>
+</header>`}
 ${consensusLegend(data)}
 ${filterLens(data)}
 <nav class="up-jump" aria-label="Jump to category">${jump}</nav>

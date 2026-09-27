@@ -10,54 +10,43 @@ const classic = trailers.find((t) => t.slug === 'classic-33fb-2026');
 const bambi = trailers.find((t) => t.slug === 'bambi-16rb-2026');
 const basecamp = trailers.find((t) => t.slug === 'basecamp-16x-2026');
 
-// ── FAQ Section ──────────────────────────────────────────────────────────────
+// ── FAQ Section (REMOVED from detail pages 2026-09-27) ───────────────────────
+// The visible FAQ section was removed in the detail redesign. These tests lock
+// the removal with negative assertions.
 
 describe('FAQ section', () => {
-  test('every 2026 trailer has an FAQ section with at least 5 questions', () => {
+  test('no 2026 trailer has an FAQ section (redesign 2026-09-27: removed)', () => {
     const t2026 = trailers.filter((t) => t.year === 2026);
     for (const t of t2026) {
       const html = renderDetail(t, undefined, null, trailers);
-      assert.match(html, /id="faq"/, `${t.slug} missing FAQ section`);
-      const faqItems = html.match(/class="faq-item"/g) || [];
-      assert.ok(faqItems.length >= 5, `${t.slug} has only ${faqItems.length} FAQ items (need ≥5)`);
+      assert.ok(!html.includes('id="faq"'), `${t.slug} should not have FAQ section`);
+      assert.ok(!html.includes('class="faq-item"'), `${t.slug} should not have FAQ items`);
     }
   });
 
-  test('FAQ section is in the page but not the 6-chapter top nav', () => {
+  test('no FAQ anchor in the page (redesign 2026-09-27)', () => {
     const html = renderDetail(classic, undefined, null, trailers);
-    // FAQ exists as an in-page section...
-    assert.match(html, /id="faq"/, 'FAQ section should be in the page');
-    // ...but the top bar shows 6 chapters only (perf/a11y #31); FAQ is reachable by scrolling
-    assert.ok(!html.match(/#faq"[^>]*>FAQ</), 'FAQ should not occupy a top-bar nav slot');
+    assert.ok(!html.includes('id="faq"'), 'FAQ section should not be in the page');
+    assert.ok(!html.includes('#faq'), 'no #faq anchor anywhere');
   });
 
-  test('FAQ answers contain real spec data, not placeholders', () => {
-    const html = renderDetail(classic, undefined, null, trailers);
-    // Classic 33FB weighs 8,425 lb — that number should appear in the FAQ
-    assert.match(html, /8,425/, 'FAQ should contain real dry weight');
-    assert.match(html, /53 gallons fresh/, 'FAQ should contain real tank size');
-  });
-
-  test('FAQ uses native details/summary for progressive enhancement', () => {
+  test('no FAQ details/summary markup (redesign 2026-09-27)', () => {
     const html = renderDetail(bambi, undefined, null, trailers);
-    assert.match(html, /<details class="faq-item"/);
-    assert.match(html, /<summary class="faq-q"/);
-  });
-
-  test('first FAQ item is open by default', () => {
-    const html = renderDetail(bambi, undefined, null, trailers);
-    assert.match(html, /<details class="faq-item" open>/);
+    assert.ok(!html.includes('class="faq-item"'), 'no faq-item details');
+    assert.ok(!html.includes('class="faq-q"'), 'no faq-q summary');
   });
 });
 
-// ── FAQPage JSON-LD ──────────────────────────────────────────────────────────
+// ── FAQPage JSON-LD (REMOVED from detail pages 2026-09-27) ──────────────────
+// faqJsonLd still exists in seo.mjs (unit-tested below); it is just no longer
+// emitted on detail pages.
 
 describe('FAQPage JSON-LD', () => {
-  test('every 2026 detail page has FAQPage structured data', () => {
+  test('no 2026 detail page has FAQPage structured data (redesign 2026-09-27)', () => {
     const t2026 = trailers.filter((t) => t.year === 2026);
     for (const t of t2026) {
       const html = renderDetail(t, undefined, null, trailers);
-      assert.match(html, /FAQPage/, `${t.slug} missing FAQPage JSON-LD`);
+      assert.ok(!html.includes('FAQPage'), `${t.slug} should not have FAQPage JSON-LD`);
     }
   });
 
@@ -108,5 +97,19 @@ describe('Budget alternatives', () => {
   test('budget section does not appear in section nav (removed)', () => {
     const html = renderDetail(classic, undefined, null, trailers);
     assert.ok(!html.includes('#budget'), 'no #budget in section nav');
+  });
+
+  test('no FAQ structured data in any 2026 detail page (redesign 2026-09-27)', () => {
+    const t2026 = trailers.filter((t) => t.year === 2026);
+    for (const t of t2026.slice(0, 5)) {
+      const html = renderDetail(t, undefined, null, trailers);
+      assert.ok(!html.includes('FAQPage'), `${t.slug} should not have FAQPage JSON-LD`);
+    }
+  });
+
+  test('FAQ removal does not break the More to explore section (redesign 2026-09-27)', () => {
+    const html = renderDetail(classic, undefined, null, trailers);
+    assert.ok(html.includes('id="more"'), 'more section still present');
+    assert.ok(!html.includes('id="faq"'), 'faq still absent');
   });
 });

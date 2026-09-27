@@ -10,9 +10,9 @@ describe('spec glossary tooltips', () => {
   const t = trailers.find((r) => r.slug === 'flying-cloud-25fb-2026');
   const html = renderDetail(t, assetPaths, null, trailers);
 
-  it('renders spec-tip wrapper on detail page spec labels', () => {
-    assert.ok(html.includes('class="spec-tip"'), 'should have spec-tip class');
-    assert.ok(html.includes('spec-tip-text'), 'should have tooltip text element');
+  it('spec lede carries glossary titles on key cells (redesign 2026-09-27)', () => {
+    assert.ok(html.includes('title="Gross Vehicle Weight Rating'), 'GVWR has glossary title');
+    assert.ok(html.includes('title="GVWR minus dry weight'), 'CCC has glossary title');
   });
 
   it('includes a GVWR explanation', () => {
@@ -27,8 +27,8 @@ describe('spec glossary tooltips', () => {
     assert.ok(html.includes('Manufacturer&#39;s Suggested Retail Price'), 'should explain MSRP');
   });
 
-  it('has tabindex for keyboard accessibility', () => {
-    assert.ok(html.includes('tabindex="0"'), 'spec-tip should be focusable');
+  it('glossary titles are on the value spans', () => {
+    assert.ok(html.includes('spec-lede-value"'), 'spec lede values present');
   });
 
   it('does NOT add tooltips to related card spec rows', () => {

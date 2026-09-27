@@ -83,28 +83,24 @@ describe('recommendHitch', () => {
 // 3. Detail page renders grade-climb and hitch-guide sections
 // =========================================================================
 describe('detail page new sections', () => {
-  test('grade-climb section renders with slider and pass buttons', () => {
+  test('grade-climb slider removed in redesign (redesign 2026-09-27)', () => {
     const html = renderDetail(sample);
-    assert.ok(html.includes('id="grade-climb"'), 'has grade-climb section');
-    assert.ok(html.includes('id="grade-pct"'), 'has grade slider');
-    assert.ok(html.includes('grade-pass-btn'), 'has mountain pass buttons');
-    assert.ok(html.includes('Eisenhower'), 'includes Eisenhower pass');
-    assert.ok(html.includes('Donner'), 'includes Donner pass');
-    assert.ok(html.includes('grade-climb-data'), 'has data island');
+    assert.ok(!html.includes('id="grade-climb"'), 'no grade-climb section');
+    assert.ok(!html.includes('id="grade-pct"'), 'no grade slider');
   });
 
-  test('hitch-guide section renders with hitch class', () => {
+  test('hitch guide renders folded inside Towing (redesign 2026-09-27)', () => {
     const html = renderDetail(sample);
-    assert.ok(html.includes('id="hitch-guide"'), 'has hitch-guide section');
+    assert.ok(html.includes('fold--hitch'), 'has folded hitch guide');
     assert.ok(html.includes('Class '), 'mentions hitch class');
     assert.ok(html.includes('Brake controller'), 'mentions brake controller');
     assert.ok(html.includes('7-pin trailer connector'), 'mentions connector');
   });
 
-  test('section nav includes Grades and Hitch entries', () => {
+  test('no section nav (redesign 2026-09-27: removed)', () => {
     const html = renderDetail(sample);
-    assert.ok(html.includes('id="grade-climb"'), 'grade-climb section stays in page');
-    assert.ok(html.includes('id="hitch-guide"'), 'hitch-guide section stays in page');
+    assert.ok(!html.includes('class="secnav"'), 'no section nav');
+    assert.ok(html.includes('id="tow"'), 'tow section stays in page');
   });
 });
 

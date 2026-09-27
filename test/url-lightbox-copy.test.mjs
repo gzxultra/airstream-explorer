@@ -24,10 +24,19 @@ test('syncHashFromState is called from apply()', () => {
 
 test('readHashFilters is called before hydrate', () => {
   const readIdx = app.indexOf('readHashFilters();');
-  const hydrateIdx = app.indexOf('(function hydrateXControls()');
+  // hydrateXControls is a named inner function (reused by the hashchange
+  // re-apply), not an IIFE.
+  const hydrateIdx = app.indexOf('function hydrateXControls()');
   assert.ok(readIdx > 0, 'readHashFilters not found');
   assert.ok(hydrateIdx > 0, 'hydrateXControls not found');
   assert.ok(readIdx < hydrateIdx, 'readHashFilters must come before hydrateXControls');
+});
+
+test('hydrateXControls is reusable for hashchange re-apply', () => {
+  // The browse-index deep-links change only the hash; the explore module must
+  // be able to re-run the filter pipeline without a reload.
+  assert.ok(app.includes('hydrateXControls();'), 'hydrateXControls is invoked');
+  assert.ok(app.includes("addEventListener('hashchange'"), 'hashchange listener present');
 });
 
 test('hash filter encodes year, sleeps, price, tags, sort', () => {

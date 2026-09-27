@@ -1,6 +1,6 @@
 // Wave-3 UI/UX P2 fixes — string-level guards on app.js + render output.
-// These lock in: quiz→explore param passing, ?len= clamping, fuel negative
-// guards, and generic focus traps on quick-view / kb-help / drawer.
+// These lock in: quiz removal (replaced by the browse index), ?len= clamping,
+// fuel negative guards, and generic focus traps on quick-view / kb-help / drawer.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -11,19 +11,30 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const appJs = readFileSync(join(ROOT, 'src', 'assets', 'js', 'app.js'), 'utf8');
 
 // ---------------------------------------------------------------------------
-// quiz -> explore param passing
+// quiz removed — the three-row browse index replaces it
 // ---------------------------------------------------------------------------
 
-test('quiz explore button carries answers into explore filters', () => {
-  // group -> sleeps minimum
-  assert.match(appJs, /sleepsFor\[answers\.group\]/, 'sleeps mapping from answers.group');
-  assert.match(appJs, /solo: '2', small: '4', large: '6'/, 'group->sleeps values');
-  // budget -> price cap
-  assert.match(appJs, /priceFor\[String\(answers\.budget\)\]/, 'price mapping from answers.budget');
-  assert.match(appJs, /'80000': '80000', '120000': '120000', '180000': '200000'/, 'budget->price values');
-  // applied via the same 'change' the explore module listens to
-  assert.match(appJs, /getElementById\('x-sleeps'\)/, 'sets x-sleeps control');
-  assert.match(appJs, /getElementById\('x-price'\)/, 'sets x-price control');
+test('quiz is fully removed: no quiz DOM, JS or CSS remains', () => {
+  const siteCss = readFileSync(join(ROOT, 'src', 'assets', 'css', 'site.css'), 'utf8');
+  const themeCss = readFileSync(join(ROOT, 'src', 'assets', 'css', 'theme.css'), 'utf8');
+  assert.ok(!/quiz/i.test(appJs), 'app.js must not reference quiz');
+  assert.ok(!/\.quiz/i.test(siteCss), 'site.css must not contain quiz styles');
+  assert.ok(!/\.quiz/i.test(themeCss), 'theme.css must not contain quiz styles');
+});
+
+test('home browse index deep-links into pre-filtered explore views', () => {
+  const render = readFileSync(join(ROOT, 'src', 'lib', 'render.mjs'), 'utf8');
+  assert.match(render, /home-index/, 'browse index nav present');
+  assert.match(render, /#all&len=/, 'size deep-link present');
+  assert.match(render, /#all&price=/, 'budget deep-link present');
+  assert.match(render, /#all&tow=/, 'tow deep-link present');
+});
+
+test('app.js re-applies explore filters when the hash changes', () => {
+  // The browse index navigates by hash; the explore module must pick up
+  // filter params from #all&… links without a reload.
+  assert.match(appJs, /addEventListener\('hashchange'/, 'hashchange listener present');
+  assert.match(appJs, /readHashFilters\(\)/, 'hash filters are parsed');
 });
 
 // ---------------------------------------------------------------------------

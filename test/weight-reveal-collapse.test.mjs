@@ -112,15 +112,14 @@ describe('weight context in detail page', () => {
   const trailers = loadTrailers();
   const t = trailers.find((x) => x.slug === 'flying-cloud-25fb-2026') || trailers[0];
 
-  it('detail page includes weight-context section', () => {
+  it('detail page has weight group in spec lede (redesign 2026-09-27)', () => {
     const html = renderDetail(t, assetPaths, null, trailers);
-    assert.ok(html.includes('id="weight-context"'));
+    assert.ok(!html.includes('id="weight-context"'), 'old weight-context removed');
+    assert.ok(html.includes('spec-lede-group-label">Weight<'), 'weight group in spec lede');
   });
 
-  it('weight-context stays in the page as a Specs-chapter anchor (not a top-bar item)', () => {
+  it('no section nav (redesign 2026-09-27)', () => {
     const html = renderDetail(t, assetPaths, null, trailers);
-    assert.ok(html.includes('id="weight-context"'), 'weight-context section in page');
-    const nav = html.match(/<nav class="secnav"[^>]*>([\s\S]*?)<\/nav>/);
-    assert.ok(nav && !nav[1].includes('#weight-context'), 'weight-context not a top-bar item');
+    assert.ok(!html.includes('class="secnav"'), 'no section nav');
   });
 });

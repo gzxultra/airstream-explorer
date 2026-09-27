@@ -1,5 +1,6 @@
 // Tests for the three features added in this round:
-//   1. Smart filter presets on explore page
+//   1. Smart filter presets — RETIRED: the preset DOM/handlers/styles were
+//      removed; these tests now lock the removal in.
 //   2. Nearest-match suggestions when filters return 0 results
 //   3. Browse-similar deep links on detail spec tables
 
@@ -94,12 +95,11 @@ test('nearestMatches scores closer trailers first', () => {
 // 3. SMART PRESETS in rendered HTML
 // ---------------------------------------------------------------------------
 
-test('renderExploreSections includes smart-preset buttons', () => {
+test('renderExploreSections omits the smart-preset buttons (feature retired)', () => {
   const html = renderExploreSections(trailers);
-  assert.ok(html.includes('smart-presets'), 'should have smart-presets container');
-  assert.ok(html.includes('data-preset="first-timer"'), 'should have first-timer preset');
-  assert.ok(html.includes('data-preset="family-adventure"'), 'should have family preset');
-  assert.ok(html.includes('data-filters='), 'presets should have data-filters attribute');
+  assert.ok(!html.includes('smart-presets'), 'smart-presets container must be gone');
+  assert.ok(!html.includes('smart-preset'), 'no smart-preset buttons');
+  assert.ok(!html.includes('data-preset="first-timer"'), 'first-timer preset gone');
 });
 
 test('renderExploreSections includes nearest-match container', () => {
@@ -132,10 +132,9 @@ test('browse-similar links contain valid explore deep-link hashes', () => {
 // 5. Built HTML verification
 // ---------------------------------------------------------------------------
 
-test('built index.html contains smart-preset buttons', () => {
+test('built index.html has no smart-preset buttons', () => {
   const html = readFileSync(join(ROOT, 'dist/index.html'), 'utf8');
-  assert.ok(html.includes('smart-preset'), 'index should have preset buttons');
-  assert.ok(html.includes('data-preset='), 'index should have preset data attrs');
+  assert.ok(!html.includes('smart-preset'), 'index should not have preset buttons');
 });
 
 test('built index.html contains nearest-match container', () => {
@@ -148,21 +147,21 @@ test('built detail page contains browse-links', () => {
   assert.ok(html.includes('browse-links'), 'detail should have browse links');
 });
 
-test('built CSS contains smart-preset styles', () => {
+test('built CSS has no smart-preset styles (nearest + browse-link styles stay)', () => {
   const cssDir = join(ROOT, 'dist/assets/css');
   const cssFile = readdirSync(cssDir).find((f) => f.startsWith('site.') && f.endsWith('.css'));
   assert.ok(cssFile, 'should find fingerprinted site.css');
   const css = readFileSync(join(cssDir, cssFile), 'utf8');
-  assert.ok(css.includes('.smart-preset'), 'site.css should have preset styles');
-  assert.ok(css.includes('.x-nearest'), 'site.css should have nearest styles');
-  assert.ok(css.includes('.browse-link'), 'site.css should have browse link styles');
+  assert.ok(!css.includes('.smart-preset'), 'site.css must not have preset styles');
+  assert.ok(css.includes('.x-nearest'), 'site.css keeps nearest styles');
+  assert.ok(css.includes('.browse-link'), 'site.css keeps browse link styles');
 });
 
-test('built app.js contains smart-preset handler', () => {
+test('built app.js has no smart-preset handler', () => {
   const jsDir = join(ROOT, 'dist/assets/js');
   const jsFile = readdirSync(jsDir).find((f) => f.startsWith('app.') && f.endsWith('.js'));
   assert.ok(jsFile, 'should find fingerprinted app.js');
   const js = readFileSync(join(jsDir, jsFile), 'utf8');
-  assert.ok(js.includes('smart-preset'), 'app.js should have preset handling');
-  assert.ok(js.includes('x-nearest'), 'app.js should have nearest-match handling');
+  assert.ok(!js.includes('smart-preset'), 'app.js must not have preset handling');
+  assert.ok(js.includes('x-nearest'), 'app.js keeps nearest-match handling');
 });

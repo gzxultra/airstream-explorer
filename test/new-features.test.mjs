@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -72,18 +72,15 @@ describe('Detail page prev/next pager', () => {
   });
 });
 
-describe('Saved page: Recently Viewed section', () => {
-  it('saved page has recently viewed section (hidden by default)', () => {
-    const html = readDist('saved.html');
-    assert.ok(html.includes('id="recent-section"'), 'section present');
-    assert.ok(html.includes('id="recent-grid"'), 'grid present');
-    assert.ok(html.includes('id="recent-clear"'), 'clear button present');
-    assert.ok(html.includes('hidden'), 'section hidden by default');
+describe('Saved page retired: no saved.html output', () => {
+  it('dist has no saved.html page', () => {
+    assert.ok(!existsSync(join(DIST, 'saved.html')), 'saved.html must not be generated');
   });
 
-  it('recently viewed section has proper heading', () => {
-    const html = readDist('saved.html');
-    assert.ok(html.includes('Recently viewed'), 'heading text');
+  it('build.mjs does not write saved.html', () => {
+    const build = readFileSync(join(__dirname, '..', 'scripts', 'build.mjs'), 'utf8');
+    assert.ok(!/saved\.html/.test(build.replace(/saved\.html retired/g, '')),
+      'build must not write a saved.html page');
   });
 });
 
@@ -101,25 +98,10 @@ describe('app.js has new modules', () => {
   });
 });
 
-describe('Size scale diagram on detail pages', () => {
-  it('renders size-scale section with reference bars', () => {
+describe('Size scale diagram removed (redesign 2026-09-27)', () => {
+  it('no size-scale section on detail pages', () => {
     const html = readDist('m/classic-33fb-2026.html');
-    assert.ok(html.includes('id="size-scale"'), 'size-scale section present');
-    assert.ok(html.includes('size-ref-bar--trailer'), 'trailer bar highlighted');
-    assert.ok(html.includes('Standard parking'), 'parking space reference');
-    assert.ok(html.includes('Single garage'), 'garage reference');
-    assert.ok(html.includes('Typical RV site'), 'RV site reference');
-  });
-
-  it('shows correct fit verdicts for a short trailer', () => {
-    const html = readDist('m/bambi-16rb-2026.html');
-    // 16.25' should fit in a parking space (18'), single garage (20'), etc.
-    assert.ok(html.includes('size-ref--fits'), 'at least one reference fits');
-  });
-
-  it('present on every detail page with length', () => {
-    const html = readDist('m/basecamp-16x-2026.html');
-    assert.ok(html.includes('id="size-scale"'), 'size-scale on Basecamp');
+    assert.ok(!html.includes('id="size-scale"'), 'size-scale removed');
   });
 });
 
@@ -146,13 +128,22 @@ describe('Tow vehicle persistence (app.js)', () => {
 
 });
 
-describe('Section nav includes new sections', () => {
-  it('detail pages keep size-scale section in page; Cost chapter links the fuel estimator (ruling 1A)', () => {
+describe('No section nav (redesign 2026-09-27)', () => {
+  it('detail pages have no section nav', () => {
     const html = readDist('m/classic-33fb-2026.html');
-    assert.ok(html.includes('id="size-scale"'), 'size-scale section stays in page');
-    assert.ok(!html.includes('href="#cost-night"'), 'cost-night must NOT be in secnav');
-    const nav = html.match(/<nav class="secnav"[^>]*>([\s\S]*?)<\/nav>/);
-    assert.ok(nav && nav[1].includes('href="#fuel"'), 'Cost chapter links #fuel');
-    assert.ok(nav[1].includes('>Cost<'), 'chapter labeled Cost');
+    assert.ok(!html.includes('class="secnav"'), 'no section nav');
+    assert.ok(!html.includes('href="#cost-night"'), 'cost-night not present');
+  });
+
+  it('size-scale section removed from detail pages (redesign 2026-09-27)', () => {
+    const html = readDist('m/classic-33fb-2026.html');
+    assert.ok(!html.includes('id="size-scale"'), 'no size-scale section');
+    assert.ok(!html.includes('size-scale'), 'no size-scale markup');
+  });
+
+  it('fit check appears in Towing section, not as standalone (redesign 2026-09-27)', () => {
+    const html = readDist('m/classic-33fb-2026.html');
+    assert.ok(html.includes('id="tow"'), 'towing section present');
+    assert.ok(html.includes('fit-check'), 'fit check in towing section');
   });
 });

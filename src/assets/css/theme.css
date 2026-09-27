@@ -39,8 +39,8 @@
   --ctl-line-hover: #6E5A45;
   --ctl-shadow: 0 1px 1px rgba(0,0,0,.30), 0 1px 3px rgba(0,0,0,.35);
   --ctl-shadow-hover: 0 2px 4px rgba(0,0,0,.40), 0 8px 18px rgba(0,0,0,.45);
-  --ctl-ring: 0 0 0 3px rgba(217,139,94,.28);
-  --copper-soft: rgba(217,139,94,.14);
+  --ctl-ring: 0 0 0 3px rgba(21,18,14,.28);
+  --copper-soft: rgba(21,18,14,.14);
   color-scheme: dark;
 }
 
@@ -68,15 +68,10 @@
 }
 [data-theme="dark"] .gallery-img--cutout { mix-blend-mode: normal; }
 
-/* Saved page + save buttons: the warm cream card-media gradient and white
-   studio cutouts need the same dark treatment the explore cards get, and the
-   "is-saved" wash should read on the dark surface. */
-[data-theme="dark"] .saved-card-media {
-  background: radial-gradient(125% 135% at 50% 16%, #2c2620 0%, #241f19 52%, #1c1813 100%);
-}
-[data-theme="dark"] .saved-card-media img { mix-blend-mode: normal; }
-[data-theme="dark"] .save-btn.is-saved { background: rgba(217,139,94,.16); }
-[data-theme="dark"] .saved-remove:hover { color: #e8927c; border-color: #7a4035; background: rgba(232,146,124,.10); }
+/* Save buttons: the "is-saved" wash should read on the dark surface.
+   (2026-09 redesign: the Saved page is deleted; its card-media/remove rules
+   went with it.) */
+[data-theme="dark"] .save-btn.is-saved { background: rgba(21,18,14,.16); }
 
 
 /* Year/plan ribbons already sit on a translucent dark ink; deepen slightly so
@@ -98,9 +93,11 @@
 [data-theme="dark"] .tow-verdict.tow-over .tow-verdict-label  { color: #ef9a82; }
 
 /* Tow insights panel + smart pick cards */
-[data-theme="dark"] .tow-summary { background: #221c16; border-color: #3A3228; border-left-color: var(--copper); }
+/* 2026-09 redesign: verdict labels are paper-tuned hexes; use ink on dark. */
+[data-theme="dark"] .tow-verdict-label { color: var(--ink); }
+[data-theme="dark"] .tow-summary { background: #221c16; border-color: #3A3228; border-left-color: var(--ink); }
 [data-theme="dark"] .tow-pick { background: var(--surface); border-color: var(--line); }
-[data-theme="dark"] .tow-pick:hover { border-color: var(--copper); box-shadow: 0 2px 8px rgba(217,139,94,.18); }
+[data-theme="dark"] .tow-pick:hover { border-color: var(--ink); box-shadow: 0 2px 8px rgba(21,18,14,.18); }
 
 [data-theme="dark"] .cg-fit-fits    { background: #16241a; color: #8fd494; }
 [data-theme="dark"] .cg-fit-tight   { background: #271f10; color: #e6bd5e; }
@@ -134,12 +131,12 @@
 .theme-toggle {
   display: inline-flex; align-items: center; justify-content: center;
   width: 38px; height: 38px; padding: 0; margin-left: 4px;
-  background: transparent; border: 1px solid transparent; border-radius: 999px;
+  background: transparent; border: 1px solid transparent; border-radius: 4px;
   color: var(--ink); cursor: pointer; flex: 0 0 auto;
   transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
-.theme-toggle:hover { background: var(--copper-soft, rgba(176,92,50,.10)); border-color: var(--line); color: var(--copper-deep); }
-.theme-toggle:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+.theme-toggle:hover { background: var(--ink-soft, rgba(21,18,14,.10)); border-color: var(--line); color: var(--ink); }
+.theme-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .theme-toggle svg { display: block; }
 /* Show the icon for the theme you'd switch TO: moon in light, sun in dark. */
 .theme-icon-sun { display: none; }
@@ -155,11 +152,11 @@ button.gallery-img-wrap {
   position: relative; font: inherit; color: inherit; text-align: left;
   -webkit-appearance: none; appearance: none;
 }
-button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outline-offset: 3px; }
+button.gallery-img-wrap:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 .gallery-zoom {
   position: absolute; right: 10px; bottom: 10px; z-index: 2;
   display: inline-flex; align-items: center; justify-content: center;
-  width: 32px; height: 32px; border-radius: 999px;
+  width: 32px; height: 32px; border-radius: 4px;
   background: rgba(20,16,12,.62); color: #fff; backdrop-filter: blur(3px);
   opacity: 0; transform: translateY(4px) scale(.92);
   transition: opacity .18s ease, transform .18s ease;
@@ -204,7 +201,7 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
   position: absolute; top: 16px; right: 18px; z-index: 3;
   width: 44px; height: 44px; padding: 0;
   display: inline-flex; align-items: center; justify-content: center;
-  background: rgba(255,255,255,.10); color: #fff; border: 0; border-radius: 999px;
+  background: rgba(255,255,255,.10); color: #fff; border: 0; border-radius: 4px;
   cursor: pointer; transition: background .15s ease, transform .12s ease;
 }
 .lightbox-close:hover { background: rgba(255,255,255,.20); transform: scale(1.06); }
@@ -212,7 +209,7 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
   position: absolute; top: 50%; transform: translateY(-50%); z-index: 3;
   width: 52px; height: 52px; padding: 0;
   display: inline-flex; align-items: center; justify-content: center;
-  background: rgba(255,255,255,.10); color: #fff; border: 0; border-radius: 999px;
+  background: rgba(255,255,255,.10); color: #fff; border: 0; border-radius: 4px;
   cursor: pointer; transition: background .15s ease, transform .12s ease;
 }
 .lightbox-nav:hover { background: rgba(255,255,255,.20); }
@@ -280,7 +277,7 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 /* Weight capacity bar — dark mode */
 [data-theme="dark"] .weight-bar { background: var(--card); border-color: var(--line); }
 [data-theme="dark"] .weight-bar-dry { background: var(--muted); }
-[data-theme="dark"] .weight-bar-ccc { background: var(--copper, #D49A6A); }
+[data-theme="dark"] .weight-bar-ccc { background: var(--ink); }
 
 /* Photo badge — dark mode */
 [data-theme="dark"] .xcard-photos { background: rgba(0,0,0,.55); }
@@ -297,7 +294,7 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 
 /* Unit toggle — dark mode */
 [data-theme="dark"] .unit-toggle { color: var(--ink); border-color: var(--line); }
-[data-theme="dark"] .unit-toggle:hover { border-color: var(--copper); color: var(--copper); }
+[data-theme="dark"] .unit-toggle:hover { border-color: var(--ink); color: var(--ink); }
 
 /* Percentile indicators dark mode */
 [data-theme="dark"] .spec-pct--top20 .spec-pct-bar { background: #93b882; }
@@ -316,8 +313,8 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .qv-nav { background: rgba(40,36,32,0.9); color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 [data-theme="dark"] .qv-nav:hover { background: rgba(50,46,42,0.95); box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
 [data-theme="dark"] .qv-save-btn { border-color: var(--line); color: var(--ink); }
-[data-theme="dark"] .qv-save-btn:hover { border-color: var(--copper); color: var(--copper); }
-[data-theme="dark"] .qv-save-btn.is-saved { border-color: var(--copper); color: var(--copper); background: color-mix(in srgb, var(--copper) 12%, transparent); }
+[data-theme="dark"] .qv-save-btn:hover { border-color: var(--ink); color: var(--ink); }
+[data-theme="dark"] .qv-save-btn.is-saved { border-color: var(--ink); color: var(--ink); background: color-mix(in srgb, var(--ink) 12%, transparent); }
 [data-theme="dark"] .qv-compare-label { color: var(--muted); }
 [data-theme="dark"] .qv-compare-label:hover { color: var(--ink); }
 [data-theme="dark"] .qv-gallery-strip::-webkit-scrollbar-thumb { background: var(--line); }
@@ -325,26 +322,15 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .qv-gallery-thumb:hover { opacity: 0.9; }
 [data-theme="dark"] .qv-gallery-thumb.is-active { opacity: 1; }
 [data-theme="dark"] .cn-fee-preset { border-color: var(--line); color: var(--muted); }
-[data-theme="dark"] .cn-fee-preset:hover { border-color: var(--copper); color: var(--ink); }
-[data-theme="dark"] .cn-fee-preset.is-active { background: var(--copper); border-color: var(--copper); color: #fff; }
-
-/* Quiz dark overrides */
-[data-theme="dark"] .quiz-panel{background:var(--bg);box-shadow:0 24px 80px rgba(0,0,0,.5)}
-[data-theme="dark"] .quiz-opt{background:var(--surface);border-color:var(--line)}
-[data-theme="dark"] .quiz-opt:hover{background:color-mix(in srgb,var(--copper) 10%,var(--surface))}
-[data-theme="dark"] .quiz-opt.is-selected{background:color-mix(in srgb,var(--copper) 18%,var(--surface))}
-[data-theme="dark"] .quiz-match{border-color:var(--line)}
-[data-theme="dark"] .quiz-match:hover{border-color:var(--copper);box-shadow:0 4px 20px rgba(0,0,0,.2)}
-[data-theme="dark"] .quiz-reason{background:color-mix(in srgb,var(--copper) 18%,var(--surface))}
-[data-theme="dark"] .quiz-restart{background:var(--surface);color:var(--ink);border-color:var(--line)}
-[data-theme="dark"] .quiz-match-img{background:var(--surface)}
+[data-theme="dark"] .cn-fee-preset:hover { border-color: var(--ink); color: var(--ink); }
+[data-theme="dark"] .cn-fee-preset.is-active { background: var(--ink); border-color: var(--ink); color: #fff; }
 
 /* --- Footer, breadcrumb, floorplan zoom dark overrides --- */
 [data-theme="dark"] .footer-links a { color: var(--ink); }
 [data-theme="dark"] .footer-legal { border-top-color: var(--line); }
 [data-theme="dark"] .footer-legal a { color: var(--muted); }
 [data-theme="dark"] .breadcrumb-list li + li::before { color: var(--line); }
-[data-theme="dark"] .floorplan-zoom-btn:focus-visible { outline-color: var(--copper); }
+[data-theme="dark"] .floorplan-zoom-btn:focus-visible { outline-color: var(--ink); }
 
 /* --- Radar chart dark overrides --- */
 [data-theme="dark"] .radar-ring { stroke: var(--line); }
@@ -355,7 +341,7 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 /* --- Cross-family dark overrides --- */
 [data-theme="dark"] .xfam-card { background: var(--card); border-color: var(--line); }
 [data-theme="dark"] .xfam-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.25); }
-[data-theme="dark"] .xfam-traits { background: color-mix(in srgb, var(--copper) 15%, var(--surface)); }
+[data-theme="dark"] .xfam-traits { background: color-mix(in srgb, var(--ink) 15%, var(--surface)); }
 [data-theme="dark"] .cross-family { border-top-color: var(--line); }
 
 /* Dark mode: compatible vehicles table */
@@ -369,25 +355,23 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 
 /* Dark mode: layout toggle + list view */
 [data-theme="dark"] .xc-layout-btn { border-color: var(--line); color: var(--muted); }
-[data-theme="dark"] .xc-layout-btn.is-active { background: var(--copper); color: #fff; border-color: var(--copper); }
+[data-theme="dark"] .xc-layout-btn.is-active { background: var(--ink); color: #fff; border-color: var(--ink); }
 [data-theme="dark"] .xgrid.is-list .xcard { border-bottom-color: var(--line); }
-[data-theme="dark"] .xgrid.is-list .xcard:hover { background: color-mix(in srgb, var(--copper) 6%, var(--surface)); }
+[data-theme="dark"] .xgrid.is-list .xcard:hover { background: color-mix(in srgb, var(--ink) 6%, var(--surface)); }
 
 /* Dark mode: detail pager */
 [data-theme="dark"] .detail-pager-name { color: var(--ink); }
-[data-theme="dark"] .detail-pager-link:hover .detail-pager-name { color: var(--copper); }
+[data-theme="dark"] .detail-pager-link:hover .detail-pager-name { color: var(--ink); }
 
 /* Dark mode: recently viewed */
 [data-theme="dark"] .recent-card { background: var(--card); border-color: var(--line); }
-[data-theme="dark"] .recent-card:hover { border-color: var(--copper); }
+[data-theme="dark"] .recent-card:hover { border-color: var(--ink); }
 [data-theme="dark"] .recent-clear { border-color: var(--line); color: var(--muted); }
 [data-theme="dark"] .home-recent-card { background: var(--card); border-color: var(--line); }
-[data-theme="dark"] .home-recent-card:hover { border-color: var(--copper); }
+[data-theme="dark"] .home-recent-card:hover { border-color: var(--ink); }
 [data-theme="dark"] .home-recent-clear { border-color: var(--line); color: var(--muted); }
 
 /* Dark mode: range bars */
-[data-theme="dark"] .range-bar-track { background: rgba(255,255,255,.08); }
-[data-theme="dark"] .range-bar-fill { background: linear-gradient(90deg, var(--copper), #E8B89A); }
 
 /* Dark mode: shimmer skeleton */
 [data-theme="dark"] img[loading="lazy"]:not(.is-loaded) {
@@ -401,15 +385,15 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 
 /* Dark mode: layout feature chips + filter pills + scroll-to-top */
 [data-theme="dark"] .layoutfilter { background: var(--card); border-color: var(--line); color: var(--muted); }
-[data-theme="dark"] .layoutfilter:hover { border-color: var(--copper); color: var(--copper); }
-[data-theme="dark"] .layoutfilter[aria-pressed="true"] { background: var(--copper-deep); border-color: var(--copper-deep); color: #fff; }
-[data-theme="dark"] .filter-pill { background: rgba(200,150,100,.15); color: var(--copper); border-color: rgba(200,150,100,.25); }
-[data-theme="dark"] .filter-pill-x { color: var(--copper); }
+[data-theme="dark"] .layoutfilter:hover { border-color: var(--ink); color: var(--ink); }
+[data-theme="dark"] .layoutfilter[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+[data-theme="dark"] .filter-pill { background: rgba(200,150,100,.15); color: var(--ink); border-color: rgba(200,150,100,.25); }
+[data-theme="dark"] .filter-pill-x { color: var(--ink); }
 [data-theme="dark"] .filter-pill-x:hover { background: rgba(200,150,100,.2); }
 [data-theme="dark"] .scroll-top { background: var(--card); color: var(--ink); border-color: var(--line); box-shadow: 0 2px 12px rgba(0,0,0,.4); }
-[data-theme="dark"] .scroll-top:hover { background: var(--copper); color: #fff; border-color: var(--copper); }
+[data-theme="dark"] .scroll-top:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
 [data-theme="dark"] .nextstep-card { background: var(--card); border-color: var(--line); }
-[data-theme="dark"] .nextstep-card:hover { border-color: var(--copper); box-shadow: 0 2px 12px rgba(0,0,0,.3); }
+[data-theme="dark"] .nextstep-card:hover { border-color: var(--ink); box-shadow: 0 2px 12px rgba(0,0,0,.3); }
 
 /* Year diff dark mode */
 [data-theme="dark"] .year-diff-table-wrap { background: var(--card); border-color: var(--line); }
@@ -500,7 +484,7 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 /* Lifestyle tag pills — dark mode */
 [data-theme="dark"] .xcard-tag { color: var(--muted); background: color-mix(in srgb, var(--line) 40%, transparent); }
 [data-theme="dark"] .xcard-tag--solo { color: #a0adff; background: rgba(91,106,191,.18); }
-[data-theme="dark"] .xcard-tag--family { color: #e0a882; background: rgba(176,92,50,.18); }
+[data-theme="dark"] .xcard-tag--family { color: #e0a882; background: rgba(21,18,14,.18); }
 [data-theme="dark"] .xcard-tag--couples { color: #d4a0d4; background: rgba(139,90,139,.18); }
 [data-theme="dark"] .xcard-tag--off-grid { color: #82c88c; background: rgba(58,125,68,.18); }
 [data-theme="dark"] .xcard-tag--luxury { color: #d4c482; background: rgba(139,118,50,.20); }
@@ -510,7 +494,7 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 /* Seasonal guide — dark mode */
 [data-theme="dark"] .season-card { background: var(--surface); border-color: var(--line); }
 [data-theme="dark"] .season-dot { background: var(--line); }
-[data-theme="dark"] .season-dot--filled { background: var(--copper); }
+[data-theme="dark"] .season-dot--filled { background: var(--ink); }
 
 
 /* Size scale — dark mode */
@@ -522,7 +506,7 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .wctx-bar--ref { background: color-mix(in srgb, var(--ink) 20%, transparent); }
 
 /* Cost per night — dark mode */
-[data-theme="dark"] .cn-side--airstream { border-color: var(--copper); }
+[data-theme="dark"] .cn-side--airstream { border-color: var(--ink); }
 [data-theme="dark"] .cn-side--hotel { border-color: var(--line); }
 [data-theme="dark"] .cn-verdict--saves { background: rgba(74,140,92,0.12); color: #6fc687; }
 [data-theme="dark"] .cn-verdict--over { background: color-mix(in srgb, var(--ink) 8%, transparent); }
@@ -534,8 +518,8 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 
 /* At-a-glance & notes — dark mode */
 [data-theme="dark"] .glance-summary {
-  background: color-mix(in srgb, var(--copper) 10%, var(--surface));
-  border-left-color: var(--copper);
+  background: color-mix(in srgb, var(--ink) 10%, var(--surface));
+  border-left-color: var(--ink);
 }
 [data-theme="dark"] .personal-notes {
   background: var(--surface);
@@ -552,39 +536,29 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 
 /* CSV export button — dark mode */
 [data-theme="dark"] .csv-export-btn { border-color: var(--line); color: var(--muted); }
-[data-theme="dark"] .csv-export-btn:hover { border-color: var(--copper); color: var(--ink); }
+[data-theme="dark"] .csv-export-btn:hover { border-color: var(--ink); color: var(--ink); }
 
 
-/* Smart presets / nearest matches / browse links — dark theme */
-[data-theme="dark"] .smart-preset {
-  background: var(--surface); border-color: var(--line); color: var(--ink);
-}
-[data-theme="dark"] .smart-preset:hover {
-  border-color: var(--copper); box-shadow: 0 2px 8px rgba(212,160,100,.15);
-}
-[data-theme="dark"] .smart-preset.is-active {
-  background: color-mix(in srgb, var(--copper) 12%, var(--surface));
-  border-color: var(--copper);
-}
+/* Nearest matches / browse links — dark theme */
 [data-theme="dark"] .x-nearest-card {
   background: var(--surface); border-color: var(--line); color: var(--ink);
 }
-[data-theme="dark"] .x-nearest-card:hover { border-color: var(--copper); }
+[data-theme="dark"] .x-nearest-card:hover { border-color: var(--ink); }
 [data-theme="dark"] .browse-link {
-  color: var(--copper); border-color: color-mix(in srgb, var(--copper) 30%, transparent);
+  color: var(--ink); border-color: color-mix(in srgb, var(--ink) 30%, transparent);
 }
 [data-theme="dark"] .browse-link:hover {
-  background: color-mix(in srgb, var(--copper) 10%, transparent);
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
 }
 
 /* Winterization guide — dark mode */
-[data-theme="dark"] .wz-label:hover { background: color-mix(in srgb, var(--copper) 10%, transparent); }
+[data-theme="dark"] .wz-label:hover { background: color-mix(in srgb, var(--ink) 10%, transparent); }
 [data-theme="dark"] .wz-check { border-color: var(--line); }
 [data-theme="dark"] .wz-check:checked { background: #4a8a5a; border-color: #4a8a5a; }
 [data-theme="dark"] .wz-progress { background: var(--surface); }
 [data-theme="dark"] .wz-progress-fill { background: linear-gradient(90deg, #5a9a6a, #4a8a5a); }
 [data-theme="dark"] .wz-reset { border-color: var(--line); color: var(--muted); }
-[data-theme="dark"] .wz-reset:hover { border-color: var(--copper); color: var(--copper); }
+[data-theme="dark"] .wz-reset:hover { border-color: var(--ink); color: var(--ink); }
 [data-theme="dark"] .wz-cat--water .wz-group-title { color: #6ab0c4; }
 [data-theme="dark"] .wz-cat--electrical .wz-group-title { color: #d4a05b; }
 [data-theme="dark"] .wz-cat--gas .wz-group-title { color: #d07c5a; }
@@ -601,7 +575,7 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 
 /* Compare button dark mode */
 [data-theme="dark"] .share-btn.is-compared {
-  background: color-mix(in srgb, var(--copper) 15%, transparent);
+  background: color-mix(in srgb, var(--ink) 15%, transparent);
 }
 
 /* DARK MODE — spec deltas, water calc, maintenance ref */
@@ -687,10 +661,10 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .advisor-fp { color: var(--ink); }
 [data-theme="dark"] .ideal-desc,
 [data-theme="dark"] .advisor-why { color: var(--muted); }
-[data-theme="dark"] .advisor-q { color: var(--copper); }
+[data-theme="dark"] .advisor-q { color: var(--ink); }
 
 [data-theme="dark"] .spec-fleet-track { background: rgba(255,255,255,.12); }
-[data-theme="dark"] .spec-fleet-dot { border-color: var(--card, #2a2520); box-shadow: 0 0 0 1px var(--copper); }
+[data-theme="dark"] .spec-fleet-dot { border-color: var(--card, #2a2520); box-shadow: 0 0 0 1px var(--ink); }
 [data-theme="dark"] .rigfit-row { background: var(--card, #2a2520); border-color: var(--line); }
 [data-theme="dark"] .rigfit-row--over { background: rgba(198,40,40,.08); }
 [data-theme="dark"] .rigfit-bar-wrap { background: rgba(255,255,255,.08); }
@@ -708,9 +682,9 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 
 /* Budget alternatives dark overrides */
 [data-theme="dark"] .budget-card { background: var(--card); border-color: var(--line); }
-[data-theme="dark"] .budget-card:hover { border-color: var(--copper); box-shadow: 0 4px 20px rgba(0,0,0,.3); }
+[data-theme="dark"] .budget-card:hover { border-color: var(--ink); box-shadow: 0 4px 20px rgba(0,0,0,.3); }
 [data-theme="dark"] .budget-diff--less { background: rgba(46,160,67,.18); color: #56d364; }
-[data-theme="dark"] .budget-diff--more { background: rgba(176,92,50,.18); color: var(--copper); }
+[data-theme="dark"] .budget-diff--more { background: rgba(21,18,14,.18); color: var(--ink); }
 [data-theme="dark"] .budget-diff--same { background: rgba(255,255,255,.08); color: var(--muted); }
 
 
@@ -720,17 +694,17 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 
 /* ── Model year highlights (dark) ─────────────────────────────────── */
 [data-theme="dark"] .myh-stat { background: rgba(255,255,255,.06); border-color: var(--line); }
-[data-theme="dark"] .myh-stat--up { background: rgba(176,92,50,.2); color: var(--copper); }
+[data-theme="dark"] .myh-stat--up { background: rgba(21,18,14,.2); color: var(--ink); }
 [data-theme="dark"] .myh-stat--down { background: rgba(46,160,67,.18); color: #56d364; }
 [data-theme="dark"] .myh-card { background: var(--card); border-color: var(--line); }
-[data-theme="dark"] .myh-card:hover { border-color: var(--copper); box-shadow: 0 2px 12px rgba(0,0,0,.3); }
-[data-theme="dark"] .myh-delta--up { background: rgba(176,92,50,.2); color: var(--copper); }
+[data-theme="dark"] .myh-card:hover { border-color: var(--ink); box-shadow: 0 2px 12px rgba(0,0,0,.3); }
+[data-theme="dark"] .myh-delta--up { background: rgba(21,18,14,.2); color: var(--ink); }
 [data-theme="dark"] .myh-delta--down { background: rgba(46,160,67,.18); color: #56d364; }
 [data-theme="dark"] .myh-delta--changed { background: rgba(255,255,255,.08); color: var(--muted); }
 
 /* ── Glossary (dark) ──────────────────────────────────────────────── */
 [data-theme="dark"] .glossary-toc-link { background: var(--surface); border-color: var(--line); }
-[data-theme="dark"] .glossary-toc-link:hover { border-color: var(--copper); }
+[data-theme="dark"] .glossary-toc-link:hover { border-color: var(--ink); }
 [data-theme="dark"] .glossary-term { border-color: var(--line); }
 
 /* Year-over-year deltas in dark mode */
@@ -766,13 +740,13 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--copper); outlin
 [data-theme="dark"] .xcard-carousel-dot.is-active { background: #fff; }
 
 /* Priority ranker + family nav dark overrides */
-[data-theme="dark"] .ranker-sort-btn { background: var(--copper); color: #1a1a1a; }
-[data-theme="dark"] .xcard-rank { background: var(--copper); color: #1a1a1a; }
+[data-theme="dark"] .ranker-sort-btn { background: var(--ink); color: #1a1a1a; }
+[data-theme="dark"] .xcard-rank { background: var(--ink); color: #1a1a1a; }
 [data-theme="dark"] .famnav { background: var(--surface); border-color: var(--line); }
 [data-theme="dark"] .famnav-link { color: var(--muted); }
-[data-theme="dark"] .famnav-link.is-current { color: var(--copper); }
+[data-theme="dark"] .famnav-link.is-current { color: var(--ink); }
 [data-theme="dark"] .wc-seg { color: #fff; }
-[data-theme="dark"] .wc-seg.is-active { outline-color: var(--copper); }
+[data-theme="dark"] .wc-seg.is-active { outline-color: var(--ink); }
 [data-theme="dark"] .fs-card { background: var(--surface); border-color: var(--line); }
 [data-theme="dark"] .fs-card-value { color: #f0ebe3; }
 

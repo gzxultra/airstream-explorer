@@ -89,12 +89,17 @@ describe('axle explore filter', () => {
     assert.ok(indexHtml.includes('Single axle'), 'expected Single axle option');
     assert.ok(indexHtml.includes('Dual axle'), 'expected Dual axle option');
   });
-  it('explore cards carry data-axle attribute', () => {
-    const singles = (indexHtml.match(/data-axle="single"/g) || []).length;
-    const duals = (indexHtml.match(/data-axle="dual"/g) || []).length;
-    assert.ok(singles > 0, 'expected some single-axle cards');
-    assert.ok(duals > 0, 'expected some dual-axle cards');
-    assert.equal(singles + duals, 58, 'all 58 cards should have data-axle');
+  it('explore card payload carries axle data for every trailer', () => {
+    // Cards are client-rendered now: the axle filter reads axle from the
+    // #xdata JSON payload instead of data-axle attributes in static HTML.
+    const m = indexHtml.match(/<script type="application\/json" id="xdata">([\s\S]*?)<\/script>/);
+    assert.ok(m, '#xdata payload present');
+    const items = JSON.parse(m[1]).filter((i) => i.type === 'trailer');
+    const singles = items.filter((i) => i.axle === 'single').length;
+    const duals = items.filter((i) => i.axle === 'dual').length;
+    assert.ok(singles > 0, 'expected some single-axle trailers');
+    assert.ok(duals > 0, 'expected some dual-axle trailers');
+    assert.equal(singles + duals, 58, 'all 58 trailers carry axle data');
   });
   it('app.js wires up axle filter', () => {
     const js = readFileSync('src/assets/js/app.js', 'utf8');

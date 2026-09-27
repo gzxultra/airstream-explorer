@@ -140,20 +140,23 @@ describe('winterizationGuide', () => {
 // Render integration: winterization section + tow difficulty badge in output
 // ---------------------------------------------------------------------------
 describe('render integration', () => {
-  it('detail page includes winterization section with wz-check inputs', () => {
+  it('detail page includes winterization points in the folded Care section (redesign 2026-09-27)', () => {
     const t = trailers.find((x) => x.slug === 'bambi-16rb-2026');
     const html = renderDetail(t, assetPaths, null, trailers);
-    assert.ok(html.includes('id="winterization"'), 'winterization section missing');
-    assert.ok(html.includes('wz-check'), 'winterization checkboxes missing');
-    assert.ok(html.includes('wz-progress'), 'winterization progress bar missing');
-    assert.ok(html.includes('wz-reset'), 'winterization reset button missing');
+    assert.ok(html.includes('id="care"'), 'care section missing');
+    assert.ok(html.includes('>Winterization</h3>'), 'winterization points heading missing');
+    assert.ok(html.includes('class="care-list"'), 'winterization points list missing');
+    assert.ok(!html.includes('wz-check'), 'old winterization checkboxes removed');
+    assert.ok(!html.includes('id="winterization"'), 'standalone winterization section removed');
   });
 
-  it('detail page includes winterization in section nav', () => {
+  it('care section folds winterization, maintenance and storage (redesign 2026-09-27)', () => {
     const t = trailers.find((x) => x.slug === 'flying-cloud-25fb-2026');
     const html = renderDetail(t, assetPaths, null, null, trailers);
-    assert.ok(html.includes('id="winterization"'), 'winterization section stays in page');
-    assert.ok(html.includes('Storage'), 'Storage label in section nav missing');
+    assert.ok(html.includes('id="care"'), 'care section stays in page');
+    assert.ok(html.includes('fold--care'), 'care fold missing');
+    assert.ok(html.includes('>Maintenance</h3>'), 'maintenance cycles missing');
+    assert.ok(html.includes('>Storage</h3>'), 'storage line missing');
   });
 
   it('detail page includes tow difficulty badge', () => {
@@ -165,11 +168,11 @@ describe('render integration', () => {
     assert.ok(html.includes('tow-diff-tip'), 'tow difficulty tip missing');
   });
 
-  it('explore card includes tow difficulty badge', () => {
+  it('explore card omits the tow difficulty badge (editorial card)', () => {
     const t = trailers.find((x) => x.slug === 'classic-33fb-2026');
     const html = renderExploreCard(t, assetPaths);
-    assert.ok(html.includes('tow-diff--card'), 'card tow difficulty badge missing');
-    assert.ok(html.includes('tow-diff-dot'), 'card tow difficulty dots missing');
+    assert.ok(!html.includes('tow-diff--card'), 'editorial card must not render tow difficulty badge');
+    assert.ok(!html.includes('tow-diff-dot'), 'editorial card must not render difficulty dots');
   });
 
   it('detail page includes compare button', () => {

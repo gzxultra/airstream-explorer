@@ -7,3 +7,5 @@ Thumbs.db
 scripts/campdata/.cache/
 audits/
 screenshots/audit/
+
+node_modules

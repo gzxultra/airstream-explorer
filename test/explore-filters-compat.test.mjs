@@ -93,8 +93,9 @@ test('compat table shows margin with + for safe vehicles, on the binding limit',
   assert.ok(html.includes('binding of three checks'), 'intro explains the three-limit verdict');
 });
 
-test('detail page keeps vehicles section as a Tow-chapter anchor (not a top-bar item)', () => {
+test('detail page keeps vehicles table inside Towing (redesign 2026-09-27)', () => {
   const t = trailers.find(t => t.slug === 'flying-cloud-25fb-2026');
   const html = renderDetail(t, undefined, null, null, trailers);
-  assert.ok(html.includes('id="vehicles"'), 'vehicles section stays in page');
+  assert.ok(html.includes('compat-vehicles'), 'vehicles table stays in page');
+  assert.ok(html.includes('id="tow"'), 'inside tow section');
 });

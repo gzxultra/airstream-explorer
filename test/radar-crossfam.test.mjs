@@ -7,44 +7,29 @@ import { loadTrailers, assetPaths } from '../src/lib/data.mjs';
 const trailers = loadTrailers();
 const t2026 = trailers.filter((t) => t.year === 2026);
 
-test('detail page contains a radar chart SVG with 6 axes', () => {
+test('detail page has no radar chart (redesign 2026-09-27: removed)', () => {
   const t = t2026.find((t) => t.slug === 'classic-33fb-2026');
   const html = renderDetail(t, assetPaths, null, trailers);
-  assert.ok(html.includes('radar-chart'), 'radar-chart wrapper present');
-  assert.ok(html.includes('radar-svg'), 'radar SVG present');
-  // 6 axis labels
-  const labelMatches = html.match(/radar-label/g);
-  assert.ok(labelMatches && labelMatches.length >= 6, `has 6 radar labels, got ${labelMatches?.length}`);
-  // 6 data dots
-  const dotMatches = html.match(/radar-dot/g);
-  assert.ok(dotMatches && dotMatches.length >= 6, `has 6 radar dots, got ${dotMatches?.length}`);
-  // 3 concentric rings
-  const ringMatches = html.match(/radar-ring/g);
-  assert.ok(ringMatches && ringMatches.length === 3, `has 3 radar rings, got ${ringMatches?.length}`);
-  // Polygon data fill and stroke
-  assert.ok(html.includes('radar-fill'), 'has radar fill polygon');
-  assert.ok(html.includes('radar-stroke'), 'has radar stroke polygon');
+  assert.ok(!html.includes('radar-chart'), 'radar-chart removed');
+  assert.ok(!html.includes('radar-svg'), 'radar SVG removed');
+  assert.ok(!html.includes('radar-label'), 'radar labels removed');
 });
 
-test('radar chart labels include expected axis names', () => {
+test('no radar axis labels (redesign 2026-09-27: removed)', () => {
   const t = t2026.find((t) => t.slug === 'bambi-16rb-2026');
   const html = renderDetail(t, assetPaths, null, trailers);
-  const expectedLabels = ['Off-grid', 'Cargo', 'Sleeps', 'Compact', 'Light', 'Value'];
-  for (const label of expectedLabels) {
-    assert.ok(html.includes(`>${label}<`), `radar has axis label "${label}"`);
-  }
+  assert.ok(!html.includes('radar-chart'), 'no radar chart');
 });
 
-test('detail page contains detail-overview wrapper with desc + radar', () => {
+test('detail page contains detail-overview wrapper with desc + amenity summary (redesign 2026-09-27)', () => {
   const t = t2026.find((t) => t.slug === 'flying-cloud-25fb-2026');
   const html = renderDetail(t, assetPaths, null, trailers);
   assert.ok(html.includes('detail-overview'), 'detail-overview wrapper present');
-  // desc and radar are siblings inside the wrapper
+  // desc and amenity summary are inside the wrapper; radar is gone
   const overviewIdx = html.indexOf('detail-overview');
   const descIdx = html.indexOf('detail-desc', overviewIdx);
-  const radarIdx = html.indexOf('radar-chart', overviewIdx);
   assert.ok(descIdx > overviewIdx, 'desc inside overview');
-  assert.ok(radarIdx > overviewIdx, 'radar inside overview');
+  assert.ok(!html.includes('radar-chart'), 'no radar in overview');
 });
 
 test('cross-family section shows recommendations from OTHER families', () => {
@@ -96,13 +81,13 @@ test('all detail pages render without error', () => {
   for (const t of trailers) {
     // Should not throw
     const html = renderDetail(t, assetPaths, null, trailers);
-    assert.ok(html.includes('radar-chart'), `${t.slug} has radar chart`);
+    assert.ok(html.includes('dsec-title'), `${t.slug} has section titles`);
   }
 });
 
-test('section nav has data-secnav attribute for scroll spy', () => {
+test('no section nav (redesign 2026-09-27: removed)', () => {
   const t = t2026.find((t) => t.slug === 'classic-33fb-2026');
   const html = renderDetail(t, assetPaths, null, trailers);
-  assert.ok(html.includes('data-secnav'), 'section nav has data-secnav');
-  assert.ok(html.includes('secnav-link'), 'section nav has links');
+  assert.ok(!html.includes('data-secnav'), 'no data-secnav');
+  assert.ok(!html.includes('secnav-link'), 'no secnav links');
 });

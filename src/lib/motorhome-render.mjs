@@ -24,22 +24,26 @@ function esc(s) {
     .replace(/'/g, '&#39;');
 }
 
+// Chrome icon set — 2026-09 icon spec (design-2026-09/icons.md): monochrome
+// linear inline SVG, 1.5px stroke, currentColor, decorative (aria-hidden).
+// Mirrors render.mjs (dual-write: keep both page() copies in sync).
+const ICON_COMPASS = '<svg class="nav-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M16 8l-2.6 5.4L8 16l2.6-5.4z"/></svg>';
+const ICON_COLUMNS = '<svg class="nav-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="1"/><line x1="12" y1="4" x2="12" y2="20"/></svg>';
+const ICON_BOOK = '<svg class="nav-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>';
+
 // Navigation items — unified Explore hub (motorhomes live inside Explore now).
+// 2026-09 redesign: exactly 3 tabs — Explore / Compare / Owner's guide.
 const NAV_ITEMS = [
-  ['index.html', 'Explore', 'index'],
-  ['saved.html', 'Saved', 'saved'],
-  ['upgrades.html', 'Upgrades', 'upgrades'],
-  ['maintenance.html', 'Maintenance', 'maintenance'],
+  ['index.html', 'Explore', 'index', ICON_COMPASS],
+  ['compare.html', 'Compare', 'compare', ICON_COLUMNS],
+  ['owners-guide.html', "Owner's guide", 'owners', ICON_BOOK],
 ];
 
-function page({ title, description, body, relRoot = '', head = '', scripts = '', active = '', canonicalPath = '', ogImage = '', ogType = 'website', campCss = false }) {
+function page({ title, description, body, relRoot = '', head = '', scripts = '', active = '', canonicalPath = '', ogImage = '', ogType = 'website' }) {
   const _stats = catalogStats();
-  const navLinks = NAV_ITEMS.map(([href, label, key]) => {
+  const navLinks = NAV_ITEMS.map(([href, label, key, icon]) => {
     const on = key === active;
-    const inner = key === 'saved'
-      ? `${label} <span class="nav-badge" id="nav-saved-count" hidden aria-hidden="true"></span>`
-      : label;
-    return `<a href="${relRoot}${href}"${on ? ' class="is-active" aria-current="page"' : ''}${key === 'saved' ? ' data-nav-saved' : ''}>${inner}</a>`;
+    return `<a href="${relRoot}${href}"${on ? ' class="is-active" aria-current="page"' : ''}>${icon}<span>${label}</span></a>`;
   }).join('\n');
   return `<!DOCTYPE html>
 <html lang="en">
@@ -51,9 +55,10 @@ function page({ title, description, body, relRoot = '', head = '', scripts = '',
 <meta name="description" content="${esc(description)}">
 ${socialMeta({ title, description, canonicalPath, imagePath: ogImage, type: ogType })}
 ${iconMeta(relRoot)}
+<link rel="preload" as="font" type="font/woff2" crossorigin href="${relRoot}assets/fonts/fraunces-600-latin.woff2">
 <link rel="stylesheet" href="${relRoot}assets/css/fonts.css">
 <link rel="stylesheet" href="${relRoot}assets/css/site.css">
-${campCss ? `<link rel="stylesheet" href="${relRoot}assets/css/campgrounds.css">\n` : ''}<link rel="stylesheet" href="${relRoot}assets/css/controls.css">
+<link rel="stylesheet" href="${relRoot}assets/css/controls.css">
 <link rel="stylesheet" href="${relRoot}assets/css/premium.css">
 <link rel="stylesheet" href="${relRoot}assets/css/theme.css">
 <link rel="stylesheet" href="${relRoot}assets/css/print.css" media="print">
@@ -67,8 +72,8 @@ ${head}</head>
 <nav class="topnav-links" aria-label="Primary">
 ${navLinks}
 <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch color theme" title="Switch color theme">
-<svg class="theme-icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"></circle><line x1="12" y1="2" x2="12" y2="4.5"></line><line x1="12" y1="19.5" x2="12" y2="22"></line><line x1="2" y1="12" x2="4.5" y2="12"></line><line x1="19.5" y1="12" x2="22" y2="12"></line><line x1="4.6" y1="4.6" x2="6.4" y2="6.4"></line><line x1="17.6" y1="17.6" x2="19.4" y2="19.4"></line><line x1="4.6" y1="19.4" x2="6.4" y2="17.6"></line><line x1="17.6" y1="6.4" x2="19.4" y2="4.6"></line></svg>
-<svg class="theme-icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.2A8.2 8.2 0 1 1 9.8 3.5a6.4 6.4 0 0 0 10.7 10.7z"></path></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"></circle><line x1="12" y1="2" x2="12" y2="4.5"></line><line x1="12" y1="19.5" x2="12" y2="22"></line><line x1="2" y1="12" x2="4.5" y2="12"></line><line x1="19.5" y1="12" x2="22" y2="12"></line><line x1="4.6" y1="4.6" x2="6.4" y2="6.4"></line><line x1="17.6" y1="17.6" x2="19.4" y2="19.4"></line><line x1="4.6" y1="19.4" x2="6.4" y2="17.6"></line><line x1="17.6" y1="6.4" x2="19.4" y2="4.6"></line></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.2A8.2 8.2 0 1 1 9.8 3.5a6.4 6.4 0 0 0 10.7 10.7z"></path></svg>
 </button>
 <button type="button" class="unit-toggle" id="unit-toggle" aria-label="Switch units to metric" title="Switch to metric units" aria-pressed="false">
 <span class="unit-toggle-label" id="unit-label">lb/ft</span>
@@ -91,15 +96,16 @@ ${body}
 </ul>
 </div>
 <div class="footer-col">
-<p class="footer-heading">Plan your trip</p>
+<p class="footer-heading">Ownership</p>
 <ul class="footer-links">
-<li><a href="${relRoot}upgrades.html">Upgrades</a></li>
-<li><a href="${relRoot}maintenance.html">Maintenance</a></li>
+<li><a href="${relRoot}owners-guide.html">Owner's guide</a></li>
+<li><a href="${relRoot}towguide.html">Tow guide</a></li>
 </ul>
 </div>
 <div class="footer-col">
-<p class="footer-heading">Community</p>
+<p class="footer-heading">Reference</p>
 <ul class="footer-links">
+<li><a href="${relRoot}glossary.html">RV glossary</a></li>
 <li><a href="${relRoot}credits.html">Credits &amp; sources</a></li>
 <li><a href="https://www.airstream.com/" target="_blank" rel="noopener">airstream.com ↗</a></li>
 </ul>
@@ -113,15 +119,15 @@ ${body}
 </footer>
 <div class="lightbox" id="lightbox" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Photo viewer">
 <div class="lightbox-backdrop" data-lb-close></div>
-<button type="button" class="lightbox-close" data-lb-close aria-label="Close (Esc)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg></button>
-<button type="button" class="lightbox-nav lightbox-prev" data-lb-prev aria-label="Previous photo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 5 8 12 15 19"></polyline></svg></button>
+<button type="button" class="lightbox-close" data-lb-close aria-label="Close (Esc)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg></button>
+<button type="button" class="lightbox-nav lightbox-prev" data-lb-prev aria-label="Previous photo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 5 8 12 15 19"></polyline></svg></button>
 <figure class="lightbox-stage">
 <img class="lightbox-img" id="lightbox-img" alt="">
 <figcaption class="lightbox-caption" id="lightbox-caption"></figcaption>
 </figure>
-<button type="button" class="lightbox-nav lightbox-next" data-lb-next aria-label="Next photo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 5 16 12 9 19"></polyline></svg></button>
+<button type="button" class="lightbox-nav lightbox-next" data-lb-next aria-label="Next photo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 5 16 12 9 19"></polyline></svg></button>
 </div>
-<button type="button" class="back-to-top" id="back-to-top" aria-label="Back to top" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
+<button type="button" class="back-to-top" id="back-to-top" aria-label="Back to top" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
 <div class="kb-help" id="kb-help" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
 <div class="kb-help-backdrop" data-kb-close></div>
 <div class="kb-help-panel">
@@ -142,20 +148,14 @@ ${body}
 </div>
 </div>
 <script src="${relRoot}assets/js/app.js" defer></script>
-<button type="button" class="scroll-top" id="scroll-top" aria-label="Scroll to top" title="Back to top" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
+<button type="button" class="scroll-top" id="scroll-top" aria-label="Scroll to top" title="Back to top" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
 ${scripts}</body>
 </html>`;
 }
 
-function specRow(label, value) {
-  return `<div class="spec"><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`;
-}
-
-/** Tiny inline range bar showing where a value sits in the fleet range. */
-function renderRangeBar(value, range, label) {
-  const pos = rangePosition(value, range);
-  if (pos == null) return '';
-  return `<span class="range-bar" aria-label="${esc(label)}: ${pos}th percentile in lineup" title="${esc(label)}: ${pos}th percentile"><span class="range-bar-track"><span class="range-bar-fill" style="width:${pos}%"></span></span></span>`;
+function specRow(label, value, { unit = null, raw = null } = {}) {
+  const unitAttr = unit && raw != null ? ` data-unit="${esc(unit)}" data-raw="${esc(String(raw))}"` : '';
+  return `<div class="spec"><dt>${esc(label)}</dt><dd${unitAttr}>${esc(value)}</dd></div>`;
 }
 
 function tagChips(tags) {
@@ -173,19 +173,41 @@ function tagChips(tags) {
  * A family card for the motorhome home grid.
  */
 
+// ---------------------------------------------------------------------------
+// MOTORHOME DETAIL REDESIGN (2026-09-27, approved): same quiet-luxury system
+// as trailers — zero emoji, literal "n/a" for missing values, dsec/dsec-title
+// section treatment, unified header actions (Save/Share/Compare only).
+// Gallery cutout/photo class mapping is character-for-character preserved.
+// ---------------------------------------------------------------------------
+
+/** Missing-value marker for motorhome detail pages: literal "n/a". */
+function mna(s) {
+  return String(s == null ? '' : s).replace(/—/g, 'n/a');
+}
+
+/** Single-stroke (1.5px, currentColor) line icons for key stats. */
+const MM_KS_ICONS = {
+  length: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="9" width="19" height="6" rx="1"/><path d="M6.5 9v2.5M10.5 9v1.8M14.5 9v2.5M18 9v1.8"/></svg>',
+  weight: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="14" r="6.5"/><path d="M12 7.5V4M9.5 4h5"/></svg>',
+  sleeps: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18V6"/><path d="M3 13h18v5"/><path d="M3 15.5h18"/><circle cx="6.2" cy="9.6" r="1.6"/></svg>',
+  price: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11.5v-8h8L20 12l-8.5 8.5z"/><circle cx="8" cy="8" r="1.3"/></svg>',
+  battery: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="8" width="17" height="8.5" rx="1.5"/><path d="M21.8 11v3"/><path d="M7 11v3M11 11v3"/></svg>',
+  water: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5c3.4 4.4 5.8 7.6 5.8 10.6a5.8 5.8 0 1 1-11.6 0c0-3 2.4-6.2 5.8-10.6z"/></svg>',
+};
+
 /** Render the key-stats dashboard below the motorhome detail hero. */
 function renderMotorhomeKeyStats(m) {
   const days = waterAutonomy(m.freshGal);
   const stats = [
-    { icon: '📐', value: formatLength(m.lengthFt), label: 'Length' },
-    { icon: '⚖️', value: formatWeight(m.weightLb), label: 'Base weight' },
-    { icon: '🛏️', value: String(m.sleeps), label: 'Sleeps', note: m.sleepsNote || null },
-    { icon: '💰', value: formatMsrpShort(m.msrp), label: 'Base MSRP' },
-    m.offGridScore ? { icon: '🔋', value: offGridTier(m.offGridScore), label: 'Off-grid', title: `Editorial composite ${m.offGridScore}/100 — not an official Airstream rating` } : null,
-    days ? { icon: '💧', value: `~${days}`, label: 'Water days (2 ppl)' } : null,
+    { icon: 'length', value: mna(formatLength(m.lengthFt)), label: 'Length' },
+    { icon: 'weight', value: mna(formatWeight(m.weightLb)), label: 'Base weight' },
+    { icon: 'sleeps', value: m.sleeps != null ? String(m.sleeps) : 'n/a', label: 'Sleeps', note: m.sleepsNote || null },
+    { icon: 'price', value: mna(formatMsrpShort(m.msrp)), label: 'Base MSRP' },
+    m.offGridScore ? { icon: 'battery', value: offGridTier(m.offGridScore), label: 'Off-grid', title: `Editorial composite ${m.offGridScore}/100 — not an official Airstream rating` } : null,
+    days ? { icon: 'water', value: `~${days}`, label: 'Water days (2 ppl)' } : null,
   ].filter(Boolean);
   return `<div class="key-stats" aria-label="Key specifications at a glance">${stats.map((s) =>
-    `<div class="key-stat"><span class="key-stat-icon" aria-hidden="true">${s.icon}</span><span class="key-stat-value"${s.title ? ` title="${esc(s.title)}"` : ''}>${esc(s.value)}</span><span class="key-stat-label">${esc(s.label)}</span>${s.note ? `<span class="key-stat-note">${esc(s.note)}</span>` : ''}</div>`
+    `<div class="key-stat"><span class="key-stat-icon" aria-hidden="true">${MM_KS_ICONS[s.icon]}</span><span class="key-stat-value"${s.title ? ` title="${esc(s.title)}"` : ''}>${esc(s.value)}</span><span class="key-stat-label">${esc(s.label)}</span>${s.note ? `<span class="key-stat-note">${esc(s.note)}</span>` : ''}</div>`
   ).join('')}</div>`;
 }
 
@@ -210,13 +232,13 @@ export function renderMotorhomeFamilyCard(fam, linkPrefix = '') {
   const len = formatLengthRange(fam.lengthMin, fam.lengthMax);
   const plans = `${fam.floorplanCount} floorplan${fam.floorplanCount === 1 ? '' : 's'}`;
   const yrs = fam.years.join(' + ');
-  return `<a class="fam" href="${linkPrefix}mf/${esc(fam.slug)}.html" data-family="${esc(fam.family)}">
+  return `<a class="fam" href="${linkPrefix}motorhomes.html#mf-${esc(fam.slug)}" data-family="${esc(fam.family)}">
 <div class="fam-media">
 <img src="${linkPrefix}${esc(fam.hero)}" alt="Airstream ${esc(fam.family)}" loading="lazy" width="800" height="500">
 <span class="fam-plans">${esc(plans)}</span>
 </div>
 <div class="fam-body">
-<h2 class="fam-name">${esc(fam.family)}</h2>
+<span class="fam-name">${esc(fam.family)}</span>
 <p class="fam-range">${esc(range)}</p>
 <dl class="fam-stats">
 ${specRow('Length', len)}
@@ -232,37 +254,46 @@ ${specRow('Years', yrs)}
  * plus an all-floorplans explore section.
  */
 export function renderMotorhomeIndex(families, motorhomes = [], resolve = motorhomeAssetPaths) {
-  const cards = families.map((f) => renderMotorhomeFamilyCard(f, '')).join('\n');
   const totalPlans = families.reduce((n, f) => n + f.floorplanCount, 0);
   const heroBand = `<header class="hero-head">
 <p class="eyebrow">AIRSTREAM TOURING COACHES · CLASS B</p>
 <h1>Motorhomes — every touring coach</h1>
 <p class="lede">A guide to Airstream's 2026–2027 Class B motorhome (touring coach) lineup — ${families.length} families, ${totalPlans} floorplans. Drive-away adventure with no tow vehicle needed.</p>
 </header>`;
-  // Explore cards for all motorhomes
-  const ordered = [...motorhomes].sort(
-    (a, b) => a.msrp - b.msrp || `${a.model} ${a.floorplan}`.localeCompare(`${b.model} ${b.floorplan}`),
-  );
-  const exploreCards = ordered.map((m) => renderMotorhomeExploreCard(m, resolve)).join('\n');
-  // motorhomes.html is now an entry point INTO the unified Explore hub: with JS
-  // it bounces to index.html#all&type=motorhome (Explore pre-filtered to
-  // motorhomes). Without JS the full motorhome catalog below still renders, so
-  // the nav link / old bookmarks never dead-end. Same shim mechanism as the
-  // legacy explore.html redirect.
-  const body = `<div class="explore-shim" data-redirect="index.html#all&type=motorhome">
-<p class="explore-shim-note"><a href="index.html#all&type=motorhome">Motorhomes now live in the unified Explore hub →</a></p>
+  // One section per family — the old /mf/ family pages, absorbed inline:
+  // family title, intro, hero image, and its floorplan cards on one page.
+  const sections = families
+    .map((fam) => {
+      const cards = [...fam.motorhomes]
+        .sort((a, b) => a.msrp - b.msrp || `${a.model} ${a.floorplan}`.localeCompare(`${b.model} ${b.floorplan}`))
+        .map((m) => renderMotorhomeCard(m, resolve, ''))
+        .join('\n');
+      const range = formatPriceRange(fam.priceMin, fam.priceMax);
+      const len = formatLengthRange(fam.lengthMin, fam.lengthMax);
+      const famOfficial = motorhomeOfficialUrl(fam.family);
+      const intro = fam.motorhomes.length && fam.motorhomes[0].description
+        ? fam.motorhomes[0].description.split('.')[0] + '.'
+        : '';
+      const famHero = fam.hero
+        ? `<div class="mh-family-hero"><img src="${esc(fam.hero)}" ${heroImgAttrs(fam.hero)} alt="Airstream ${esc(fam.family)}" width="1280" height="720" loading="lazy"></div>`
+        : '';
+      return `<section class="mh-family" id="mf-${esc(fam.slug)}" aria-label="Airstream ${esc(fam.family)}">
+${famHero}
+<div class="mh-family-head">
+<p class="eyebrow">TOURING COACH · ${esc(fam.years.join(' + '))}</p>
+<h2>${esc(fam.family)}</h2>
+${intro ? `<p class="mh-family-intro">${esc(intro)}</p>` : ''}
+<p class="mh-family-meta">${esc(range)} · ${esc(len)} · ${esc(fam.floorplanCount)} floorplan${fam.floorplanCount === 1 ? '' : 's'} · sleeps up to ${esc(fam.sleepsMax)}</p>
+${famOfficial ? `<p class="mh-family-official"><a class="official-link" href="${esc(famOfficial)}" target="_blank" rel="noopener">View ${esc(fam.family)} on airstream.com ↗</a></p>` : ''}
 </div>
-${heroBand}
-<div class="fam-grid" id="families">
+<div class="cards">
 ${cards}
 </div>
-<section class="explore-head" id="all-motorhomes">
-<h2>All ${motorhomes.length} touring coach floorplans</h2>
-<p class="lede">Every motorhome by the numbers — compare specs, off-grid capability, and pricing.</p>
-</section>
-<div class="xgrid" id="xgrid">
-${exploreCards}
-</div>`;
+</section>`;
+    })
+    .join('\n');
+  const body = `${heroBand}
+${sections}`;
   return page({
     title: 'Airstream Motorhomes — Class B touring coaches',
     description: `A catalog of Airstream Class B motorhomes (touring coaches, 2026–2027 model years): ${families.length} families, ${totalPlans} floorplans, with dimensions, weights, off-grid and pricing.`,
@@ -271,6 +302,7 @@ ${exploreCards}
     canonicalPath: 'motorhomes.html',
   });
 }
+
 
 // ---------------------------------------------------------------------------
 // MOTORHOME FAMILY: floorplans within one model
@@ -364,10 +396,10 @@ function renderMotorhomeOffGridTool(m) {
   const intensityOpts = Object.entries(LOAD_PRESETS)
     .map(([k, v]) => `<option value="${esc(k)}"${k === 'moderate' ? ' selected' : ''}>${esc(v.label)} — ${esc(v.blurb)}</option>`)
     .join('');
-  return `<section class="estimator offgrid-tool" id="offgrid" aria-label="Off-grid endurance estimator"
+  return `<section class="estimator offgrid-tool dsec" id="offgrid" aria-label="Off-grid endurance estimator"
  data-battery="${esc(m.batteryKwh)}" data-solar="${esc(m.solarW || 0)}" data-fresh="${esc(m.freshGal)}" data-gray="${esc(m.grayGal == null ? '' : m.grayGal)}" data-black="${esc(m.blackGal == null ? '' : m.blackGal)}">
 <div class="est-head">
-<h2>How long off-grid?</h2>
+<h2 class="dsec-title">How long off-grid?</h2>
 <p class="est-sub">Boondocking endurance for this motorhome — modeled from its real ${esc(m.batteryKwh)} kWh battery, ${m.solarW ? `${esc(m.solarW)} W solar` : 'no factory solar'}, and ${esc(m.freshGal)} gal fresh tank.</p>
 </div>
 <div class="est-controls">
@@ -438,18 +470,6 @@ function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 // ---------------------------------------------------------------------------
 // SECTION QUICK-NAV + RELATED for motorhome detail pages
 // ---------------------------------------------------------------------------
-function buildMotorhomeSectionNav(galleryCount) {
-  const items = [
-    ['#specs', 'Specs'],
-    ['#offgrid', 'Off-grid'],
-    galleryCount ? ['#gallery', 'Gallery'] : null,
-  ].filter(Boolean);
-  if (items.length < 2) return '';
-  const links = items.map(([href, label]) =>
-    `<a href="${href}" class="secnav-link">${esc(label)}</a>`).join('');
-  return `<nav class="secnav" aria-label="Page sections" data-secnav>${links}</nav>`;
-}
-
 // ---------------------------------------------------------------------------
 // HERO RESPONSIVE VARIANTS (perf #28). Every 1280x720 hero ships with -640 and
 // -960 WebP variants (scripts/gen-hero-variants.sh). The build's fingerprint
@@ -481,7 +501,7 @@ function buildMotorhomeSpecText(m) {
     `Tanks: ${formatTanks(m.freshGal, m.grayGal, m.blackGal)}`,
     m.solarW ? `Solar: ${m.solarW}W ${m.solarStandard ? '(standard)' : '(optional)'}` : null,
     m.batteryKwh ? `Battery: ${m.batteryKwh} kWh` : null,
-    `Off-grid: ${offGridTier(m.offGridScore) || '—'} (editorial composite ${m.offGridScore}/100)`,
+    `Off-grid: ${offGridTier(m.offGridScore) || 'n/a'} (editorial composite ${m.offGridScore}/100)`,
     `MSRP: ${formatMsrp(m.msrp)}`,
   ].filter(Boolean);
   // Use || separator (split back to \n in client JS for clipboard copy)
@@ -518,8 +538,8 @@ function renderMotorhomeRelated(current, allMotorhomes, resolve) {
   const heading = related.every((r) => r.model === current.model)
     ? `More ${esc(current.model)} floorplans`
     : 'Explore similar motorhomes';
-  return `<section class="related" aria-label="Related motorhomes">
-<h2>${heading}</h2>
+  return `<section class="dsec related" aria-label="Related motorhomes">
+<h2 class="dsec-title">${heading}</h2>
 <div class="related-grid">${cards}</div>
 </section>`;
 }
@@ -541,9 +561,6 @@ export function renderMotorhomeDetail(m, resolve = motorhomeAssetPaths, allMotor
     .join('\n');
   const pros = (m.pros || []).map((p) => `<li>${esc(p)}</li>`).join('');
   const cons = (m.cons || []).map((c) => `<li>${esc(c)}</li>`).join('');
-  // Section quick-nav
-  const sectionNav = buildMotorhomeSectionNav(galleryCount);
-  // Related motorhomes
   const relatedSection = renderMotorhomeRelated(m, allMotorhomes, resolve);
   const mmBreadcrumbItems = [
     { name: 'Airstream Explorer', path: 'index.html' },
@@ -557,9 +574,7 @@ export function renderMotorhomeDetail(m, resolve = motorhomeAssetPaths, allMotor
     + `<li><a href="../mf/${esc(fam)}.html">${esc(m.model)}</a></li>`
     + `<li aria-current="page">${esc(m.floorplan)}</li>`
     + `</ol></nav>`;
-  const body = `<div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
-${mmBreadcrumbHtml}
-${sectionNav}
+  const body = `${mmBreadcrumbHtml}
 <article class="detail" data-canonical="mm/${esc(m.slug)}.html" data-spec-text="${esc(buildMotorhomeSpecText(m))}">
 <header class="detail-head">
 <p class="eyebrow">${esc(m.year)} MODEL YEAR · CLASS ${esc(m.classType || 'B')} MOTORHOME</p>
@@ -567,11 +582,8 @@ ${sectionNav}
 <h1>${esc(m.model)} <span>${esc(m.floorplan)}</span></h1>
 ${saveButton(m.slug, 'motorhome', trailerLabel(m), 'detail')}
 </div>
-${tagChips(m.tags)}
-<div class="share-actions" data-share-actions>
+<div class="detail-actions" data-share-actions>
 <button type="button" class="share-btn" id="detail-share" aria-label="Share this page" title="Share this page"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg> Share</button>
-<button type="button" class="share-btn" id="detail-copy-specs" aria-label="Copy specs to clipboard" title="Copy specs to clipboard"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg> Copy specs</button>
-<button type="button" class="share-btn" id="detail-print" aria-label="Print spec sheet" title="Print spec sheet"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 012 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> Print</button>
 <button type="button" class="share-btn" id="detail-compare" data-compare-slug="${esc(m.slug)}" data-compare-type="motorhome" aria-label="Add to comparison" title="Add to comparison"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Compare</button>
 </div>
 ${official ? `<p class="official-head"><a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">Official ${esc(m.model)} page on airstream.com ↗</a></p>` : ''}
@@ -579,8 +591,8 @@ ${official ? `<p class="official-head"><a class="official-link" href="${esc(offi
 <div class="detail-hero">${heroImg}</div>
 ${renderMotorhomeKeyStats(m)}
 <p class="detail-desc">${esc(m.description)}</p>
-<section class="spec-table" id="specs" aria-label="Specifications">
-<h2>Specifications</h2>
+<section class="dsec spec-table" id="specs" aria-label="Specifications">
+<h2 class="dsec-title">Specifications</h2>
 <dl class="specs-grid">
 ${specRow('Length', formatLength(m.lengthFt))}
 ${m.heightFt ? specRow('Height', formatLength(m.heightFt)) : ''}
@@ -592,32 +604,32 @@ ${specRow('Chassis', m.chassis)}
 ${specRow('Engine', m.engine)}
 ${m.horsepower ? specRow('Horsepower', `${m.horsepower} hp`) : ''}
 ${m.torqueLbFt ? specRow('Torque', `${m.torqueLbFt} lb-ft`) : ''}
-${specRow('Drivetrain', m.drivetrain || '—')}
-${specRow('Fuel type', m.fuelType || '—')}
+${specRow('Drivetrain', m.drivetrain || 'n/a')}
+${specRow('Fuel type', m.fuelType || 'n/a')}
 ${m.transmission ? specRow('Transmission', m.transmission) : ''}
 ${specRow('Sleeps', String(m.sleeps))}
 ${m.seats ? specRow('Seats', String(m.seats)) : ''}
-${specRow('Fresh / gray / black', formatTanks(m.freshGal, m.grayGal, m.blackGal))}
+${specRow('Fresh / gray / black', mna(formatTanks(m.freshGal, m.grayGal, m.blackGal)))}
 ${m.fuelTankGal ? specRow('Fuel tank', `${m.fuelTankGal} gal`) : ''}
-${specRow('Solar', m.solarW ? `${m.solarW} W ${m.solarStandard ? '(standard)' : '(optional)'}` : '—')}
-${specRow('Battery', m.batteryKwh ? `${m.batteryKwh} kWh` : '—')}
+${specRow('Solar', m.solarW ? `${m.solarW} W ${m.solarStandard ? '(standard)' : '(optional)'}` : 'n/a')}
+${specRow('Battery', m.batteryKwh ? `${m.batteryKwh} kWh` : 'n/a')}
 ${m.inverterW ? specRow('Inverter', `${m.inverterW} W`) : ''}
 ${m.shorePowerAmp ? specRow('Shore power', `${m.shorePowerAmp} A`) : ''}
-${specRow('Off-grid score', offGridTier(m.offGridScore) || '—')}
+${specRow('Off-grid score', offGridTier(m.offGridScore) || 'n/a')}
 ${specRow('MSRP', formatMsrp(m.msrp))}
 </dl>
 </section>
 ${renderMotorhomeWeightBar(m)}
 ${renderMotorhomeOffGridTool(m)}
-${pros || cons ? `<section class="proscons">
-${pros ? `<div class="pros"><h3>Strengths</h3><ul>${pros}</ul></div>` : ''}
-${cons ? `<div class="cons"><h3>Trade-offs</h3><ul>${cons}</ul></div>` : ''}
+${pros || cons ? `<section class="dsec proscons">
+${pros ? `<div class="pros"><h3 class="dsec-sub">Strengths</h3><ul>${pros}</ul></div>` : ''}
+${cons ? `<div class="cons"><h3 class="dsec-sub">Trade-offs</h3><ul>${cons}</ul></div>` : ''}
 </section>` : ''}
-${gallery ? `<section class="gallery" id="gallery" aria-label="Gallery"><h2>Gallery</h2><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
+${gallery ? `<section class="dsec gallery" id="gallery" aria-label="Gallery"><h2 class="dsec-title">Gallery</h2><div class="gallery-grid" data-gallery>${gallery}</div></section>` : ''}
 ${relatedSection}
 </article>`;
   return page({
-    title: `${trailerTitle(m)} — specs, weight & price`,
+    title: `${trailerTitle(m)} - specs, weight & price`,
     description: `${trailerTitle(m)}: ${formatLength(m.lengthFt)}, ${formatWeight(m.weightLb)} base, sleeps ${m.sleeps}, ${formatMsrp(m.msrp)}. Full specs, tanks, off-grid and gallery.`,
     body,
     relRoot: '../',
@@ -644,23 +656,41 @@ ${relatedSection}
  * One explore-grid card for motorhomes. Carries data-* attributes for
  * client-side filtering/sorting.
  */
-export function renderMotorhomeExploreCard(m, resolve = motorhomeAssetPaths, hidden = false, ranges = {}) {
+/**
+ * One motorhome card for the Explore grid. Editorial entry matching the
+ * trailer card: big photo, title, description lede, three numbers
+ * (GVWR / length / MSRP), and a small Save · Compare action row. Carries the
+ * same data-* contract as the trailer card so filters, sort, quick-view, CSV
+ * export and compare work across both types. Exported for tests; production
+ * grids render client-side from the JSON payload (see exploreCardData).
+ */
+export function renderMotorhomeExploreCard(m, resolve = motorhomeAssetPaths, hidden = false) {
   const a = resolve(m);
   const tags = (m.tags || []).join(' ');
-  return `<article class="xcard" data-slug="${esc(m.slug)}" data-type="motorhome" data-model="${esc(m.model)}" data-floorplan="${esc(m.floorplan)}" data-year="${esc(m.year)}" data-msrp="${esc(m.msrp)}" data-weight="${esc(m.weightLb)}" data-gvwr="${esc(m.gvwrLb)}" data-length="${esc(m.lengthFt)}" data-sleeps="${esc(m.sleeps)}" data-offgrid="${esc(m.offGridScore)}" data-tags="${esc(tags)}" data-name="${esc((m.model + ' ' + m.floorplan).toLowerCase())}"${hidden ? ' hidden' : ''}>
+  const galleryUrls = a.gallery && a.gallery.length ? a.gallery.slice(0, 6).join('|') : '';
+  const lede = (m.description || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .slice(0, 3)
+    .join(' · ');
+  const gvwr = m.gvwrLb > 0 ? formatWeight(m.gvwrLb) : 'n/a';
+  const len = m.lengthFt > 0 ? formatLength(m.lengthFt) : 'n/a';
+  const msrp = m.msrp > 0 ? formatMsrp(m.msrp) : 'n/a';
+  return `<article class="xcard" data-slug="${esc(m.slug)}" data-type="motorhome" data-model="${esc(m.model)}" data-floorplan="${esc(m.floorplan)}" data-year="${esc(m.year)}" data-msrp="${esc(m.msrp)}" data-weight="${esc(m.weightLb)}" data-gvwr="${esc(m.gvwrLb)}" data-length="${esc(m.lengthFt)}" data-sleeps="${esc(m.sleeps)}" data-offgrid="${esc(m.offGridScore)}" data-tags="${esc(tags)}" data-layout="" data-name="${esc((m.model + ' ' + m.floorplan).toLowerCase())}" data-ccc="${esc(m.nccLb || '')}" data-fresh="${esc(m.freshGal || '')}" data-gray="${esc(m.grayGal == null ? '' : m.grayGal)}" data-black="${esc(m.blackGal == null ? '' : m.blackGal)}" data-solar="${esc(m.solarW || '')}" data-hitch="" data-axle="" data-desc="${esc(m.description || '')}" data-thumb="${esc(a.thumb || '')}" data-gallery-urls="${esc(galleryUrls)}"${hidden ? ' hidden' : ''}>
 <a class="xcard-link" href="mm/${esc(m.slug)}.html">
 <div class="xcard-media">
 <img src="${esc(a.thumb)}" alt="${esc(trailerTitle(m))}" loading="lazy" width="400" height="260">
-<span class="xcard-year">${esc(m.year)}</span>
 ${a.gallery && a.gallery.length ? `<span class="xcard-photos" aria-label="${a.gallery.length} photos"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg> ${a.gallery.length}</span>` : ''}
+<button type="button" class="xcard-peek" data-peek aria-label="Quick view ${esc(trailerLabel(m))}" title="Quick view"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
 </div>
 <div class="xcard-body">
 <h3 class="xcard-title">${esc(m.model)} <span>${esc(m.floorplan)}</span></h3>
+${lede ? `<p class="xcard-lede">${esc(lede)}</p>` : ''}
 <dl class="xcard-specs">
-${specRow('Length', formatLength(m.lengthFt))}${renderRangeBar(m.lengthFt, ranges.lengthFt, 'Length')}
-${specRow('Base weight', formatWeight(m.weightLb))}${renderRangeBar(m.weightLb, ranges.weightLb, 'Base weight')}
-${specRow('Sleeps', String(m.sleeps))}
-${specRow('MSRP', formatMsrp(m.msrp))}${renderRangeBar(m.msrp, ranges.msrp, 'MSRP')}
+${specRow('GVWR', gvwr, { unit: 'weight', raw: m.gvwrLb })}
+${specRow('Length', len, { unit: 'length', raw: m.lengthFt })}
+${specRow('MSRP', msrp)}
 </dl>
 </div>
 </a>

@@ -107,17 +107,16 @@ test('section deep links: JS module present in app.js', () => {
   assert.ok(js.includes('location.hash'), 'reads initial hash');
 });
 
-test('section deep links: section IDs match section nav hrefs in detail pages', { skip: !existsSync(join(ROOT, 'dist', 'm')) && 'no dist' }, () => {
+test('section deep links: dsec section IDs are deep-linkable (redesign 2026-09-27)', { skip: !existsSync(join(ROOT, 'dist', 'm')) && 'no dist' }, () => {
   const trailers = loadTrailers();
   const t = trailers.find(x => x.year === 2026);
   assert.ok(t, 'found a 2026 trailer');
 
   const html = read(`dist/m/${t.slug}.html`);
-  const navHrefs = [...html.matchAll(/href="#([^"]+)"[^>]*class="secnav-link"/g)].map(m => m[1]);
-  assert.ok(navHrefs.length >= 3, `section nav has ${navHrefs.length} links (>=3)`);
-
-  for (const id of navHrefs) {
-    assert.ok(html.includes(`id="${id}"`), `section id="${id}" exists in page`);
+  // Redesign: no section nav, but the 11-module dsec sections keep stable IDs
+  assert.ok(!html.includes('class="secnav"'), 'no section nav in redesign');
+  for (const id of ['specs', 'tow', 'offgrid', 'gallery', 'care', 'more']) {
+    assert.ok(html.includes(`id="${id}"`), `section id="${id}" exists for deep linking`);
   }
 });
 

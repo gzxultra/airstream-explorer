@@ -47,21 +47,25 @@ describe('unit toggle', () => {
     assert.match(html, /key-stat-value[^>]*data-unit="length"/);
   });
 
-  it('weight bar has data-unit on segments', () => {
+  it('no weight bar on trailer detail (redesign 2026-09-27: removed)', () => {
     const html = readDist('m/classic-33fb-2026.html');
-    assert.match(html, /weight-bar-gvwr[^>]*data-unit="weight"/);
-    assert.match(html, /weight-bar-seg-label[^>]*data-unit="weight"/);
+    assert.ok(!html.includes('weight-bar-gvwr'), 'weight bar removed from detail');
+    assert.ok(!html.includes('weight-bar-seg-label'), 'weight bar segments removed');
   });
 
-  it('tow callout GVWR value has data-unit', () => {
+  it('tow lede GVWR value has data-unit (redesign 2026-09-27)', () => {
     const html = readDist('m/classic-33fb-2026.html');
-    assert.match(html, /tow-callout-value[^>]*>.*data-unit="weight"/s);
+    assert.match(html, /tow-lede[^]*data-unit="weight"/);
   });
 
   it('explore cards have data-unit on weight and length', () => {
-    const html = readDist('index.html');
-    assert.match(html, /xcard-specs[^]*data-unit="weight"/);
-    assert.match(html, /xcard-specs[^]*data-unit="length"/);
+    // Cards are client-rendered from #xdata: assert on the xcardHTML template
+    // in app.js, which the unit toggle converts on the fly.
+    const js = readFileSync(join(ROOT, 'src/assets/js/app.js'), 'utf8');
+    assert.ok(js.includes("xSpecRow('GVWR', it.gvwrFmt, 'weight', it.gvwrLb)"),
+      'GVWR spec row carries the weight unit');
+    assert.ok(js.includes("xSpecRow('Length', it.lenFmt, 'length', it.lengthFt)"),
+      'Length spec row carries the length unit');
   });
 
   it('family compare table has data-unit on weight/length/tanks cells', () => {

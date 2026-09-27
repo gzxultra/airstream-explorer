@@ -1,4 +1,5 @@
-// Tests for weight-class segment bar, fleet snapshot dashboard, and card enter animation.
+// Tests for weight-class segment bar (retired from the explore page 2026-09),
+// fleet snapshot dashboard, and card enter animation.
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -10,42 +11,22 @@ const root = join(__dirname, '..');
 
 function readSrc(rel) { return readFileSync(join(root, rel), 'utf8'); }
 
-describe('weight class segment bar', () => {
-  it('renderWeightClassBar is exported from render.mjs', () => {
+describe('weight class segment bar retired from the explore page', () => {
+  it('renderWeightClassBar stays exported (shared helper)', () => {
     const src = readSrc('src/lib/render.mjs');
     assert.ok(src.includes('export function renderWeightClassBar'), 'renderWeightClassBar export missing');
   });
 
-  it('weight class bar is present in built index.html', () => {
+  it('weight class bar is NOT in built index.html', () => {
     const html = readSrc('dist/index.html');
-    assert.ok(html.includes('id="weight-class-bar"'), 'weight-class-bar element missing');
-    assert.ok(html.includes('data-wc="ultralight"'), 'ultralight segment missing');
-    assert.ok(html.includes('data-wc="light"'), 'light segment missing');
-    assert.ok(html.includes('data-wc="medium"'), 'medium segment missing');
-    assert.ok(html.includes('data-wc="heavy"'), 'heavy segment missing');
+    assert.ok(!html.includes('id="weight-class-bar"'), 'weight-class-bar element must be gone');
+    assert.ok(!html.includes('data-wc="ultralight"'), 'ultralight segment must be gone');
+    assert.ok(!html.includes('data-wc="heavy"'), 'heavy segment must be gone');
   });
 
-  it('segment counts add up to 31 (2026 lineup)', () => {
+  it('wc-clear button is NOT in built index.html', () => {
     const html = readSrc('dist/index.html');
-    const flexes = html.match(/class="wc-seg"[^>]*style="flex:(\d+)/g) || [];
-    const total = flexes.reduce((s, m) => {
-      const n = parseInt(m.match(/flex:(\d+)/)[1], 10);
-      return s + n;
-    }, 0);
-    assert.equal(total, 31, `expected 31 total weight-class models, got ${total}`);
-  });
-
-  it('each segment has proper aria-label with count and range', () => {
-    const html = readSrc('dist/index.html');
-    const segments = html.match(/data-wc="[^"]+"/g) || [];
-    assert.ok(segments.length >= 4, 'need at least 4 weight class segments');
-    assert.ok(html.includes('aria-label="Ultra-light:'), 'ultralight aria-label missing');
-  });
-
-  it('wc-clear button exists and starts hidden', () => {
-    const html = readSrc('dist/index.html');
-    assert.ok(html.includes('id="wc-clear"'), 'wc-clear button missing');
-    assert.ok(html.includes('wc-clear') && html.includes('hidden'), 'wc-clear should start hidden');
+    assert.ok(!html.includes('id="wc-clear"'), 'wc-clear button must be gone');
   });
 });
 

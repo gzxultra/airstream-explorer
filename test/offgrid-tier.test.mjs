@@ -24,17 +24,17 @@ describe('offGridTier — visible off-grid displays use three tiers, not raw num
     assert.equal(offGridTier(undefined), null);
   });
 
-  it('trailer key-stats show the tier with the composite disclosed in the title', () => {
+  it('off-grid tier appears in specs with composite disclosed (redesign 2026-09-27: not in key-stats)', () => {
     const trailers = loadTrailers();
     const t = trailers.find((x) => x.slug === 'classic-33fb-2026');
     const html = renderDetail(t);
-    // visible value is the tier…
-    assert.ok(html.includes('>Moderate</span>'), 'key-stat shows Moderate tier');
-    // …with the editorial composite + non-official disclosure in the title
-    assert.ok(html.includes('Editorial composite 65/100'), 'title discloses composite');
-    assert.ok(html.includes('not an official Airstream rating'), 'title discloses non-official status');
-    // raw "65/100" must not appear as a visible value
-    assert.ok(!html.includes('>65/100</span>'), 'raw score not shown as visible value');
+    // key-stats no longer has Off-grid (strictly 4: Length, Dry weight, Sleeps, Base MSRP)
+    const keyStatsStart = html.indexOf('<div class="key-stats"');
+    const keyStatsEnd = html.indexOf('</div></div>', keyStatsStart);
+    const keyStatsHtml = html.slice(keyStatsStart, keyStatsEnd);
+    assert.ok(!keyStatsHtml.includes('>Moderate</span>'), 'key-stats has no Off-grid tier');
+    // …but the tier is still in the specs table with disclosure
+    assert.ok(html.includes('Off-grid score'), 'specs table has Off-grid score');
   });
 
   it('trailer spec table shows the tier and the glossary discloses the editorial composite', () => {
@@ -54,7 +54,7 @@ describe('offGridTier — visible off-grid displays use three tiers, not raw num
     assert.ok(!html.includes(`>${m.offGridScore}/100</span>`), 'motorhome raw score not shown as visible value');
   });
 
-  it('the data layer keeps the raw numeric score for sorting/quiz/compare', () => {
+  it('the data layer keeps the raw numeric score for sorting/compare', () => {
     const trailers = loadTrailers();
     const t = trailers.find((x) => x.slug === 'classic-33fb-2026');
     assert.equal(typeof t.offGridScore, 'number');

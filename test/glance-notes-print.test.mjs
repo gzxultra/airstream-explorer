@@ -58,29 +58,28 @@ describe('At a Glance summary', () => {
     }
   });
 
-  it('glance-summary appears in rendered detail HTML', () => {
+  it('glance-summary does not appear in rendered detail HTML (redesign 2026-09-27: removed)', () => {
     const t = trailers.find((x) => x.slug === 'basecamp-16x-2026');
     const html = renderDetail(t, undefined, null, trailers);
-    assert.ok(html.includes('class="glance-summary"'), 'has glance-summary section');
-    assert.ok(html.includes('class="glance-heading"'), 'has heading');
-    assert.ok(html.includes('class="glance-item"'), 'has at least one item');
+    assert.ok(!html.includes('class="glance-summary"'), 'glance-summary removed');
+    assert.ok(!html.includes('class="glance-heading"'), 'glance heading removed');
+    assert.ok(!html.includes('class="glance-item"'), 'glance items removed');
   });
 });
 
 describe('Personal notes', () => {
-  it('notes section appears in detail HTML with correct slug', () => {
+  it('notes section does not appear in detail HTML (redesign 2026-09-27: removed)', () => {
     const t = trailers.find((x) => x.slug === 'bambi-16rb-2026');
     const html = renderDetail(t, undefined, null, trailers);
-    assert.ok(html.includes('class="personal-notes"'), 'has notes section');
-    assert.ok(html.includes('id="notes-input"'), 'has notes textarea');
-    assert.ok(html.includes('data-slug="bambi-16rb-2026"'), 'slug is set correctly');
-    assert.ok(html.includes('id="notes-status"'), 'has status indicator');
+    assert.ok(!html.includes('class="personal-notes"'), 'notes section removed');
+    assert.ok(!html.includes('id="notes-input"'), 'notes textarea removed');
+    assert.ok(!html.includes('id="notes-status"'), 'notes status removed');
   });
 
-  it('notes placeholder mentions dealer quotes', () => {
+  it('no notes placeholder (redesign 2026-09-27: removed)', () => {
     const t = trailers[0];
     const html = renderDetail(t, undefined, null, trailers);
-    assert.ok(html.includes('dealer quotes'), 'placeholder mentions dealer context');
+    assert.ok(!html.includes('notes-input'), 'no notes input anywhere');
   });
 });
 
@@ -120,7 +119,7 @@ describe('Dark mode support', () => {
 });
 
 describe('Build output verification', () => {
-  it('all 58 detail pages have glance and notes sections', () => {
+  it('no detail page has glance or notes sections (redesign 2026-09-27: removed)', () => {
     const detailDir = join(ROOT, 'dist/m');
     const { readdirSync } = require_fs;
     const htmlFiles = readdirSync(detailDir).filter((f) => f.endsWith('.html'));
@@ -132,7 +131,7 @@ describe('Build output verification', () => {
       if (content.includes('glance-summary')) withGlance++;
       if (content.includes('personal-notes')) withNotes++;
     }
-    assert.ok(withGlance >= 58, `expected >=58 pages with glance, got ${withGlance}`);
-    assert.strictEqual(withNotes, htmlFiles.length, 'every detail page has notes');
+    assert.strictEqual(withGlance, 0, 'no page should have glance');
+    assert.strictEqual(withNotes, 0, 'no page should have notes');
   });
 });

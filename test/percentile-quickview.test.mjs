@@ -83,21 +83,19 @@ describe('percentileLabel', () => {
 });
 
 describe('renderDetail percentile indicators', () => {
-  it('renders spec-pct elements for notable rankings', () => {
-    // The lightest 2026 trailer should definitely get a percentile badge
+  it('no spec-pct elements on detail page (redesign 2026-09-27: percentile bars removed)', () => {
+    // The lightest 2026 trailer would have gotten a percentile badge before the redesign
     const lightest = [...t2026].sort((a, b) => a.weightLb - b.weightLb)[0];
     const html = renderDetail(lightest, undefined, null, trailers);
-    assert.ok(html.includes('spec-pct'), `detail page for ${lightest.slug} should have percentile indicators`);
-    assert.ok(html.includes('spec-pct-bar'), 'should have visual bar');
-    assert.ok(html.includes('spec-pct-text'), 'should have text label');
+    assert.ok(!html.includes('spec-pct'), `detail page for ${lightest.slug} has no percentile indicators`);
+    assert.ok(!html.includes('spec-pct-bar'), 'no percentile bar');
+    assert.ok(!html.includes('spec-pct-text'), 'no percentile text label');
   });
 
-  it('percentile tiers use correct CSS classes', () => {
-    // Check that the CSS class tiers exist in the rendered output
+  it('no percentile tier CSS classes (redesign 2026-09-27: removed)', () => {
     const lightest = [...t2026].sort((a, b) => a.weightLb - b.weightLb)[0];
     const html = renderDetail(lightest, undefined, null, trailers);
-    // Lightest trailer should have top10 badges
-    assert.ok(html.includes('spec-pct--top10'), 'lightest trailer should get top10 badges');
+    assert.ok(!html.includes('spec-pct--top10'), 'no top10 badge class');
   });
 });
 

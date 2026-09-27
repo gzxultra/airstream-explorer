@@ -23,17 +23,16 @@ describe('key stats dashboard', () => {
     assert.ok(html.includes('class="key-stats"'));
   });
 
-  it('shows length, weight, sleeps, price, off-grid stats', () => {
+  it('shows length, weight, sleeps, price stats (redesign 2026-09-27: exactly 4)', () => {
     assert.ok(html.includes('key-stat-label">Length</span>'));
     assert.ok(html.includes('key-stat-label">Dry weight</span>'));
     assert.ok(html.includes('key-stat-label">Sleeps</span>'));
     assert.ok(html.includes('key-stat-label">Base MSRP</span>'));
-    assert.ok(html.includes('key-stat-label">Off-grid</span>'));
+    assert.ok(!html.includes('key-stat-label">Off-grid</span>'), 'no Off-grid stat');
   });
 
   it('shows correct values for Classic 33FB', () => {
     assert.ok(html.includes('8,425 lb'));  // dry weight
-    assert.ok(html.includes('Moderate'));  // off-grid tier (editorial composite 65/100)
   });
 
   it('renders key-stats on motorhome detail', () => {
@@ -50,29 +49,38 @@ describe('weight capacity bar', () => {
   const t = trailers.find((t) => t.slug === 'classic-33fb-2026');
   const html = renderDetail(t, resolve, null, trailers);
 
-  it('renders weight-bar on trailer detail', () => {
-    assert.ok(html.includes('class="weight-bar"'));
+  it('no weight-bar on trailer detail (redesign 2026-09-27: removed)', () => {
+    assert.ok(!html.includes('class="weight-bar"'), 'weight bar removed from trailer detail');
   });
 
-  it('shows correct dry weight and CCC segments', () => {
-    // Classic 33FB: 8425 dry / 10000 GVWR = 84% dry
-    assert.ok(html.includes('weight-bar-dry" style="width:84%"'));
-    assert.ok(html.includes('weight-bar-ccc" style="width:16%"'));
+  it('spec lede carries dry weight, GVWR and CCC (redesign 2026-09-27)', () => {
+    // Classic 33FB: 8425 dry / 10000 GVWR / 1575 CCC
+    assert.ok(html.includes('8,425 lb'), 'dry weight in spec lede');
+    assert.ok(html.includes('10,000 lb'), 'GVWR in spec lede');
+    assert.ok(html.includes('1,575 lb'), 'CCC in spec lede');
+    assert.ok(html.includes('Cargo capacity'), 'CCC label in spec lede');
   });
 
-  it('shows correct weight values in segments', () => {
-    assert.ok(html.includes('>8,425 lb<'));  // dry
-    assert.ok(html.includes('>1,575 lb<'));  // CCC
+  it('key stats are exactly four: Length, Dry weight, Sleeps, Base MSRP (redesign 2026-09-27)', () => {
+    const stats = html.match(/class="key-stat-label"/g) || [];
+    assert.strictEqual(stats.length, 4, `expected 4 key stats, got ${stats.length}`);
+    assert.ok(html.includes('>Length<'), 'Length stat present');
+    assert.ok(html.includes('>Dry weight<'), 'Dry weight stat present');
+    assert.ok(html.includes('>Sleeps<'), 'Sleeps stat present');
+    assert.ok(html.includes('>Base MSRP<'), 'Base MSRP stat present');
   });
 
-  it('shows GVWR in header', () => {
-    assert.ok(html.includes('10,000 lb'));
+  it('key stats exclude Off-grid and Water days (redesign 2026-09-27)', () => {
+    // Extract just the key-stats div content
+    const start = html.indexOf('<div class="key-stats"');
+    const end = html.indexOf('</div></div>', start);
+    const keyStatsHtml = html.slice(start, end);
+    assert.ok(!keyStatsHtml.includes('>Off-grid<'), 'no Off-grid in key stats');
+    assert.ok(!keyStatsHtml.includes('Water days'), 'no Water days in key stats');
   });
 
-  it('has dry weight + cargo legend', () => {
-    assert.ok(html.includes('weight-bar-legend-dry'));
-    assert.ok(html.includes('weight-bar-legend-ccc'));
-    assert.ok(html.includes('Cargo capacity (CCC)'));
+  it('spec lede GVWR has explanatory title attribute (redesign 2026-09-27)', () => {
+    assert.ok(html.includes('title="Gross Vehicle Weight Rating'), 'GVWR title explains the term');
   });
 
   it('renders weight-bar on motorhome detail with NCC label', () => {

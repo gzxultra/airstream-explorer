@@ -41,72 +41,68 @@ describe('computePropaneDuration', () => {
   });
 });
 
-describe('propane estimator rendering', () => {
+describe('off-grid tabs: Endurance + Water only (redesign 2026-09-27)', () => {
   const t = trailers.find(x => x.year === 2026) || trailers[0];
   const html = renderDetail(t, resolve, null, trailers);
 
-  it('detail page includes propane section with id', () => {
-    assert.ok(html.includes('id="propane"'), 'missing #propane section');
+  it('detail page has Endurance and Water tabs, no Propane/Electrical tabs', () => {
+    assert.ok(html.includes('id="og-endurance"'), 'missing og-endurance tab');
+    assert.ok(html.includes('id="og-water"'), 'missing og-water tab');
+    assert.ok(!html.includes('id="og-propane"'), 'og-propane tab must not exist');
+    assert.ok(!html.includes('id="og-electrical"'), 'og-electrical tab must not exist');
   });
 
-  it('propane section has data island with BTU config', () => {
-    assert.ok(html.includes('id="propane-data"'), 'missing propane-data script');
-    assert.ok(html.includes('"btuPerLb"'), 'missing btuPerLb in data island');
+  it('Endurance is the default (checked) tab', () => {
+    assert.ok(html.includes('id="og-endurance" checked'), 'Endurance should be the default tab');
   });
 
-  it('propane section has sliders for each appliance', () => {
-    assert.ok(html.includes('data-prop-key="furnace"'), 'missing furnace slider');
-    assert.ok(html.includes('data-prop-key="waterHeater"'), 'missing water heater slider');
-    assert.ok(html.includes('data-prop-key="stove"'), 'missing stove slider');
+  it('propane renders as a one-line summary inside the Endurance panel', () => {
+    assert.ok(html.includes('class="propane-line'), 'missing propane-line summary');
+    const endIdx = html.indexOf('id="og-endurance"');
+    const lineIdx = html.indexOf('propane-line');
+    const waterIdx = html.indexOf('id="og-water"');
+    assert.ok(lineIdx > endIdx && lineIdx < waterIdx, 'propane-line should sit inside the Endurance panel');
   });
 
-  it('propane section stays in page (Off-grid chapter anchor, not a top-bar item)', () => {
-    assert.ok(html.includes('id="propane"'), 'propane section in page');
-    const nav = html.match(/<nav class="secnav"[^>]*>([\s\S]*?)<\/nav>/);
-    assert.ok(nav && !nav[1].includes('#propane'), 'propane not a top-bar item');
+  it('no propane estimator data island or sliders', () => {
+    assert.ok(!html.includes('id="propane-data"'), 'no propane-data island');
+    assert.ok(!html.includes('data-prop-key'), 'no propane sliders');
   });
 });
 
-describe('electrical load planner rendering', () => {
+describe('electrical load planner removed from detail (redesign 2026-09-27)', () => {
   const t = trailers.find(x => x.year === 2026) || trailers[0];
   const html = renderDetail(t, resolve, null, trailers);
 
-  it('detail page includes electrical section with id', () => {
-    assert.ok(html.includes('id="electrical"'), 'missing #electrical section');
+  it('no og-electrical tab on the detail page', () => {
+    assert.ok(!html.includes('id="og-electrical"'), 'og-electrical tab must not exist');
   });
 
-  it('electrical section has data island', () => {
-    assert.ok(html.includes('id="elec-data"'), 'missing elec-data script');
+  it('no elec-data island', () => {
+    assert.ok(!html.includes('id="elec-data"'), 'no elec-data island');
   });
 
-  it('electrical section has appliance checkboxes', () => {
-    assert.ok(html.includes('class="elec-check"'), 'missing elec-check checkboxes');
+  it('no electrical appliance checkboxes', () => {
+    assert.ok(!html.includes('class="elec-check"'), 'no elec-check checkboxes');
   });
 
-  it('electrical section has budget bar', () => {
-    assert.ok(html.includes('elec-budget-fill'), 'missing budget bar fill');
+  it('no electrical budget bar', () => {
+    assert.ok(!html.includes('elec-budget-fill'), 'no budget bar fill');
   });
 
-  it('30A models get 3600W max', () => {
-    const bambi = trailers.find(x => x.model === 'Bambi' && x.year === 2026);
-    if (bambi) {
-      const bhtml = renderDetail(bambi, resolve, null, trailers);
-      assert.ok(bhtml.includes('30A shore power'), 'Bambi should be 30A');
-      assert.ok(bhtml.includes('3,600W max'), 'Bambi should show 3600W');
-    }
+  it('no electrical planner panel copy', () => {
+    assert.ok(!html.includes('Select appliances to see the load'), 'no planner copy');
+    assert.ok(!html.includes('class="electrical-tab"'), 'no electrical-tab container');
   });
 
-  it('Classic gets 50A / 12000W max', () => {
-    const classic = trailers.find(x => x.model === 'Classic' && x.year === 2026);
-    if (classic) {
-      const chtml = renderDetail(classic, resolve, null, trailers);
-      assert.ok(chtml.includes('50A shore power'), 'Classic should be 50A');
-      assert.ok(chtml.includes('12,000W max'), 'Classic should show 12000W');
-    }
+  it('off-grid section keeps exactly two tab inputs', () => {
+    const count = (html.match(/class="og-tab-input"/g) || []).length;
+    assert.equal(count, 2, `expected 2 off-grid tabs, got ${count}`);
   });
 
-  it('electrical section stays in page (Off-grid chapter anchor, not a top-bar item)', () => {
-    assert.ok(html.includes('id="electrical"'), 'electrical section in page');
+  it('off-grid section stays in page (Endurance + Water)', () => {
+    assert.ok(html.includes('id="offgrid"'), 'offgrid section stays in page');
+    assert.ok(!html.includes('class="secnav"'), 'no section nav');
   });
 });
 

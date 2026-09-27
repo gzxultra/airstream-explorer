@@ -58,11 +58,11 @@ describe('new explore sort options', () => {
 // 2. Next steps section — reference only, NO purchase funnel (ruling 1A)
 // ---------------------------------------------------------------------------
 describe('next-steps section', () => {
-  test('every detail page has the next-steps section', () => {
+  test('no detail page has the next-steps section (redesign 2026-09-27: removed)', () => {
     for (const t of trailers) {
       const html = renderDetail(t);
-      assert.ok(html.includes('class="next-steps"'), `${t.slug} missing next-steps section`);
-      assert.ok(html.includes('Ready for the next step?'), `${t.slug} missing next-steps heading`);
+      assert.ok(!html.includes('class="next-steps"'), `${t.slug} still has next-steps section`);
+      assert.ok(!html.includes('Ready for the next step?'), `${t.slug} still has next-steps heading`);
     }
   });
 

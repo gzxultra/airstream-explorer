@@ -8,26 +8,19 @@ const ranges = computeFleetRanges(trailers);
 const t2026 = trailers.find((x) => x.year === 2026 && x.cccLb > 0 && x.offGridScore > 0 && x.freshGal > 0);
 
 // =========================================================================
-// Feature 1: Explore card range bars — CCC, off-grid, fresh tank
+// Feature 1: Explore cards are editorial — range bars retired
 // =========================================================================
-describe('explore card extended range bars', () => {
-  it('renders CCC range bar when cccLb is present', () => {
+describe('explore card has no range bars (retired)', () => {
+  it('renders no CCC range bar even when cccLb is present', () => {
     const html = renderExploreCard(t2026, undefined, false, ranges);
-    assert.ok(html.includes('Cargo capacity'), 'should have CCC range bar aria label');
-    assert.ok(html.includes('Cargo (CCC)'), 'should render CCC spec row');
+    assert.ok(!html.includes('Cargo (CCC)'), 'no CCC spec row on editorial card');
+    assert.ok(!html.includes('range-bar'), 'no range bars on editorial card');
   });
 
-  it('renders off-grid score range bar', () => {
+  it('renders no off-grid / fresh-tank range bars', () => {
     const html = renderExploreCard(t2026, undefined, false, ranges);
-    assert.ok(html.includes('Off-grid score'), 'should have off-grid range bar aria label');
-    const offgridRow = html.includes('/100');
-    assert.ok(offgridRow, 'should show off-grid score value');
-  });
-
-  it('renders fresh tank range bar', () => {
-    const html = renderExploreCard(t2026, undefined, false, ranges);
-    assert.ok(html.includes('Fresh water'), 'should have fresh water range bar aria label');
-    assert.ok(html.includes('Fresh tank'), 'should render fresh tank spec row');
+    assert.ok(!html.includes('Off-grid score'), 'no off-grid bar on editorial card');
+    assert.ok(!html.includes('Fresh tank'), 'no fresh tank row on editorial card');
   });
 
   it('cards without CCC still render', () => {
@@ -38,44 +31,14 @@ describe('explore card extended range bars', () => {
 });
 
 // =========================================================================
-// Feature 2: Fleet scatter chart
+// Feature 2: Fleet scatter chart retired from explore sections
 // =========================================================================
-describe('fleet scatter chart', () => {
-  it('explore sections include the fleet chart', () => {
+describe('fleet scatter chart retired', () => {
+  it('explore sections do not include the fleet chart', () => {
     const html = renderExploreSections(trailers);
-    assert.ok(html.includes('fleet-chart'), 'should have fleet-chart element');
-    assert.ok(html.includes('fleet-chart-svg'), 'should have SVG chart');
-  });
-
-  it('chart contains dots for trailers with valid price/weight', () => {
-    const html = renderExploreSections(trailers);
-    const dotCount = (html.match(/class="fc-dot"/g) || []).length;
-    const validCount = trailers.filter((t) => t.msrp > 0 && t.weightLb > 0).length;
-    assert.equal(dotCount, validCount, 'one dot per valid trailer');
-  });
-
-  it('chart dots carry data-slug for filter syncing', () => {
-    const html = renderExploreSections(trailers);
-    assert.ok(html.includes('data-slug='), 'dots should have data-slug');
-  });
-
-  it('chart is wrapped in a details/summary (collapsible)', () => {
-    const html = renderExploreSections(trailers);
-    assert.ok(html.includes('<details'), 'should use details element');
-    assert.ok(html.includes('<summary'), 'should use summary element');
-    assert.ok(html.includes('Fleet map'), 'should have toggle label');
-  });
-
-  it('chart has axis labels', () => {
-    const html = renderExploreSections(trailers);
-    assert.ok(html.includes('Base MSRP'), 'should have x-axis label');
-    assert.ok(html.includes('Dry weight'), 'should have y-axis label');
-  });
-
-  it('chart dots link to detail pages', () => {
-    const html = renderExploreSections(trailers);
-    assert.ok(html.includes('fc-dot-link'), 'should have clickable dot links');
-    assert.ok(html.includes('href="m/'), 'dots should link to m/ detail pages');
+    assert.ok(!html.includes('fleet-chart'), 'no fleet-chart element');
+    assert.ok(!html.includes('fleet-chart-svg'), 'no SVG chart');
+    assert.ok(!html.includes('fc-dot'), 'no chart dots');
   });
 });
 

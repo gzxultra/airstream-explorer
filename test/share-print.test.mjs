@@ -15,11 +15,12 @@ const mhtml = renderMotorhomeDetail(motorhome, undefined, motorhomes);
 
 // --- Trailer detail page ---
 
-test('trailer detail emits share-actions with 3 buttons', () => {
+test('trailer detail emits share-actions with Share + Compare buttons (redesign 2026-09-27)', () => {
   assert.ok(html.includes('data-share-actions'), 'missing share-actions');
   assert.ok(html.includes('id="detail-share"'), 'missing share button');
-  assert.ok(html.includes('id="detail-copy-specs"'), 'missing copy-specs button');
-  assert.ok(html.includes('id="detail-print"'), 'missing print button');
+  assert.ok(html.includes('id="detail-compare"'), 'missing compare button');
+  assert.ok(!html.includes('id="detail-copy-specs"'), 'copy-specs button removed in redesign');
+  assert.ok(!html.includes('id="detail-print"'), 'print button removed in redesign');
 });
 
 test('trailer detail emits data-spec-text with || separator', () => {
@@ -34,22 +35,23 @@ test('trailer detail emits data-canonical for print', () => {
   assert.match(html, /data-canonical="m\/classic-33fb-2026\.html"/);
 });
 
-test('trailer detail emits reading-progress bar', () => {
-  assert.ok(html.includes('id="reading-progress"'), 'missing progress bar');
-  assert.ok(html.includes('class="reading-progress"'), 'missing class');
+test('trailer detail has no reading-progress bar (redesign 2026-09-27)', () => {
+  assert.ok(!html.includes('id="reading-progress"'), 'reading-progress removed in redesign');
+  assert.ok(!html.includes('class="reading-progress"'), 'reading-progress class removed in redesign');
 });
 
 // --- Motorhome detail page ---
 
-test('motorhome detail emits share-actions with 3 buttons', () => {
+test('motorhome detail emits share-actions with Share + Compare buttons (redesign 2026-09-27)', () => {
   assert.ok(mhtml.includes('data-share-actions'), 'missing share-actions');
   assert.ok(mhtml.includes('id="detail-share"'), 'missing share button');
-  assert.ok(mhtml.includes('id="detail-copy-specs"'), 'missing copy-specs button');
-  assert.ok(mhtml.includes('id="detail-print"'), 'missing print button');
+  assert.ok(mhtml.includes('id="detail-compare"'), 'missing compare button');
+  assert.ok(!mhtml.includes('id="detail-copy-specs"'), 'copy-specs button removed in redesign');
+  assert.ok(!mhtml.includes('id="detail-print"'), 'print button removed in redesign');
 });
 
-test('motorhome detail emits reading-progress bar', () => {
-  assert.ok(mhtml.includes('id="reading-progress"'), 'missing progress bar');
+test('motorhome detail has no reading-progress bar (redesign 2026-09-27)', () => {
+  assert.ok(!mhtml.includes('id="reading-progress"'), 'reading-progress removed in redesign');
 });
 
 test('motorhome detail emits data-canonical', () => {

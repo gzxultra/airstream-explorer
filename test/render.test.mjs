@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTrailers, groupByFamily } from '../src/lib/data.mjs';
-import { esc, renderCard, renderFamilyCard, renderIndex, renderFamily, renderDetail } from '../src/lib/render.mjs';
+import { esc, renderCard, renderFamilyCard, renderIndex, renderFamily, renderDetail, renderDecor } from '../src/lib/render.mjs';
 
 const trailers = loadTrailers();
 const families = groupByFamily(trailers);
@@ -41,19 +41,17 @@ test('renderIndex is a full valid document with exactly 12 family cards', () => 
   assert.equal((html.match(/class="card"/g) || []).length, 0);
 });
 
-test('home subhead and footer agree on the floorplan count (distinct layouts)', () => {
+test('home subhead and footer agree on the floorplan count (records)', () => {
   const html = renderIndex(families);
   const distinct = families.reduce((n, f) => n + f.floorplanCount, 0); // 31 trailers
-  // subhead lede — shows trailer+motorhome totals (families + motorhomeFamilies)
-  // Footer now includes motorhomes via catalogStats(), so it shows the full count.
-  // The hero shows 'X families, Y floorplans' using only what's passed in;
-  // footer uses catalogStats which loads all data.
+  // subhead lede — in families-only mode shows trailer totals
   assert.match(html, new RegExp(`${families.length} families, ${distinct} floorplans`));
-  // footer must DERIVE both numbers from live data — no stale hardcoded literals
-  // Full catalog: 31 trailer floorplans + 11 motorhomes = 42 across 15 families (12+3)
-  assert.match(html, /42 floorplans across 15 families/);
-  assert.doesNotMatch(html, /58 floorplans across/);
-  // guard against the old hardcoded `${31}` / `12` literals creeping back in
+  // footer must use the SAME records metric as the hero: 58 trailer records +
+  // 11 motorhome records = 69 across 15 families (12+3). No mixing records
+  // with the distinct-layout count (42).
+  assert.match(html, /69 floorplans across 15 families/);
+  assert.doesNotMatch(html, /42 floorplans across/);
+  // guard against stale hardcoded literals creeping back in
   assert.ok(distinct !== 0 && families.length !== 0);
 });
 
@@ -163,8 +161,8 @@ test('renderDetail renders an official floor-plan section when a diagram resolve
     floorplan: `assets/img/floorplans/${t.slug}.webp`,
   });
   const html = renderDetail(classic, resolve);
-  assert.match(html, /<section class="floorplan"/);
-  assert.match(html, /Floor plan/);
+  assert.match(html, /<section class="dsec floorplan/);
+  assert.match(html, /dsec-title">Floor plan/);
   assert.match(html, new RegExp(`assets/img/floorplans/${classic.slug}\\.webp`));
   assert.match(html, /Official Airstream 33FB floor plan/);
 });
@@ -177,10 +175,10 @@ test('renderDetail omits the floor-plan section when no diagram resolves', () =>
     floorplan: null,
   });
   const html = renderDetail(classic, resolve);
-  assert.doesNotMatch(html, /<section class="floorplan"/);
+  assert.doesNotMatch(html, /<section class="dsec floorplan/);
 });
 
-test('renderDetail renders an official décor section with scheme names + swatches', () => {
+test('renderDetail does not render a décor section (redesign 2026-09-27: décor moved to family pages)', () => {
   const resolve = (t) => ({ thumb: '', hero: null, gallery: [], floorplan: null });
   const decor = [
     {
@@ -194,13 +192,8 @@ test('renderDetail renders an official décor section with scheme names + swatch
     },
   ];
   const html = renderDetail(classic, resolve, decor);
-  assert.match(html, /<section class="decor"/);
-  assert.match(html, /Interior décor options/);
-  assert.match(html, /Comfort White with Earl Grey Ultraleather/);
-  assert.match(html, /Shaker-style cabinets in a white finish\./);
-  assert.match(html, /assets\/img\/decor\/classic-cw-eg-sw1\.webp/);
-  assert.match(html, /<figcaption>Interior<\/figcaption>/);
-  assert.match(html, /<figcaption>Upholstery<\/figcaption>/);
+  assert.doesNotMatch(html, /<section class="decor"/);
+  assert.doesNotMatch(html, /Interior décor options/);
 });
 
 test('renderDetail omits the décor section when no schemes resolve', () => {
@@ -209,15 +202,14 @@ test('renderDetail omits the décor section when no schemes resolve', () => {
   assert.doesNotMatch(renderDetail(classic, resolve, null), /<section class="decor"/);
 });
 
-test('renderDetail escapes décor names + descriptions (no raw HTML injection)', () => {
-  const resolve = (t) => ({ thumb: '', hero: null, gallery: [], floorplan: null });
+test('renderDecor still escapes names + descriptions (no raw HTML injection)', () => {
   const decor = [
     {
       name: '<b>Evil</b>', slug: 'x', description: '<script>alert(1)</script>',
       swatches: [{ kind: '<i>k</i>', src: 'assets/img/decor/x.webp' }],
     },
   ];
-  const html = renderDetail(classic, resolve, decor);
+  const html = renderDecor(decor, 'Classic');
   assert.ok(!html.includes('<b>Evil</b>'));
   assert.ok(!html.includes('<script>alert(1)</script>'));
   assert.match(html, /&lt;b&gt;Evil/);
@@ -311,12 +303,16 @@ test('renderTowTool: omits itself when the trailer lacks a GVWR (stays honest)',
 
 import { renderExplore, renderCompare, renderExploreCard } from '../src/lib/render.mjs';
 
-test('renderExplore embeds every floorplan as an xcard with tow data', () => {
+test('renderExplore embeds every floorplan in the #xdata payload with tow data', () => {
   const html = renderExplore(trailers);
-  const cards = (html.match(/class="xcard"/g) || []).length;
-  assert.equal(cards, trailers.length);
+  // Cards are client-rendered now: every floorplan arrives in the payload
+  // with the GVWR the tow matcher needs.
+  const m = html.match(/<script type="application\/json" id="xdata">([\s\S]*?)<\/script>/);
+  assert.ok(m, '#xdata payload present');
+  const items = JSON.parse(m[1]);
+  assert.equal(items.length, trailers.length);
+  assert.ok(items.every((i) => i.gvwrLb != null), 'every item carries GVWR');
   assert.match(html, /id="tow-input"/);
-  assert.match(html, /data-gvwr=/);
   assert.match(html, /Explore &amp; match/);
 });
 
@@ -340,39 +336,43 @@ test('renderCompare embeds a valid, XSS-safe JSON island of all trailers', () =>
   assert.ok(data[0].slug && data[0].msrp && data[0].thumb);
 });
 
-test('detail page renders the towing callout from official GVWR (no derived rating)', () => {
+test('detail page renders the towing lede from official GVWR (no derived rating)', () => {
   const t = trailers.find((x) => x.slug === 'flying-cloud-25fb-2026');
   const html = renderDetail(t);
-  assert.match(html, /class="tow-callout"/);
+  assert.match(html, /class="tow-lede"/);
   assert.match(html, /Your tow vehicle must be rated for at least/);
   assert.match(html, /fully-loaded GVWR/);
-  assert.match(html, /official Airstream GVWR/);
   // shows the real GVWR (7,300 lb), not a derived "recommended rating"
   assert.match(html, /7,300\s*lb/);
   assert.doesNotMatch(html, /Recommended minimum tow rating/);
 });
 
-test('top nav is exactly the 4 consolidated tabs — Explore / Saved / Upgrades / Maintenance', () => {
+test('top nav is exactly the 3 redesign tabs — Explore / Compare / Owner\'s guide', () => {
   for (const html of [renderIndex(groupByFamily(trailers), trailers), renderExplore(trailers), renderCompare(trailers)]) {
     assert.match(html, /class="topnav-links"/);
-    // four top-level nav links (Campsites, Campgrounds, Community removed;
-    // Motorhomes live inside the Explore grid; Saved is the site-wide shortlist)
+    // three top-level nav links (2026-09 redesign: Saved lost its tab — save
+    // buttons feed the compare tray now; Upgrades + Maintenance merged into
+    // the Owner's guide page; motorhomes live inside the Explore grid)
     const nav = html.match(/<nav class="topnav-links"[^>]*>([\s\S]*?)<\/nav>/);
     assert.ok(nav, 'has a topnav-links nav');
     const links = nav[1].match(/<a /g) || [];
-    assert.equal(links.length, 4, 'exactly 4 top tabs');
-    // the four tabs are Explore (index) / Saved / Upgrades / Maintenance
-    assert.match(nav[1], /href="index\.html"[^>]*>Explore</);
-    assert.match(nav[1], /href="saved\.html"[^>]*>Saved /);
-    assert.match(nav[1], /href="upgrades\.html"[^>]*>Upgrades</);
-    assert.match(nav[1], /href="maintenance\.html"[^>]*>Maintenance</);
+    assert.equal(links.length, 3, 'exactly 3 top tabs');
+    // the three tabs are Explore (index) / Compare / Owner's guide
+    assert.match(nav[1], /href="index\.html"[^>]*>[\s\S]*?<span>Explore<\/span>/);
+    assert.match(nav[1], /href="compare\.html"[^>]*>[\s\S]*?<span>Compare<\/span>/);
+    assert.match(nav[1], /href="owners-guide\.html"[^>]*>[\s\S]*?<span>Owner's guide<\/span>/);
+    // each tab carries a monochrome 1.5px inline SVG icon (icon spec)
+    const icons = nav[1].match(/<svg class="nav-icon"[^>]*stroke-width="1\.5"/g) || [];
+    assert.equal(icons.length, 3, '3 nav icons at 1.5px stroke');
     // Motorhomes is no longer a top tab — it's a type filter inside Explore now
     assert.doesNotMatch(nav[1], /href="motorhomes\.html"/);
-    // Campsites, Campgrounds, Stays, Compare, Community are NOT top tabs
-    assert.doesNotMatch(nav[1], /href="campsites\.html"/);
-    assert.doesNotMatch(nav[1], /href="campgrounds\.html"/);
-    assert.doesNotMatch(nav[1], /href="stays\.html"/);
-    assert.doesNotMatch(nav[1], /compare\.html/);
+    // Saved, Upgrades, Maintenance, Campsites, Campgrounds, Stays, Community are NOT top tabs
+    assert.doesNotMatch(nav[1], /saved\.html/);
+    assert.doesNotMatch(nav[1], /upgrades\.html/);
+    assert.doesNotMatch(nav[1], /maintenance\.html/);
+    assert.doesNotMatch(nav[1], /campsites\.html/);
+    assert.doesNotMatch(nav[1], /campgrounds\.html/);
+    assert.doesNotMatch(nav[1], /stays\.html/);
     assert.doesNotMatch(nav[1], /community\.html/);
     assert.doesNotMatch(nav[1], />Families</);
   }
@@ -391,15 +391,18 @@ test('Compare + Motorhomes survive as footer destinations (not top tabs)', () =>
 test('nav marks the current section as active (aria-current + is-active)', () => {
   // home (Explore hub) → Explore active
   const home = renderIndex(groupByFamily(trailers), trailers);
-  assert.match(home, /<a href="index\.html" class="is-active" aria-current="page">Explore<\/a>/);
+  assert.match(home, /<a href="index\.html" class="is-active" aria-current="page">[\s\S]*?<span>Explore<\/span>/);
   assert.equal((home.match(/topnav-links[\s\S]*?<\/nav>/)[0].match(/aria-current="page"/g) || []).length, 1);
   // a detail page (nested) keeps the Explore hub active with the right relRoot prefix
   const detail = renderDetail(classic);
   assert.match(detail, /href="\.\.\/index\.html" class="is-active" aria-current="page"/);
   assert.equal((detail.match(/topnav-links[\s\S]*?<\/nav>/)[0].match(/aria-current="page"/g) || []).length, 1);
+  // compare page → Compare tab active
+  const compare = renderCompare(trailers);
+  assert.match(compare, /<a href="compare\.html" class="is-active" aria-current="page">[\s\S]*?<span>Compare<\/span>/);
 });
 
-test('Explore hub serves both views server-rendered, with an editorial toggle', () => {
+test('Explore hub serves both views, with an editorial toggle', () => {
   const html = renderIndex(groupByFamily(trailers), trailers);
   // editorial segmented control (NOT a .seg-btn / SaaS pill) with both modes
   assert.match(html, /class="viewseg"/);
@@ -410,9 +413,12 @@ test('Explore hub serves both views server-rendered, with an editorial toggle', 
   assert.match(html, /id="view-all"/);
   // By-family view carries the 12 family cards
   assert.equal((html.match(/class="fam"/g) || []).length, 12);
-  // All-floorplans view carries the full explore experience: every xcard, the
-  // tow matcher, and the compare tray
-  assert.equal((html.match(/class="xcard"/g) || []).length, trailers.length);
+  // All-floorplans view is client-rendered from the #xdata payload: every
+  // floorplan arrives in the payload, plus the tow matcher and compare tray
+  // in the static HTML
+  const m = html.match(/<script type="application\/json" id="xdata">([\s\S]*?)<\/script>/);
+  assert.ok(m, '#xdata payload present');
+  assert.equal(JSON.parse(m[1]).length, trailers.length);
   assert.match(html, /id="tow-input"/);
   assert.match(html, /id="cmp-bar"/);
   // deep-linkable: hero CTA + toggle target the #all / #families hashes
@@ -452,4 +458,18 @@ test('detail page includes the off-grid estimator with real spec data attrs', ()
 test('off-grid tool omits itself when inputs are missing (no fabrication)', () => {
   const bare = { model: 'X', floorplan: 'Y', batteryKwh: 0, freshGal: 0 };
   assert.equal(renderOffGridTool(bare), '');
+});
+
+test('detail page sections appear in fixed order (redesign 2026-09-27)', () => {
+  const trailers = loadTrailers();
+  const t = trailers.find((x) => x.slug === 'classic-33fb-2026');
+  const html = renderDetail(t, undefined, null, trailers);
+  const sections = ['gallery', 'floorplan', 'specs', 'tow', 'offgrid', 'care', 'proscons', 'more'];
+  // Verify the core sections are present in order
+  let lastIdx = -1;
+  for (const sec of sections) {
+    const idx = html.indexOf(`id="${sec}"`);
+    assert.ok(idx > lastIdx, `${sec} appears in order`);
+    lastIdx = idx;
+  }
 });

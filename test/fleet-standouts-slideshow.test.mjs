@@ -63,20 +63,17 @@ describe('fleet-wide standout badges', () => {
 // ---------------------------------------------------------------------------
 // Fleet badges render in explore cards
 // ---------------------------------------------------------------------------
-describe('fleet badges in explore HTML', () => {
+describe('fleet badges retired from explore cards', () => {
   const indexHtml = readFileSync(join(root, 'dist/index.html'), 'utf8');
+  const appJs = readFileSync(join(root, 'src/assets/js/app.js'), 'utf8');
 
-  it('explore page contains fleet-badge elements', () => {
-    assert.ok(indexHtml.includes('fleet-badge'), 'no fleet-badge found in index.html');
+  it('explore page contains no fleet-badge elements', () => {
+    assert.ok(!indexHtml.includes('fleet-badge'), 'fleet-badge must be gone from index.html');
+    assert.ok(!appJs.includes('fleet-badge'), 'fleet-badge must be gone from the card template');
   });
 
-  it('fleet badges have correct class structure', () => {
-    const matches = indexHtml.match(/fleet-badge--fleet-[a-z]+/g) || [];
-    assert.ok(matches.length >= 4, `only ${matches.length} fleet badge class matches`);
-  });
-
-  it('fleet badges are inside xcard-fleet-badges container', () => {
-    assert.ok(indexHtml.includes('xcard-fleet-badges'), 'missing xcard-fleet-badges container');
+  it('editorial cards stay badge-free', () => {
+    assert.ok(!indexHtml.includes('xcard-fleet-badges'), 'no badge container in the payload page');
   });
 });
 
@@ -123,17 +120,16 @@ describe('homepage hero counter animation', () => {
 describe('new CSS rules exist', () => {
   const css = readFileSync(join(root, 'src/assets/css/site.css'), 'utf8');
 
-  it('fleet-badge styles exist', () => {
-    assert.ok(css.includes('.fleet-badge'), 'missing .fleet-badge CSS');
-    assert.ok(css.includes('.fleet-badge--fleet-lightest'), 'missing lightest variant');
-    assert.ok(css.includes('.fleet-badge--fleet-affordable'), 'missing affordable variant');
+  it('fleet-badge styles removed (redesign 2026-09-27: dead code, badges deleted from cards)', () => {
+    assert.ok(!css.includes('.fleet-badge'), 'dead .fleet-badge CSS should be gone');
+    assert.ok(!css.includes('.xcard-fleet-badges'), 'dead .xcard-fleet-badges CSS should be gone');
   });
 
   it('gallery-mosaic or gallery-show-all styles exist', () => {
     assert.ok(css.includes('.gallery-mosaic') || css.includes('.gallery-show-all'), 'missing gallery CSS');
   });
 
-  it('dark theme fleet badge styles exist', () => {
-    assert.ok(css.includes('[data-theme="dark"] .fleet-badge'), 'missing dark theme fleet badge');
+  it('dark theme has no fleet badge styles (dead code removed)', () => {
+    assert.ok(!css.includes('.fleet-badge'), 'dead dark-theme fleet badge CSS should be gone');
   });
 });

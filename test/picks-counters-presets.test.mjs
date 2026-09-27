@@ -118,44 +118,31 @@ describe('scroll fade indicators', () => {
 // ---------------------------------------------------------------------------
 // 4. PAYLOAD PACKING PRESETS
 // ---------------------------------------------------------------------------
-describe('payload packing presets', () => {
+describe('payload packing presets removed (redesign 2026-09-27)', () => {
   const t = trailers.find((x) => x.slug === 'classic-33fb-2026') || trailers.find((x) => x.cccLb > 0);
   const html = renderDetail(t, assetPaths, null, trailers);
 
-  it('renders preset buttons', () => {
-    assert.ok(html.includes('id="payload-presets"'), 'payload-presets container missing');
-    assert.ok(html.includes('data-preset="weekend"'), 'weekend preset missing');
-    assert.ok(html.includes('data-preset="weeklong"'), 'weeklong preset missing');
-    assert.ok(html.includes('data-preset="fullload"'), 'fullload preset missing');
-    assert.ok(html.includes('data-preset="clear"'), 'clear preset missing');
+  it('no preset buttons on detail page', () => {
+    assert.ok(!html.includes('id="payload-presets"'), 'no payload-presets container');
+    assert.ok(!html.includes('data-preset="weekend"'), 'no weekend preset');
   });
 
-  it('preset buttons have descriptive labels', () => {
-    assert.ok(html.includes('Weekend trip'), 'Weekend trip label missing');
-    assert.ok(html.includes('Week-long road trip'), 'Week-long road trip label missing');
-    assert.ok(html.includes('Full load'), 'Full load label missing');
+  it('no preset labels', () => {
+    assert.ok(!html.includes('Weekend trip'), 'no Weekend trip label');
   });
 
-  it('app.js contains payloadPresets IIFE', () => {
-    const appJs = readFileSync('src/assets/js/app.js', 'utf8');
-    assert.ok(appJs.includes('function payloadPresets'), 'payloadPresets function missing');
-    assert.ok(appJs.includes('PRESETS'), 'PRESETS object missing');
+  it('no weeklong preset on detail page (redesign 2026-09-27)', () => {
+    assert.ok(!html.includes('data-preset="weeklong"'), 'no weeklong preset');
+    assert.ok(!html.includes('Week-long trip'), 'no Week-long trip label');
   });
 
-  it('weekend preset checks bedding, kitchen, outdoor', () => {
-    const appJs = readFileSync('src/assets/js/app.js', 'utf8');
-    // The weekend preset should include bedding, kitchen, outdoor
-    assert.ok(appJs.includes("weekend:  ['bedding', 'kitchen', 'outdoor']"), 'weekend preset keys wrong');
+  it('no preset weight values in detail HTML (redesign 2026-09-27)', () => {
+    assert.ok(!html.includes('preset-weight'), 'no preset-weight markup');
   });
 
-  it('weeklong preset checks 6 categories', () => {
-    const appJs = readFileSync('src/assets/js/app.js', 'utf8');
-    assert.ok(appJs.includes("weeklong: ['bedding', 'kitchen', 'clothing', 'food', 'outdoor', 'electronics']"), 'weeklong preset keys wrong');
-  });
-
-  it('dark mode styles exist for presets', () => {
-    const theme = readFileSync('src/assets/css/theme.css', 'utf8');
-    assert.ok(theme.includes('.payload-preset'), 'payload-preset dark mode missing');
+  it('payload preset UI absent but app.js handlers untouched (scope: render only)', () => {
+    // app.js is outside the allowed modification scope; handlers remain but have no UI to bind to
+    assert.ok(!html.includes('id="payload-presets"'), 'no preset container in HTML');
   });
 
   it('dark mode styles exist for editor picks', () => {
