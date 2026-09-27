@@ -90,8 +90,9 @@ test('gallery cells are interactive buttons wired to the lightbox', () => {
   const html = renderDetail(classic);
   // The grid is marked for grouping and each cell is a <button data-lightbox>.
   assert.match(html, /class="gallery-grid" data-gallery/);
-  // Gallery buttons start at data-index="1" because the hero image takes index 0.
-  assert.match(html, /<button type="button" class="gallery-img-wrap[^"]*" data-lightbox data-full="[^"]+" data-index="1"/);
+  // Gallery buttons are group-local: index 0 of the "gallery" lightbox group
+  // (the hero is a separate group, so it no longer shifts gallery indices).
+  assert.match(html, /<button type="button" class="gallery-img-wrap[^"]*" data-lightbox data-lb-group="gallery" data-full="[^"]+" data-index="0"/);
   assert.match(html, /data-caption="[^"]*photo 1 of \d+"/);
   // The zoom affordance + accessible label must be present.
   assert.match(html, /class="gallery-zoom"/);

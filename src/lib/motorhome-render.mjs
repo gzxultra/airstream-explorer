@@ -556,7 +556,7 @@ export function renderMotorhomeDetail(m, resolve = motorhomeAssetPaths, allMotor
   const gallery = a.gallery
     .map(
       (g, i) =>
-        `<button type="button" class="gallery-img-wrap${a.galleryCutout && a.galleryCutout[i] ? ' is-cutout' : ' is-photo'}" data-lightbox data-full="../${esc(g)}" data-index="${i}" data-caption="${esc(trailerLabel(m))} — photo ${i + 1} of ${galleryCount}" aria-label="Open photo ${i + 1} of ${galleryCount} full screen"><img src="../${esc(g)}" alt="${esc(a.galleryCutout && a.galleryCutout[i] ? trailerLabel(m) + ' — studio exterior view' : trailerLabel(m) + ' — gallery photo ' + (i + 1) + ' of ' + galleryCount)}" loading="lazy" class="gallery-img${a.galleryCutout && a.galleryCutout[i] ? ' gallery-img--cutout' : ' gallery-img--photo'}" width="920" height="600"><span class="gallery-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`,
+        `<button type="button" class="gallery-img-wrap${a.galleryCutout && a.galleryCutout[i] ? ' is-cutout' : ' is-photo'}" data-lightbox data-lb-group="gallery" data-full="../${esc(g)}" data-index="${i}" data-caption="${esc(trailerLabel(m))} — photo ${i + 1} of ${galleryCount}" aria-label="Open photo ${i + 1} of ${galleryCount} full screen"><img src="../${esc(g)}" alt="${esc(a.galleryCutout && a.galleryCutout[i] ? trailerLabel(m) + ' — studio exterior view' : trailerLabel(m) + ' — gallery photo ' + (i + 1) + ' of ' + galleryCount)}" loading="lazy" class="gallery-img${a.galleryCutout && a.galleryCutout[i] ? ' gallery-img--cutout' : ' gallery-img--photo'}" width="920" height="600"><span class="gallery-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`,
     )
     .join('\n');
   const pros = (m.pros || []).map((p) => `<li>${esc(p)}</li>`).join('');
@@ -588,7 +588,7 @@ ${saveButton(m.slug, 'motorhome', trailerLabel(m), 'detail')}
 </div>
 ${official ? `<p class="official-head"><a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">Official ${esc(m.model)} page on airstream.com ↗</a></p>` : ''}
 </header>
-<div class="detail-hero">${heroImg}</div>
+<div class="detail-hero"><span class="detail-hero-shade" aria-hidden="true"></span>${heroImg}</div>
 ${renderMotorhomeKeyStats(m)}
 <p class="detail-desc">${esc(m.description)}</p>
 <section class="dsec spec-table" id="specs" aria-label="Specifications">

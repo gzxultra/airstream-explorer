@@ -223,9 +223,18 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 .detail-head h1 span { color: var(--copper-deep); }
 
 .detail-hero {
+  position: relative;
   border-radius: 0; overflow: hidden; background: #ddd6c8;
   /* full-bleed inside the padded .detail container (padding cancels out exactly) */
   width: 100vw; max-width: 100vw; margin: 0 calc(50% - 50vw) 32px;
+}
+
+/* Detail hero scrim — same gradient stops as the home hero shade, kept subtle
+   so the photo stays the hero; darkens the bottom corner so the zoom
+   affordance stays legible. */
+.detail-hero-shade {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(to top, rgba(20,16,12,.86) 0%, rgba(20,16,12,.50) 42%, rgba(20,16,12,.18) 78%, rgba(20,16,12,.30) 100%);
 }
 
 .detail-hero-img { width: 100%; height: auto; object-fit: cover; }
@@ -289,7 +298,10 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-s
 
 .gallery-img { width: 100%; display: block; }
 
-.gallery-img--cutout { mix-blend-mode: darken; }
+/* Studio cutouts fill the same fixed 16:9 frame as full-bleed photos so every
+   grid tile is even. mix-blend-mode:darken still melts the white sweep into
+   the wrap's cream gradient (the image now covers the whole tile). */
+.gallery-img--cutout { aspect-ratio: 920 / 518; object-fit: cover; mix-blend-mode: darken; }
 
 .gallery-img--photo { aspect-ratio: 920 / 518; object-fit: cover; mix-blend-mode: normal; }
 
@@ -2992,7 +3004,7 @@ html { scroll-behavior: smooth; }
 .detail-hero-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
 .hero-zoom {
-  position: absolute; bottom: 12px; right: 12px;
+  position: absolute; bottom: 12px; right: 12px; z-index: 2;
   display: flex; align-items: center; justify-content: center;
   width: 40px; height: 40px; border-radius: 50%;
   background: rgba(31,27,22,.55); color: #fff;
@@ -7199,13 +7211,15 @@ h2:hover .section-anchor,
 }
 .gallery-mosaic-item:hover img { transform: scale(1.04); }
 .gallery-show-all {
-  display: block; margin: 1rem auto 0; padding: 0.5rem 1.5rem;
+  display: block; margin: 0; padding: 0.5rem 1.5rem;
   background: var(--surface-2, #f5f5f0);
   border: 1px solid var(--border, #e5e5e5);
   border-radius: var(--radius-md, 8px);
   cursor: pointer; font-size: 0.85rem;
   transition: background 150ms ease;
 }
+/* Lives in the gallery head, right-aligned with the title + photo count. */
+.gallery-head .gallery-show-all { margin-left: auto; align-self: center; }
 .gallery-show-all:hover { background: var(--surface-3, #eee); }
 @media (max-width: 640px) {
   .gallery-mosaic {
@@ -7232,6 +7246,10 @@ h2:hover .section-anchor,
   margin-left: auto; margin-right: auto;
   padding-left: var(--space-md, 1rem); padding-right: var(--space-md, 1rem);
 }
+
+/* Anchor sections (#gallery, #floorplan, #specs, …): keep clear of the fixed
+   nav when jumping to a fragment — same 84px offset as .up-sec/.mt-sec. */
+.dsec { scroll-margin-top: 84px; }
 
 /* Section entrance */
 .section-enter {

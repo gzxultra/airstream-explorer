@@ -2559,22 +2559,22 @@ export function renderDetail(t, resolve = assetPaths, decor = null, allTrailers 
   const slug2026 = t.slug.replace(/-2025$/, '-2026');
   const hasPrev2025 = t.year === 2026 && allTrailers.some(
     (x) => x.model === t.model && x.floorplan === t.floorplan && x.year === 2025);
-  const totalMedia = a.gallery.length + (a.hero ? 1 : 0);
   const heroImg = a.hero
-    ? `<button type="button" class="detail-hero-btn" data-lightbox data-full="../${esc(a.hero)}" data-index="0" data-caption="${esc(trailerTitle(t))} - hero" aria-label="View hero image full screen"><img src="../${esc(a.hero)}" ${heroImgAttrs(a.hero, '../')} alt="${esc(trailerTitle(t))}" class="detail-hero-img" width="1280" height="720" fetchpriority="high"><span class="hero-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`
+    ? `<button type="button" class="detail-hero-btn" data-lightbox data-lb-group="hero" data-full="../${esc(a.hero)}" data-index="0" data-caption="${esc(trailerTitle(t))} - hero" aria-label="View hero image full screen"><img src="../${esc(a.hero)}" ${heroImgAttrs(a.hero, '../')} alt="${esc(trailerTitle(t))}" class="detail-hero-img" width="1280" height="720" fetchpriority="high"><span class="detail-hero-shade" aria-hidden="true"></span><span class="hero-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`
     : '';
   const galleryCount = a.gallery.length;
-  const heroOffset = a.hero ? 1 : 0;
-  // Mosaic: first 5 images in hero+thumb grid
+  // Mosaic: first 5 images in hero+thumb grid (data-lb-open = group-local
+  // gallery index; the mosaic opens the lightbox "gallery" group, not a
+  // page-wide slide list).
   const galleryMosaic = a.gallery ? a.gallery.slice(0, 5).map((g, i) => {
     const cutout = a.galleryCutout && a.galleryCutout[i];
     const cls = i === 0 ? 'gallery-mosaic-hero' : 'gallery-mosaic-thumb';
-    return `<button type="button" class="gallery-mosaic-item ${cls}" data-lb-open="${i + heroOffset}" data-full="../${esc(g)}" aria-label="Photo ${i + 1}"><img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="${i < 2 ? 'eager' : 'lazy'}" class="${cutout ? 'gallery-img--cutout' : 'gallery-img--photo'}"></button>`;
+    return `<button type="button" class="gallery-mosaic-item ${cls}" data-lb-open="${i}" data-full="../${esc(g)}" aria-label="Photo ${i + 1}"><img src="../${esc(g)}" alt="${esc(trailerLabel(t))} photo ${i + 1}" loading="${i < 2 ? 'eager' : 'lazy'}" class="${cutout ? 'gallery-img--cutout' : 'gallery-img--photo'}"></button>`;
   }).join('\n') : '';
   const gallery = a.gallery
     .map(
       (g, i) =>
-        `<button type="button" class="gallery-img-wrap${a.galleryCutout && a.galleryCutout[i] ? ' is-cutout' : ' is-photo'}" data-lightbox data-full="../${esc(g)}" data-index="${i + heroOffset}" data-caption="${esc(trailerLabel(t))} - photo ${i + 1} of ${galleryCount}" aria-label="Open photo ${i + 1} of ${galleryCount} full screen"><img src="../${esc(g)}" alt="${esc(a.galleryCutout && a.galleryCutout[i] ? trailerLabel(t) + ' - studio exterior view' : trailerLabel(t) + ' - gallery photo ' + (i + 1) + ' of ' + galleryCount)}" loading="lazy" class="gallery-img${a.galleryCutout && a.galleryCutout[i] ? ' gallery-img--cutout' : ' gallery-img--photo'}" width="920" height="600"><span class="gallery-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`,
+        `<button type="button" class="gallery-img-wrap${a.galleryCutout && a.galleryCutout[i] ? ' is-cutout' : ' is-photo'}" data-lightbox data-lb-group="gallery" data-full="../${esc(g)}" data-index="${i}" data-caption="${esc(trailerLabel(t))} - photo ${i + 1} of ${galleryCount}" aria-label="Open photo ${i + 1} of ${galleryCount} full screen"><img src="../${esc(g)}" alt="${esc(a.galleryCutout && a.galleryCutout[i] ? trailerLabel(t) + ' - studio exterior view' : trailerLabel(t) + ' - gallery photo ' + (i + 1) + ' of ' + galleryCount)}" loading="lazy" class="gallery-img${a.galleryCutout && a.galleryCutout[i] ? ' gallery-img--cutout' : ' gallery-img--photo'}" width="920" height="600"><span class="gallery-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></span></button>`,
     )
     .join('\n');
   const fpZones = renderFloorplanZones(t.floorplan, t.slug);
@@ -2583,9 +2583,8 @@ export function renderDetail(t, resolve = assetPaths, decor = null, allTrailers 
   const fpHint = fpZones
     ? `<p class="floorplan-hint" data-fp-hint>Tap a numbered point to see what's where. <span class="muted">Zones placed against the official ${esc(t.floorplan)} diagram.</span></p>`
     : '';
-  const floorplanLbIdx = totalMedia; // lightbox index after hero + gallery
   const floorplanSection = a.floorplan
-    ? `<section class="dsec floorplan${fpInteractive}" id="floorplan" aria-label="Floor plan" data-floorplan-code="${esc(t.floorplan)}"><h2 class="dsec-title">Floor plan</h2>${fpHint}<figure class="floorplan-fig"><button type="button" class="floorplan-zoom-btn" data-lightbox data-full="../${esc(a.floorplan)}" data-index="${floorplanLbIdx}" data-caption="${esc(trailerLabel(t))} floor plan" aria-label="View floor plan full screen"><span class="floorplan-stage"><img src="../${esc(a.floorplan)}" alt="${esc(trailerLabel(t))} floor plan diagram" loading="lazy" class="floorplan-img" width="820" height="1332">${fpZones}</span><span class="floorplan-zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg> Tap to enlarge</span></button>${fpLegend}<figcaption class="muted">Official Airstream ${esc(t.floorplan)} floor plan${official ? ` · <a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">View ${esc(t.model)} floor plans on airstream.com ↗</a>` : ''}</figcaption></figure></section>`
+    ? `<section class="dsec floorplan${fpInteractive}" id="floorplan" aria-label="Floor plan" data-floorplan-code="${esc(t.floorplan)}"><h2 class="dsec-title">Floor plan</h2>${fpHint}<figure class="floorplan-fig"><button type="button" class="floorplan-zoom-btn" data-lightbox data-lb-group="floorplan" data-full="../${esc(a.floorplan)}" data-index="0" data-caption="${esc(trailerLabel(t))} floor plan" aria-label="View floor plan full screen"><span class="floorplan-stage"><img src="../${esc(a.floorplan)}" alt="${esc(trailerLabel(t))} floor plan diagram" loading="lazy" class="floorplan-img" width="820" height="1332">${fpZones}</span><span class="floorplan-zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg> Tap to enlarge</span></button>${fpLegend}<figcaption class="muted">Official Airstream ${esc(t.floorplan)} floor plan${official ? ` · <a class="official-link" href="${esc(official)}" target="_blank" rel="noopener">View ${esc(t.model)} floor plans on airstream.com ↗</a>` : ''}</figcaption></figure></section>`
     : '';
   const pros = (t.pros || []).map((p) => `<li>${esc(p)}</li>`).join('');
   const cons = (t.cons || []).map((c) => `<li>${esc(c)}</li>`).join('');
@@ -2634,11 +2633,10 @@ ${renderTowDifficultyBadge(t, 'detail')}
 ${renderAmenitySummary(t)}
 </section>
 ${gallery ? `<section class="dsec gallery gallery-immersive" id="gallery" aria-label="Gallery">
-<div class="gallery-head"><h2 class="dsec-title">Gallery</h2><span class="gallery-count">${galleryCount} photos</span></div>
+<div class="gallery-head"><h2 class="dsec-title">Gallery</h2><span class="gallery-count">${galleryCount} photos</span><button type="button" class="gallery-show-all" data-gallery-all aria-label="View all photos">View all photos</button></div>
 <div class="gallery-mosaic" data-gallery data-count="${galleryCount}">
 ${galleryMosaic}
 </div>
-<button type="button" class="gallery-show-all" data-gallery-all aria-label="View all photos">View all photos</button>
 <div class="gallery-grid" data-gallery hidden>${gallery}</div>
 </section>` : ''}
 ${floorplanSection}

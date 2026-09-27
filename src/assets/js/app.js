@@ -340,11 +340,15 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
 })();
 
   // =========================================================================
-  // 0b-LIGHTBOX — full-screen gallery viewer. Each gallery cell is a
-  //     <button data-lightbox data-full data-index data-caption> inside a
-  //     [data-gallery] grid. Opening reads the sibling buttons as the photo
-  //     set so prev/next wrap the whole gallery. Keyboard (←/→/Esc), touch
-  //     swipe, backdrop-click, and focus-trap + restore. Guarded by #lightbox.
+  // 0b-LIGHTBOX — full-screen photo viewer. Each trigger is a
+  //     <button data-lightbox data-lb-group="hero|gallery|floorplan"
+  //     data-full data-index data-caption>. Triggers are grouped by
+  //     data-lb-group, so the counter/dots always reflect the group being
+  //     viewed (gallery shows "3 / 10", never "4 / 12"); prev/next wrap
+  //     inside the group. Ungrouped triggers share a 'default' group.
+  //     Single-slide groups hide the counter, dots, and arrows (is-single).
+  //     Keyboard (←/→/Esc), touch swipe, backdrop-click, and focus-trap +
+  //     restore. Guarded by #lightbox.
   // =========================================================================
   (function lightbox() {
     var lb = document.getElementById('lightbox');
@@ -352,61 +356,79 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
     var triggers = Array.prototype.slice.call(document.querySelectorAll('[data-lightbox]'));
     if (!triggers.length) return;
 
+    function groupOf(t) { return t.getAttribute('data-lb-group') || 'default'; }
+
+    // Bucket triggers by group; data-index is the group-local slide index.
+    var groups = {};
+    triggers.forEach(function (t) {
+      var g = groupOf(t);
+      (groups[g] = groups[g] || []).push({
+        full: t.getAttribute('data-full'),
+        cap: t.getAttribute('data-caption') || '',
+        trigger: t,
+      });
+    });
+
     var imgEl = document.getElementById('lightbox-img');
     var capEl = document.getElementById('lightbox-caption');
     var elClose = lb.querySelector('[data-lb-close]');
     var btnPrev = lb.querySelector('[data-lb-prev]');
     var btnNext = lb.querySelector('[data-lb-next]');
-    var items = triggers.map(function (t) {
-      return { full: t.getAttribute('data-full'), cap: t.getAttribute('data-caption') || '', trigger: t };
-    });
+    var items = []; // slides of the currently open group
     var idx = 0;
     var lastFocus = null;
-    var single = items.length < 2;
-    if (single) lb.classList.add('is-single');
+    var single = true;
 
     function preload(i) {
       if (i < 0 || i >= items.length) return;
       var im = new Image(); im.src = items[i].full;
     }
-    // Build counter + dot elements once
+    // Build counter + dots once; the dots are rebuilt for each opened group.
     var counterEl = document.createElement('div');
     counterEl.className = 'lightbox-counter';
     counterEl.setAttribute('aria-live', 'polite');
     lb.appendChild(counterEl);
 
-    var dotsWrap = null;
-    if (items.length > 1 && items.length <= 20) {
-      dotsWrap = document.createElement('div');
-      dotsWrap.className = 'lightbox-dots';
-      items.forEach(function (_, di) {
-        var dot = document.createElement('button');
-        dot.type = 'button';
-        dot.className = 'lightbox-dot';
-        dot.setAttribute('aria-label', 'Go to photo ' + (di + 1));
-        dot.addEventListener('click', function () { idx = di; render(); });
-        dotsWrap.appendChild(dot);
-      });
-      lb.appendChild(dotsWrap);
+    var dotsWrap = document.createElement('div');
+    dotsWrap.className = 'lightbox-dots';
+    lb.appendChild(dotsWrap);
+
+    function buildDots() {
+      dotsWrap.innerHTML = '';
+      if (items.length > 1 && items.length <= 20) {
+        items.forEach(function (_, di) {
+          var dot = document.createElement('button');
+          dot.type = 'button';
+          dot.className = 'lightbox-dot';
+          dot.setAttribute('aria-label', 'Go to photo ' + (di + 1));
+          dot.addEventListener('click', function () { idx = di; render(); });
+          dotsWrap.appendChild(dot);
+        });
+      }
     }
 
     function render() {
       var it = items[idx];
+      if (!it) return;
       imgEl.src = it.full;
       imgEl.alt = it.cap;
       capEl.textContent = it.cap;
       counterEl.textContent = (idx + 1) + ' / ' + items.length;
       // Update dot active state
-      if (dotsWrap) {
-        var dots = dotsWrap.children;
-        for (var d = 0; d < dots.length; d++) {
-          dots[d].classList.toggle('is-active', d === idx);
-        }
+      var dots = dotsWrap.children;
+      for (var d = 0; d < dots.length; d++) {
+        dots[d].classList.toggle('is-active', d === idx);
       }
       preload(idx + 1); preload(idx - 1);
     }
-    function open(i) {
-      idx = i;
+    // Open one group at a group-local index.
+    function openGroup(g, i) {
+      items = groups[g] || [];
+      if (!items.length) return;
+      single = items.length < 2;
+      lb.classList.toggle('is-single', single);
+      buildDots();
+      idx = Math.min(Math.max(i || 0, 0), items.length - 1);
       lastFocus = document.activeElement;
       lb.hidden = false;
       lb.setAttribute('aria-hidden', 'false');
@@ -416,6 +438,19 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
       lb.classList.add('is-open');
       document.body.style.overflow = 'hidden';
       (single ? elClose : btnNext).focus();
+    }
+    // Open the group a trigger belongs to, at that trigger's slide.
+    function openTrigger(t) {
+      var g = groupOf(t);
+      var di = parseInt(t.getAttribute('data-index'), 10);
+      if (isNaN(di)) {
+        // Fall back to the trigger's DOM-order position inside its group.
+        var list = groups[g] || [];
+        for (var k = 0; k < list.length; k++) {
+          if (list[k].trigger === t) { di = k; break; }
+        }
+      }
+      openGroup(g, isNaN(di) ? 0 : di);
     }
     function close() {
       lb.classList.remove('is-open');
@@ -436,21 +471,31 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
       render();
     }
 
-    triggers.forEach(function (t, i) {
-      t.addEventListener('click', function (e) { e.preventDefault(); open(i); });
+    triggers.forEach(function (t) {
+      t.addEventListener('click', function (e) { e.preventDefault(); openTrigger(t); });
     });
-    // Mosaic previews (data-lb-open) — open the lightbox at the matching index
-    // without being part of the lightbox items[] themselves (avoids duplicates).
+    // Mosaic previews (data-lb-open) — open the "gallery" group at the
+    // matching photo. data-lb-open is the group-local gallery index; when it
+    // is absent or out of range, fall back to matching by image URL so the
+    // mosaic never opens the wrong slide (or nothing at all).
     Array.prototype.slice.call(document.querySelectorAll('[data-lb-open]')).forEach(function (el) {
       el.addEventListener('click', function (e) {
         e.preventDefault();
-        var targetFull = el.getAttribute('data-full');
-        // Find the matching item by URL
-        var matchIdx = -1;
-        for (var mi = 0; mi < items.length; mi++) {
-          if (items[mi].full === targetFull) { matchIdx = mi; break; }
+        var g = 'gallery';
+        var gal = groups[g];
+        var gi = parseInt(el.getAttribute('data-lb-open'), 10);
+        if (!gal || isNaN(gi) || gi < 0 || gi >= gal.length) {
+          var targetFull = el.getAttribute('data-full');
+          var found = false;
+          Object.keys(groups).forEach(function (gk) {
+            if (found) return;
+            for (var mi = 0; mi < groups[gk].length; mi++) {
+              if (groups[gk][mi].full === targetFull) { g = gk; gi = mi; found = true; break; }
+            }
+          });
+          if (!found) gi = 0;
         }
-        open(matchIdx >= 0 ? matchIdx : 0);
+        openGroup(g, gi);
       });
     });
     Array.prototype.slice.call(lb.querySelectorAll('[data-lb-close]')).forEach(function (el) {
@@ -4746,7 +4791,10 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
     var pauseIcon = '<svg viewBox="0 0 24 24" width="14" height="14"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Pause';
 
     function getGalleryButtons() {
-      return Array.prototype.slice.call(document.querySelectorAll('[data-gallery] [data-lightbox]'));
+      // Gallery slides now live in their own lightbox group ("gallery"), so
+      // the slideshow addresses that group directly instead of relying on a
+      // page-wide trigger list or a hero offset.
+      return Array.prototype.slice.call(document.querySelectorAll('[data-lb-group="gallery"]'));
     }
 
     function openAt(idx) {
@@ -4755,7 +4803,7 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
     }
 
     function currentLbIndex() {
-      var counter = document.querySelector('.lb-counter');
+      var counter = document.querySelector('.lightbox-counter');
       if (!counter) return -1;
       var m = counter.textContent.match(/^(\d+)/);
       return m ? parseInt(m[1], 10) - 1 : -1;
@@ -4771,8 +4819,8 @@ document.addEventListener('focusout', function (e) { aeClampNumberInput(e.target
         return;
       }
       var cur = currentLbIndex();
-      // The lightbox counter counts from hero (idx 0), gallery images start after hero
-      // Find the "next" button and click it, or loop around
+      // The lightbox counter is group-local now: it counts gallery slides
+      // only, so advancing is just "next" within the gallery group.
       var btnNext = lb.querySelector('[data-lb-next]');
       if (btnNext && btnNext.offsetParent !== null) {
         btnNext.click();

@@ -32,23 +32,39 @@ const flags = JSON.parse(
 // never cutout. slot is 1-indexed to match the on-page gallery order; the flags
 // array is 0-indexed. Derived from a per-image border-ring darkness audit +
 // headless-render verification (see MEMORY / commit message).
-const MUST_BE_PHOTO = [
-  ['interstate-24glx-2027', [1, 2, 4]],
-  ['interstate-24gtx-2026', [1, 2]],
+//
+// 2026-09-27 UPDATE: the "dark backgrounds" this guarded against turned out to be
+// an RGBA-flattening bug — 200+ studio PNGs had their transparency composited to
+// BLACK instead of white at transcode time. All of them were re-composited from
+// clean official RGBA sources onto pure white and re-verified by eye (white sweep,
+// soft natural shadow only, no dark floor). The slots below are therefore now
+// VERIFIED_CUTOUT (must be true). If a future regen flips any of them back to
+// false, or introduces a genuinely dark-bg studio shot, this test must be
+// revisited against the actual pixels — see the 2026-06-20 note above.
+
+// Motorhome/trailer studio exteriors re-composited onto pure white 2026-09-27
+// (RGBA→black flattening bug fixed). Each slot below was eyeballed: clean white
+// sweep, no dark floor, no halo risk — they MUST stay cutout (true) so the
+// darken blend melts the white ground into the cream gradient.
+const VERIFIED_CUTOUT = [
+  ['interstate-24glx-2027', [1, 2, 3, 4]],
+  ['interstate-24gtx-2026', [1, 2, 3]],
   ['interstate-19gtx-2027', [1, 2, 3]],
   ['rangeline-21pl-2027', [1, 2, 3]],
   ['rangeline-21ps-2027', [1, 2, 3]],
+  ['international-25fb-2025', [8]],
+  ['international-25fb-2026', [8]],
 ];
 
-for (const [slug, slots] of MUST_BE_PHOTO) {
-  test(`gallery blend: ${slug} dark-bg exteriors render as photo, not cutout`, () => {
+for (const [slug, slots] of VERIFIED_CUTOUT) {
+  test(`gallery blend: ${slug} white-sweep studio shots keep cutout treatment`, () => {
     const arr = flags[slug];
     assert.ok(Array.isArray(arr), `missing cutout flags for ${slug}`);
     for (const slot of slots) {
       assert.equal(
         arr[slot - 1],
-        false,
-        `${slug} slot ${slot} must be is-photo (false) to avoid a darken-blend halo on its dark studio background`,
+        true,
+        `${slug} slot ${slot} must be is-cutout (true) — verified pure-white studio sweep 2026-09-27`,
       );
     }
   });

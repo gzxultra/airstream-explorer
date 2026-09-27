@@ -17,16 +17,17 @@ test('detail hero image is wrapped in a lightbox-triggering button', () => {
   assert.match(html, /class="hero-zoom"/, 'zoom affordance icon present');
 });
 
-test('hero lightbox index is 0 and first gallery image is 1', () => {
+test('hero lightbox index is 0 and first gallery image is group-local 0', () => {
   const html = renderDetail(classic);
-  // Hero is index 0
-  const heroMatch = html.match(/detail-hero-btn[^>]*data-index="(\d+)"/);
-  assert.ok(heroMatch, 'hero has data-index');
+  // Hero is index 0 of the "hero" group
+  const heroMatch = html.match(/detail-hero-btn[^>]*data-lb-group="hero"[^>]*data-index="(\d+)"/);
+  assert.ok(heroMatch, 'hero has data-lb-group="hero" + data-index');
   assert.equal(heroMatch[1], '0');
-  // First gallery image should be index 1 (hero offset)
-  const galleryMatch = html.match(/gallery-img-wrap[^>]*data-index="(\d+)"/);
-  assert.ok(galleryMatch, 'gallery has data-index');
-  assert.equal(galleryMatch[1], '1');
+  // First gallery image is index 0 of the "gallery" group (group-local, not
+  // page-wide — the hero no longer shifts gallery indices).
+  const galleryMatch = html.match(/gallery-img-wrap[^>]*data-lb-group="gallery"[^>]*data-index="(\d+)"/);
+  assert.ok(galleryMatch, 'gallery has data-lb-group="gallery" + data-index');
+  assert.equal(galleryMatch[1], '0');
 });
 
 // ---- Explore price filter ----
