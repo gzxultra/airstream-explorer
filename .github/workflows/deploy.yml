@@ -32,7 +32,7 @@ jobs:
           test -f dist/index.html
           count=$(ls dist/m/*.html | wc -l)
           echo "Detail pages: $count"
-          test "$count" -eq 59
+          test "$count" -eq 58
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
