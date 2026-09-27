@@ -108,9 +108,13 @@ describe('homepage hero counter animation', () => {
     assert.ok(matches.length >= 1, 'no data-hero-num found');
   });
 
-  it('app.js contains heroCountUp IIFE', () => {
+  it('app.js contains exactly one hero counter animation (heroCounters)', () => {
     const appJs = readFileSync(join(root, 'src/assets/js/app.js'), 'utf8');
-    assert.ok(appJs.includes('heroCountUp'), 'missing heroCountUp in app.js');
+    assert.ok(appJs.includes('heroCounters'), 'missing heroCounters in app.js');
+    // Regression guard (2026-09-27 QA): two competing count-up IIFEs used to
+    // race on the same [data-hero-num] nodes, leaving the hero total at a
+    // mid-animation value (56/68 instead of 69).
+    assert.ok(!appJs.includes('heroCountUp'), 'duplicate heroCountUp animation must stay removed');
   });
 });
 

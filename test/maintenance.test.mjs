@@ -274,3 +274,15 @@ test('cost data attributes round-trip as numbers for the rollup (no NaN leaks in
   assert.ok(nums.length > 0, 'expected cost data attributes');
   for (const n of nums) assert.ok(/^-?\d+(\.\d+)?$/.test(n), `cost attr not numeric: "${n}"`);
 });
+
+test('data captions with markdown emphasis render as HTML, not literal asterisks (2026-09-27 QA)', () => {
+  const html = renderMaintenanceBody(data, '');
+  // The timeline caption must not show raw **.
+  assert.ok(!/mt-timeline-cap">[^<]*\*\*/.test(html), 'timeline caption leaks literal **');
+  assert.ok(/<strong>before every trip/.test(html), 'timeline bold parsed to <strong>');
+  // Diagram captions with ** must also parse.
+  const cap = html.match(/<figcaption class="mt-fig-cap">(.*?)<\/figcaption>/s);
+  assert.ok(cap, 'expected a diagram caption');
+  assert.ok(!/\*\*/.test(cap[1]), 'diagram caption leaks literal **');
+  assert.ok(/<strong>/.test(cap[1]), 'diagram caption bold parsed to <strong>');
+});

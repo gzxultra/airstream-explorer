@@ -160,4 +160,10 @@ describe('dark mode theme support for new features', () => {
   it('progress ring dark mode override', () => {
     assert.ok(theme.includes('.ring-bg'), 'should have dark mode ring-bg');
   });
+
+  it('compare sticky bar dark mode overrides (2026-09-27 QA: white text on cream bar was unreadable)', () => {
+    assert.ok(theme.includes('[data-theme="dark"] .cmp-bar'), 'should pin cmp-bar to a dark surface in dark mode');
+    assert.ok(theme.includes('[data-theme="dark"] .cmp-bar-go'), 'should restyle cmp-bar-go in dark mode');
+    assert.ok(theme.includes('[data-theme="dark"] .cmp-bar-clear'), 'should restyle cmp-bar-clear in dark mode');
+  });
 });

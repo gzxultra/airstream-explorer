@@ -759,3 +759,25 @@ button.gallery-img-wrap:focus-visible { outline: 3px solid var(--ink); outline-o
 [data-theme="dark"] .offgrid-dash-intro,
 [data-theme="dark"] .journey-intro { color: var(--muted); }
 [data-theme="dark"] .compare-grid th { background: var(--bg); }
+
+/* Compare sticky bar — dark mode (2026-09-27 QA: light mode is an ink bar with
+   white text, but --ink flips to cream #F3ECE1 in dark mode, leaving white
+   text on a cream bar unreadable). Pin the bar to an explicit dark surface
+   with the primary text color instead of inheriting --ink. */
+[data-theme="dark"] .cmp-bar {
+  background: #211C16; /* --surface: dark, keeps white/cream text readable */
+  color: #F3ECE1;
+  border: 1px solid #3A3228;
+  box-shadow: 0 12px 30px rgba(0,0,0,.55);
+}
+[data-theme="dark"] .cmp-bar-clear {
+  color: rgba(243,236,225,.78);
+  border-color: rgba(243,236,225,.32);
+}
+[data-theme="dark"] .cmp-bar-clear:hover { color: #F3ECE1; }
+[data-theme="dark"] .cmp-bar-go {
+  background: #D98B5E; /* --copper on dark */
+  color: #15120E;
+}
+[data-theme="dark"] .cmp-bar-go:hover { background: #D98B5E; text-decoration: none; }
+[data-theme="dark"] .cmp-bar-delta { color: rgba(243,236,225,.65); }

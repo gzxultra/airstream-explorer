@@ -649,8 +649,8 @@ export function renderWhatsNew2026(trailers) {
 
   const carryover = paired.length - changed.length;
   const sub = carryover > 0
-    ? `${t2026.length} floorplans in the 2026 lineup - ${carryover} carry over unchanged from 2025.`
-    : `${t2026.length} floorplans in the 2026 lineup.`;
+    ? `${t2026.length} trailer floorplans in the 2026 lineup - ${carryover} carry over unchanged from 2025.`
+    : `${t2026.length} trailer floorplans in the 2026 lineup.`;
 
   return `<section class="wn26-section" id="whats-new" aria-label="What's new in the 2026 lineup">
 <div class="wn26-head">

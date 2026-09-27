@@ -17,6 +17,16 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { esc } from './render.mjs';
 
+/** Minimal inline markdown for data-file captions: `**bold**` and `*italic*`.
+ *  Data captions are authored with markdown emphasis but rendered through esc();
+ *  without this the asterisks show up literally (2026-09-27 QA). Escape first,
+ *  then restore the two emphasis forms — never emit raw data HTML. */
+export function mdInline(s) {
+  return esc(s)
+    .replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[\s(>])\*([^*\s][^*]*?)\*/g, '$1<em>$2</em>');
+}
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // The cadence scale. Order = most frequent first. `short` is the badge label;
@@ -287,7 +297,7 @@ ${note}
 function diagramBlock(it) {
   const d = it.diagram;
   if (!d || !d.svg) return '';
-  const cap = d.caption ? `<figcaption class="mt-fig-cap">${esc(d.caption)}</figcaption>` : '';
+  const cap = d.caption ? `<figcaption class="mt-fig-cap">${mdInline(d.caption)}</figcaption>` : '';
   return `<details class="mt-diagram">
 <summary><span class="mt-diagram-ico" aria-hidden="true">\u25C8</span> <span>Show diagram</span></summary>
 <figure class="mt-fig">
@@ -452,7 +462,7 @@ function budgetBar() {
 function timelineRibbon(data) {
   const t = data.cadenceTimeline;
   if (!t || !t.svg) return '';
-  const cap = t.caption ? `<figcaption class="mt-timeline-cap">${esc(t.caption)}</figcaption>` : '';
+  const cap = t.caption ? `<figcaption class="mt-timeline-cap">${mdInline(t.caption)}</figcaption>` : '';
   return `<figure class="mt-timeline" role="img" aria-label="Maintenance cadence timeline from before-every-trip through seasonal">
 <div class="mt-timeline-art">${t.svg}</div>
 ${cap}
